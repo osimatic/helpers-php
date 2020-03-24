@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers;
+namespace Osimatic\Helpers\Bank;
 
 class Currency
 {
@@ -11,7 +11,7 @@ class Currency
 	public static function getCurrencyOfCountry(string $countryCode): string
 	{
 		return (new \NumberFormatter(
-			Country::getLocaleByCountryCode($countryCode),
+			\Osimatic\Helpers\Location\Country::getLocaleByCountryCode($countryCode),
 			\NumberFormatter::CURRENCY
 		))->getTextAttribute(\NumberFormatter::CURRENCY_CODE);
 	}

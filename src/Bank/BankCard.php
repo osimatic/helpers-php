@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers;
+namespace Osimatic\Helpers\Bank;
 
 class BankCard
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers;
+namespace Osimatic\Helpers\Calendar;
 
 /**
  * Cette classes contient des fonctions relatives au fichier ICS

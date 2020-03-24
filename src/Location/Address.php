@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Address;
+namespace Osimatic\Helpers\Location;
 
 class Address
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Name;
+namespace Osimatic\Helpers\ContactDetails;
 
 class NameFormatter
 {

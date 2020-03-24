@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers;
+namespace Osimatic\Helpers\FileSystem;
 
 class FileSystem
 {
@@ -32,7 +32,7 @@ class FileSystem
 	 * @param string $filePath Le chemin complet vers le répertoire à créer (à partir de la racine disque).
 	 * @return boolean true si les répertoires appartenant au chemin ont bien été crées, fals si une erreur survient.
 	 */
-	public static function createDirectoriesOfFilePath(string $filePath): bool
+	public static function createDirectories(string $filePath): bool
 	{
 		$dirPath = self::formatPath(dirname($filePath).DIRECTORY_SEPARATOR);
 
