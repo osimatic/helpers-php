@@ -157,4 +157,32 @@ class PhoneNumber
 		return null;
 	}
 
+	public static function formatFromIvr(?string $phoneNumber): ?string
+	{
+		if (substr($phoneNumber, 0, 1) != '0') {
+			if (strlen($phoneNumber) > 9) {
+				return '00'.$phoneNumber;
+			}
+			if (strlen($phoneNumber) == 9) {
+				return '0' . $phoneNumber;
+			}
+		}
+		return $phoneNumber;
+	}
+
+	public static function formatForIvr(?string $phoneNumber, bool $withTrunkCode=true): ?string
+	{
+		// code provisoire car le svi ne sait pas appeler des numéros commencant par 0033
+		if (substr($phoneNumber, 0, 1) == '+') {
+			$phoneNumber = '00'.substr($phoneNumber, 1);
+		}
+		if (substr($phoneNumber, 0, 4) == '0033') {
+			$phoneNumber = substr($phoneNumber, 4);
+			if ($withTrunkCode && strlen($phoneNumber) > 5) {
+				$phoneNumber = '0'.$phoneNumber;
+			}
+		}
+		return $phoneNumber;
+	}
+
 }
