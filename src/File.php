@@ -4,6 +4,33 @@ namespace Osimatic\Helpers;
 
 class File
 {
+	/**
+	 * @param string $realPath
+	 * @param string $clientOriginalName
+	 * @param array $extensionsAllowed
+	 * @param array|null $mimeTypesAllowed
+	 * @return bool
+	 */
+	public static function check(string $realPath, string $clientOriginalName, array $extensionsAllowed, ?array $mimeTypesAllowed=null): bool
+	{
+		if (empty($realPath) || !file_exists($realPath)) {
+			return false;
+		}
+
+		$extension = strtolower('.'.pathinfo($clientOriginalName, PATHINFO_EXTENSION));
+		if (empty($extension) || !in_array($extension, $extensionsAllowed)) {
+			return false;
+		}
+
+		if (!empty($mimeTypesAllowed)) {
+			$fileType = mime_content_type($realPath);
+			if (!in_array($fileType, $mimeTypesAllowed)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Crée une archive zip contenant la liste des fichiers passée en paramètre.
