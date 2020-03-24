@@ -1,0 +1,22 @@
+{
+	"name": "osimatic/helpers-php",
+	"description": "PHP helpers",
+	"type": "package",
+	"require": {
+		"php": ">=5.3.0"
+	},
+	"license": "mit",
+	"authors": [
+		{
+			"name": "Osimatic",
+			"email": "contact@osimatic.com",
+			"homepage": "https://dev.osimatic.com"
+		}
+	],
+	"minimum-stability": "dev",
+	"autoload": {
+		"psr-4": {
+			"Osimatic\\Helpers\\": "src/"
+		}
+	}
+}
