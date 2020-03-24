@@ -20,6 +20,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class AddressFormatter
 {
+	private $separator;
 	private $components = [];
 	private $componentAliases = [];
 	private $templates = [];
@@ -29,8 +30,9 @@ class AddressFormatter
 		'state',
 	];
 
-	public function __construct()
+	public function __construct($separator="\n")
 	{
+		$this->separator = $separator;
 		try {
 			$this->loadTemplates();
 		} catch (\Exception $e) {
@@ -93,7 +95,10 @@ class AddressFormatter
 			$addressArray['continent'] = $address->getContinent();
 		}
 
-		return $this->formatArray($addressArray, $options);
+		$formattedAddress = $this->formatArray($addressArray, $options);
+
+		//$formattedAddress = str_replace("\r\n", "\n", $formattedAddress);
+		return implode($this->separator, array_filter(explode("\n", $formattedAddress)));
 	}
 
 	public function formatArray($addressArray, $options = [])
@@ -532,4 +537,12 @@ class AddressFormatter
 	{
 		return $this->stateCodes;
 	}
+
+	/*
+	public static function format(Address $address)
+	{
+		$f = new AddressFormatter();
+		return $f->format($address);
+	}
+	*/
 }

@@ -213,9 +213,4 @@ class Address
 		return $this->continent;
 	}
 
-	public function format()
-	{
-		$f = new AddressFormatter();
-		return $f->format($this);
-	}
 }
