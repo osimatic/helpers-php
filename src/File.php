@@ -6,6 +6,27 @@ class File
 {
 
 	/**
+	 * Crée une archive zip contenant la liste des fichiers passée en paramètre.
+	 * @param $filePath
+	 * @param $files
+	 */
+	public static function archive($filePath, $files)
+	{
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+
+		$zip = new \ZipArchive();
+		$zip->open($filePath, \ZipArchive::CREATE);
+		foreach ($files as $f) {
+			if (file_exists($f)) {
+				$zip->addFile($f, basename($f));
+			}
+		}
+		$zip->close();
+	}
+
+	/**
 	 * Retourne la taille plus l'unité arrondie
 	 * @param float $bytes taille en octets
 	 * @param int $numberOfDecimalPlaces le nombre de chiffre après la virgule pour l'affichage du nombre correspondant à la taille
