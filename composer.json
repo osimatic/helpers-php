@@ -5,7 +5,9 @@
 	"require": {
 		"php": ">=7.2.0",
 		"ext-intl": "*",
-	 	"giggsey/libphonenumber-for-php": "^8.11"
+		"ext-mbstring": "*",
+	 	"giggsey/libphonenumber-for-php": "^8.11",
+		"symfony/translation": "^4.4"
 	},
 	"license": "mit",
 	"authors": [
