@@ -179,4 +179,17 @@ class Country
 		return null;
 	}
 
+	/**
+	 * @param $countryCode
+	 * @return string|null
+	 */
+	public static function getLanguageByCountryCode($countryCode): ?string
+	{
+		$locale = self::getLocaleByCountryCode($countryCode);
+		if (!empty($locale)) {
+			return ucfirst(\Locale::getDisplayLanguage($locale, \Locale::getDefault()));
+		}
+		return null;
+	}
+
 }
