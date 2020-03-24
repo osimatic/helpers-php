@@ -2,26 +2,21 @@
 
 namespace Osimatic\Helpers\Name;
 
-use Symfony\Contracts\Translation\TranslatorInterface;
-
 class NameFormatter
 {
-	private $translator;
-
-	public function __construct(TranslatorInterface $translator)
+	public function __construct()
 	{
-		$this->translator = $translator;
+
 	}
 
 	/**
 	 * @param int|null $title
-	 * @param string|null $locale
 	 * @return string
 	 */
-	public function displayTitle(?int $title, ?string $locale=null): string
+	public function formatTitle(?int $title): string
 	{
-		if ($title == 1) return $this->translator->trans('title_male', [], null, $locale);
-		if ($title == 2) return $this->translator->trans('title_female', [], null, $locale);
+		//if ($title == 1) return $this->translator->trans('title_male', [], null, $locale);
+		//if ($title == 2) return $this->translator->trans('title_female', [], null, $locale);
 		return '';
 	}
 
@@ -30,7 +25,7 @@ class NameFormatter
 	 * @param bool $ucName
 	 * @return string
 	 */
-	public function displayFirstName(?string $firstName, bool $ucName=true): string
+	public function formatFirstName(?string $firstName, bool $ucName=true): string
 	{
 		if ($firstName != null) {
 			$firstName = trim($firstName);
@@ -47,7 +42,7 @@ class NameFormatter
 	 * @param bool $upperCase
 	 * @return string
 	 */
-	public function displayLastName(?string $lastName, bool $upperCase=true): string
+	public function formatLastName(?string $lastName, bool $upperCase=true): string
 	{
 		if ($lastName != null) {
 			$lastName = trim($lastName);
@@ -62,33 +57,15 @@ class NameFormatter
 	/**
 	 * @param Name $name
 	 * @param bool $editCase
-	 * @param string|null $locale
 	 * @return string
 	 */
-	public function display(Name $name, bool $editCase=true, ?string $locale=null)
+	public function format(Name $name, bool $editCase=true)
 	{
-		$nameDisplay = $this->displayTitle($name->getTitle(), $locale);
-		$nameDisplay = trim($nameDisplay.' '.$this->displayFirstName($name->getFirstName(), $editCase));
-		$nameDisplay = trim($nameDisplay.' '.$this->displayLastName($name->getLastName(), $editCase));
+		//$nameDisplay = $this->formatTitle($name->getTitle(), $locale);
+		$nameDisplay = '';
+		$nameDisplay = trim($nameDisplay.' '.$this->formatFirstName($name->getFirstName(), $editCase));
+		$nameDisplay = trim($nameDisplay.' '.$this->formatLastName($name->getLastName(), $editCase));
 		return $nameDisplay;
-	}
-
-	/**
-	 * @param int|null $title
-	 * @param string|null $firstName
-	 * @param string|null $lastName
-	 * @param bool $editCase
-	 * @param string|null $locale
-	 * @return string
-	 */
-	public function displayFromData(?int $title, ?string $firstName, ?string $lastName, bool $editCase=true, ?string $locale=null): string
-	{
-		$name = (new Name())
-			->setTitle($title)
-			->setFirstName($firstName)
-			->setLastName($lastName)
-		;
-		return $this->display($name, $editCase, $locale);
 	}
 
 	private static function ucname($string)
