@@ -11,7 +11,6 @@ class VCard
 	 * Properties
 	 * @var array
 	 */
-
 	private $properties;
 
 	/**
@@ -437,11 +436,11 @@ class VCard
 			finfo_close($finfo);
 
 			if (preg_match('/^image\//', $mimetype) === 1) {
-				$type = strtoupper(str_replace('image/', '', $mimetype));
+				$type = mb_strtoupper(str_replace('image/', '', $mimetype));
 			}
 			// todo : check sound
 			elseif (preg_match('/^image\//', $mimetype) === 1) {
-				$type = strtoupper(str_replace('image/', '', $mimetype));
+				$type = mb_strtoupper(str_replace('image/', '', $mimetype));
 			}
 			else {
 				//trace('Returned data is with an unknown format.');
@@ -473,7 +472,7 @@ class VCard
 					return false;
 				}
 
-				$property .= ';VALUE=URL;TYPE=' . strtoupper($fileType);
+				$property .= ';VALUE=URL;TYPE=' . mb_strtoupper($fileType);
 				$value = $url;
 			}
 			else {
@@ -481,14 +480,12 @@ class VCard
 			}
 		}
 		$this->setProperty(
-			strtolower($property),
+			mb_strtolower($property),
 			$property,
 			$value
 		);
 		return true;
 	}
-
-
 
 	/**
 	 * Build VCard (.vcf)
@@ -606,7 +603,7 @@ class VCard
 			return;
 		}
 		// urlize this part
-		$value = \My\Text\StringHelper::strToUrl($value);
+		// $value = strToUrl($value); // todo
 		// overwrite filename or add to filename using a prefix in between
 		$this->filename = ($overwrite) ?
 			$value : $this->filename . $separator . $value;
@@ -653,41 +650,41 @@ class VCard
 		$cardData = null;
 		foreach ($lines as $line) {
 			$line = trim($line);
-			if (strtoupper($line) == "BEGIN:VCARD") {
+			if (mb_strtoupper($line) === 'BEGIN:VCARD') {
 				$cardData = new \stdClass();
-			} elseif (strtoupper($line) == "END:VCARD") {
+			} elseif (mb_strtoupper($line) === 'END:VCARD') {
 				$vcardObjects[] = $cardData;
 			} elseif (!empty($line)) {
 				$type = '';
 				$value = '';
 				@list($type, $value) = explode(':', $line, 2);
 				$types = explode(';', $type);
-				$element = strtoupper($types[0]);
+				$element = mb_strtoupper($types[0]);
 				array_shift($types);
 				$i = 0;
 				$rawValue = false;
 				foreach ($types as $type) {
-					if (preg_match('/base64/', strtolower($type))) {
+					if (false !== stripos(mb_strtolower($type), 'base64')) {
 						$value = base64_decode($value);
 						unset($types[$i]);
 						$rawValue = true;
-					} elseif (preg_match('/encoding=b/', strtolower($type))) {
+					} elseif (preg_match('/encoding=b/i', $type)) {
 						$value = base64_decode($value);
 						unset($types[$i]);
 						$rawValue = true;
-					} elseif (preg_match('/quoted-printable/', strtolower($type))) {
+					} elseif (false !== stripos($type, 'quoted-printable')) {
 						$value = quoted_printable_decode($value);
 						unset($types[$i]);
 						$rawValue = true;
-					} elseif (strpos(strtolower($type), 'charset=') === 0) {
+					} elseif (stripos($type, 'charset=') === 0) {
 						try {
-							$value = mb_convert_encoding($value, "UTF-8", substr($type, 8));
+							$value = mb_convert_encoding($value, 'UTF-8', substr($type, 8));
 						} catch (\Exception $e) { }
 						unset($types[$i]);
 					}
 					$i++;
 				}
-				switch (strtoupper($element)) {
+				switch (mb_strtoupper($element)) {
 					case 'FN':
 						$cardData->fullname = $value;
 						break;
