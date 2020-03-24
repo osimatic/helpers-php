@@ -21,6 +21,34 @@ class Address
 	private $countryCode = '';
 	private $continent = '';
 
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkStreet(?string $value): bool
+	{
+		return preg_match('/(([0-9]+ )?[a-zA-Z ]){1,200}$/', $value);
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkZipCode(?string $value): bool
+	{
+		return preg_match('/^[\s0-9a-zA-Z]{3,15}$/', $value);
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkCity(?string $value): bool
+	{
+		// /^([a-zA-Z'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){2-100}$/
+		return preg_match('/^[a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]+$/u', $value);
+	}
+
 	public function setAttention($val)
 	{
 		$this->attention = $val;

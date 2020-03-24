@@ -19,6 +19,35 @@ class Name
 	 */
 	private $lastName = '';
 
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkCivility(?string $value): bool
+	{
+		return preg_match('/[0-2]/', $value);
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkFirstName(?string $value): bool
+	{
+		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})+$/u', $value);
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkLastName(?string $value): bool
+	{
+		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){3,100}+$/u', $value);
+	}
+
+
 	/**
 	 * @return int|null
 	 */
