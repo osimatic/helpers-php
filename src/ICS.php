@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Services;
+namespace Osimatic\Helpers;
 
 /**
  * Cette classes contient des fonctions relatives au fichier ICS
