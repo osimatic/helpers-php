@@ -852,6 +852,18 @@ class Text
 		return $string;
 	}
 
+	/**
+	 * @param string $str The input string
+	 * @return string The URL-friendly string (lower-cased, accent-stripped, spaces to dashes).
+	 */
+	public static function toURLFriendly(string $str): string
+	{
+		$str = self::removeAccents($str);
+		$str = preg_replace(array('/[^a-zA-Z0-9 \'-]/', '/[ -\']+/', '/^-|-$/'), array('', '-', ''), $str);
+		$str = preg_replace('/-inc$/i', '', $str);
+		return strtolower($str);
+	}
+
 	// ========== Random ==========
 
 	const VOYELLES 					= 'aeiouy';
