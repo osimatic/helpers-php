@@ -28,6 +28,12 @@ class Audio
 	const WMA_EXTENSION 		= '.wma';
 	const WMA_MIME_TYPES 		= ['audio/x-ms-wma',];
 
+	private $soxPath;
+
+	public function __construct()
+	{
+	}
+
 	/**
 	 * @param string $audioFilePath
 	 * @return array|null
@@ -122,13 +128,13 @@ class Audio
 		}
 		// todo : mime-type pour mp3 et ogg
 
-		header("Content-Disposition: attachment; filename=\"".($fileName ?? basename($audioFilePath)).'"');
-		header("Content-Type: application/force-download");
-		header("Content-Transfer-Encoding: ".$mimeType);
-		header("Content-Length: ".filesize($audioFilePath));
-		header("Pragma: no-cache");
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0, public");
-		header("Expires: 0");
+		header('Content-Disposition: attachment; filename="'.($fileName ?? basename($audioFilePath)).'"');
+		header('Content-Type: application/force-download');
+		header('Content-Transfer-Encoding: '.$mimeType);
+		header('Content-Length: '.filesize($audioFilePath));
+		header('Pragma: no-cache');
+		header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');
+		header('Expires: 0');
 		readfile($audioFilePath);
 	}
 
@@ -229,8 +235,8 @@ class Audio
 			header('HTTP/1.1 206 Partial Content');
 		}
 
-		header("Content-Range: bytes $start-$end/$size");
-		header("Content-Length: ".$length);
+		header('Content-Range: bytes '.($start-$end/$size));
+		header('Content-Length: '.$length);
 		$buffer = 1024 * 8;
 		while(!feof($fp) && ($p = ftell($fp)) <= $end) {
 			if ($p + $buffer > $end) {
@@ -245,12 +251,11 @@ class Audio
 	}
 
 	/**
-	 * "C:\Program Files (x86)\sox\sox.exe" "X:\MYCONF\CONF_INTRO_MSG\1000007596.WAV" -e a-law -c 1 -r 8000 "X:\MYCONF\CONF_INTRO_MSG\1000007596.WAV"
 	 * @param string $srcAudioFilePath
 	 * @param string|null $destAudioFilePath
 	 * @return bool|string
 	 */
-	public static function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath=null): bool
+	public function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath=null): bool
 	{
 		// Vérification que le fichier soit un fichier wav ou mp3
 		$wavFileInfos = self::getInfos($srcAudioFilePath);
@@ -268,8 +273,7 @@ class Audio
 		}
 
 		$params = ($wavFileInfos['audio']['dataformat'] == 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
-		$commandLine = 'PATH_EXEC_SOX '.$params;
-		//$commandLine = self::PATH_EXEC_SOX.' '.$params;
+		$commandLine = $this->soxPath.' '.$params;
 
 		// Envoi de la commande
 		//dump($commandLine);
@@ -278,6 +282,14 @@ class Audio
 		//var_dump($output, $lastLine);
 
 		return true;
+	}
+
+	/**
+	 * @param string $soxPath
+	 */
+	public function setSoxPath(string $soxPath): void
+	{
+		$this->soxPath = $soxPath;
 	}
 
 }
