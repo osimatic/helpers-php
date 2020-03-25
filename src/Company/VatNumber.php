@@ -4,6 +4,12 @@ namespace Osimatic\Helpers\Company;
 
 class VatNumber
 {
+	public static function format(string $vatNumber): string
+	{
+		// todo
+		return $vatNumber;
+	}
+
 	public static function check(string $vatNumber): bool
 	{
 		if (empty($vatNumber)) {
