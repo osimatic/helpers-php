@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers;
+namespace Osimatic\Helpers\Number;
 
 class Number
 {
@@ -15,6 +15,26 @@ class Number
 		$tmp = str_replace((is_null($thousandsSeparator)?'.':$thousandsSeparator), '', $number);
 		$nbLeadingZero = $nbDigitMin-(strlen((string) (int) $tmp));
 		return str_pad($number, $nbLeadingZero, '0', STR_PAD_LEFT);
+	}
+
+	/**
+	 * Format a string for display the binary string as hex bytes.
+	 * @param $hex
+	 * @return string
+	 * @author paladin
+	 */
+	public static function formatHex($hex): string
+	{
+		$ar = unpack('C*', $hex);
+		$str = "";
+		foreach ($ar as $v) {
+			$s = dechex($v);
+			if (strlen($s)<2) {
+				$s = "0$s";
+			}
+			$str .= $s.' ';
+		}
+		return $str;
 	}
 
 	// ========== Arrondissement d'un nombre ==========
@@ -130,6 +150,42 @@ class Number
 			$somme += $digit;
 		}
 		return ($somme % 10) === 0;
+	}
+
+	// ========== Random ==========
+
+	/**
+	 * Génère un entier
+	 * @param int $min
+	 * @param int $max
+	 * @return int l'entier généré
+	 */
+	public static function getRandomInt(int $min, int $max): int
+	{
+		try {
+			return random_int($min, $max);
+		} catch (\Exception $e) {
+		}
+		return 0;
+	}
+
+	/**
+	 * @param float $min
+	 * @param float $max
+	 * @param int $round
+	 * @return float
+	 */
+	public static function getRandomFloat(float $min, float $max, int $round=0): float
+	{
+		if ($min > $max) {
+			return false;
+		}
+
+		$randomFloat = $min + mt_rand() / mt_getrandmax() * ($max - $min);
+		if ($round > 0) {
+			$randomFloat = round($randomFloat, $round);
+		}
+		return $randomFloat;
 	}
 
 }
