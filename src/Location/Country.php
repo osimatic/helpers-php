@@ -4,7 +4,6 @@ namespace Osimatic\Helpers\Location;
 
 class Country
 {
-
 	/**
 	 * https://stackoverflow.com/questions/3191664/list-of-all-locales-and-their-short-codes
 	 * https://stackoverflow.com/questions/10175658/is-there-a-simple-way-to-get-the-language-code-from-a-country-code-in-php
@@ -190,6 +189,91 @@ class Country
 			return ucfirst(\Locale::getDisplayLanguage($locale, \Locale::getDefault()));
 		}
 		return null;
+	}
+
+	/**
+	 * @param string $countryIsoCode
+	 * @return string
+	 */
+	public static function getFlagCountryIsoCode(?string $countryIsoCode): ?string
+	{
+		// France
+		if (in_array($countryIsoCode, ['YT', 'GF', 'GP', 'MQ', 'RE', 'MF', 'CP', 'WF'])) {
+			return 'FR';
+		}
+
+		// Royaume-Uni
+		if (in_array($countryIsoCode, ['SH', 'TA'])) {
+			return 'GB';
+		}
+
+		// Espagne
+		if (in_array($countryIsoCode, ['IC'])) {
+			return 'ES';
+		}
+
+		// Australie
+		if (in_array($countryIsoCode, ['CC', 'CX', 'NF'])) {
+			//return 'AU';
+		}
+
+		// Etats-Unis
+		if (in_array($countryIsoCode, ['MP'])) {
+			//return 'US';
+		}
+
+		// Nouvelle-Zélande
+		if (in_array($countryIsoCode, ['TK'])) {
+			//return 'NZ';
+		}
+
+		return $countryIsoCode;
+	}
+
+	public static function isCountryInFranceOverseas(?string $countryIsoCode, $zipCode=null): bool
+	{
+		$FRANCE_OVERSEAS_COUNTRY_CODES = [
+			'RE', // Réunion
+			'GP', // Guadeloupe
+			'MQ', // Martinique
+			'YT', // Mayotte
+			'GF', // Guyane
+		];
+		return in_array($countryIsoCode, $FRANCE_OVERSEAS_COUNTRY_CODES) || (!empty($zipCode) && substr($zipCode, 0, 2) == '97');
+	}
+
+	public static function isCountryInEuropeanUnion(?string $countryIsoCode): bool
+	{
+		return in_array($countryIsoCode, [
+			'DE', // Allemagne
+			'AT', // Autriche
+			'BE', // Belgique
+			'BG', // Bulgarie
+			'CY', // Chypre
+			'HR', // Croatie
+			'DK', // Danemark
+			'ES', // Espagne
+			'EE', // Estonie
+			'FI', // Finlande
+			'FR', // France
+			'GR', // Grèce
+			'HU', // Hongrie
+			'IE', // Irlande
+			'IT', // Italie
+			'LV', // Lettonie
+			'LT', // Lituanie
+			'LU', // Luxembourg
+			'MT', // Malte
+			'NL', // Pays-Bas
+			'PL', // Pologne
+			'PT', // Portugal
+			'RO', // Roumanie
+			'GB', // Royaume-Uni
+			'SK', // Slovaquie
+			'SI', // Slovénie
+			'SE', // Suède
+			'CZ', // République tchèque
+		]);
 	}
 
 }
