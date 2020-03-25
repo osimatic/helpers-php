@@ -980,7 +980,7 @@ class Text
 		for ($i=0; $i<$nbChar; $i++) {
 			$caractereNumerique = $listeChiffres{mt_rand(0, $nbChiffres-1)};
 
-			if ($startWith0 && $i == 0 && $caractereNumerique == '0') {
+			if (false === $startWith0 && 0 === $i && '0' === $caractereNumerique) {
 				$i--;
 			}
 			else {
