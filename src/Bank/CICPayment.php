@@ -139,7 +139,7 @@ class CICPayment
 	{
 		$this->key = $key;
 	}
-	
+
 	public function setAllTaxesInclAmount($allTaxesInclAmount) {
 		$this->allTaxesInclAmount = $allTaxesInclAmount;
 	}
@@ -272,7 +272,7 @@ class CICPayment
 				.'	<input type="hidden" name="url_retour"     value="'.$this->returnUrlHome.'" />'
 				.'	<input type="hidden" name="url_retour_ok"  value="'.$this->returnUrlOk.'" />'
 				.'	<input type="hidden" name="url_retour_err" value="'.$this->returnUrlNotOk.'" />'
-				.'	<input type="hidden" name="texte-libre"    value="'.self::HtmlEncode( $this->texteLibre ).'" />'
+				.'	<input type="hidden" name="texte-libre"    value="'.self::HtmlEncode($this->texteLibre).'" />'
 				.'	<input type="hidden" name="mail"           value="'.$this->customerEmail.'" />'
 				.'	<!-- Uniquement pour le Paiement fractionné -->'
 				.'	<input type="hidden" name="nbrech"         value="" />'
@@ -401,15 +401,15 @@ class CICPayment
 			$bruteVars['vld'],
 			$bruteVars['brand'],
 			$bruteVars['status3ds'],
-			(isset($bruteVars['numauto'])?$bruteVars['numauto']:''),
-			(isset($bruteVars['motifrefus'])?$bruteVars['motifrefus']:''),
-			(isset($bruteVars['originecb'])?$bruteVars['originecb']:''),
-			(isset($bruteVars['bincb'])?$bruteVars['bincb']:''),
-			(isset($bruteVars['hpancb'])?$bruteVars['hpancb']:''),
-			(isset($bruteVars['ipclient'])?$bruteVars['ipclient']:''),
-			(isset($bruteVars['originetr'])?$bruteVars['originetr']:''),
-			(isset($bruteVars['veres'])?$bruteVars['veres']:''),
-			(isset($bruteVars['pares'])?$bruteVars['pares']:'')
+			($bruteVars['numauto'] ?? ''),
+			($bruteVars['motifrefus'] ?? ''),
+			($bruteVars['originecb'] ?? ''),
+			($bruteVars['bincb'] ?? ''),
+			($bruteVars['hpancb'] ?? ''),
+			($bruteVars['ipclient'] ?? ''),
+			($bruteVars['originetr'] ?? ''),
+			($bruteVars['veres'] ?? ''),
+			($bruteVars['pares'] ?? '')
 		);
 		$mac = self::computeHmac($fields, $this->key);
 		//trace('$fields = '.$fields);
@@ -430,7 +430,7 @@ class CICPayment
 		$currency = substr($bruteVars['montant'], -3);
 		$montantTtc   = substr($bruteVars['montant'], 0, -3);
 
-		$resultData = array(
+		$resultData = [
 			'reference' 					=> $bruteVars['reference'],
 			'currency' 						=> $currency,
 			'montant_ttc' 					=> $montantTtc,
@@ -439,7 +439,7 @@ class CICPayment
 			'accuse_reception_display' 		=> $reponseRenvoyee,
 			'texte_libre' 					=> $bruteVars['texte-libre'],
 			'numero_autorisation' 			=> (isset($bruteVars['numauto'])?$bruteVars['numauto']:''),
-		);
+		];
 		// trace('$resultData = '.\My\ArrayList\ArrayHelper::displayStringRecursive($resultData));
 
 		return $resultData;
