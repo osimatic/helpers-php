@@ -126,7 +126,7 @@ class PhoneNumber
 	 */
 	public static function isMobile(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == libphonenumber\PhoneNumberType::MOBILE;
+		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::MOBILE;
 	}
 
 	/**
@@ -136,7 +136,7 @@ class PhoneNumber
 	 */
 	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == libphonenumber\PhoneNumberType::PREMIUM_RATE;
+		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::PREMIUM_RATE;
 	}
 
 	/**
