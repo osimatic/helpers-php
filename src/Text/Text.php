@@ -462,7 +462,7 @@ class Text
 	 * @param string $replace
 	 * @return string
 	 */
-	public static function removeSpace(string $str, string $replace=''): string
+	public static function removeSpaces(string $str, string $replace=''): string
 	{
 		$str = str_replace('&nbsp;', $replace, $str);
 		$str = preg_replace('#\s+#', $replace, $str);
@@ -557,7 +557,7 @@ class Text
 	 */
 	public static function censorWord(string $str, string $censored, string $replacement='####'): string
 	{
-		if ( ! is_array($censored)) {
+		if (!is_array($censored)) {
 			return $str;
 		}
 
@@ -590,7 +590,7 @@ class Text
 			$charlim = 76;
 
 		// Reduce multiple spaces
-		$str = preg_replace("| +|", " ", $str);
+		$str = preg_replace('/ +/', ' ', $str);
 
 		// Standardize newlines
 		if (strpos($str, "\r") !== false)
@@ -607,7 +607,7 @@ class Text
 			for ($i = 0; $i < $nb; $i++)
 			{
 				$unwrap[] = $matches['1'][$i];
-				$str = str_replace($matches['1'][$i], "{{unwrapped".$i."}}", $str);
+				$str = str_replace($matches['1'][$i], '{{unwrapped'.$i.'}}', $str);
 			}
 		}
 
@@ -617,7 +617,7 @@ class Text
 		$str = wordwrap($str, $charlim, "\n", false);
 
 		// Split the string into individual lines of text and cycle through them
-		$output = "";
+		$output = '';
 		foreach (explode("\n", $str) as $line) {
 			// Is the line within the allowed character count? If so we'll join it to the output and continue
 			if (strlen($line) <= $charlim) {
@@ -651,7 +651,7 @@ class Text
 		// Put our markers back
 		if (count($unwrap) > 0) {
 			foreach ($unwrap as $key => $val) {
-				$output = str_replace("{{unwrapped".$key."}}", $val, $output);
+				$output = str_replace('{{unwrapped'.$key.'}}', $val, $output);
 			}
 		}
 
@@ -668,10 +668,13 @@ class Text
 	 */
 	public static function removeAccents(string $string): string
 	{
-		if ( !preg_match('/[\x80-\xff]/', $string) )
+		if (!preg_match('/[\x80-\xff]/', $string)) {
 			return $string;
+		}
 
-		$chars = array(
+		// $string = strtr($string, "ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ", "aaaaaaaaaaaaooooooooooooeeeeeeeecciiiiiiiiuuuuuuuuynn");
+
+		$chars = [
 			// Decompositions for Latin-1 Supplement
 			'ª' => 'a', 'º' => 'o',
 			'À' => 'A', 'Á' => 'A',
@@ -845,7 +848,7 @@ class Text
 			'Ǚ' => 'U', 'ǚ' => 'u',
 			// grave accent
 			'Ǜ' => 'U', 'ǜ' => 'u',
-		);
+		];
 
 		$string = strtr($string, $chars);
 
@@ -882,22 +885,11 @@ class Text
 	 */
 	public static function getRandomPronounceableWord(int $nbChar, ?array $listeConsonnes=null, ?array $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
 	{
-		$motPrononcable = '';
 		if ($premiereLettreConsonneAleatoire) {
-			if (rand(0, 1) == 0) {
-				$pair = true;
-			}
-			else {
-				$pair = false;
-			}
+			$pair = (rand(0, 1) == 0);
 		}
 		else {
-			if ($premiereLettreConsonne) {
-				$pair = true;
-			}
-			else {
-				$pair = false;
-			}
+			$pair = ($premiereLettreConsonne);
 		}
 
 		if ($listeConsonnes == null) {
@@ -909,6 +901,7 @@ class Text
 		$nbConsonnes = strlen($listeConsonnes);
 		$nbVoyelles = strlen($listeVoyelles);
 
+		$motPrononcable = '';
 		for ($i=0; $i<$nbChar; $i++) {
 			if ($pair == true) {
 				$motPrononcable .= $listeConsonnes{mt_rand(0, $nbConsonnes-1)};
@@ -953,11 +946,10 @@ class Text
 			return null;
 		}
 
-		$suiteCaractereAlphabetique = '';
-
 		$listeLettres = self::LETTRES;
 		$nbLettres = strlen($listeLettres);
 
+		$suiteCaractereAlphabetique = '';
 		for ($i=0; $i<$nbChar; $i++) {
 			$caractereAlphabetique = $listeLettres{mt_rand(0, $nbLettres-1)};
 
@@ -984,11 +976,10 @@ class Text
 	 */
 	public static function getRandomNumericString(int $nbChar, bool $startWith0=false): string
 	{
-		$suiteCaractereNumerique = '';
-
 		$listeChiffres = self::CHIFFRES;
 		$nbChiffres = strlen($listeChiffres);
 
+		$suiteCaractereNumerique = '';
 		for ($i=0; $i<$nbChar; $i++) {
 			$caractereNumerique = $listeChiffres{mt_rand(0, $nbChiffres-1)};
 
@@ -1049,7 +1040,7 @@ class Text
 				$suiteCaractereAlphanumerique .= $caractereAlphanumerique;
 			}
 		}
-			// Tant que la chaîne générée ne contient que des lettres ou que des chiffres, on recommence, car on doit retourner une chaîne comprenant à la fois des lettres et des chiffres
+		// Tant que la chaîne générée ne contient que des lettres ou que des chiffres, on recommence, car on doit retourner une chaîne comprenant à la fois des lettres et des chiffres
 		while ($nbTypeCaractere > 1 && (ctype_digit($suiteCaractereAlphanumerique) || strpbrk($suiteCaractereAlphanumerique, self::CHIFFRES) === false));
 
 		return $suiteCaractereAlphanumerique;
