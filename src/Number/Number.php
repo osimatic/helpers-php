@@ -139,7 +139,7 @@ class Number
 		$parity = $nbDigits%2;
 
 		for ($i=($nbDigits-1); $i>=0; $i--) {
-			$digit = $strNumber{$i};
+			$digit = $strNumber[$i];
 
 			if ($i%2 == $parity) {
 				$digit = $digit * 2;
