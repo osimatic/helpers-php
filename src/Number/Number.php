@@ -98,10 +98,11 @@ class Number
 	/**
 	 * Calcule le nombre de chiffres d'un entier.
 	 * @example cette fonction retourne l'entier 6 pour le nombre 112233
-	 * @param int|float $int l'entier pour lequel son nombre de chiffres est calculé
+	 * @param int $int l'entier pour lequel son nombre de chiffres est calculé
 	 * @return int le nombre de chiffres de l'entier
 	 */
-	public static function getNbDigitsOfInt($int) {
+	public static function getNbDigitsOfInt(int $int): int
+	{
 		return strlen((string) (int) $int);
 	}
 
@@ -110,11 +111,11 @@ class Number
 	/**
 	 * Récupère la valeur numérique décimale d'un nombre sous forme d'entier ou de flottant
 	 * @example cette fonction retourne l'entier 3344 pour le nombre 1122.3344 (ou le flottant 0.3344 si le paramètre $asFloat vaut true
-	 * @param int|float $float le nombre pour lequel la partie décimale est récupérée
+	 * @param float $float le nombre pour lequel la partie décimale est récupérée
 	 * @param boolean $asFloat true pour retourner la valeur numérique décimale du nombre sous forme d'entier, false pour la retourner sous forme de flottant
-	 * @return int|float la partie décimale du nombre, sous forme d'entier
+	 * @return int la partie décimale du nombre, sous forme d'entier
 	 */
-	public static function decimalPart($float, bool $asFloat=false)
+	public static function decimalPart(float $float, bool $asFloat=false): int
 	{
 		if (!self::isFloat($float)) {
 			return 0;
