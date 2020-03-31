@@ -45,8 +45,7 @@ class VatNumber
 
 			// Vérification de la clef TVA
 			$clefTvaTheorique = ( ( ($siren % 97) * 3 ) + 12 ) % 97;
-			$clefTva = substr($vatNumber, 0, 2);
-			if ($clefTva !== $clefTvaTheorique) {
+			if (substr($vatNumber, 0, 2) !== $clefTvaTheorique) {
 				return false;
 			}
 
@@ -55,7 +54,7 @@ class VatNumber
 
 		// Vérification de la validité
 		try {
-			$client = new \SoapClient("http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl", 2);
+			$client = new \SoapClient('http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl', 2);
 			$response = $client->checkVat(['countryCode' => $countryCode, 'vatNumber' => $vatNumber]);
 			if (!$response->valid) {
 				return false;
