@@ -34,10 +34,10 @@ class File
 
 	/**
 	 * Crée une archive zip contenant la liste des fichiers passée en paramètre.
-	 * @param $filePath
-	 * @param $files
+	 * @param string $filePath Le chemin de l'archive à créer
+	 * @param array $files Un tableau contenant la liste des fichiers à ajouter dans l'archive.
 	 */
-	public static function archive($filePath, $files)
+	public static function archive(string $filePath, array $files): void
 	{
 		if (file_exists($filePath)) {
 			unlink($filePath);
@@ -49,6 +49,25 @@ class File
 			if (file_exists($f)) {
 				$zip->addFile($f, basename($f));
 			}
+		}
+		$zip->close();
+	}
+
+	/**
+	 * Crée une archive zip contenant les fichiers avec leur contenu passée en paramètre.
+	 * @param string $filePath Le chemin de l'archive à créer
+	 * @param array $contentFiles Un tableau de contenu avec en clé le nom de fichier dans l'archive et en valeur le contenu du fichier correspondant.
+	 */
+	public static function archiveFilesFromString(string $filePath, array $contentFiles): void
+	{
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+
+		$zip = new \ZipArchive();
+		$zip->open($filePath, \ZipArchive::CREATE);
+		foreach ($contentFiles as $filenamr => $content) {
+			$zip->addFromString($filenamr, $content);
 		}
 		$zip->close();
 	}
