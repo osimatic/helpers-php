@@ -12,6 +12,9 @@ class PDF
 		'application/vnd.sealedmedia.softseal.pdf',
 	];
 
+	private $pdfToImgConverterPath;
+	private $pdfToolkitPath;
+
 	/**
 	 * @param string $filePath
 	 * @param string $clientOriginalName
@@ -21,5 +24,106 @@ class PDF
 	{
 		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
+
+	public function convertToImages($pdfPath, $imagePath)
+	{
+		if (!file_exists($pdfPath)) {
+			return false;
+		}
+
+		$optionQualiteDoc = '-quality 100 -density 150 ';
+
+		$args = $optionQualiteDoc . $pdfPath . ' ' . $imagePath;
+		$commandLine = $this->pdfToImgConverterPath . ' ' . $args;
+
+		// Envoi de la ligne de commande
+		$lastLine = system($commandLine);
+
+		return $lastLine;
+	}
+
+	/**
+	 * @param array $listPdfPath
+	 * @param string $newPdfPath
+	 * @param int $profondeur
+	 * @return bool
+	 */
+	public function mergeFiles(array $listPdfPath, string $newPdfPath, int $profondeur=0): bool
+	{
+		// $this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
+
+		// Création des dossiers où se trouvera le fichier PDF de destination
+		// \Osimatic\Helpers\FileSystem\FileSystem::createDirectories($newPdfPath);
+
+		// Vérification que tous les fichiers existent bien
+		if ($profondeur == 0) {
+			foreach ($listPdfPath as $pdfPath) {
+				if (!file_exists($pdfPath)) {
+					// $this->logger->error('Le fichier PDF "'.$pdfPath.'" à intégrer n\'existe pas.');
+					return false;
+				}
+			}
+		}
+
+		// Création de la ligne de commande
+		$listPdfStringFormat = '';
+		$nbFile = 0;
+		while (($pdfPath = array_shift($listPdfPath)) !== null) {
+			$listPdfStringFormat .= '"'.$pdfPath.'" ';
+			$nbFile++;
+
+			// todo : faire en fonction de la taille des noms de fichier (la ligne de commande est limité à un certain nombre de caractère)
+			if ($nbFile >= 20 && !empty($listPdfPath)) {
+				$filePathTemp = sys_get_temp_dir().'/'.uniqid(md5(mt_rand()), true).self::FILE_EXTENSION;
+				$this->mergeFiles($listPdfPath, $filePathTemp, $profondeur+1);
+
+				$listPdfStringFormat .= '"'.$filePathTemp.'" ';
+				break;
+			}
+		}
+
+		$params = ' %s cat output "'.$newPdfPath.'" dont_ask';
+		$params = sprintf($params, $listPdfStringFormat);
+		$commandLine = $this->pdfToolkitPath.' '.$params;
+
+		// Envoi de la commande
+		// $this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		$lastLine = system($commandLine);
+
+		return true;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getPdfToImgConverterPath(): ?string
+	{
+		return $this->pdfToImgConverterPath;
+	}
+
+	/**
+	 * @param string|null $pdfToImgConverterPath
+	 */
+	public function setPdfToImgConverterPath(?string $pdfToImgConverterPath): void
+	{
+		$this->pdfToImgConverterPath = $pdfToImgConverterPath;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getPdfToolkitPath(): ?string
+	{
+		return $this->pdfToolkitPath;
+	}
+
+	/**
+	 * @param string|null $pdfToolkitPath
+	 */
+	public function setPdfToolkitPath(?string $pdfToolkitPath): void
+	{
+		$this->pdfToolkitPath = $pdfToolkitPath;
+	}
+
 
 }
