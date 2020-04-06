@@ -15,7 +15,12 @@ class PDF
 		'application/vnd.sealedmedia.softseal.pdf',
 	];
 
+	private $header;
+	private $footer;
+	private $body;
+
 	private $logger;
+	private $wkHtmlToPdtBinaryPath;
 	private $pdfToImgConverterBinaryPath;
 	private $pdfToolkitBinaryPath;
 
@@ -33,6 +38,8 @@ class PDF
 		$this->logger = $logger;
 	}
 
+	// ========== Vérification de PDF ==========
+
 	/**
 	 * @param string $filePath
 	 * @param string $clientOriginalName
@@ -42,6 +49,72 @@ class PDF
 	{
 		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
+
+	// ========== Génération de PDF ==========
+
+	/**
+	 * @param string $html
+	 */
+	public function setHeader(string $html): void
+	{
+		$this->header = $html;
+	}
+
+	/**
+	 * @param string $html
+	 */
+	public function setFooter(string $html): void
+	{
+		$this->footer = $html;
+	}
+
+	/**
+	 * @param string $htmlHeader
+	 * @param string $htmlFooter
+	 */
+	public function setHeaderAndFooter(string $htmlHeader, string $htmlFooter): void
+	{
+		$this->header = $htmlHeader;
+		$this->footer = $htmlFooter;
+	}
+
+	/**
+	 * @param string $html
+	 */
+	public function setBody(string $html): void
+	{
+		$this->body = $html;
+	}
+
+	/**
+	 * @param string $filePath
+	 */
+	public function generateFile(string $filePath): void
+	{
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+
+		$snappy = new \Knp\Snappy\Pdf();
+		$snappy->setBinary($this->wkHtmlToPdtBinaryPath);
+		$snappy->setLogger($this->logger);
+		if (!empty($this->header)) {
+			$snappy->setOption('header-html', $this->header);
+		}
+		if (!empty($this->footer)) {
+			$snappy->setOption('footer-html', $this->footer);
+		}
+
+		try {
+			$snappy->generateFromHtml($this->body, $filePath);
+		}
+		catch (\Exception $e) {
+			$this->logger->error('Exception lors de la génération du fichier PDF : '.$e->getMessage());
+		}
+	}
+
+
+	// ========== Modification de PDF ==========
 
 	/**
 	 * @param string $pdfPath
@@ -114,6 +187,16 @@ class PDF
 		$lastLine = system($commandLine);
 
 		return true;
+	}
+
+
+
+	/**
+	 * @param string $wkHtmlToPdtBinaryPath
+	 */
+	public function setWkHtmlToPdtBinaryPath(string $wkHtmlToPdtBinaryPath): void
+	{
+		$this->wkHtmlToPdtBinaryPath = $wkHtmlToPdtBinaryPath;
 	}
 
 	/**
