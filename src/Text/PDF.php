@@ -2,6 +2,9 @@
 
 namespace Osimatic\Helpers\Text;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 class PDF
 {
 	const FILE_EXTENSION = '.pdf';
@@ -12,8 +15,23 @@ class PDF
 		'application/vnd.sealedmedia.softseal.pdf',
 	];
 
-	private $pdfToImgConverterPath;
-	private $pdfToolkitPath;
+	private $logger;
+	private $pdfToImgConverterBinaryPath;
+	private $pdfToolkitBinaryPath;
+
+	public function __construct()
+	{
+		$this->logger = new NullLogger();
+	}
+
+	/**
+	 * Set the logger to use to log debugging data.
+	 * @param LoggerInterface $logger
+	 */
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+	}
 
 	/**
 	 * @param string $filePath
@@ -25,7 +43,12 @@ class PDF
 		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
 
-	public function convertToImages($pdfPath, $imagePath)
+	/**
+	 * @param string $pdfPath
+	 * @param string $imagePath
+	 * @return bool
+	 */
+	public function convertToImages(string $pdfPath, string $imagePath): bool
 	{
 		if (!file_exists($pdfPath)) {
 			return false;
@@ -34,12 +57,12 @@ class PDF
 		$optionQualiteDoc = '-quality 100 -density 150 ';
 
 		$args = $optionQualiteDoc . $pdfPath . ' ' . $imagePath;
-		$commandLine = $this->pdfToImgConverterPath . ' ' . $args;
+		$commandLine = $this->pdfToImgConverterBinaryPath . ' ' . $args;
 
 		// Envoi de la ligne de commande
 		$lastLine = system($commandLine);
 
-		return $lastLine;
+		return true;
 	}
 
 	/**
@@ -50,7 +73,7 @@ class PDF
 	 */
 	public function mergeFiles(array $listPdfPath, string $newPdfPath, int $profondeur=0): bool
 	{
-		// $this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
+		$this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
 
 		// Création des dossiers où se trouvera le fichier PDF de destination
 		// \Osimatic\Helpers\FileSystem\FileSystem::createDirectories($newPdfPath);
@@ -59,7 +82,7 @@ class PDF
 		if ($profondeur == 0) {
 			foreach ($listPdfPath as $pdfPath) {
 				if (!file_exists($pdfPath)) {
-					// $this->logger->error('Le fichier PDF "'.$pdfPath.'" à intégrer n\'existe pas.');
+					$this->logger->error('Le fichier PDF "'.$pdfPath.'" à intégrer n\'existe pas.');
 					return false;
 				}
 			}
@@ -84,46 +107,29 @@ class PDF
 
 		$params = ' %s cat output "'.$newPdfPath.'" dont_ask';
 		$params = sprintf($params, $listPdfStringFormat);
-		$commandLine = $this->pdfToolkitPath.' '.$params;
+		$commandLine = $this->pdfToolkitBinaryPath.' '.$params;
 
 		// Envoi de la commande
-		// $this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
 		$lastLine = system($commandLine);
 
 		return true;
 	}
 
 	/**
-	 * @return string|null
+	 * @param string $pdfToImgConverterBinaryPath
 	 */
-	public function getPdfToImgConverterPath(): ?string
+	public function setPdfToImgConverterBinaryPath(string $pdfToImgConverterBinaryPath): void
 	{
-		return $this->pdfToImgConverterPath;
+		$this->pdfToImgConverterBinaryPath = $pdfToImgConverterBinaryPath;
 	}
 
 	/**
-	 * @param string|null $pdfToImgConverterPath
+	 * @param string $pdfToolkitBinaryPath
 	 */
-	public function setPdfToImgConverterPath(?string $pdfToImgConverterPath): void
+	public function setPdfToolkitBinaryPath(string $pdfToolkitBinaryPath): void
 	{
-		$this->pdfToImgConverterPath = $pdfToImgConverterPath;
+		$this->pdfToolkitBinaryPath = $pdfToolkitBinaryPath;
 	}
-
-	/**
-	 * @return string|null
-	 */
-	public function getPdfToolkitPath(): ?string
-	{
-		return $this->pdfToolkitPath;
-	}
-
-	/**
-	 * @param string|null $pdfToolkitPath
-	 */
-	public function setPdfToolkitPath(?string $pdfToolkitPath): void
-	{
-		$this->pdfToolkitPath = $pdfToolkitPath;
-	}
-
 
 }

@@ -1,15 +1,18 @@
 {
 	"name": "osimatic/helpers-php",
 	"description": "PHP helpers",
+	"homepage": "https://github.com/osimatic/helpers-php",
 	"type": "package",
 	"require": {
-		"php": ">=7.2.0",
+		"php": ">=7.2",
 		"ext-intl": "*",
 		"ext-mbstring": "*",
 		"ext-fileinfo": "*",
 		"ext-zip": "*",
 		"ext-soap": "*",
-	 	"giggsey/libphonenumber-for-php": "^8.11"
+	  	"psr/log": "^1.0",
+	  	"psr/http-message": "^1.0",
+	  	"giggsey/libphonenumber-for-php": "^8.11"
 	},
 	"license": "mit",
 	"authors": [
