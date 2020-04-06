@@ -3,6 +3,7 @@
 namespace Osimatic\Helpers\Bank;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -169,7 +170,7 @@ class PayBox
 
 	public function __construct()
 	{
-
+		$this->logger = new NullLogger();
 	}
 
 	public function newPayment(): void
@@ -337,6 +338,10 @@ class PayBox
 	}
 
 
+	/**
+	 * Set the logger to use to log debugging data.
+	 * @param LoggerInterface $logger
+	 */
 	public function setLogger(LoggerInterface $logger)
 	{
 		$this->logger = $logger;
