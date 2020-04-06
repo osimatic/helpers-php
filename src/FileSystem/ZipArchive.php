@@ -30,7 +30,7 @@ class ZipArchive
 	 * @param string $zipFilepath
 	 * @param string|null $fileName
 	 */
-	public static function outputBrowser(string $zipFilepath, ?string $fileName=null): void
+	public static function output(string $zipFilepath, ?string $fileName=null): void
 	{
 		if (!headers_sent()) {
 			header('Content-disposition: attachment; filename="'.($fileName ?? basename($zipFilepath)).'"');
