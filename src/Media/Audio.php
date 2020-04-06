@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\Media;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use getID3;
 use getid3_exception;
 
@@ -28,10 +30,21 @@ class Audio
 	const WMA_EXTENSION 		= '.wma';
 	const WMA_MIME_TYPES 		= ['audio/x-ms-wma',];
 
-	private $soxPath;
+	private $logger;
+	private $soxBinaryPath;
 
 	public function __construct()
 	{
+		$this->logger = new NullLogger();
+	}
+
+	/**
+	 * Set the logger to use to log debugging data.
+	 * @param LoggerInterface $logger
+	 */
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
 	}
 
 	/**
@@ -260,7 +273,7 @@ class Audio
 		// Vérification que le fichier soit un fichier wav ou mp3
 		$wavFileInfos = self::getInfos($srcAudioFilePath);
 		if (empty($wavFileInfos['audio']['dataformat']) || !in_array($wavFileInfos['audio']['dataformat'], ['mp3', 'wav'])) {
-			//echo 'Message pas au format mp3 ou WAV';
+			$this->logger->error('Message audio pas au format mp3 ou WAV');
 			return false;
 		}
 
@@ -273,10 +286,10 @@ class Audio
 		}
 
 		$params = ($wavFileInfos['audio']['dataformat'] == 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
-		$commandLine = $this->soxPath.' '.$params;
+		$commandLine = $this->soxBinaryPath.' '.$params;
 
 		// Envoi de la commande
-		//dump($commandLine);
+		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
 		$lastLine = system($commandLine);
 		//$lastLine = exec($commandLine, $output, $returnVar);
 		//var_dump($output, $lastLine);
@@ -285,11 +298,11 @@ class Audio
 	}
 
 	/**
-	 * @param string $soxPath
+	 * @param string $soxBinaryPath
 	 */
-	public function setSoxPath(string $soxPath): void
+	public function setSoxBinaryPath(string $soxBinaryPath): void
 	{
-		$this->soxPath = $soxPath;
+		$this->soxBinaryPath = $soxBinaryPath;
 	}
 
 }
