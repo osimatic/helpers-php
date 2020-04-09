@@ -5,14 +5,18 @@ namespace Osimatic\Helpers\Bank;
 class BillingTax
 {
 	/**
-	 * @param string $country
-	 * @param string $zipCode
-	 * @param string $vatNumber
+	 * @param string|null $country
+	 * @param string|null $zipCode
+	 * @param string|null $vatNumber
 	 * @param string $billingCountry
 	 * @return float
 	 */
-	public static function getBillingTaxRate(string $country, string $zipCode, string $vatNumber, string $billingCountry='FR'): float
+	public static function getBillingTaxRate(?string $country, ?string $zipCode, ?string $vatNumber, string $billingCountry='FR'): float
 	{
+		if (empty($country)) {
+			$country = $billingCountry;
+		}
+
 		if (\Osimatic\Helpers\Location\Country::isCountryInFranceOverseas($country)) {
 			$country = 'FR';
 		}
