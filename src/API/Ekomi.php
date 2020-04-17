@@ -15,6 +15,17 @@ class Ekomi
 	private $interfacePassword;
 
 	/**
+	 * Ekomi constructor.
+	 * @param string|null $interfaceId
+	 * @param string|null $interfacePassword
+	 */
+	public function __construct(?string $interfaceId=null, ?string $interfacePassword=null)
+	{
+		$this->interfaceId = $interfaceId;
+		$this->interfacePassword = $interfacePassword;
+	}
+
+	/**
 	 * @param string $interfaceId
 	 * @return self
 	 */

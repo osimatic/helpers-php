@@ -12,6 +12,17 @@ class Bitly
 	private $key;
 
 	/**
+	 * Bitly constructor.
+	 * @param string|null $login
+	 * @param string|null $key
+	 */
+	public function __construct(?string $login=null, ?string $key=null)
+	{
+		$this->login = $login;
+		$this->key = $key;
+	}
+
+	/**
 	 * @param string $login
 	 * @return self
 	 */
