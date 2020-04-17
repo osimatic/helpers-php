@@ -27,7 +27,7 @@ class Company
 				return false;
 			}
 			// Vérification de la validité du SIREN par la clé de contrôle, suivant l'algorithme de Luhn (clé "1-2").
-			if (!\Osimatic\Helpers\Number::checkLuhn($companyNumber)) {
+			if (!\Osimatic\Helpers\Number\Number::checkLuhn($companyNumber)) {
 				return false;
 			}
 			return true;
