@@ -84,7 +84,7 @@ class Duration
 	public static function formatHourChrono(int $durationInSeconds, string $displayMode='standard', bool $withSecondes=true): string
 	{
 		// Heures
-		$strHeure = sprintf('%02d', self::getNbHours($durationInSeconds)).'"';
+		$strHeure = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
 
 		// Minutes
 		$strMinute = self::getFormattedMinutesInChrono(self::getNbMinutesRemaining($durationInSeconds), $displayMode);
