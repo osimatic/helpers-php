@@ -155,4 +155,23 @@ class XML
 		return($xml_array);
 	}
 
+	/**
+	 * @param array $array
+	 * @param string $firstTag
+	 * @return string|null
+	 */
+	public static function convertArrayToXml(array $array, string $firstTag): ?string
+	{
+		include_once(__DIR__.'/Array2XML.php');
+
+		try {
+			$xml = \Array2XML::createXML($firstTag, $array);
+			return $xml->saveXML();
+		}
+		catch (\Exception $e) {
+			//error($e->getMessage());
+		}
+		return null;
+	}
+
 }
