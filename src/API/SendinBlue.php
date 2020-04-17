@@ -31,7 +31,7 @@ class SendinBlue
 
 		return $this;
 	}
-	
+
 	/**
 	 * @param int $contactListId
 	 * @param string $email
