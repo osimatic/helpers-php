@@ -48,6 +48,7 @@ class NameFormatter
 			$lastName = trim($lastName);
 			if ($upperCase) {
 				$lastName = mb_strtoupper($lastName);
+				//$lastName = mb_strtoupper($lastName, 'UTF-8');
 			}
 			return $lastName;
 		}
@@ -71,9 +72,13 @@ class NameFormatter
 	private static function ucname($string)
 	{
 		$string = ucwords(mb_strtolower($string));
-		foreach (array('-', '\'') as $delimiter) {
+		//$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
+		foreach (['-', '\''] as $delimiter) {
 			if (strpos($string, $delimiter) !== false) {
 				$string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
+				//$string = implode($delimiter, array_map(function($value) {
+				//	return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
+				//}, explode($delimiter, $string)));
 			}
 		}
 		return $string;

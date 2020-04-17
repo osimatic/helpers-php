@@ -265,14 +265,14 @@ class Image
 
 		$size = getimagesize($cheminImage);
 		if ($size === false) {
-			trace("Erreur : L'image n'existe pas.");
+			//trace("Erreur : L'image n'existe pas.");
 			return false;
 		}
 
 		$mime = self::getMimeType($cheminImage);
 
 		if (substr($mime, 0, 6) != 'image/') {
-			trace("Erreur : Ce format d'image n'est pas pris en charge.");
+			//trace("Erreur : Ce format d'image n'est pas pris en charge.");
 			return false;
 		}
 

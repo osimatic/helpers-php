@@ -2,6 +2,10 @@
 
 namespace Osimatic\Helpers\Network;
 
+/**
+ * Class URL
+ * @package Osimatic\Helpers\Network
+ */
 class URL
 {
 
