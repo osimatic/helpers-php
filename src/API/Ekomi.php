@@ -16,18 +16,24 @@ class Ekomi
 
 	/**
 	 * @param string $interfaceId
+	 * @return self
 	 */
-	public function setInterfaceId(string $interfaceId): void
+	public function setInterfaceId(string $interfaceId): self
 	{
 		$this->interfaceId = $interfaceId;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $interfacePassword
+	 * @return self
 	 */
-	public function setInterfacePassword(string $interfacePassword): void
+	public function setInterfacePassword(string $interfacePassword): self
 	{
 		$this->interfacePassword = $interfacePassword;
+
+		return $this;
 	}
 
 	/**
@@ -92,6 +98,10 @@ class Ekomi
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($curl);
 		curl_close($curl);
+
+		if (false === $result) {
+			return null;
+		}
 
 		//if ($result == 'Access denied') {
 		// return null;
