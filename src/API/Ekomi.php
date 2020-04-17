@@ -2,9 +2,14 @@
 
 namespace Osimatic\Helpers\API;
 
+/**
+ * Class Ekomi
+ * @package Osimatic\Helpers\API
+ */
 class Ekomi
 {
-	const SCRIPT_VERSION = '1.0.0';
+	public const URL = 'http://api.ekomi.de/v3/';
+	public const SCRIPT_VERSION = '1.0.0';
 
 	private $interfaceId;
 	private $interfacePassword;
@@ -25,27 +30,19 @@ class Ekomi
 		$this->interfacePassword = $interfacePassword;
 	}
 
+	/**
+	 * @param $orderId
+	 * @return string|null
+	 */
 	public function getFeedbackLink($orderId): ?string
 	{
-		$version = 'cust-'.self::SCRIPT_VERSION;
+		$result = $this->executeRequest(self::URL.'putOrder?order_id='.$orderId);
 
-		$url = 'http://api.ekomi.de/v3/putOrder?auth='.$this->getAuth().'&version='.$version.'&order_id='.$orderId.'&type=json';
-		//$result = file_get_contents($url);
-
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		$result = curl_exec($curl);
-		curl_close($curl);
-
-		$data = json_decode($result, true);
-
-		if (null !== $data) {
-			//if ($result == 'Access denied') {
+		if (null !== $result) {
 			return null;
 		}
 
-		return $data['link'] ?? null;
+		return $result['link'] ?? null;
 		//return [
 		//	'link' 			=> $data['link'],
 		//	'hash' 			=> $data['hash'],
@@ -53,9 +50,54 @@ class Ekomi
 		//];
 	}
 
-	private function getAuth(): string
+	/**
+	 * @param string $range
+	 * @return array|null
+	 */
+	public function getListFeedback($range='all'): ?array
 	{
-		return $this->interfaceId.'|'.$this->interfacePassword;
+		$result = $this->executeRequest(self::URL.'getFeedback?range='.$range);
+
+		if (null === $result) {
+			return null;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return array|null
+	 */
+	public function getAverage(): ?array
+	{
+		$result = $this->executeRequest(self::URL.'getSnapshot?range=all');
+
+		if (null === $result) {
+			return null;
+		}
+
+		return [$result['info']['fb_avg'], $result['info']['fb_count']];
+	}
+
+	private function executeRequest($url): ?array
+	{
+		$version = 'cust-'.self::SCRIPT_VERSION;
+		$auth = $this->interfaceId.'|'.$this->interfacePassword;
+
+		$url .= '&auth='.$auth.'&version='.$version.'&type=json';
+
+		//$result = file_get_contents($url);
+		$curl = curl_init();
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		$result = curl_exec($curl);
+		curl_close($curl);
+
+		//if ($result == 'Access denied') {
+		// return null;
+		// }
+
+		return json_decode($result, true);
 	}
 
 }
