@@ -10,6 +10,7 @@
 		"ext-fileinfo": "*",
 		"ext-zip": "*",
 		"ext-soap": "*",
+	  	"ext-curl": "*",
 	  	"psr/log": "^1.0",
 	  	"psr/http-message": "^1.0",
 	  	"giggsey/libphonenumber-for-php": "^8.11",
