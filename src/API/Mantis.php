@@ -64,10 +64,26 @@ class Mantis
 		return $this;
 	}
 
-
-	public function addIssue(int $projectId, string $title, string $desc, int $serverity, string $projectName=null)
+	/**
+	 * @param int $projectId
+	 * @param string $title
+	 * @param string $desc
+	 * @param int $serverity
+	 * @param string|null $projectName
+	 * @return bool
+	 */
+	public function addIssue(int $projectId, string $title, string $desc, int $serverity, string $projectName=null): bool
 	{
-		$soapIssueAdd = new \SoapClient($this->url.'api/soap/mantisconnect.php?wsdl');
+		if (empty($this->url)) {
+			return false;
+		}
+
+		try {
+			$soapIssueAdd = new \SoapClient($this->url . 'api/soap/mantisconnect.php?wsdl');
+		} catch (\SoapFault $e) {
+			return false;
+		}
+
 		$soapIssueAdd->mc_issue_add($this->userName, $this->userPassword, [
 			'summary' 		=> iconv('windows-1252', 'UTF-8', $title),
 			'description' 	=> iconv('windows-1252', 'UTF-8', $desc),
@@ -76,16 +92,8 @@ class Mantis
 			'severity' 		=> ['id' => $serverity],
 			'category' 		=> 'General'
 		]);
-	}
 
-	public static function getImpactList()
-	{
-		return [
-			50 => 'Mineur',
-			60 => 'Majeur',
-			70 => 'Critique',
-			80 => 'Bloquant',
-		];
+		return true;
 	}
 
 }

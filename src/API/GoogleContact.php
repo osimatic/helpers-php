@@ -69,10 +69,13 @@ class GoogleContact
 
 	/**
 	 * @param string $uri
+	 * @return self
 	 */
-	public function setRedirectUri(string $uri): void
+	public function setRedirectUri(string $uri): self
 	{
 		$this->client->setRedirectUri($uri);
+
+		return $this;
 	}
 
 	/**
