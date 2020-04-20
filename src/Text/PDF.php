@@ -95,6 +95,10 @@ class PDF
 			unlink($filePath);
 		}
 
+		if (!file_exists(dirname($filePath))) {
+			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories(dirname($filePath));
+		}
+
 		$snappy = new \Knp\Snappy\Pdf();
 		$snappy->setBinary($this->wkHtmlToPdtBinaryPath);
 		$snappy->setLogger($this->logger);
