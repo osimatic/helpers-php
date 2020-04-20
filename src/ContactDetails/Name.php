@@ -24,7 +24,7 @@ class Name
 	 * @param string $value
 	 * @return bool
 	 */
-	public static function checkCivility(?string $value): bool
+	public static function checkCivility($value): bool
 	{
 		return preg_match('/[0-2]/', $value);
 	}
@@ -45,6 +45,22 @@ class Name
 	public static function checkLastName(?string $value): bool
 	{
 		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){3,100}+$/u', $value);
+	}
+
+	/**
+	 * @param int $civility
+	 * @param string $firstName
+	 * @param string $lastName
+	 * @return string
+	 */
+	public static function format(?int $civility, ?string $firstName, ?string $lastName): ?string
+	{
+		return (new NameFormatter())->format(
+			(new self())
+				->setTitle($civility)
+				->setFirstName($firstName)
+				->setLastName($lastName)
+		);
 	}
 
 
