@@ -44,12 +44,9 @@ class VatNumber
 			}
 
 			// Vérification de la clef TVA
-			$clefTvaTheorique = ( ( ($siren % 97) * 3 ) + 12 ) % 97;
-			if (substr($vatNumber, 0, 2) !== $clefTvaTheorique) {
-				return false;
-			}
-
-			return true;
+			$vatKey = (int) substr($vatNumber, 0, 2);
+			$theoricalVatKey = ( ( ($siren % 97) * 3 ) + 12 ) % 97;
+			return ($vatKey === $theoricalVatKey);
 		}
 
 		// Vérification de la validité
