@@ -106,7 +106,7 @@ class Accounting
 		\Osimatic\Helpers\Text\CSV::generateFile($filePath, $tableHead, $tableBody, null);
 	}
 
-	private function getAccountKey(string $customerCountry, string $customerZipCode): string
+	private function getAccountKey(?string $customerCountry, ?string $customerZipCode): string
 	{
 		if (Country::isCountryInFranceOverseas($customerCountry, $customerZipCode)) {
 			return 'france_dom';
