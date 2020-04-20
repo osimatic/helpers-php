@@ -13,28 +13,7 @@ class Accounting
 	/**
 	 *
 	 */
-	protected $paymentMethod;
-
-	/**
-	 *
-	 */
 	protected $accounts;
-
-	/**
-	 *
-	 */
-	protected $transactionList;
-
-	/**
-	 * @param string|null $paymentMethod
-	 * @return self
-	 */
-	public function setPaymentMethod(?string $paymentMethod): self
-	{
-		$this->paymentMethod = $paymentMethod;
-
-		return $this;
-	}
 
 	/**
 	 * @param array $accounts
@@ -48,17 +27,10 @@ class Accounting
 	}
 
 	/**
+	 * @param $filePath
 	 * @param array $transactionList
-	 * @return self
 	 */
-	public function setTransactionList(array $transactionList): self
-	{
-		$this->transactionList = $transactionList;
-
-		return $this;
-	}
-
-	public function save($filePath)
+	public function generateExport($filePath, array $transactionList): void
 	{
 		// Header
 		$tableHead = [
@@ -74,7 +46,7 @@ class Accounting
 
 		// Liste des transactions
 		$tableBody = [];
-		foreach ($this->transactionList as $transaction) {
+		foreach ($transactionList as $transaction) {
 			$codeMonnaie = $this->getCurrencyCode($transaction['currency'] ?? 'EUR');
 			$accountkey = $this->getAccountKey($transaction['customer_country'], $transaction['customer_zip_code']);
 			$addTvaLine = BillingTax::getBillingTaxRate($transaction['customer_country'], $transaction['customer_zip_code'], $transaction['customer_vat_number'], 'FR') != 0;
