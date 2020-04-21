@@ -41,10 +41,10 @@ class DirectDebitTransaction
 	 * @param array $creditorData
 	 * @param string $referenceTransactions
 	 * @param array $listTransactions
-	 * @param string $sqlDateTransaction
+	 * @param \DateTime $transactionDate
 	 * @return bool
 	 */
-	public static function getTransactionListXmlFile(string $filePath, array $creditorData, string $referenceTransactions, array $listTransactions, string $sqlDateTransaction): bool
+	public static function getTransactionListXmlFile(string $filePath, array $creditorData, string $referenceTransactions, array $listTransactions, \DateTime $transactionDate): bool
 	{
 		if (empty($listTransactions)) {
 			return false;
@@ -90,7 +90,7 @@ class DirectDebitTransaction
 						],
 						'SeqTp' => 'RCUR',
 					],
-					'ReqdColltnDt' => $sqlDateTransaction,
+					'ReqdColltnDt' => $transactionDate->format('Y-m-d'),
 					'Cdtr' => [
 						'Nm' => 'Osimatic',
 					],
