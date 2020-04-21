@@ -22,12 +22,12 @@ class DirectDebitTransaction
 	}
 
 	/**
-	 * @param $month
 	 * @param $year
+	 * @param $month
 	 * @param int $transactionDay
 	 * @return \DateTime
 	 */
-	public static function getTransactionDateByMonth($month, $year, int $transactionDay=20): \DateTime
+	public static function getTransactionDateByMonth($year, $month, int $transactionDay=20): \DateTime
 	{
 		try {
 			return self::getTransactionDate(new \DateTime($year.'-'.sprintf('%02d', $month).'-01 00:00:00'), $transactionDay);
