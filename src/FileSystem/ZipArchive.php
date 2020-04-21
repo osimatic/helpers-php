@@ -35,7 +35,7 @@ class ZipArchive
 		if (!headers_sent()) {
 			header('Content-disposition: attachment; filename="'.($fileName ?? basename($zipFilepath)).'"');
 			header('Content-Type: application/force-download');
-			header('Content-Transfer-Encoding: binary'."\n");
+			header('Content-Transfer-Encoding: binary');
 			header('Content-Length: '.filesize($zipFilepath));
 			header('Pragma: no-cache');
 			header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');

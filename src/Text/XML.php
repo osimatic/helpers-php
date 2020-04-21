@@ -5,6 +5,72 @@ namespace Osimatic\Helpers\Text;
 class XML
 {
 
+	// ========== Affichage ==========
+
+	/**
+	 * @param string $xmlFilePath
+	 */
+	public static function output(string $xmlFilePath): void
+	{
+		if (!headers_sent()) {
+			header('Content-Type: text/xml');
+			readfile($xmlFilePath);
+		}
+	}
+
+	// ========== Fabrication ==========
+
+	/**
+	 * @param array $array
+	 * @param string $firstTag
+	 * @return string|null
+	 */
+	public static function convertArrayToXml(array $array, string $firstTag): ?string
+	{
+		include_once(__DIR__.'/Array2XML.php');
+
+		try {
+			$xml = \Array2XML::createXML($firstTag, $array);
+			return $xml->saveXML();
+		}
+		catch (\Exception $e) {
+			//error($e->getMessage());
+		}
+		return null;
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param array $array
+	 * @param string|null $firstTag
+	 * @param string|null $firstTagAttributes
+	 * @return bool
+	 */
+	public static function generateFile(string $filePath, array $array, ?string $firstTag=null, ?string $firstTagAttributes=null): bool
+	{
+		// Suppression du fichier s'il existe déjà
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+
+		// Création des répertoires où se trouvera le fichier
+		if (!file_exists(dirname($filePath))) {
+			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($filePath);
+		}
+
+		$firstTag = $firstTag ?? 'Document';
+		$xml = self::convertArrayToXml($array, $firstTag);
+		if (!empty($firstTagAttributes)) {
+			$xml = str_replace('<'.$firstTag.'>', '<'.$firstTag.' '.$firstTagAttributes.'>', $xml);
+		}
+
+		file_put_contents($filePath, $xml, FILE_APPEND);
+
+		return true;
+	}
+
+	// ========== Conversion ==========
+
 	/**
 	 * Convert the given XML text to an array in the XML structure.
 	 * @link http://www.bin-co.com/php/scripts/xml2array/
@@ -153,25 +219,6 @@ class XML
 		}
 
 		return($xml_array);
-	}
-
-	/**
-	 * @param array $array
-	 * @param string $firstTag
-	 * @return string|null
-	 */
-	public static function convertArrayToXml(array $array, string $firstTag): ?string
-	{
-		include_once(__DIR__.'/Array2XML.php');
-
-		try {
-			$xml = \Array2XML::createXML($firstTag, $array);
-			return $xml->saveXML();
-		}
-		catch (\Exception $e) {
-			//error($e->getMessage());
-		}
-		return null;
 	}
 
 }

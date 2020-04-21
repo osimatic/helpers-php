@@ -37,16 +37,17 @@ class DirectDebitTransaction
 	}
 
 	/**
+	 * @param string $filePath
 	 * @param array $creditorData
 	 * @param string $referenceTransactions
 	 * @param array $listTransactions
 	 * @param string $sqlDateTransaction
-	 * @return string|null
+	 * @return bool
 	 */
-	public static function getXmlContentForTransactionsList(array $creditorData, string $referenceTransactions, array $listTransactions, string $sqlDateTransaction): ?string
+	public static function getTransactionListXmlFile(string $filePath, array $creditorData, string $referenceTransactions, array $listTransactions, string $sqlDateTransaction): bool
 	{
 		if (empty($listTransactions)) {
-			return null;
+			return false;
 		}
 
 		$nbTransactions = count($listTransactions);
@@ -158,8 +159,8 @@ class DirectDebitTransaction
 			];
 		}
 
-		$xmlStr = \Osimatic\Helpers\Text\XML::convertArrayToXml($xml, 'Document');
-		$xmlStr = str_replace('<Document>', '<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02 H:/Desktop/pain.008.001.02.xsd">', $xmlStr);
-		return $xmlStr;
+		\Osimatic\Helpers\Text\XML::generateFile($filePath, $xml, 'Document', 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02 H:/Desktop/pain.008.001.02.xsd"');
+
+		return true;
 	}
 }
