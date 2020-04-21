@@ -91,10 +91,12 @@ class PDF
 	 */
 	public function generateFile(string $filePath): void
 	{
+		// Suppression du fichier s'il existe déjà
 		if (file_exists($filePath)) {
 			unlink($filePath);
 		}
 
+		// Création des répertoires où se trouvera le fichier PDF de destination
 		if (!file_exists(dirname($filePath))) {
 			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories(dirname($filePath));
 		}
@@ -152,7 +154,12 @@ class PDF
 	{
 		$this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
 
-		// Création des dossiers où se trouvera le fichier PDF de destination
+		// Suppression du fichier s'il existe déjà
+		if (file_exists($newPdfPath)) {
+			unlink($newPdfPath);
+		}
+
+		// Création des répertoires où se trouvera le fichier PDF de destination
 		if (!file_exists(dirname($newPdfPath))) {
 			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($newPdfPath);
 		}
