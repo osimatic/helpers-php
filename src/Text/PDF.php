@@ -153,7 +153,9 @@ class PDF
 		$this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
 
 		// Création des dossiers où se trouvera le fichier PDF de destination
-		// \Osimatic\Helpers\FileSystem\FileSystem::createDirectories($newPdfPath);
+		if (!file_exists(dirname($newPdfPath))) {
+			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($newPdfPath);
+		}
 
 		// Vérification que tous les fichiers existent bien
 		if ($profondeur == 0) {
