@@ -6,36 +6,34 @@ class DirectDebitTransaction
 {
 	/**
 	 * Retourne le jour du mois suivant la date de facture
-	 * @param string $invoiceSqlDate
+	 * @param \DateTime $invoiceDate
 	 * @param int $transactionDay
-	 * @return string
+	 * @return \DateTime
 	 */
-	public static function getTransactionSqlDate(string $invoiceSqlDate, int $transactionDay=20): string
+	public static function getTransactionDate(\DateTime $invoiceDate, int $transactionDay=20): \DateTime
 	{
-		$timestampNextMonth = strtotime($invoiceSqlDate.' 00:00:00') + (20*24*3600);
+		$timestampNextMonth = $invoiceDate->getTimestamp() + (20*24*3600);
 		$transactionTimestamp = mktime(0, 0, 0, date('m', $timestampNextMonth), $transactionDay, date('Y', $timestampNextMonth));
-		return date('Y-m-d', $transactionTimestamp);
-	}
-
-	/**
-	 * @param string $invoiceSqlDate
-	 * @param int $transactionDay
-	 * @return string
-	 */
-	public static function getTransactionSqlDateTime(string $invoiceSqlDate, int $transactionDay=20): string
-	{
-		return self::getTransactionSqlDate($invoiceSqlDate, $transactionDay).' 00:00:00';
+		try {
+			return new \DateTime('@'.$transactionTimestamp);
+		}
+		catch (\Exception $e) { }
+		return null;
 	}
 
 	/**
 	 * @param $month
 	 * @param $year
 	 * @param int $transactionDay
-	 * @return string
+	 * @return \DateTime
 	 */
-	public static function getTransactionSqlDateByMonth($month, $year, int $transactionDay=20): string
+	public static function getTransactionDateByMonth($month, $year, int $transactionDay=20): \DateTime
 	{
-		return self::getTransactionSqlDate($year.'-'.sprintf('%02d', $month).'-01', $transactionDay);
+		try {
+			return self::getTransactionDate(new \DateTime($year.'-'.sprintf('%02d', $month).'-01 00:00:00'), $transactionDay);
+		}
+		catch (\Exception $e) { }
+		return null;
 	}
 
 	/**
