@@ -13,7 +13,7 @@ class Distance
 	{
 		[$originLatitude, $originLongitude] = explode(',', $originCoordinates);
 		[$destinationLatitude, $destinationLongitude] = explode(',', $destinationCoordinates);
-		return self::calculateBetweenLatitudeAndLongitudeData($originLatitude, $originLongitude, $destinationLatitude, $destinationLongitude);
+		return self::calculateBetweenLatitudeAndLongitude((float) $originLatitude, (float) $originLongitude, (float) $destinationLatitude, (float) $destinationLongitude);
 	}
 
 	/**
@@ -24,7 +24,7 @@ class Distance
 	 * @param float $destinationLongitude
 	 * @return float
 	 */
-	public static function calculateBetweenLatitudeAndLongitudeData(float $originLatitude, float $originLongitude, float $destinationLatitude, float $destinationLongitude): float
+	public static function calculateBetweenLatitudeAndLongitude(float $originLatitude, float $originLongitude, float $destinationLatitude, float $destinationLongitude): float
 	{
 		return sqrt(pow(($destinationLatitude- $originLatitude), 2) + pow(($destinationLongitude-$originLongitude), 2)) * 100000;
 	}
