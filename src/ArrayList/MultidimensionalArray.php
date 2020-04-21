@@ -2,6 +2,10 @@
 
 namespace Osimatic\Helpers\ArrayList;
 
+/**
+ * Class MultidimensionalArray
+ * @package Osimatic\Helpers\ArrayList
+ */
 class MultidimensionalArray
 {
 	// ========== Méthodes de comptage ==========

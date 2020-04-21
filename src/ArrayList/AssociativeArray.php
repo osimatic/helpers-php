@@ -2,6 +2,10 @@
 
 namespace Osimatic\Helpers\ArrayList;
 
+/**
+ * Class AssociativeArray
+ * @package Osimatic\Helpers\ArrayList
+ */
 class AssociativeArray
 {
 	/**
