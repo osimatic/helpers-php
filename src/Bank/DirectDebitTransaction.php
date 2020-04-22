@@ -8,9 +8,9 @@ class DirectDebitTransaction
 	 * Retourne le jour du mois suivant la date de facture
 	 * @param \DateTime $invoiceDate
 	 * @param int $transactionDay
-	 * @return \DateTime
+	 * @return \DateTime|null
 	 */
-	public static function getTransactionDate(\DateTime $invoiceDate, int $transactionDay=20): \DateTime
+	public static function getTransactionDate(\DateTime $invoiceDate, int $transactionDay=20): ?\DateTime
 	{
 		$timestampNextMonth = $invoiceDate->getTimestamp() + (20*24*3600);
 		$transactionTimestamp = mktime(0, 0, 0, date('m', $timestampNextMonth), $transactionDay, date('Y', $timestampNextMonth));
@@ -25,9 +25,9 @@ class DirectDebitTransaction
 	 * @param $year
 	 * @param $month
 	 * @param int $transactionDay
-	 * @return \DateTime
+	 * @return \DateTime|null
 	 */
-	public static function getTransactionDateByMonth($year, $month, int $transactionDay=20): \DateTime
+	public static function getTransactionDateByMonth($year, $month, int $transactionDay=20): ?\DateTime
 	{
 		try {
 			return self::getTransactionDate(new \DateTime($year.'-'.sprintf('%02d', $month).'-01 00:00:00'), $transactionDay);
@@ -39,15 +39,23 @@ class DirectDebitTransaction
 	/**
 	 * @param string $filePath
 	 * @param array $creditorData
-	 * @param string $referenceTransactions
 	 * @param array $listTransactions
-	 * @param \DateTime $transactionDate
+	 * @param string $referenceTransactions
+	 * @param \DateTime|null $transactionDate
 	 * @return bool
 	 */
-	public static function getTransactionListXmlFile(string $filePath, array $creditorData, string $referenceTransactions, array $listTransactions, \DateTime $transactionDate): bool
+	public static function getTransactionListXmlFile(string $filePath, array $creditorData, array $listTransactions, ?string $referenceTransactions=null, ?\DateTime $transactionDate=null): bool
 	{
 		if (empty($listTransactions)) {
 			return false;
+		}
+
+		if (null === $transactionDate) {
+			$transactionDate = self::getTransactionDateByMonth(date('Y'), date('m'));
+		}
+
+		if (null === $referenceTransactions) {
+			$referenceTransactions = 'SEPA'.date('YmdH:i:s');
 		}
 
 		$nbTransactions = count($listTransactions);
