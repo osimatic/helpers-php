@@ -120,12 +120,22 @@ class Number
 		if (!self::isFloat($float)) {
 			return 0;
 		}
-		$tabFloat = explode('.', $float);
+
+		$whole = floor($float);
+		$decimal = $float - $whole;
 
 		if ($asFloat) {
-			return (float) ('0.' . $tabFloat[1]);
+			return $decimal;
 		}
-		return (int) $tabFloat[1];
+
+		$decimal = substr($decimal,2);
+
+		// cette solution ne fonctione pas car le cast du float en string génère des problèmes en fonction de la locale
+		//$floatStr = str_replace(',', '.', (string) $float);
+		//[$whole, $decimal] = explode('.', $floatStr);
+		//[$whole, $decimal] = sscanf($floatStr, '%d.%d'); // identique à  ligne du dessus
+
+		return (int) $decimal;
 	}
 
 	/**
