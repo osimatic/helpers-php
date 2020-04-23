@@ -109,26 +109,35 @@ class Number
 	// ========== Mathématiques ==========
 
 	/**
-	 * Récupère la valeur numérique décimale d'un nombre sous forme d'entier ou de flottant
-	 * @example cette fonction retourne l'entier 3344 pour le nombre 1122.3344 (ou le flottant 0.3344 si le paramètre $asFloat vaut true
+	 * Récupère la valeur numérique décimale d'un nombre sous forme de flottant
+	 * @example cette fonction retourne le flottant 0.3344 pour le nombre 1122.3344
 	 * @param float $float le nombre pour lequel la partie décimale est récupérée
-	 * @param boolean $asFloat true pour retourner la valeur numérique décimale du nombre sous forme d'entier, false pour la retourner sous forme de flottant
-	 * @return int la partie décimale du nombre, sous forme d'entier
+	 * @return float la partie décimale du nombre, sous forme de flottant
 	 */
-	public static function decimalPart(float $float, bool $asFloat=false): int
+	public static function decimal(float $float): float
 	{
 		if (!self::isFloat($float)) {
 			return 0;
 		}
 
 		$whole = floor($float);
-		$decimal = $float - $whole;
+		return $float - $whole;
+	}
 
-		if ($asFloat) {
-			return $decimal;
+	/**
+	 * Récupère la valeur numérique décimale d'un nombre sous forme d'entier
+	 * @example cette fonction retourne l'entier 3344 pour le nombre 1122.3344
+	 * @param float $float le nombre pour lequel la partie décimale est récupérée
+	 * @return int la partie décimale du nombre, sous forme d'entier
+	 */
+	public static function decimalPart(float $float): int
+	{
+		if (!self::isFloat($float)) {
+			return 0;
 		}
 
-		$decimal = substr($decimal,2);
+		$whole = floor($float);
+		$decimal = substr($float - $whole,2);
 
 		// cette solution ne fonctione pas car le cast du float en string génère des problèmes en fonction de la locale
 		//$floatStr = str_replace(',', '.', (string) $float);

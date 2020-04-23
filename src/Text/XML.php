@@ -48,15 +48,7 @@ class XML
 	 */
 	public static function generateFile(string $filePath, array $array, ?string $firstTag=null, ?string $firstTagAttributes=null): bool
 	{
-		// Suppression du fichier s'il existe déjà
-		if (file_exists($filePath)) {
-			unlink($filePath);
-		}
-
-		// Création des répertoires où se trouvera le fichier
-		if (!file_exists(dirname($filePath))) {
-			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($filePath);
-		}
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
 		$firstTag = $firstTag ?? 'Document';
 		$xml = self::convertArrayToXml($array, $firstTag);

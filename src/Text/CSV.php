@@ -138,15 +138,7 @@ class CSV
 	 */
 	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot): bool
 	{
-		// Suppression du fichier s'il existe déjà
-		if (file_exists($filePath)) {
-			unlink($filePath);
-		}
-
-		// Création des répertoires où se trouvera le fichier
-		if (!file_exists(dirname($filePath))) {
-			\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($filePath);
-		}
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
 		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder([CsvEncoder::DELIMITER_KEY => ';'])]);
 
