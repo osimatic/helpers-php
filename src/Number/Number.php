@@ -4,6 +4,8 @@ namespace Osimatic\Helpers\Number;
 
 class Number
 {
+	// ========== Affichage ==========
+
 	/**
 	 * @param mixed $number
 	 * @param int $nbDigitMin
@@ -36,6 +38,120 @@ class Number
 		}
 		return $str;
 	}
+
+	// ========== Vérification ==========
+
+	/**
+	 * @param string|null $str
+	 * @return float
+	 */
+	public static function parseFloat(?string $str): float
+	{
+		return (float) self::clean($str);
+	}
+
+	/**
+	 * @param string|null $str
+	 * @return int
+	 */
+	public static function parseInt(?string $str): int
+	{
+		return (int) self::clean($str);
+	}
+
+	/**
+	 * @param $str
+	 * @param bool $negativeAllowed
+	 * @param bool $positiveAllowed
+	 * @return bool
+	 */
+	public static function checkFloat(string $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	{
+		$str = self::clean($str);
+
+		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
+			return false;
+		}
+
+		if (strpos($str, '.') === false) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param $str
+	 * @param bool $negativeAllowed
+	 * @param bool $positiveAllowed
+	 * @return bool
+	 */
+	public static function checkInt($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	{
+		$str = self::clean($str);
+
+		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
+			return false;
+		}
+
+		if (strpos($str, '.') !== false) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param $str
+	 * @param bool $negativeAllowed
+	 * @param bool $positiveAllowed
+	 * @return bool
+	 */
+	private static function check($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	{
+		// négatif interdit
+		if (false === $negativeAllowed && strpos($str, '-') !== false) {
+			return false;
+		}
+
+		// positif interdit
+		if (false === $positiveAllowed && strpos($str, '-') === false) {
+			return false;
+		}
+
+		$str = str_replace('.', '', $str);
+		if (substr($str, 0, 1) === '-') {
+			$str = substr($str, 1);
+		}
+
+		return ctype_digit($str);
+	}
+
+	/**
+	 * @param string|null $str
+	 * @return string
+	 */
+	private static function clean(?string $str): string
+	{
+		if ($str === null || $str === '') {
+			return '0';
+		}
+
+		$str = trim($str);
+		if (substr($str, 0, 1) === '+') {
+			$str = substr($str, 1);
+		}
+		$str = str_replace(' ', '', $str);
+
+		// formattage virgule
+		$str = str_replace(',', '.', $str);
+		if (substr_count($str, '.') == 0) {
+			$str .= '.0';
+		}
+
+		return $str;
+	}
+
 
 	// ========== Arrondissement d'un nombre ==========
 
