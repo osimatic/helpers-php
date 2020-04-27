@@ -8,10 +8,10 @@ class Country
 	 * https://stackoverflow.com/questions/3191664/list-of-all-locales-and-their-short-codes
 	 * https://stackoverflow.com/questions/10175658/is-there-a-simple-way-to-get-the-language-code-from-a-country-code-in-php
 	 *
-	 * @param $countryCode
-	 * @return string
+	 * @param string $countryCode
+	 * @return string|null
 	 */
-	public static function getLocaleByCountryCode($countryCode): ?string
+	public static function getLocaleByCountryCode(string $countryCode): ?string
 	{
 		$countryCode = strtoupper($countryCode);
 		$countryCode = $countryCode==='UK'?'GB':$countryCode;
@@ -179,10 +179,10 @@ class Country
 	}
 
 	/**
-	 * @param $countryCode
+	 * @param string $countryCode
 	 * @return string|null
 	 */
-	public static function getLanguageByCountryCode($countryCode): ?string
+	public static function getLanguageByCountryCode(string $countryCode): ?string
 	{
 		$locale = self::getLocaleByCountryCode($countryCode);
 		if (!empty($locale)) {
@@ -192,7 +192,19 @@ class Country
 	}
 
 	/**
-	 * @param string $countryIsoCode
+	 * @param string|null $locale
+	 * @return string|null
+	 */
+	public static function getCountryCodeByLocale(?string $locale=null): ?string
+	{
+		if (null === $locale) {
+			$locale = \Locale::getDefault();
+		}
+		return \Locale::getRegion($locale);
+	}
+
+	/**
+	 * @param string|null $countryIsoCode
 	 * @return string
 	 */
 	public static function getFlagCountryIsoCode(?string $countryIsoCode): ?string
@@ -230,7 +242,12 @@ class Country
 		return $countryIsoCode;
 	}
 
-	public static function isCountryInFranceOverseas(?string $countryIsoCode, $zipCode=null): bool
+	/**
+	 * @param string|null $countryIsoCode
+	 * @param string|null $zipCode
+	 * @return bool
+	 */
+	public static function isCountryInFranceOverseas(?string $countryIsoCode, ?string $zipCode=null): bool
 	{
 		$FRANCE_OVERSEAS_COUNTRY_CODES = [
 			'RE', // Réunion
@@ -239,9 +256,13 @@ class Country
 			'YT', // Mayotte
 			'GF', // Guyane
 		];
-		return in_array($countryIsoCode, $FRANCE_OVERSEAS_COUNTRY_CODES) || (!empty($zipCode) && substr($zipCode, 0, 2) == '97');
+		return in_array($countryIsoCode, $FRANCE_OVERSEAS_COUNTRY_CODES, true) || (!empty($zipCode) && substr($zipCode, 0, 2) === '97');
 	}
 
+	/**
+	 * @param string|null $countryIsoCode
+	 * @return bool
+	 */
 	public static function isCountryInEuropeanUnion(?string $countryIsoCode): bool
 	{
 		return in_array($countryIsoCode, [
@@ -273,7 +294,7 @@ class Country
 			'SI', // Slovénie
 			'SE', // Suède
 			'CZ', // République tchèque
-		]);
+		], true);
 	}
 
 }
