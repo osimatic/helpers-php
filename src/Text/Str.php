@@ -2,7 +2,9 @@
 
 namespace Osimatic\Helpers\Text;
 
-class Text
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+
+class Str
 {
 
 	// ========== Remplacement de caractères ==========
@@ -446,15 +448,27 @@ class Text
 	}
 
 	/**
+	 *
+	 * @param string $str
+	 * @return string
+	 */
+	public static function toSnakeCase(string $str): string
+	{
+		return (new CamelCaseToSnakeCaseNameConverter())->normalize($str);
+	}
+
+	/**
 	 * Takes multiple words separated by spaces or underscores and camelizes them
 	 * @param string $str
 	 * @return string
 	 */
-	public static function camelize(string $str): string
+	public static function toCamelCase(string $str): string
 	{
-		$str = 'x'.strtolower(trim($str));
-		$str = ucwords(preg_replace('/[\s_]+/', ' ', $str));
-		return substr(str_replace(' ', '', $str), 1);
+		return (new CamelCaseToSnakeCaseNameConverter())->denormalize($str);
+
+		//$str = 'x'.strtolower(trim($str));
+		//$str = ucwords(preg_replace('/[\s_]+/', ' ', $str));
+		//return substr(str_replace(' ', '', $str), 1);
 	}
 
 	/**

@@ -6,7 +6,7 @@ namespace Osimatic\Helpers\ArrayList;
  * Class SimpleArray
  * @package Osimatic\Helpers\ArrayList
  */
-class SimpleArray
+class Arr
 {
 	/**
 	 * @param float $search

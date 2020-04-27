@@ -603,7 +603,7 @@ class VCard
 			return;
 		}
 		// urlize this part
-		$value = \Osimatic\Helpers\Text\Text::toURLFriendly($value);
+		$value = \Osimatic\Helpers\Text\Str::toURLFriendly($value);
 		// overwrite filename or add to filename using a prefix in between
 		$this->filename = ($overwrite) ?
 			$value : $this->filename . $separator . $value;
