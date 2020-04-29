@@ -13,6 +13,12 @@ class SqlTime
 		if (is_array($time) && !empty($time['date'])) {
 			$time = substr($time['date'], 11, 8);
 		}
+		
+		// si time sans secondes
+		if (strlen($time) === 5) {
+			$time .= ':00';
+		}
+
 		return $time;
 	}
 
