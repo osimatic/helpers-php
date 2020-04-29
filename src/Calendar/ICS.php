@@ -3,7 +3,9 @@
 namespace Osimatic\Helpers\Calendar;
 
 /**
- * Cette classes contient des fonctions relatives au fichier ICS
+ * Class ICS
+ * Cette classes contient des fonctions relatives au fichier ICS.
+ * @package Osimatic\Helpers\Calendar
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  * @link https://en.wikipedia.org/wiki/ICalendar
  */
@@ -52,61 +54,12 @@ class ICS
 	 */
 	private $url;
 
-	public function __construct()
-	{
-	}
+	/**
+	 * Default Charset
+	 * @var string
+	 */
+	public $charset = 'utf-8';
 
-	public function build($path)
-	{
-		file_put_contents($path, $this->getContent());
-	}
-
-	public function getContent()
-	{
-		$createdDate = null;
-		try {
-			$createdDate = new \DateTime('now');
-		}
-		catch (\Exception $e) {}
-
-		// Build ICS properties - add header
-		$ics_props = [
-			'BEGIN:VCALENDAR',
-			'VERSION:2.0',
-			'PRODID:-//hacksw/handcal//NONSGML v1.0//EN',
-			'CALSCALE:GREGORIAN',
-			'BEGIN:VEVENT'
-		];
-
-		// Build ICS properties - add values
-		$ics_props[] = 'DESCRIPTION:' . $this->escapeString($this->description);
-		$ics_props[] = 'DTSTART:' . $this->getFormattedDateTime($this->dateStart);
-		$ics_props[] = 'DTEND:' . $this->getFormattedDateTime($this->dateEnd);
-		$ics_props[] = 'DTSTAMP:' . (null !== $createdDate ? $this->getFormattedDateTime($createdDate) : '');
-		$ics_props[] = 'LOCATION:' . $this->escapeString($this->location);
-		$ics_props[] = 'SUMMARY:' . $this->escapeString($this->summary);
-		$ics_props[] = 'ORGANIZER;RSVP=TRUE;CN=' . $this->escapeString($this->organizerName) . ';PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:' . $this->escapeString($this->organizerEmail) . '';
-		$ics_props[] = 'URL;VALUE=URI:' . $this->escapeString($this->url);
-		$ics_props[] = 'UID:' . uniqid('', true);
-
-		// Build ICS properties - add footer
-		$ics_props[] = 'END:VEVENT';
-		$ics_props[] = 'END:VCALENDAR';
-
-		return implode(self::LN, $ics_props);
-	}
-
-	private function escapeString(?string $str): ?string
-	{
-		return preg_replace('/([\,;])/', '\\\$1', $str);
-	}
-
-	private function getFormattedDateTime(\DateTime $dateTime): string
-	{
-		// todo : add fuseau horaire
-		//return $dateTime->format('Ymd\THis\Z');
-		return $dateTime->format('Ymd\THis');
-	}
 
 	/**
 	 * @return string
@@ -235,6 +188,117 @@ class ICS
 	{
 		$this->url = $url;
 	}
+
+	/**
+	 * Set charset
+	 * @param string $charset
+	 * @return void
+	 */
+	public function setCharset(string $charset): void
+	{
+		$this->charset = $charset;
+	}
+
+	/**
+	 * Get charset
+	 * @return string
+	 */
+	public function getCharset(): string
+	{
+		return $this->charset;
+	}
+
+	/**
+	 * Save to a file
+	 * @param string $path
+	 */
+	public function build(string $path): void
+	{
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($path);
+
+		file_put_contents($path, $this->getContent());
+	}
+
+	/**
+	 * Download a ICS file to the browser.
+	 * @param string|null $filename
+	 */
+	public function download(?string $filename=null): void
+	{
+		$filename = $filename ?? 'event'.$this->getFileExtension();
+
+		header('Content-type: text/calendar; charset='.$this->getCharset());
+		header('Content-Disposition: attachment; filename='.$filename);
+		header('Content-Length: '.strlen($this->getContent()));
+		header('Connection: close');
+
+		// echo the output and it will be a download
+		echo $this->getContent();
+	}
+
+	/**
+	 * Get output as string
+	 * @return string
+	 */
+	public function getContent(): string
+	{
+		$createdDate = null;
+		try {
+			$createdDate = new \DateTime('now');
+		}
+		catch (\Exception $e) {}
+
+		// Build ICS properties - add header
+		$props = [
+			'BEGIN:VCALENDAR',
+			'VERSION:2.0',
+			'PRODID:-//hacksw/handcal//NONSGML v1.0//EN',
+			'CALSCALE:GREGORIAN',
+			'BEGIN:VEVENT'
+		];
+
+		// Build ICS properties - add values
+		$props[] = 'DESCRIPTION:' . $this->escapeString($this->description);
+		$props[] = 'DTSTART:' . $this->getFormattedDateTime($this->dateStart);
+		$props[] = 'DTEND:' . $this->getFormattedDateTime($this->dateEnd);
+		$props[] = 'DTSTAMP:' . (null !== $createdDate ? $this->getFormattedDateTime($createdDate) : '');
+		$props[] = 'LOCATION:' . $this->escapeString($this->location);
+		$props[] = 'SUMMARY:' . $this->escapeString($this->summary);
+		$props[] = 'ORGANIZER;RSVP=TRUE;CN=' . $this->escapeString($this->organizerName) . ';PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:' . $this->escapeString($this->organizerEmail) . '';
+		$props[] = 'URL;VALUE=URI:' . $this->escapeString($this->url);
+		$props[] = 'UID:' . uniqid('', true);
+
+		// Build ICS properties - add footer
+		$props[] = 'END:VEVENT';
+		$props[] = 'END:VCALENDAR';
+
+		return implode(self::LN, $props);
+	}
+
+	/**
+	 * Get file extension
+	 * @return string
+	 */
+	public function getFileExtension(): string
+	{
+		return self::FILE_EXTENSION;
+	}
+
+
+	// ---------- private ----------
+
+	private function escapeString(?string $str): ?string
+	{
+		return preg_replace('/([\,;])/', '\\\$1', $str);
+	}
+
+	private function getFormattedDateTime(\DateTime $dateTime): string
+	{
+		// todo : add fuseau horaire
+		//return $dateTime->format('Ymd\THis\Z');
+		return $dateTime->format('Ymd\THis');
+	}
+
 }
 
 /*
