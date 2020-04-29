@@ -27,7 +27,7 @@ class VatNumber
 		// --- Vérification pour la France/Monaco ---
 		if ('FR' === $countryCode) {
 			// France
-			if (strlen($vatNumber) == 11) {
+			if (strlen($vatNumber) === 11) {
 				// Vérification du SIREN
 				$siren = substr($vatNumber, 2);
 				if (!Company::checkCompanyNumber('FR', $siren)) {
@@ -35,7 +35,7 @@ class VatNumber
 				}
 			}
 			// Monaco
-			elseif (strlen($vatNumber) == 9) {
+			elseif (strlen($vatNumber) === 9) {
 				// Vérification du n°SSEE
 				$siren = substr($vatNumber, 2);
 			}

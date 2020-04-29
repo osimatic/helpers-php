@@ -42,7 +42,7 @@ class Audio
 	 * Set the logger to use to log debugging data.
 	 * @param LoggerInterface $logger
 	 */
-	public function setLogger(LoggerInterface $logger)
+	public function setLogger(LoggerInterface $logger): void
 	{
 		$this->logger = $logger;
 	}

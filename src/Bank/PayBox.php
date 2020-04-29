@@ -342,7 +342,7 @@ class PayBox
 	 * Set the logger to use to log debugging data.
 	 * @param LoggerInterface $logger
 	 */
-	public function setLogger(LoggerInterface $logger)
+	public function setLogger(LoggerInterface $logger): void
 	{
 		$this->logger = $logger;
 	}
@@ -538,9 +538,9 @@ class PayBox
 			$this->httpPassword = '1999888I';
 			$this->secretKey = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
 			$this->rang = '32';
-			if (!$this->useForm) {
-				// $this->rang = '63';
-			}
+			//if (!$this->useForm) {
+			//	$this->rang = '63';
+			//}
 		}
 
 		if (empty($this->numSite) || strlen($this->numSite) !== 7) {
@@ -895,8 +895,8 @@ class PayBox
 
 	private function getAmountFormated(): ?string
 	{
-		$montantFormate = $this->getAmount();
-		for ($numChar = strlen((string)$montantFormate); $numChar < 10; $numChar++, $montantFormate = '0' . $montantFormate) ;
+		$montantFormate = (string) $this->getAmount();
+		for ($numChar = strlen($montantFormate); $numChar < 10; $numChar++, $montantFormate = '0' . $montantFormate);
 		return $montantFormate;
 	}
 
