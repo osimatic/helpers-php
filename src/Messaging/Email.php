@@ -140,7 +140,7 @@ class Email
 	 * Encodage de caractère du mail.
 	 * @var string
 	 */
-	private $charSet;
+	private $charSet = 'iso-8859-1';
 
 	/**
 	 * The MIME Content-type of the message.
@@ -256,7 +256,7 @@ class Email
 	 */
 	public function getFromEmailAddress(): string
 	{
-		return $this->fromEmailAddress ?? null;
+		return $this->fromEmailAddress ?? '';
 	}
 
 	/**
