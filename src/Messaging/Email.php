@@ -193,7 +193,7 @@ class Email
 	 * private usage
 	 * @var array
 	 */
-	private $allAdresses;
+	private $allAdresses = [];
 
 
 	/**
