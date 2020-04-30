@@ -532,6 +532,18 @@ class Email
 	}
 
 	/**
+	 * @param string|null $emailAddress
+	 * @param string|null $name
+	 * @return self
+	 */
+	public function addRecipientEmail(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->addEmailAddress('listTo', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
 	 * Ajoute un destinataire en copie pour le mail.
 	 * Attention, les destinataires en copie ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
 	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie.
@@ -595,6 +607,32 @@ class Email
 		return $this;
 	}
 
+
+	/**
+	 * @param string|null $emailAddress
+	 * @param string|null $name
+	 * @return self
+	 */
+	public function setRecipientEmail(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->clearListTo();
+		$this->addEmailAddress('listTo', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $emailAddress
+	 * @param string|null $name
+	 * @return self
+	 */
+	public function setTo(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->clearListTo();
+		$this->addEmailAddress('listTo', $emailAddress, $name);
+
+		return $this;
+	}
 
 	/**
 	 * Définie une liste de destinataires pour le mail.
@@ -851,6 +889,8 @@ class Email
 			6 => $disposition,
 			7 => 0
 		);
+
+		return $this;
 	}
 
 	/**
@@ -987,18 +1027,24 @@ class Email
 
 	/**
 	 * Définit le format du mail au format HTML.
+	 * @return self
 	 */
 	public function setHtmlFormat(): self
 	{
 		$this->isHtml = true;
+
+		return $this;
 	}
 
 	/**
 	 * Définit le format du mail au format texte.
+	 * @return self
 	 */
 	public function setTextFormat(): self
 	{
 		$this->isHtml = false;
+
+		return $this;
 	}
 
 	/**
@@ -1191,7 +1237,7 @@ class Email
 		}
 
 		if ($kind !== 'replyTo') {
-			if (!array_key_exists(strtolower($emailAddress), $this->allAdresses[])) {
+			if (!array_key_exists(strtolower($emailAddress), $this->allAdresses)) {
 				$this->$kind[] = [$emailAddress, $name];
 				$this->allAdresses[strtolower($emailAddress)] = true;
 				return true;
