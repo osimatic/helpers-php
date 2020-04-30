@@ -38,7 +38,7 @@ class SMS
 	protected $senderName;
 
 	/**
-	 * Date/heure de l'envoi du SMS, au format SQL. Permet d'envoyer le SMS en différé (null = envoi immédiat).
+	 * Date/heure de l'envoi du SMS. Permet d'envoyer le SMS en différé (null = envoi immédiat).
 	 * @var \DateTime
 	 */
 	protected $sendingDateTime;
@@ -47,7 +47,7 @@ class SMS
 	 *
 	 * @var boolean
 	 */
-	protected $adultContent;
+	protected $adultContent = false;
 
 
 	public function __construct()
@@ -59,11 +59,11 @@ class SMS
 	// ========== Sender ==========
 
 	/**
-	 * @return string|null
+	 * @return string
 	 */
-	public function getSenderName(): ?string
+	public function getSenderName(): string
 	{
-		return $this->senderName;
+		return $this->senderName ?? '';
 	}
 
 	/**
@@ -136,7 +136,7 @@ class SMS
 	 */
 	public function addRecipient(?string $mobileNumber): self
 	{
-		$this->recipients[] = $mobileNumber;
+		$this->addRecipientPhoneNumber($mobileNumber);
 
 		return $this;
 	}
@@ -149,7 +149,7 @@ class SMS
 	public function setRecipient(?string $mobileNumber): self
 	{
 		$this->clearRecipients();
-		$this->addRecipient($mobileNumber);
+		$this->addRecipientPhoneNumber($mobileNumber);
 
 		return $this;
 	}
@@ -162,7 +162,7 @@ class SMS
 	public function addListRecipient(array $listRecipient): self
 	{
 		foreach ($listRecipient as $mobileNumber) {
-			$this->addRecipient($mobileNumber);
+			$this->addRecipientPhoneNumber($mobileNumber);
 		}
 
 		return $this;
@@ -176,9 +176,7 @@ class SMS
 	public function setListRecipient(array $listRecipient): self
 	{
 		$this->clearRecipients();
-		foreach ($listRecipient as $mobileNumber) {
-			$this->addRecipient($mobileNumber);
-		}
+		$this->addListRecipient($listRecipient);
 
 		return $this;
 	}
@@ -189,7 +187,7 @@ class SMS
 	 */
 	public function addPhoneNumber(?string $mobileNumber): self
 	{
-		$this->addRecipient($mobileNumber);
+		$this->addRecipientPhoneNumber($mobileNumber);
 
 		return $this;
 	}
@@ -252,9 +250,9 @@ class SMS
 	 * Retourne le texte du SMS à envoyer.
 	 * @return string le texte du SMS.
 	 */
-	public function getText(): ?string
+	public function getText(): string
 	{
-		return $this->text;
+		return $this->text ?? '';
 	}
 
 	/**
@@ -339,7 +337,7 @@ class SMS
 	// ========== Sending options ==========
 
 	/**
-	 * Get de la date et heure de l'envoi du mail.
+	 * Get de la date et heure de l'envoi du SMS.
 	 */
 	public function getSendingDateTime(): ?\DateTime
 	{
@@ -347,7 +345,7 @@ class SMS
 	}
 
 	/**
-	 * Set de la date et heure de l'envoi du mail.
+	 * Set de la date et heure de l'envoi du SMS.
 	 * @param \DateTime $sendingDateTime
 	 * @return self
 	 */
@@ -367,7 +365,7 @@ class SMS
 	 * @param array $phoneNumberList
 	 * @return array
 	 */
-	private static function formatPhoneNumberList(array $phoneNumberList): array
+	public static function formatPhoneNumberList(array $phoneNumberList): array
 	{
 		$formattedList = [];
 		foreach ($phoneNumberList as $phoneNumber) {
@@ -376,6 +374,31 @@ class SMS
 			}
 		}
 		return $formattedList;
+	}
+
+
+
+	// ========== private ==========
+
+	/**
+	 * Ajoute un destinataire pour le SMS.
+	 * @param string $mobileNumber numéro de téléphone du destinataire.
+	 * @return bool
+	 */
+	private function addRecipientPhoneNumber(?string $mobileNumber): bool
+	{
+		$mobileNumber = PhoneNumber::parse(trim($mobileNumber));
+		if (!PhoneNumber::isValid($mobileNumber)) {
+			//trace('Invalid number : '.$mobileNumber);
+			return false;
+		}
+
+		if (!in_array($mobileNumber, $this->recipients, true)) {
+			$this->recipients[] = $mobileNumber;
+			return true;
+		}
+
+		return false;
 	}
 
 }
