@@ -29,7 +29,7 @@ class Email
 	 * The From email address for the message.
 	 * @var string
 	 */
-	private $fromEmailAddress = '';
+	private $fromEmailAddress;
 
 	/**
 	 * The From name of the message.
@@ -42,7 +42,7 @@ class Email
 	 * This will usually be turned into a Return-Path header by the receiver, and is the address that bounces will be sent to.
 	 * @type string
 	 */
-	protected $sender = '';
+	protected $sender;
 
 	/**
 	 * Tableau contenant la liste des personnes en "répondre à" du mail.
@@ -254,9 +254,9 @@ class Email
 	 * Get de l'adresse e-mail de l'expéditeur du mail.
 	 * @return string : l'adresse e-mail de l'expéditeur.
 	 */
-	public function getFromEmailAddress(): ?string
+	public function getFromEmailAddress(): string
 	{
-		return $this->fromEmailAddress;
+		return $this->fromEmailAddress ?? null;
 	}
 
 	/**
@@ -281,9 +281,9 @@ class Email
 	 * Get du nom de l'expéditeur du mail.
 	 * @return string : le nom de l'expéditeur.
 	 */
-	public function getFromName(): ?string
+	public function getFromName(): string
 	{
-		return $this->fromName;
+		return $this->fromName ?? '';
 	}
 
 	/**
@@ -332,18 +332,18 @@ class Email
 	/**
 	 * @return string
 	 */
-	public function getSender(): ?string
+	public function getSender(): string
 	{
-		return $this->sender;
+		return $this->sender ?? null;
 	}
 
 
 	/**
 	 * @return string
 	 */
-	public function getConfirmReadingTo(): ?string
+	public function getConfirmReadingTo(): string
 	{
-		return $this->confirmReadingTo;
+		return $this->confirmReadingTo ?? '';
 	}
 
 	/**
@@ -368,9 +368,9 @@ class Email
 	 */
 	public function clearSender(): void
 	{
-		$this->fromEmailAddress = '';
-		$this->fromName = '';
-		$this->sender = '';
+		$this->fromEmailAddress = null;
+		$this->fromName = null;
+		$this->sender = null;
 	}
 
 
@@ -387,9 +387,9 @@ class Email
 	}
 
 	/**
-	 * @return string|null
+	 * @return string
 	 */
-	public function getReplyToEmail(): ?string
+	public function getReplyToEmail(): string
 	{
 		return $this->getReplyTo()[0] ?? '';
 	}
@@ -432,9 +432,9 @@ class Email
 
 	/**
 	 * @param string $separator
-	 * @return string|null
+	 * @return string
 	 */
-	public function formatReplyTo(string $separator=' ; '): ?string
+	public function formatReplyTo(string $separator=' ; '): string
 	{
 		return implode($separator, self::formatEmailList($this->getReplyTo()));
 	}
@@ -1009,9 +1009,9 @@ class Email
 	 * Get du sujet du mail.
 	 * @return string sujet du mail.
 	 */
-	public function getSubject(): ?string
+	public function getSubject(): string
 	{
-		return $this->subject;
+		return $this->subject ?? '';
 	}
 
 	/**
@@ -1096,9 +1096,9 @@ class Email
 	 * Get du texte du mail.
 	 * @return string texte du mail.
 	 */
-	public function getText(): ?string
+	public function getText(): string
 	{
-		return $this->text;
+		return $this->text ?? '';
 	}
 
 	/**
