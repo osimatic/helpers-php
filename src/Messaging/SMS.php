@@ -52,7 +52,7 @@ class SMS
 
 	public function __construct()
 	{
-
+		$this->sendingDateTime = \Osimatic\Helpers\DateTime\DateTime::getCurrentDateTime();
 	}
 
 
