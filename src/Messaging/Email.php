@@ -222,13 +222,13 @@ class Email
 	/**
 	 * Retourne le nom de domaine (fournisseur) contenu dans une adresse email
 	 * @param string $email l'adresse email dans laquelle récupérer le nom de domaine (fournisseur)
-	 * @return string le nom de domaine (fournisseur) contenu dans l'adresse email
+	 * @return string|null le nom de domaine (fournisseur) contenu dans l'adresse email
 	 */
-	public static function getHost(string $email): string
+	public static function getHost(string $email): ?string
 	{
 		// preg_replace('!^[a-z0-9._-]+@(.+)$!', '$1', $email)
 		if (strstr($email, '@') === false) {
-			return false;
+			return null;
 		}
 		return substr($email, (strpos($email, '@')+1));
 	}
@@ -251,6 +251,55 @@ class Email
 	// ========== Expéditeur ==========
 
 	/**
+	 * Get de l'adresse e-mail de l'expéditeur du mail.
+	 * @return string : l'adresse e-mail de l'expéditeur.
+	 */
+	public function getFromEmailAddress(): ?string
+	{
+		return $this->fromEmailAddress;
+	}
+
+	/**
+	 * Set de l'adresse e-mail de l'expéditeur du mail.
+	 * @param string $emailAddress : l'adresse e-mail de l'expéditeur.
+	 * @return self
+	 */
+	public function setFromEmailAddress(?string $emailAddress): self
+	{
+		$emailAddress = trim($emailAddress);
+		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+			//trace('Invalid address : '.$emailAddress);
+			return $this;
+		}
+
+		$this->fromEmailAddress = $emailAddress;
+
+		return $this;
+	}
+
+	/**
+	 * Get du nom de l'expéditeur du mail.
+	 * @return string : le nom de l'expéditeur.
+	 */
+	public function getFromName(): ?string
+	{
+		return $this->fromName;
+	}
+
+	/**
+	 * Set du nom de l'expéditeur du mail.
+	 * @param string $name : le nom de l'expéditeur.
+	 * @return self
+	 */
+	public function setFromName(?string $name): self
+	{
+		$name = trim(preg_replace('/[\r\n]+/', '', $name)); //Strip breaks and trim
+		$this->fromName = $name;
+
+		return $this;
+	}
+
+	/**
 	 * Set the fromEmailAddress and fromName properties.
 	 * @param string $emailAddress
 	 * @param string $name
@@ -271,69 +320,23 @@ class Email
 
 	/**
 	 * @param string $emailAddress
-	 * @return bool
+	 * @return self
 	 */
-	public function setSender(?string $emailAddress): bool
+	public function setSender(?string $emailAddress): self
 	{
-		return $this->sender = $emailAddress;
+		$this->sender = $emailAddress;
+
+		return $this;
 	}
 
 	/**
-	 * Set de l'adresse e-mail de l'expéditeur du mail.
-	 * @param string $emailAddress : l'adresse e-mail de l'expéditeur.
+	 * @return string
 	 */
-	public function setFromEmailAddress(?string $emailAddress): void
+	public function getSender(): ?string
 	{
-		$emailAddress = trim($emailAddress);
-		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
-			//trace('Invalid address : '.$emailAddress);
-			return;
-		}
-
-		$this->fromEmailAddress = $emailAddress;
+		return $this->sender;
 	}
 
-	/**
-	 * Get de l'adresse e-mail de l'expéditeur du mail.
-	 * @return string : l'adresse e-mail de l'expéditeur.
-	 */
-	public function getFromEmailAddress(): ?string
-	{
-		return $this->fromEmailAddress;
-	}
-
-	/**
-	 * Set du nom de l'expéditeur du mail.
-	 * @param string $name : le nom de l'expéditeur.
-	 */
-	public function setFromName(?string $name): void
-	{
-		$name = trim(preg_replace('/[\r\n]+/', '', $name)); //Strip breaks and trim
-		$this->fromName = $name;
-	}
-
-	/**
-	 * Get du nom de l'expéditeur du mail.
-	 * @return string : le nom de l'expéditeur.
-	 */
-	public function getFromName(): ?string
-	{
-		return $this->fromName;
-	}
-
-	/**
-	 * @param string $emailAddress
-	 */
-	public function setConfirmReadingTo(?string $emailAddress): void
-	{
-		$emailAddress = trim($emailAddress);
-		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
-			//trace('Invalid address : '.$emailAddress);
-			return;
-		}
-
-		$this->confirmReadingTo = $emailAddress;
-	}
 
 	/**
 	 * @return string
@@ -341,6 +344,23 @@ class Email
 	public function getConfirmReadingTo(): ?string
 	{
 		return $this->confirmReadingTo;
+	}
+
+	/**
+	 * @param string $emailAddress
+	 * @return self
+	 */
+	public function setConfirmReadingTo(?string $emailAddress): self
+	{
+		$emailAddress = trim($emailAddress);
+		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+			//trace('Invalid address : '.$emailAddress);
+			return $this;
+		}
+
+		$this->confirmReadingTo = $emailAddress;
+
+		return $this;
 	}
 
 	/**
@@ -356,36 +376,6 @@ class Email
 
 
 	// ========== Répondre à ==========
-
-	/**
-	 * Ajoute une personne qui peut recevoir la réponse au mail.
-	 * @param string $emailAddress : l'adresse e-mail pour la réponse.
-	 * @param string $name : le nom de la personne pour la réponse.
-	 */
-	public function addReplyTo(?string $emailAddress, ?string $name = ''): void
-	{
-		$this->addEmailAddress('replyTo', $emailAddress, $name);
-	}
-
-	/**
-	 * Set du nom et de l'adresse e-mail de la personne qui peut recevoir la réponse au mail.
-	 * @param string $emailAddress : adresse e-mail pour la réponse.
-	 * @param string $name : nom de la personne pour la réponse.
-	 */
-	public function setReplyTo(?string $emailAddress, ?string $name = ''): void
-	{
-		$this->clearReplyTo();
-		$this->addEmailAddress('replyTo', $emailAddress, $name);
-		// $this->replyTo = array(array($replyToEmail, $replyToName));
-	}
-
-	/**
-	 * Réinitialise le nom et l'adresse e-mail de la personne pour la réponse.
-	 */
-	public function clearReplyTo(): void
-	{
-		$this->replyTo = [];
-	}
 
 	/**
 	 * Get du nom et de l'adresse e-mail de la personne qui peut recevoir la réponse au mail.
@@ -405,6 +395,42 @@ class Email
 	}
 
 	/**
+	 * Ajoute une personne qui peut recevoir la réponse au mail.
+	 * @param string $emailAddress : l'adresse e-mail pour la réponse.
+	 * @param string $name : le nom de la personne pour la réponse.
+	 * @return self
+	 */
+	public function addReplyTo(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->addEmailAddress('replyTo', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
+	 * Set du nom et de l'adresse e-mail de la personne qui peut recevoir la réponse au mail.
+	 * @param string $emailAddress : adresse e-mail pour la réponse.
+	 * @param string $name : nom de la personne pour la réponse.
+	 * @return self
+	 */
+	public function setReplyTo(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->clearReplyTo();
+		$this->addEmailAddress('replyTo', $emailAddress, $name);
+		// $this->replyTo = array(array($replyToEmail, $replyToName));
+
+		return $this;
+	}
+
+	/**
+	 * Réinitialise le nom et l'adresse e-mail de la personne pour la réponse.
+	 */
+	public function clearReplyTo(): void
+	{
+		$this->replyTo = [];
+	}
+
+	/**
 	 * @param string $separator
 	 * @return string|null
 	 */
@@ -415,97 +441,6 @@ class Email
 
 
 	// ========== Destinataires ==========
-
-	/**
-	 * Ajoute un destinataire pour le mail.
-	 * @param string $emailAddress : l'adresse e-mail du destinataire.
-	 * @param string $name : le nom du destinataire.
-	 */
-	public function addTo(?string $emailAddress, ?string $name = ''): void
-	{
-		$this->addEmailAddress('listTo', $emailAddress, $name);
-	}
-
-	/**
-	 * Ajoute un destinataire en copie pour le mail.
-	 * Attention, les destinataires en copie ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
-	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie.
-	 * @param string $name : le nom du destinataire en copie.
-	 */
-	public function addCc(?string $emailAddress, ?string $name = ''): void
-	{
-		$this->addEmailAddress('listCc', $emailAddress, $name);
-	}
-
-	/**
-	 * Ajoute un destinataire en copie cachée pour le mail.
-	 * Attention, les destinataires en copie cachée ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
-	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie cachée.
-	 * @param string $name : le nom du destinataire en copie cachée.
-	 */
-	public function addBcc(?string $emailAddress, ?string $name = ''): void
-	{
-		$this->addEmailAddress('listBcc', $emailAddress, $name);
-	}
-
-	/**
-	 * Ajoute une liste de destinataires pour le mail.
-	 * @param array $listTo
-	 */
-	public function addListTo(array $listTo): void
-	{
-		$this->addEmailAddressList('listTo', $listTo);
-	}
-
-	/**
-	 * Ajoute une liste de destinataires en copie pour le mail.
-	 * @param array $listCc
-	 */
-	public function addListCc(array $listCc): void
-	{
-		$this->addEmailAddressList('listCc', $listCc);
-	}
-
-	/**
-	 * Ajoute une liste de destinataires en copie cachée pour le mail.
-	 * @param array $listBcc
-	 */
-	public function addListBcc(array $listBcc): void
-	{
-		$this->addEmailAddressList('listBcc', $listBcc);
-	}
-
-
-	/**
-	 * Définie une liste de destinataires pour le mail.
-	 * @param array $listTo
-	 */
-	public function setListTo(array $listTo): void
-	{
-		$this->clearListTo();
-		$this->addEmailAddressList('listTo', $listTo);
-	}
-
-	/**
-	 * Définie une liste de destinataires en copie pour le mail.
-	 * @param array $listCc
-	 */
-	public function setListCc(array $listCc): void
-	{
-		$this->clearListCc();
-		$this->addEmailAddressList('listCc', $listCc);
-	}
-
-	/**
-	 * Définie une liste de destinataires en copie cachée pour le mail.
-	 * @param array $listBcc
-	 */
-	public function setListBcc(array $listBcc): void
-	{
-		$this->clearListBcc();
-		$this->addEmailAddressList('listBcc', $listBcc);
-	}
-
 
 	/**
 	 * Récupère la liste des destinataires du mail.
@@ -582,6 +517,126 @@ class Email
 		return $this->allAdresses;
 	}
 
+
+	/**
+	 * Ajoute un destinataire pour le mail.
+	 * @param string $emailAddress : l'adresse e-mail du destinataire.
+	 * @param string $name : le nom du destinataire.
+	 * @return self
+	 */
+	public function addTo(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->addEmailAddress('listTo', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
+	 * Ajoute un destinataire en copie pour le mail.
+	 * Attention, les destinataires en copie ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
+	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie.
+	 * @param string $name : le nom du destinataire en copie.
+	 * @return self
+	 */
+	public function addCc(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->addEmailAddress('listCc', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
+	 * Ajoute un destinataire en copie cachée pour le mail.
+	 * Attention, les destinataires en copie cachée ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
+	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie cachée.
+	 * @param string $name : le nom du destinataire en copie cachée.
+	 * @return self
+	 */
+	public function addBcc(?string $emailAddress, ?string $name = ''): self
+	{
+		$this->addEmailAddress('listBcc', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
+	 * Ajoute une liste de destinataires pour le mail.
+	 * @param array $listTo
+	 * @return self
+	 */
+	public function addListTo(array $listTo): self
+	{
+		$this->addEmailAddressList('listTo', $listTo);
+
+		return $this;
+	}
+
+	/**
+	 * Ajoute une liste de destinataires en copie pour le mail.
+	 * @param array $listCc
+	 * @return self
+	 */
+	public function addListCc(array $listCc): self
+	{
+		$this->addEmailAddressList('listCc', $listCc);
+
+		return $this;
+	}
+
+	/**
+	 * Ajoute une liste de destinataires en copie cachée pour le mail.
+	 * @param array $listBcc
+	 * @return self
+	 */
+	public function addListBcc(array $listBcc): self
+	{
+		$this->addEmailAddressList('listBcc', $listBcc);
+
+		return $this;
+	}
+
+
+	/**
+	 * Définie une liste de destinataires pour le mail.
+	 * @param array $listTo
+	 * @return self
+	 */
+	public function setListTo(array $listTo): self
+	{
+		$this->clearListTo();
+		$this->addEmailAddressList('listTo', $listTo);
+
+		return $this;
+	}
+
+	/**
+	 * Définie une liste de destinataires en copie pour le mail.
+	 * @param array $listCc
+	 * @return self
+	 */
+	public function setListCc(array $listCc): self
+	{
+		$this->clearListCc();
+		$this->addEmailAddressList('listCc', $listCc);
+
+		return $this;
+	}
+
+	/**
+	 * Définie une liste de destinataires en copie cachée pour le mail.
+	 * @param array $listBcc
+	 * @return self
+	 */
+	public function setListBcc(array $listBcc): self
+	{
+		$this->clearListBcc();
+		$this->addEmailAddressList('listBcc', $listBcc);
+
+		return $this;
+	}
+
+
+
 	public function formatListTo(string $separator=' ; '): string
 	{
 		return implode($separator, self::formatEmailList($this->getListTo()));
@@ -650,192 +705,6 @@ class Email
 	// ========== Attachement ==========
 
 	/**
-	 * @param array $listAttachments
-	 */
-	public function addListAttachment(array $listAttachments): void
-	{
-		foreach ($listAttachments as $attachment) {
-			$attachmentPath = '';
-			$attachmentName = '';
-			if (is_array($attachment)) {
-				if (isset($attachment[0])) {
-					$attachmentPath = $attachment[0];
-					if (isset($attachment[1])) {
-						$attachmentName = $attachment[1];
-					}
-				}
-			}
-			else {
-				$attachmentPath = $attachment;
-			}
-			if (!empty($attachmentPath)) {
-				$this->addAttachment($attachmentPath, $attachmentName);
-			}
-		}
-	}
-
-	/**
-	 * Add an attachment from a path on the filesystem.
-	 * Returns false if the file could not be found or read.
-	 * @param string $path Path to the attachment.
-	 * @param string $name Overrides the attachment name.
-	 * @param string $encoding File encoding (see $Encoding).
-	 * @param string $type File extension (MIME) type.
-	 * @param string $disposition Disposition to use
-	 * @return bool
-	 */
-	public function addAttachment(string $path, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'attachment'): bool
-	{
-		if (!@is_file($path)) {
-			//error('Could not access file: '.$path);
-			return false;
-		}
-
-		if (filesize($path) > self::ATTACHMENT_FILESIZE_MAX) {
-			//error('Ce fichier est trop gros pour être mis en pièce jointe du mail: '.$path);
-			return false;
-		}
-
-		//If a MIME type is not specified, try to work it out from the file name
-		if (empty($type)) {
-			$type = File::getMimeTypesForFile($path);
-		}
-
-		$filename = basename($path);
-		if (empty($name)) {
-			$name = $filename;
-		}
-
-		$this->listAttachments[] = [
-			0 => $path,
-			1 => $filename,
-			2 => $name,
-			3 => $encoding,
-			4 => $type,
-			5 => false, // isStringAttachment
-			6 => $disposition,
-			7 => 0
-		];
-
-		return true;
-	}
-
-	/**
-	 * Add a string or binary attachment (non-filesystem).
-	 * This method can be used to attach ascii or binary data,
-	 * such as a BLOB record from a database.
-	 * @param string $string String attachment data.
-	 * @param string $filename Name of the attachment.
-	 * @param string $encoding File encoding (see $Encoding).
-	 * @param string $type File extension (MIME) type.
-	 * @param string $disposition Disposition to use
-	 * @return void
-	 */
-	public function addStringAttachment(string $string, string $filename, string $encoding = 'base64', string $type = '', string $disposition = 'attachment'): void
-	{
-		//If a MIME type is not specified, try to work it out from the file name
-		if (empty($type)) {
-			$type = File::getMimeTypesForFile($filename);
-		}
-		// Append to $attachment array
-		$this->listAttachments[] = array(
-			0 => $string,
-			1 => $filename,
-			2 => basename($filename),
-			3 => $encoding,
-			4 => $type,
-			5 => true, // isStringAttachment
-			6 => $disposition,
-			7 => 0
-		);
-	}
-
-	/**
-	 * Add an embedded (inline) attachment from a file.
-	 * This can include images, sounds, and just about any other document type.
-	 * These differ from 'regular' attachmants in that they are intended to be
-	 * displayed inline with the message, not just attached for download.
-	 * This is used in HTML messages that embed the images
-	 * the HTML refers to using the $cid value.
-	 * @param string $path Path to the attachment.
-	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
-	 * @param string $name Overrides the attachment name.
-	 * @param string $encoding File encoding (see $Encoding).
-	 * @param string $type File MIME type.
-	 * @param string $disposition Disposition to use
-	 * @return bool True on successfully adding an attachment
-	 */
-	public function addEmbeddedImage(string $path, string $cid, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'inline'): bool
-	{
-		if (!@is_file($path)) {
-			//error('Could not access file: '.$path);
-			return false;
-		}
-
-		if (filesize($path) > self::ATTACHMENT_FILESIZE_MAX) {
-			//error('Ce fichier est trop gros pour être mis en pièce jointe du mail: '.$path);
-			return false;
-		}
-
-		//If a MIME type is not specified, try to work it out from the file name
-		if (empty($type)) {
-			$type = File::getMimeTypesForFile($path);
-		}
-
-		$filename = basename($path);
-		if (empty($name)) {
-			$name = $filename;
-		}
-
-		// Append to $attachment array
-		$this->listAttachments[] = [
-			0 => $path,
-			1 => $filename,
-			2 => $name,
-			3 => $encoding,
-			4 => $type,
-			5 => false, // isStringAttachment
-			6 => $disposition,
-			7 => $cid
-		];
-		return true;
-	}
-
-	/**
-	 * Add an embedded stringified attachment.
-	 * This can include images, sounds, and just about any other document type.
-	 * Be sure to set the $type to an image type for images:
-	 * JPEG images use 'image/jpeg', GIF uses 'image/gif', PNG uses 'image/png'.
-	 * @param string $string The attachment binary data.
-	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
-	 * @param string $name
-	 * @param string $encoding File encoding (see $Encoding).
-	 * @param string $type MIME type.
-	 * @param string $disposition Disposition to use
-	 * @return bool True on successfully adding an attachment
-	 */
-	public function addStringEmbeddedImage(string $string, string $cid, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'inline'): bool
-	{
-		//If a MIME type is not specified, try to work it out from the name
-		if (empty($type)) {
-			$type = File::getMimeTypesForFile($name);
-		}
-
-		// Append to $attachment array
-		$this->listAttachments[] = [
-			0 => $string,
-			1 => $name,
-			2 => $name,
-			3 => $encoding,
-			4 => $type,
-			5 => true, // isStringAttachment
-			6 => $disposition,
-			7 => $cid
-		];
-		return true;
-	}
-
-	/**
 	 * Return the array of attachments.
 	 * @return array
 	 */
@@ -881,6 +750,197 @@ class Email
 	}
 
 	/**
+	 * @param array $listAttachments
+	 * @return self
+	 */
+	public function addListAttachment(array $listAttachments): self
+	{
+		foreach ($listAttachments as $attachment) {
+			$attachmentPath = '';
+			$attachmentName = '';
+			if (is_array($attachment)) {
+				if (isset($attachment[0])) {
+					$attachmentPath = $attachment[0];
+					if (isset($attachment[1])) {
+						$attachmentName = $attachment[1];
+					}
+				}
+			}
+			else {
+				$attachmentPath = $attachment;
+			}
+			if (!empty($attachmentPath)) {
+				$this->addAttachment($attachmentPath, $attachmentName);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Add an attachment from a path on the filesystem.
+	 * Returns false if the file could not be found or read.
+	 * @param string $path Path to the attachment.
+	 * @param string $name Overrides the attachment name.
+	 * @param string $encoding File encoding (see $Encoding).
+	 * @param string $type File extension (MIME) type.
+	 * @param string $disposition Disposition to use
+	 * @return self
+	 */
+	public function addAttachment(string $path, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'attachment'): self
+	{
+		if (!@is_file($path)) {
+			//error('Could not access file: '.$path);
+			return $this;
+		}
+
+		if (filesize($path) > self::ATTACHMENT_FILESIZE_MAX) {
+			//error('Ce fichier est trop gros pour être mis en pièce jointe du mail: '.$path);
+			return $this;
+		}
+
+		//If a MIME type is not specified, try to work it out from the file name
+		if (empty($type)) {
+			$type = File::getMimeTypesForFile($path);
+		}
+
+		$filename = basename($path);
+		if (empty($name)) {
+			$name = $filename;
+		}
+
+		$this->listAttachments[] = [
+			0 => $path,
+			1 => $filename,
+			2 => $name,
+			3 => $encoding,
+			4 => $type,
+			5 => false, // isStringAttachment
+			6 => $disposition,
+			7 => 0
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Add a string or binary attachment (non-filesystem).
+	 * This method can be used to attach ascii or binary data,
+	 * such as a BLOB record from a database.
+	 * @param string $string String attachment data.
+	 * @param string $filename Name of the attachment.
+	 * @param string $encoding File encoding (see $Encoding).
+	 * @param string $type File extension (MIME) type.
+	 * @param string $disposition Disposition to use
+	 * @return self
+	 */
+	public function addStringAttachment(string $string, string $filename, string $encoding = 'base64', string $type = '', string $disposition = 'attachment'): self
+	{
+		//If a MIME type is not specified, try to work it out from the file name
+		if (empty($type)) {
+			$type = File::getMimeTypesForFile($filename);
+		}
+		// Append to $attachment array
+		$this->listAttachments[] = array(
+			0 => $string,
+			1 => $filename,
+			2 => basename($filename),
+			3 => $encoding,
+			4 => $type,
+			5 => true, // isStringAttachment
+			6 => $disposition,
+			7 => 0
+		);
+	}
+
+	/**
+	 * Add an embedded (inline) attachment from a file.
+	 * This can include images, sounds, and just about any other document type.
+	 * These differ from 'regular' attachmants in that they are intended to be
+	 * displayed inline with the message, not just attached for download.
+	 * This is used in HTML messages that embed the images
+	 * the HTML refers to using the $cid value.
+	 * @param string $path Path to the attachment.
+	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
+	 * @param string $name Overrides the attachment name.
+	 * @param string $encoding File encoding (see $Encoding).
+	 * @param string $type File MIME type.
+	 * @param string $disposition Disposition to use
+	 * @return self
+	 */
+	public function addEmbeddedImage(string $path, string $cid, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'inline'): self
+	{
+		if (!@is_file($path)) {
+			//error('Could not access file: '.$path);
+			return $this;
+		}
+
+		if (filesize($path) > self::ATTACHMENT_FILESIZE_MAX) {
+			//error('Ce fichier est trop gros pour être mis en pièce jointe du mail: '.$path);
+			return $this;
+		}
+
+		//If a MIME type is not specified, try to work it out from the file name
+		if (empty($type)) {
+			$type = File::getMimeTypesForFile($path);
+		}
+
+		$filename = basename($path);
+		if (empty($name)) {
+			$name = $filename;
+		}
+
+		// Append to $attachment array
+		$this->listAttachments[] = [
+			0 => $path,
+			1 => $filename,
+			2 => $name,
+			3 => $encoding,
+			4 => $type,
+			5 => false, // isStringAttachment
+			6 => $disposition,
+			7 => $cid
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Add an embedded stringified attachment.
+	 * This can include images, sounds, and just about any other document type.
+	 * Be sure to set the $type to an image type for images:
+	 * JPEG images use 'image/jpeg', GIF uses 'image/gif', PNG uses 'image/png'.
+	 * @param string $string The attachment binary data.
+	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
+	 * @param string $name
+	 * @param string $encoding File encoding (see $Encoding).
+	 * @param string $type MIME type.
+	 * @param string $disposition Disposition to use
+	 * @return self
+	 */
+	public function addStringEmbeddedImage(string $string, string $cid, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'inline'): self
+	{
+		//If a MIME type is not specified, try to work it out from the name
+		if (empty($type)) {
+			$type = File::getMimeTypesForFile($name);
+		}
+
+		// Append to $attachment array
+		$this->listAttachments[] = [
+			0 => $string,
+			1 => $name,
+			2 => $name,
+			3 => $encoding,
+			4 => $type,
+			5 => true, // isStringAttachment
+			6 => $disposition,
+			7 => $cid
+		];
+
+		return $this;
+	}
+
+	/**
 	 * Clear all filesystem, string, and binary attachments.
 	 * @return void
 	 */
@@ -893,19 +953,6 @@ class Email
 	// ========== Subject and text ==========
 
 	/**
-	 * Set du sujet du mail.
-	 * @param string $subject sujet du mail.
-	 * @param bool $encode
-	 */
-	public function setSubject(?string $subject, bool $encode=false): void
-	{
-		if ($encode && strtolower($this->charSet) === 'utf-8') {
-			$subject = utf8_encode($subject);
-		}
-		$this->subject = $subject;
-	}
-
-	/**
 	 * Get du sujet du mail.
 	 * @return string sujet du mail.
 	 */
@@ -915,19 +962,19 @@ class Email
 	}
 
 	/**
-	 * Définit le format du mail au format HTML.
+	 * Set du sujet du mail.
+	 * @param string $subject sujet du mail.
+	 * @param bool $encode
+	 * @return self
 	 */
-	public function setHtmlFormat(): void
+	public function setSubject(?string $subject, bool $encode=false): self
 	{
-		$this->isHtml = true;
-	}
+		if ($encode && strtolower($this->charSet) === 'utf-8') {
+			$subject = utf8_encode($subject);
+		}
+		$this->subject = $subject;
 
-	/**
-	 * Définit le format du mail au format texte.
-	 */
-	public function setTextFormat(): void
-	{
-		$this->isHtml = false;
+		return $this;
 	}
 
 	/**
@@ -939,21 +986,31 @@ class Email
 	}
 
 	/**
-	 * Sets message type to HTML or plain.
-	 * @param bool $isHtml
+	 * Définit le format du mail au format HTML.
 	 */
-	public function setIsHTML(bool $isHtml): void
+	public function setHtmlFormat(): self
 	{
-		$this->isHtml = $isHtml;
+		$this->isHtml = true;
 	}
 
 	/**
-	 * Définit l'encodage de caractère du mail.
-	 * @param string $charSet
+	 * Définit le format du mail au format texte.
 	 */
-	public function setCharSet(string $charSet): void
+	public function setTextFormat(): self
 	{
-		$this->charSet = $charSet;
+		$this->isHtml = false;
+	}
+
+	/**
+	 * Sets message type to HTML or plain.
+	 * @param bool $isHtml
+	 * @return self
+	 */
+	public function setIsHTML(bool $isHtml): self
+	{
+		$this->isHtml = $isHtml;
+
+		return $this;
 	}
 
 	/**
@@ -965,16 +1022,15 @@ class Email
 	}
 
 	/**
-	 * Set du texte du mail.
-	 * @param string $text texte du mail.
-	 * @param bool $encode
+	 * Définit l'encodage de caractère du mail.
+	 * @param string $charSet
+	 * @return self
 	 */
-	public function setText(?string $text, bool $encode=false): void
+	public function setCharSet(string $charSet): self
 	{
-		if ($encode && strtolower($this->charSet) === 'utf-8') {
-			$text = utf8_encode($text);
-		}
-		$this->text = $text;
+		$this->charSet = $charSet;
+
+		return $this;
 	}
 
 	/**
@@ -984,6 +1040,22 @@ class Email
 	public function getText(): ?string
 	{
 		return $this->text;
+	}
+
+	/**
+	 * Set du texte du mail.
+	 * @param string $text texte du mail.
+	 * @param bool $encode
+	 * @return self
+	 */
+	public function setText(?string $text, bool $encode=false): self
+	{
+		if ($encode && strtolower($this->charSet) === 'utf-8') {
+			$text = utf8_encode($text);
+		}
+		$this->text = $text;
+
+		return $this;
 	}
 
 	// ========== Sending options ==========
@@ -999,10 +1071,13 @@ class Email
 	/**
 	 * Set de la date et heure de l'envoi du mail.
 	 * @param \DateTime $sendingDateTime
+	 * @return self
 	 */
-	public function setSendingDateTime(?\DateTime $sendingDateTime): void
+	public function setSendingDateTime(?\DateTime $sendingDateTime): self
 	{
 		$this->sendingDateTime = $sendingDateTime;
+
+		return $this;
 	}
 
 
@@ -1053,13 +1128,13 @@ class Email
 	 */
 	private static function formatEmailList(array $emailList): array
 	{
-		$formattedlistTo = [];
+		$formattedList = [];
 		foreach ($emailList as $emailData) {
 			if (!empty($emailData)) {
-				$formattedlistTo[] = self::formatEmailAndName($emailData[0], $emailData[1] ?? null);
+				$formattedList[] = self::formatEmailAndName($emailData[0], $emailData[1] ?? null);
 			}
 		}
-		return $formattedlistTo;
+		return $formattedList;
 	}
 
 
