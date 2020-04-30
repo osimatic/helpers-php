@@ -56,14 +56,23 @@ class URL
 	// ========== Components of URL ==========
 
 	/**
-	 * Retourne le domaine de premier niveau contenu dans une URL (ou dans une chaîne de caractère), avec éventuellement le séparateur "."
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le domaine de premier niveau
-	 * @return string le domaine de premier niveau contenu dans l'URL (ou dans la chaîne de caractère)
+	 * Retourne le domaine de premier niveau contenu dans une URL, avec éventuellement le séparateur "."
+	 * @param string $url l'URL dans laquelle récupérer le domaine de premier niveau
+	 * @param boolean $withPoint true pour ajouter le séparateur "." avant le domaine de premier niveau, false sinon (true par défaut)
+	 * @return string le domaine de premier niveau contenu dans l'URL
 	 */
-	public static function getTld(string $url): string
+	public static function getTld(string $url, bool $withPoint=true): string
 	{
 		$host = self::getHost($url, false, true);
-		return substr($host, strrpos($host, '.')+1);
+
+		$tld = substr($host, strrpos($host, '.'));
+
+		if (!$withPoint) {
+			$tld = substr($tld, 1);
+		}
+
+		return $tld;
+		//return substr($host, strrpos($host, '.')+1);
 	}
 
 	/**
@@ -77,10 +86,10 @@ class URL
 	}
 
 	/**
-	 * Retourne le domaine de deuxième niveau contenu dans une URL (ou dans une chaîne de caractère), avec éventuellement le domaine de premier niveau
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le domaine de deuxième niveau
+	 * Retourne le domaine de deuxième niveau contenu dans une URL, avec éventuellement le domaine de premier niveau
+	 * @param string $url l'URL dans laquelle récupérer le domaine de deuxième niveau
 	 * @param boolean $withTld true pour ajouter le domaine de premier niveau contenu dans l'URL, false sinon (true par défaut)
-	 * @return string le domaine de deuxième niveau contenu dans l'URL (ou dans la chaîne de caractère)
+	 * @return string le domaine de deuxième niveau contenu dans l'URL
 	 */
 	public static function getSld(string $url, bool $withTld=true): string
 	{
@@ -113,11 +122,11 @@ class URL
 	}
 
 	/**
-	 * Retourne le protocole contenu dans une URL (ou dans une chaîne de caractère), avec éventuellement l'ajout du séparateur "://"
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le protocole
+	 * Retourne le protocole contenu dans une URL, avec éventuellement l'ajout du séparateur "://"
+	 * @param string $url l'URL dans laquelle récupérer le protocole
 	 * @param boolean $withSchemeSeparator true pour ajouter le séparateur "://" après le protocole, false sinon (true par défaut)
 	 * @param boolean $returnEmptyStringIfNoScheme true pour returner une chaîne vide si le protocole n'est pas présent dans l'URL, false pour retourner le protocole HTTP par défaut si le protocole n'est pas présent (false par défaut)
-	 * @return string le protocole contenu dans l'URL (ou dans la chaîne de caractère)
+	 * @return string le protocole contenu dans l'URL
 	 */
 	public static function getScheme(string $url, bool $withSchemeSeparator=true, bool $returnEmptyStringIfNoScheme=false): string
 	{
@@ -139,8 +148,8 @@ class URL
 
 
 	/**
-	 * Retourne le nom de domaine contenu dans une URL (ou dans une chaîne de caractère), avec éventuellement l'ajout ou la suppression du caractère "/" à la fin
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le nom de domaine
+	 * Retourne le nom de domaine contenu dans une URL, avec éventuellement l'ajout ou la suppression du caractère "/" à la fin
+	 * @param string $url l'URL dans laquelle récupérer le nom de domaine
 	 * @param boolean $addSlashAtEnd true pour ajouter (s'il n'est pas présent) le caractère "/" à la fin du nom de domaine, false sinon (true par défaut)
 	 * @param boolean $deleteSlashAtEnd true pour enlever (s'il est présent) le caractère "/" à la fin du nom de domaine, false sinon (false par défaut)
 	 * @return string le nom de domaine contenu dans l'URL (ou dans la chaîne de caractère)
@@ -159,8 +168,8 @@ class URL
 	}
 
 	/**
-	 * Retourne le port contenu dans une URL (ou dans une chaîne de caractère), avec éventuellement l'ajout du séparateur ":" à la fin
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le port
+	 * Retourne le port contenu dans une URL, avec éventuellement l'ajout du séparateur ":" à la fin
+	 * @param string $url l'URL dans laquelle récupérer le port
 	 * @return string|null le port contenu dans l'URL (ou dans la chaîne de caractère)
 	 */
 	public static function getPort(string $url): ?string
@@ -174,11 +183,11 @@ class URL
 	}
 
 	/**
-	 * Retourne le chemin contenu dans une URL (ou dans une chaîne de caractère), avec éventuellement l'ajout ou la suppression du caractère "/" au tout début
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le chemin
+	 * Retourne le chemin contenu dans une URL, avec éventuellement l'ajout ou la suppression du caractère "/" au tout début
+	 * @param string $url l'URL dans laquelle récupérer le chemin
 	 * @param boolean $addSlashAtBeginning true pour ajouter (s'il n'est pas présent) le caractère "/" au début du chemin, false sinon (true par défaut)
 	 * @param boolean $deleteSlashAtBeginning true pour enlever (s'il est présent) le caractère "/" au début du chemin, false sinon (false par défaut)
-	 * @return string le chemin contenu dans l'URL (ou dans la chaîne de caractère)
+	 * @return string le chemin contenu dans l'URL
 	 */
 	public static function getPath(string $url, bool $addSlashAtBeginning=true, bool $deleteSlashAtBeginning=false): string
 	{
@@ -195,9 +204,9 @@ class URL
 	}
 
 	/**
-	 * Retourne le nom de fichier (sans son chemin) dans une URL (ou dans une chaîne de caractère), avec éventuellement l'ajout ou la suppression du caractère "/" au tout début
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer le nom de fichier
-	 * @return string le nom de fichier (sans son chemin) contenu dans l'URL (ou dans la chaîne de caractère)
+	 * Retourne le nom de fichier (sans son chemin) dans une URL, avec éventuellement l'ajout ou la suppression du caractère "/" au tout début
+	 * @param string $url l'URL dans laquelle récupérer le nom de fichier
+	 * @return string le nom de fichier (sans son chemin) contenu dans l'URL
 	 */
 	public static function getFile(string $url): string
 	{
@@ -210,11 +219,11 @@ class URL
 
 
 	/**
-	 * Retourne les paramètres GET (sous forme de chaîne de caractère ou de tableau) dans une URL (ou dans une chaîne de caractère), avec éventuellement l'ajout du caractère "?" au tout début
-	 * @param string $url l'URL (ou dans une chaîne de caractère) dans laquelle récupérer la chaîne de caractère correspondant aux paramètres GET
+	 * Retourne les paramètres GET (sous forme de chaîne de caractère ou de tableau) dans une URL, avec éventuellement l'ajout du caractère "?" au tout début
+	 * @param string $url l'URL dans laquelle récupérer la chaîne de caractère correspondant aux paramètres GET
 	 * @param boolean $withQueryStringSeparator true pour ajout le séparateur "?" au tout début, false sinon (true par défaut)
 	 * @param boolean $withQueryStringSeparatorIfEmptyQueryString true pour ajout le séparateur "?" au tout début même s'il y a aucun paramètre GET, false sinon (false par défaut)
-	 * @return string la chaîne de caractère correspondant aux paramètres GET contenu dans l'URL (ou dans la chaîne de caractère) ou un  tableau associatif avec en clé le nom du paramètre et en valeur la valeur du paramètre
+	 * @return string la chaîne de caractère correspondant aux paramètres GET contenu dans l'URL ou un  tableau associatif avec en clé le nom du paramètre et en valeur la valeur du paramètre
 	 */
 	public static function getQueryString(string $url, bool $withQueryStringSeparator=false, bool $withQueryStringSeparatorIfEmptyQueryString=false): string
 	{
