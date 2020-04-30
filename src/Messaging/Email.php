@@ -29,7 +29,7 @@ class Email
 	 * The From email address for the message.
 	 * @var string
 	 */
-	private $fromEmailAddress;
+	private $fromEmailAddress = '';
 
 	/**
 	 * The From name of the message.
@@ -51,7 +51,7 @@ class Email
 	 * [1] => son nom (non obligatoire)
 	 * @var array
 	 */
-	private $replyTo;
+	private $replyTo = [];
 
 	/**
 	 * Tableau contenant la liste des destinataires du mail.
@@ -60,7 +60,7 @@ class Email
 	 * [1] => son nom (non obligatoire)
 	 * @var array
 	 */
-	private $listTo;
+	private $listTo = [];
 
 	/**
 	 * Tableau contenant la liste des destinataires en copie du mail.
@@ -69,7 +69,7 @@ class Email
 	 * [1] => son nom (non obligatoire)
 	 * @var array
 	 */
-	private $listCc;
+	private $listCc = [];
 
 	/**
 	 * Tableau contenant la liste des destinataires en copie cachée du mail.
@@ -78,7 +78,7 @@ class Email
 	 * [1] => son nom (non obligatoire)
 	 * @var array
 	 */
-	private $listBcc;
+	private $listBcc = [];
 
 	/**
 	 * The email address that a reading confirmation should be sent to, also known as read receipt.
@@ -101,13 +101,13 @@ class Email
 	 * [7] => 0 si c'est une pièce jointe à part, id unique si c'est une embedded image
 	 * @var array
 	 */
-	private $listAttachments;
+	private $listAttachments = [];
 
 	/**
 	 * Format du mail (true si le mail est au format HTML, false s'il est au format texte).
 	 * @var boolean
 	 */
-	private $isHtml;
+	private $isHtml = false;
 
 	/**
 	 * The Subject of the message.
@@ -197,6 +197,18 @@ class Email
 
 
 	/**
+	 * Email constructor.
+	 */
+	public function __construct()
+	{
+		$this->sendingDateTime = \Osimatic\Helpers\DateTime\DateTime::getCurrentDateTime();
+	}
+
+
+
+	// ========== Vérification ==========
+
+	/**
 	 * @param string $email l'adresse email à vérifier
 	 * @return bool
 	 */
@@ -204,6 +216,8 @@ class Email
 	{
 		return filter_var($email, FILTER_VALIDATE_EMAIL);;
 	}
+
+	// ========== Get element ==========
 
 	/**
 	 * Retourne le nom de domaine (fournisseur) contenu dans une adresse email
@@ -230,6 +244,7 @@ class Email
 		$host = self::getHost($email);
 		return \Osimatic\Helpers\Network\URL::getTld($host, $withPoint);
 	}
+
 
 
 
