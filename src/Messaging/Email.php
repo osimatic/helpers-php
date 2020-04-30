@@ -536,7 +536,7 @@ class Email
 	 * @param string|null $name
 	 * @return self
 	 */
-	public function addRecipientEmail(?string $emailAddress, ?string $name = ''): self
+	public function addRecipient(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->addEmailAddress('listTo', $emailAddress, $name);
 
@@ -613,7 +613,7 @@ class Email
 	 * @param string|null $name
 	 * @return self
 	 */
-	public function setRecipientEmail(?string $emailAddress, ?string $name = ''): self
+	public function setRecipient(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
 		$this->addEmailAddress('listTo', $emailAddress, $name);
@@ -630,6 +630,19 @@ class Email
 	{
 		$this->clearListTo();
 		$this->addEmailAddress('listTo', $emailAddress, $name);
+
+		return $this;
+	}
+
+	/**
+	 * Définie une liste de destinataires pour le mail.
+	 * @param array $listRecipients
+	 * @return self
+	 */
+	public function setListRecipients(array $listRecipients): self
+	{
+		$this->clearListTo();
+		$this->addEmailAddressList('listTo', $listRecipients);
 
 		return $this;
 	}
