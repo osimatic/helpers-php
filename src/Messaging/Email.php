@@ -140,7 +140,7 @@ class Email
 	 * Encodage de caractère du mail.
 	 * @var string
 	 */
-	private $charSet = 'iso-8859-1';
+	private $charSet = 'utf-8';
 
 	/**
 	 * The MIME Content-type of the message.
