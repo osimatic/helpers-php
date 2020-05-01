@@ -79,11 +79,79 @@ class DateTime
 		if (empty($str) || false === SqlDate::check($sqlDate = SqlDate::parse($str))) {
 			return null;
 		}
+		return self::parseFromSqlDateTime($sqlDate.' 00:00:00');
+	}
+
+	/**
+	 * @param string $sqlDateTime
+	 * @return \DateTime|null
+	 */
+	public static function parseFromSqlDateTime(string $sqlDateTime): ?\DateTime
+	{
 		try {
-			return new \DateTime($sqlDate.' 00:00:00');
-		}
-		catch (\Exception $e) { }
+			return new \DateTime($sqlDateTime);
+		} catch (\Exception $e) {}
 		return null;
+	}
+
+	// ========== Semaine ==========
+
+	/**
+	 * @param $year
+	 * @param $week
+	 * @return string
+	 */
+	public static function getFirstDayOfWeek($year, $week): string
+	{
+		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfWeek($year, $week).' 00:00:00');
+	}
+
+	/**
+	 * @param $year
+	 * @param $week
+	 * @return string
+	 */
+	public static function getLastDayOfWeek($year, $week): string
+	{
+		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek($year, $week).' 00:00:00');
+	}
+
+	// ========== Mois ==========
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfCurrentMonth(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfMonth(date('Y'), date('m')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfCurrentMonth(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(SqlDate::getLastDayOfMonth(date('Y'), date('m')).' 00:00:00');
+	}
+
+	/**
+	 * @param $year
+	 * @param $month
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfMonth($year, $month): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfMonth($year, $month).' 00:00:00');
+	}
+
+	/**
+	 * @param $year
+	 * @param $month
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfMonth($year, $month): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(SqlDate::getLastDayOfMonth($year, $month).' 00:00:00');
 	}
 
 }

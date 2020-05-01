@@ -93,8 +93,7 @@ class SqlDate
 	 */
 	public static function getLastDayOfMonth($year, $month): string
 	{
-		$nbDaysInMonth = date("t", mktime( 0, 0, 0, $month, 1, $year));
-		return date('Y-m-d', mktime(0, 0, 0, $month, $nbDaysInMonth, $year));
+		return date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
 	}
 
 }
