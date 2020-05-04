@@ -145,7 +145,7 @@ class DirectDebitTransaction
 				'DrctDbtTx' => [
 					'MndtRltdInf' => [
 						'MndtId' => $transaction['sepa_mandate_rum'],
-						'DtOfSgntr' => date('Y-m-d', strtotime($transaction['sepa_mandate_date_of_signature'])),
+						'DtOfSgntr' => date('Y-m-d', $transaction['sepa_mandate_date_of_signature']),
 					]
 				],
 				'DbtrAgt' => [
