@@ -42,11 +42,11 @@ class SqlDate
 	// ========== Semaine ==========
 
 	/**
-	 * @param $year
-	 * @param $week
+	 * @param int $year
+	 * @param int $week
 	 * @return string
 	 */
-	public static function getFirstDayOfWeek($year, $week): string
+	public static function getFirstDayOfWeek(int $year, int $week): string
 	{
 		$timeStampPremierJanvier = strtotime($year . '-01-01 00:00:00');
 		$jourPremierJanvier = date('w', $timeStampPremierJanvier);
@@ -65,11 +65,11 @@ class SqlDate
 	}
 
 	/**
-	 * @param $year
-	 * @param $week
+	 * @param int $year
+	 * @param int $week
 	 * @return string
 	 */
-	public static function getLastDayOfWeek($year, $week): string
+	public static function getLastDayOfWeek(int $year, int $week): string
 	{
 		return date('Y-m-d', strtotime(self::getFirstDayOfWeek($year, $week).' 00:00:00')+(6*3600*24));
 	}
@@ -77,21 +77,21 @@ class SqlDate
 	// ========== Mois ==========
 
 	/**
-	 * @param $year
-	 * @param $month
+	 * @param int $year
+	 * @param int $month
 	 * @return string
 	 */
-	public static function getFirstDayOfMonth($year, $month): string
+	public static function getFirstDayOfMonth(int $year, int $month): string
 	{
 		return date('Y-m-d', mktime(0, 0, 0, $month, 1, $year));
 	}
 
 	/**
-	 * @param $year
-	 * @param $month
+	 * @param int $year
+	 * @param int $month
 	 * @return string
 	 */
-	public static function getLastDayOfMonth($year, $month): string
+	public static function getLastDayOfMonth(int $year, int $month): string
 	{
 		return date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
 	}

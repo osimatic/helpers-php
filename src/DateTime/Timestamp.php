@@ -4,22 +4,43 @@ namespace Osimatic\Helpers\DateTime;
 
 class Timestamp
 {
+	/**
+	 * @param int $timestamp
+	 * @return bool
+	 */
 	public static function isDateInThePast(int $timestamp): bool
 	{
 		return $timestamp < mktime(0, 0, 0, date('m'), date('d'), date('Y'));
 	}
 
+	/**
+	 * @param int $timestamp
+	 * @return bool
+	 */
 	public static function isTimeInThePast(int $timestamp): bool
 	{
 		return $timestamp <  mktime(date('H'), date('i'), date('s'), date('m'), date('d'), date('Y'));
 	}
 
-	public static function getByYearMonthDay($year, $month, $day): int
+	/**
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @return int
+	 */
+	public static function getByYearMonthDay(int $year, int $month, int $day): int
 	{
-		return mktime(0, 0, 0, (int) $month, (int) $day, (int) $year);
+		return mktime(0, 0, 0, $month, $day, $year);
 	}
 
-	public static function getTimestampNextDayOfWeekByYearMonthDay(int $dayOfWeekInNumeric, $year, $month, $day): int
+	/**
+	 * @param int $dayOfWeekInNumeric
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @return int
+	 */
+	public static function getTimestampNextDayOfWeekByYearMonthDay(int $dayOfWeekInNumeric, int $year, int $month, int $day): int
 	{
 		$timestampCurrent = mktime(0, 0, 0, $month, $day, $year);
 		while (date('N', $timestampCurrent) != $dayOfWeekInNumeric) {
@@ -28,7 +49,14 @@ class Timestamp
 		return $timestampCurrent;
 	}
 
-	public static function getTimestampPreviousDayOfWeekByYearMonthDay(int $dayOfWeekInNumeric, $year, $month, $day): int
+	/**
+	 * @param int $dayOfWeekInNumeric
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @return int
+	 */
+	public static function getTimestampPreviousDayOfWeekByYearMonthDay(int $dayOfWeekInNumeric, int $year, int $month, int $day): int
 	{
 		$timestampCurrent = mktime(0, 0, 0, $month, $day, $year);
 		while (date('N', $timestampCurrent) != $dayOfWeekInNumeric) {
@@ -37,12 +65,22 @@ class Timestamp
 		return $timestampCurrent;
 	}
 
-	public static function getNextDayOfWeekOfWeek(int $dayOfWeekInNumeric, $timestamp): int
+	/**
+	 * @param int $dayOfWeekInNumeric
+	 * @param int $timestamp
+	 * @return int
+	 */
+	public static function getNextDayOfWeekOfWeek(int $dayOfWeekInNumeric, int $timestamp): int
 	{
 		return self::getTimestampNextDayOfWeekByYearMonthDay($dayOfWeekInNumeric, date('Y', $timestamp), date('m', $timestamp), date('d', $timestamp));
 	}
 
-	public static function getPreviousDayOfWeekOfWeek(int $dayOfWeekInNumeric, $timestamp): int
+	/**
+	 * @param int $dayOfWeekInNumeric
+	 * @param int $timestamp
+	 * @return int
+	 */
+	public static function getPreviousDayOfWeekOfWeek(int $dayOfWeekInNumeric, int $timestamp): int
 	{
 		return self::getTimestampPreviousDayOfWeekByYearMonthDay($dayOfWeekInNumeric, date('Y', $timestamp), date('m', $timestamp), date('d', $timestamp));
 	}

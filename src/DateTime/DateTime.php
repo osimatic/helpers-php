@@ -97,21 +97,21 @@ class DateTime
 	// ========== Semaine ==========
 
 	/**
-	 * @param $year
-	 * @param $week
+	 * @param int $year
+	 * @param int $week
 	 * @return string
 	 */
-	public static function getFirstDayOfWeek($year, $week): string
+	public static function getFirstDayOfWeek(int $year, int $week): string
 	{
 		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfWeek($year, $week).' 00:00:00');
 	}
 
 	/**
-	 * @param $year
-	 * @param $week
+	 * @param int $year
+	 * @param int $week
 	 * @return string
 	 */
-	public static function getLastDayOfWeek($year, $week): string
+	public static function getLastDayOfWeek(int $year, int $week): string
 	{
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek($year, $week).' 00:00:00');
 	}
@@ -151,21 +151,21 @@ class DateTime
 	}
 
 	/**
-	 * @param $year
-	 * @param $month
+	 * @param int $year
+	 * @param int $month
 	 * @return \DateTime|null
 	 */
-	public static function getFirstDayOfMonth($year, $month): ?\DateTime
+	public static function getFirstDayOfMonth(int $year, int $month): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfMonth($year, $month).' 00:00:00');
 	}
 
 	/**
-	 * @param $year
-	 * @param $month
+	 * @param int $year
+	 * @param int $month
 	 * @return \DateTime|null
 	 */
-	public static function getLastDayOfMonth($year, $month): ?\DateTime
+	public static function getLastDayOfMonth(int $year, int $month): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfMonth($year, $month).' 00:00:00');
 	}
