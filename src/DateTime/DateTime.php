@@ -135,6 +135,22 @@ class DateTime
 	}
 
 	/**
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfPreviousMonth(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('first day of previous month')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfPreviousMonth(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of previous month')).' 00:00:00');
+	}
+
+	/**
 	 * @param $year
 	 * @param $month
 	 * @return \DateTime|null
