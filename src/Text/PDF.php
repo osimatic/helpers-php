@@ -32,10 +32,13 @@ class PDF
 	/**
 	 * Set the logger to use to log debugging data.
 	 * @param LoggerInterface $logger
+	 * @return self
 	 */
-	public function setLogger(LoggerInterface $logger)
+	public function setLogger(LoggerInterface $logger): self
 	{
 		$this->logger = $logger;
+
+		return $this;
 	}
 
 	// ========== Vérification de PDF ==========
@@ -54,36 +57,48 @@ class PDF
 
 	/**
 	 * @param string $html
+	 * @return self
 	 */
-	public function setHeader(string $html): void
+	public function setHeader(string $html): self
 	{
 		$this->header = $html;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $html
+	 * @return self
 	 */
-	public function setFooter(string $html): void
+	public function setFooter(string $html): self
 	{
 		$this->footer = $html;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $htmlHeader
 	 * @param string $htmlFooter
+	 * @return self
 	 */
-	public function setHeaderAndFooter(string $htmlHeader, string $htmlFooter): void
+	public function setHeaderAndFooter(string $htmlHeader, string $htmlFooter): self
 	{
 		$this->header = $htmlHeader;
 		$this->footer = $htmlFooter;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $html
+	 * @return self
 	 */
-	public function setBody(string $html): void
+	public function setBody(string $html): self
 	{
 		$this->body = $html;
+
+		return $this;
 	}
 
 	/**
@@ -190,26 +205,35 @@ class PDF
 
 	/**
 	 * @param string $wkHtmlToPdtBinaryPath
+	 * @return self
 	 */
-	public function setWkHtmlToPdtBinaryPath(string $wkHtmlToPdtBinaryPath): void
+	public function setWkHtmlToPdtBinaryPath(string $wkHtmlToPdtBinaryPath): self
 	{
 		$this->wkHtmlToPdtBinaryPath = $wkHtmlToPdtBinaryPath;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $pdfToImgConverterBinaryPath
+	 * @return self
 	 */
-	public function setPdfToImgConverterBinaryPath(string $pdfToImgConverterBinaryPath): void
+	public function setPdfToImgConverterBinaryPath(string $pdfToImgConverterBinaryPath): self
 	{
 		$this->pdfToImgConverterBinaryPath = $pdfToImgConverterBinaryPath;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $pdfToolkitBinaryPath
+	 * @return self
 	 */
-	public function setPdfToolkitBinaryPath(string $pdfToolkitBinaryPath): void
+	public function setPdfToolkitBinaryPath(string $pdfToolkitBinaryPath): self
 	{
 		$this->pdfToolkitBinaryPath = $pdfToolkitBinaryPath;
+
+		return $this;
 	}
 
 }

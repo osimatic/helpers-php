@@ -18,7 +18,8 @@
 	  	"knplabs/knp-snappy": "^1.0",
 	  	"james-heinrich/getid3": "^1.9",
 	  	"google/apiclient": "^2.4",
-	  	"symfony/serializer": "*"
+	  	"symfony/serializer": "*",
+	  	"symfony/intl": "*"
 	},
 	"license": "mit",
 	"authors": [

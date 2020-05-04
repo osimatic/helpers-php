@@ -68,6 +68,7 @@ class DirectDebitTransaction
 			$totalAmount += $transaction['amount'];
 		}
 
+		$creancierCompany = $creditorData['company_name'] ?? null;
 		$creancierIcs = $creditorData['ics'] ?? null;
 		$creancierIban = $creditorData['iban'] ?? null;
 		$creancierBic = $creditorData['bic'] ?? null;
@@ -78,9 +79,9 @@ class DirectDebitTransaction
 					'MsgId' => $referenceTransactions, // Référence du message qui n'est pas utilisée comme référence fonctionnelle.
 					'CreDtTm' => date('Y-m-d\TH:i:s'),
 					'NbOfTxs' => $nbTransactions,
-					'CtrlSum' => $totalAmount,
+					'CtrlSum' => self::formatAmount($totalAmount),
 					'InitgPty' => [
-						'Nm' => 'Osimatic',
+						'Nm' => $creancierCompany,
 					],
 				],
 				'PmtInf' => [
@@ -88,7 +89,7 @@ class DirectDebitTransaction
 					'PmtMtd' => 'DD',
 					'BtchBookg' => 'false',
 					'NbOfTxs' => $nbTransactions,
-					'CtrlSum' => $totalAmount,
+					'CtrlSum' => self::formatAmount($totalAmount),
 					'PmtTpInf' => [
 						'SvcLvl' => [
 							'Cd' => 'SEPA',
@@ -100,7 +101,7 @@ class DirectDebitTransaction
 					],
 					'ReqdColltnDt' => $transactionDate->format('Y-m-d'),
 					'Cdtr' => [
-						'Nm' => 'Osimatic',
+						'Nm' => $creancierCompany,
 					],
 					'CdtrAcct' => [
 						'Id' => [
@@ -138,9 +139,9 @@ class DirectDebitTransaction
 				],
 				'InstdAmt' => [
 					'@attributes' => [
-						'Ccy' => 'EUR'
+						'Ccy' => $transaction['currency']
 					],
-					'@value' => $transaction['amount']
+					'@value' => self::formatAmount($transaction['amount'])
 				],
 				'DrctDbtTx' => [
 					'MndtRltdInf' => [
@@ -171,4 +172,14 @@ class DirectDebitTransaction
 
 		return true;
 	}
+
+	/**
+	 * @param float $amount
+	 * @return string
+	 */
+	private static function formatAmount(float $amount): string
+	{
+		return number_format($amount, 2, '.', '');
+	}
+
 }

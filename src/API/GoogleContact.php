@@ -177,6 +177,10 @@ class GoogleContact
 		return $contactsList;
 	}
 
+	/**
+	 * @param array $data
+	 * @return string|null
+	 */
 	public static function parsePhoneNumber(array $data): ?string
 	{
 		if (empty($number = ($data['uri'] ?? null))) {
@@ -186,6 +190,10 @@ class GoogleContact
 		return str_replace('-', '', $number);
 	}
 
+	/**
+	 * @param array $data
+	 * @return string|null
+	 */
 	public static function getDataRelType(array $data): ?string
 	{
 		if (empty($relUrl = ($data['rel'] ?? null))) {
@@ -194,6 +202,10 @@ class GoogleContact
 		return substr($relUrl, strpos($relUrl, '#')+1);
 	}
 
+	/**
+	 * @param string|null $code
+	 * @return string|null
+	 */
 	private function getAccessToken(?string $code): ?string
 	{
 		//var_dump($code);

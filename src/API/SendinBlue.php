@@ -84,6 +84,9 @@ class SendinBlue
 		return $res;
 	}
 
+	/**
+	 * @return array
+	 */
 	private function getHeaders(): array
 	{
 		return [

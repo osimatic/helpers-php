@@ -96,7 +96,11 @@ class Ekomi
 		return [$result['info']['fb_avg'], $result['info']['fb_count']];
 	}
 
-	private function executeRequest($url): ?array
+	/**
+	 * @param string $url
+	 * @return array|null
+	 */
+	private function executeRequest(string $url): ?array
 	{
 		$version = 'cust-'.self::SCRIPT_VERSION;
 		$auth = $this->interfaceId.'|'.$this->interfacePassword;

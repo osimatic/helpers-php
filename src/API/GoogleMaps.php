@@ -226,8 +226,11 @@ class GoogleMaps
 		return [$element['duration']['value'] ?? 0, $element['distance']['value'] ?? 0];
 	}
 
-
-	private static function getAddressComponentsFromResult($result): array
+	/**
+	 * @param array|null $result
+	 * @return array
+	 */
+	private static function getAddressComponentsFromResult(?array $result): array
 	{
 		$addressComponents = [];
 		foreach (($result['address_components'] ?? []) as $resultAddressComponent) {
@@ -256,7 +259,11 @@ class GoogleMaps
 		return $addressComponents;
 	}
 
-	private static function getCoordinatesFromResult($result): ?string
+	/**
+	 * @param array|null $result
+	 * @return string|null
+	 */
+	private static function getCoordinatesFromResult(?array $result): ?string
 	{
 		$lat = $result['geometry']['location']['lat'] ?? null;
 		$lng = $result['geometry']['location']['lng'] ?? null;
@@ -266,7 +273,11 @@ class GoogleMaps
 		return $lat.','.$lng;
 	}
 
-	private static function getFormattedAddressFromResult($result): ?string
+	/**
+	 * @param array|null $result
+	 * @return string|null
+	 */
+	private static function getFormattedAddressFromResult(?array $result): ?string
 	{
 		if (empty($formattedAddress = $result['formatted_address'] ?? null)) {
 			return null;

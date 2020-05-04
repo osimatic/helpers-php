@@ -24,18 +24,24 @@ class GoogleReCaptcha
 
 	/**
 	 * @param string $siteKey
+	 * @return self
 	 */
-	public function setSiteKey(string $siteKey): void
+	public function setSiteKey(string $siteKey): self
 	{
 		$this->siteKey = $siteKey;
+
+		return $this;
 	}
 
 	/**
 	 * @param string $secret
+	 * @return self
 	 */
-	public function setSecret(string $secret): void
+	public function setSecret(string $secret): self
 	{
 		$this->secret = $secret;
+
+		return $this;
 	}
 
 	/**

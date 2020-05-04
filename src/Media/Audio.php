@@ -152,10 +152,10 @@ class Audio
 	}
 
 	/**
-	 * @param $audioFilePath
+	 * @param string $audioFilePath
 	 * @return string
 	 */
-	private static function getExtension($audioFilePath): string
+	private static function getExtension(string $audioFilePath): string
 	{
 		$infosFile = new \SplFileInfo($audioFilePath);
 		return strtolower($infosFile->getExtension());

@@ -4,12 +4,20 @@ namespace Osimatic\Helpers\Company;
 
 class VatNumber
 {
+	/**
+	 * @param string $vatNumber
+	 * @return string
+	 */
 	public static function format(string $vatNumber): string
 	{
 		// todo
 		return $vatNumber;
 	}
 
+	/**
+	 * @param string $vatNumber
+	 * @return bool
+	 */
 	public static function check(string $vatNumber): bool
 	{
 		if (empty($vatNumber)) {

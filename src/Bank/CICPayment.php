@@ -2,201 +2,330 @@
 
 namespace Osimatic\Helpers\Bank;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 /**
  * @author Euro-Information <centrecom@e-i.com>
  */
 class CICPayment
 {
-	const CMCIC_VERSION 			= "3.0";
-	const CMCIC_URL_PAIEMENT 		= "https://ssl.paiement.cic-banques.fr/paiement.cgi";
-	const CMCIC_URL_PAIEMENT_TEST 	= "https://ssl.paiement.cic-banques.fr/test/paiement.cgi";
+	const CMCIC_VERSION 			= '3.0';
+	const CMCIC_URL_PAIEMENT 		= 'https://ssl.paiement.cic-banques.fr/paiement.cgi';
+	const CMCIC_URL_PAIEMENT_TEST 	= 'https://ssl.paiement.cic-banques.fr/test/paiement.cgi';
 
+	/**
+	 * @var int
+	 */
 	private $tpeNumber;
+
+	/**
+	 * @var string
+	 */
 	private $companyCode;
+
+	/**
+	 * @var string
+	 */
 	private $key;
 
-	// Montant TTC de la commande formaté de la manière suivante : Un nombre entier, Un point décimal (optionnel), Un nombre entier de n chiffres (n étant le nombre maximal de décimales de la devise) (optionnel)
+	/**
+	 * @var LoggerInterface
+	 */
+	private $logger;
+
+	/**
+	 * Montant TTC de la commande formaté de la manière suivante : Un nombre entier, Un point décimal (optionnel), Un nombre entier de n chiffres (n étant le nombre maximal de décimales de la devise) (optionnel)
+	 * @var float
+	 */
 	private $allTaxesInclAmount;
 
-	// Devise sur 3 caractères alphabétiques ISO4217
+	/**
+	 * Devise sur 3 caractères alphabétiques ISO4217
+	 * @var string
+	 */
 	private $currency;
 
-	// Référence unique de la commande. Taille : 12 caractères alphanumériques maximum
+	/**
+	 * Référence unique de la commande. Taille : 12 caractères alphanumériques maximum
+	 * @var string
+	 */
 	private $reference;
 
-	// Zone de texte libre. Taille : 3200 caractères maximum. Exemples : une référence longue, des contextes de session pour le retour,...
+	/**
+	 * Zone de texte libre. Taille : 3200 caractères maximum. Exemples : une référence longue, des contextes de session pour le retour,...
+	 * @var string
+	 */
 	private $texteLibre;
 
-	// Code langue. Taille : 2 caractères. Exemples : "FR","EN","DE","IT","ES" selon options souscrites
+	/**
+	 * Code langue. Taille : 2 caractères. Exemples : "FR","EN","DE","IT","ES" selon options souscrites
+	 * @var string
+	 */
 	private $language;
 
-	// Adresse email de l’internaute
+	/**
+	 * Adresse email de l’internaute
+	 * @var string
+	 */
 	private $customerEmail;
 
+	/**
+	 * @var string
+	 */
 	private $formTagClass;
+
+	/**
+	 * @var string
+	 */
 	private $buttonTagClass;
+
+	/**
+	 * @var string
+	 */
 	private $buttonTagText;
 
+	/**
+	 * @var boolean
+	 */
 	private $paiementTest;
 
-	// URL par laquelle l’acheteur revient sur la page d’accueil de la boutique
+	/**
+	 * URL par laquelle l’acheteur revient sur la page d’accueil de la boutique
+	 * @var string
+	 */
 	private $returnUrlHome;
-	// URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement accepté
+
+	/**
+	 * URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement accepté
+	 * @var string
+	 */
 	private $returnUrlOk;
-	// URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement refusé
+
+	/**
+	 * URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement refusé
+	 * @var string
+	 */
 	private $returnUrlNotOk;
 
+	public function __construct()
+	{
+		$this->logger = new NullLogger();
+	}
 
-	public function getDataValidationPaiement() {
+
+	/**
+	 * @return array|null
+	 */
+	public function getValidationPaymentData(): ?array
+	{
 		return $this->getDataResultPaiement();
 	}
 
-	public function getForm() {
+	/**
+	 * @return string
+	 */
+	public function getForm(): string
+	{
 		return $this->getCodePaiement(true);
 	}
 
-	public function getUrl() {
+	/**
+	 * @return string
+	 */
+	public function getUrl(): string
+	{
 		return $this->getCodePaiement(false);
 	}
 
-	public function getControlStringForSupport() {
+	/**
+	 * @return string
+	 */
+	public function getControlStringForSupport(): string
+	{
 		return $this->getCtlHmac();
 	}
 
 
-	public function getAllTaxesInclAmount() {
-		return $this->allTaxesInclAmount;
-	}
-
-	public function getCurrency() {
-		return $this->currency;
-	}
-
-	public function getReference() {
-		return $this->reference;
-	}
-
-	public function getTexteLibre() {
-		return $this->texteLibre;
-	}
-
-	public function getLanguage() {
-		return $this->language;
-	}
-
-	public function getCustomerEmail() {
-		return $this->customerEmail;
-	}
-
-	public function getButtonTagText() {
-		return $this->buttonTagText;
-	}
-
-	public function getFormTagClass() {
-		return $this->formTagClass;
-	}
-
-	public function getButtonTagClass() {
-		return $this->buttonTagClass;
-	}
-
-	public function getPaiementTest() {
-		return $this->paiementTest;
-	}
-
-	public function getReturnUrlHome() {
-		return $this->returnUrlHome;
-	}
-
-	public function getReturnUrlOk() {
-		return $this->returnUrlOk;
-	}
-
-	public function getReturnUrlNotOk() {
-		return $this->returnUrlNotOk;
-	}
-
 	/**
-	 * @param mixed $tpeNumber
+	 * @param int $tpeNumber
+	 * @return self
 	 */
-	public function setTpeNumber($tpeNumber): void
+	public function setTpeNumber(int $tpeNumber): self
 	{
 		$this->tpeNumber = $tpeNumber;
+
+		return $this;
 	}
 
 	/**
-	 * @param mixed $companyCode
+	 * @param string $companyCode
+	 * @return self
 	 */
-	public function setCompanyCode($companyCode): void
+	public function setCompanyCode(string $companyCode): self
 	{
 		$this->companyCode = $companyCode;
+
+		return $this;
 	}
 
 	/**
-	 * @param mixed $key
+	 * @param string $key
+	 * @return self
 	 */
-	public function setKey($key): void
+	public function setKey(string $key): self
 	{
 		$this->key = $key;
+		
+		return $this;
 	}
 
-	public function setAllTaxesInclAmount($allTaxesInclAmount) {
+	/**
+	 * Set the logger to use to log debugging data.
+	 * @param LoggerInterface $logger
+	 */
+	public function setLogger(LoggerInterface $logger): void
+	{
+		$this->logger = $logger;
+	}
+
+	/**
+	 * @param float $allTaxesInclAmount
+	 * @return self
+	 */
+	public function setAllTaxesInclAmount(float $allTaxesInclAmount): self
+	{
 		$this->allTaxesInclAmount = $allTaxesInclAmount;
+
+		return $this;
 	}
 
-	public function setCurrency($currency) {
+	/**
+	 * @param string $currency
+	 * @return self
+	 */
+	public function setCurrency(string $currency): self
+	{
 		$this->currency = $currency;
+
+		return $this;
 	}
 
-	public function setReference($reference) {
+	/**
+	 * @param string|null $reference
+	 * @return self
+	 */
+	public function setReference(?string $reference): self
+	{
 		$this->reference = $reference;
+
+		return $this;
 	}
 
-	public function setTexteLibre($texteLibre) {
+	/**
+	 * @param string|null $texteLibre
+	 * @return self
+	 */
+	public function setTexteLibre(?string $texteLibre): self
+	{
 		$this->texteLibre = $texteLibre;
+
+		return $this;
 	}
 
-	public function setLanguage($language) {
+	/**
+	 * @param string|null $language
+	 * @return self
+	 */
+	public function setLanguage(?string $language): self
+	{
 		$this->language = $language;
+
+		return $this;
 	}
 
-	public function setCustomerEmail($customerEmail) {
+	/**
+	 * @param string|null $customerEmail
+	 * @return self
+	 */
+	public function setCustomerEmail(?string $customerEmail): self
+	{
 		$this->customerEmail = $customerEmail;
+
+		return $this;
 	}
 
-	public function setButtonTagText($buttonTagText) {
+	public function setButtonTagText(?string $buttonTagText): self
+	{
 		$this->buttonTagText = $buttonTagText;
+
+		return $this;
 	}
 
-	public function setFormTagClass($formTagClass) {
+	public function setFormTagClass(?string $formTagClass): self
+	{
 		$this->formTagClass = $formTagClass;
+
+		return $this;
 	}
 
-	public function setButtonTagClass($buttonTagClass) {
+	public function setButtonTagClass(?string $buttonTagClass): self
+	{
 		$this->buttonTagClass = $buttonTagClass;
+
+		return $this;
 	}
 
-	public function setPaiementTest($paiementTest) {
+	/**
+	 * @param bool $paiementTest
+	 * @return self
+	 */
+	public function setPaiementTest(bool $paiementTest): self
+	{
 		$this->paiementTest = $paiementTest;
+
+		return $this;
 	}
 
-	public function setReturnUrlHome($returnUrlHome) {
+	/**
+	 * @param string|null $returnUrlHome
+	 * @return self
+	 */
+	public function setReturnUrlHome(?string $returnUrlHome): self
+	{
 		$this->returnUrlHome = $returnUrlHome;
+
+		return $this;
 	}
 
-	public function setReturnUrlOk($returnUrlOk) {
+	/**
+	 * @param string|null $returnUrlOk
+	 * @return self
+	 */
+	public function setReturnUrlOk(?string$returnUrlOk): self
+	{
 		$this->returnUrlOk = $returnUrlOk;
+
+		return $this;
 	}
 
-	public function setReturnUrlNotOk($returnUrlNotOk) {
+	/**
+	 * @param string|null $returnUrlNotOk
+	 * @return self
+	 */
+	public function setReturnUrlNotOk(?string$returnUrlNotOk): self
+	{
 		$this->returnUrlNotOk = $returnUrlNotOk;
+
+		return $this;
 	}
 
 
 
-	// ========== PRIVATE FUNCTION ==========
+	// ========== Private function ==========
 
-	private function getCodePaiement($byForm) {
+	private function getCodePaiement($byForm): string
+	{
 		if ($this->paiementTest) {
 			$urlPaiement = self::CMCIC_URL_PAIEMENT_TEST;
 		}
@@ -205,15 +334,15 @@ class CICPayment
 		}
 
 
-		$date = date("d/m/Y:H:i:s");
+		$date = date('d/m/Y:H:i:s');
 		$this->language = substr($this->language, 0, 2);
 
-		if ($this->texteLibre == "") {
-			$this->texteLibre .= "-";
+		if ($this->texteLibre == '') {
+			$this->texteLibre .= '-';
 		}
 
 		// Calcul du MAC
-		$CMCIC_CGI1_FIELDS = "%s*%s*%s%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s";
+		$CMCIC_CGI1_FIELDS = '%s*%s*%s%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s';
 		$fields = sprintf($CMCIC_CGI1_FIELDS,
 			$this->tpeNumber,
 			$date,
@@ -238,7 +367,7 @@ class CICPayment
 		);
 
 		$mac = self::computeHmac($fields, $this->key);
-		//trace('$fields = '.$fields);
+		$this->logger->info('CICPayment $fields = '.$fields);
 
 		$data = array(
 			'version' => self::CMCIC_VERSION,
@@ -302,23 +431,25 @@ class CICPayment
 		return $codePaiement;
 	}
 
-	private function getCtlHmac() {
+	private function getCtlHmac(): string
+	{
 		//$hmac = self::computeHmac(sprintf(CMCIC_CTLHMACSTR, self::CMCIC_VERSION, $this->tpeNumber), $this->key);
 		//return sprintf("V1.04.sha1.php--[CtlHmac%s%s]-%s", self::CMCIC_VERSION, $this->tpeNumber, $hmac);
-		$data = sprintf("V1.04.sha1.php--[CtlHmac%s%s]", self::CMCIC_VERSION, $this->tpeNumber);
+		$data = sprintf('V1.04.sha1.php--[CtlHmac%s%s]', self::CMCIC_VERSION, $this->tpeNumber);
 		$hmac = self::computeHmac($data, $this->key);
 		return $data.'-'.$hmac;
 	}
 
-	private static function HtmlEncode ($data) {
-		$SAFE_OUT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890._-";
-		$result = "";
-		for ($i=0; $i<strlen($data); $i++) {
+	private static function HtmlEncode($data): string
+	{
+		$SAFE_OUT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890._-';
+		$result = '';
+		for ($i=0, $iMax = strlen($data); $i< $iMax; $i++) {
 			if (strchr($SAFE_OUT_CHARS, $data{$i})) {
 				$result .= $data{$i};
 			}
-			else if (($var = bin2hex(substr($data,$i,1))) <= "7F"){
-				$result .= "&#x" . $var . ";";
+			else if (($var = bin2hex(substr($data,$i,1))) <= '7F') {
+				$result .= '&#x' . $var . ';';
 			}
 			else {
 				$result .= $data{$i};
@@ -327,24 +458,29 @@ class CICPayment
 		return $result;
 	}
 
-	private static function getUsableKey($key) {
+	private static function getUsableKey($key)
+	{
 		$hexStrKey = substr($key, 0, 38);
-		$hexFinal = "" . substr($key, 38, 2) . "00";
+		$hexFinal = '' . substr($key, 38, 2) . '00';
 
 		$cca0 = ord($hexFinal);
 
-		if ($cca0 > 70 && $cca0 < 97)
+		if ($cca0 > 70 && $cca0 < 97) {
 			$hexStrKey .= chr($cca0 - 23) . substr($hexFinal, 1, 1);
-		else {
-			if (substr($hexFinal, 1, 1) == "M")
-				$hexStrKey .= substr($hexFinal, 0, 1) . "0";
-			else
-				$hexStrKey .= substr($hexFinal, 0, 2);
 		}
-		return pack("H*", $hexStrKey);
+		else {
+			if (substr($hexFinal, 1, 1) == 'M') {
+				$hexStrKey .= substr($hexFinal, 0, 1) . '0';
+			}
+			else {
+				$hexStrKey .= substr($hexFinal, 0, 2);
+			}
+		}
+		return pack('H*', $hexStrKey);
 	}
 
-	private static function computeHmac($sData, $key) {
+	private static function computeHmac($sData, $key): string
+	{
 		return strtolower(self::hmac_sha1(self::getUsableKey($key), $sData));
 	}
 
@@ -357,41 +493,42 @@ class CICPayment
 	// Elimine l'installation de mhash pour le calcul d'un HMAC
 	// Adaptée de la version MD5 de Lance Rushing.
 	// ----------------------------------------------------------------------------
-	private static function hmac_sha1 ($key, $data) {
+	private static function hmac_sha1 ($key, $data): string
+	{
 		$length = 64; // block length for SHA1
-		if (strlen($key) > $length) { $key = pack("H*",sha1($key)); }
+		if (strlen($key) > $length) { $key = pack('H*',sha1($key)); }
 		$key  = str_pad($key, $length, chr(0x00));
 		$ipad = str_pad('', $length, chr(0x36));
 		$opad = str_pad('', $length, chr(0x5c));
 		$k_ipad = $key ^ $ipad ;
 		$k_opad = $key ^ $opad;
 
-		return sha1($k_opad  . pack("H*",sha1($k_ipad . $data)));
+		return sha1($k_opad  . pack('H*',sha1($k_ipad . $data)));
 	}
 
-
-	private function getDataResultPaiement() {
-		if ($_SERVER["REQUEST_METHOD"] == "GET") {
+	private function getDataResultPaiement(): ?array
+	{
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 			$bruteVars  = $_GET;
 		}
-		elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
+		elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$bruteVars  = $_POST;
 		}
 		else {
-			//error('Validation du paiement impossible : Invalid REQUEST_METHOD (not GET, not POST)');
-			return false;
+			$this->logger->error('Validation du paiement impossible : Invalid REQUEST_METHOD (not GET, not POST)');
+			return null;
 		}
 
 		if (empty($bruteVars['TPE'])) {
-			//error('Validation du paiement impossible : Variables vides');
-			return false;
+			$this->logger->error('Validation du paiement impossible : Variables vides');
+			return null;
 		}
 
 		// Vérification du MAC
-		$CMCIC_CGI2_FIELDS = "%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*";
+		$CMCIC_CGI2_FIELDS = '%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*%s*';
 		$fields = sprintf($CMCIC_CGI2_FIELDS,
 			$this->tpeNumber,
-			$bruteVars["date"],
+			$bruteVars['date'],
 			$bruteVars['montant'],
 			$bruteVars['reference'],
 			$bruteVars['texte-libre'],
@@ -412,25 +549,27 @@ class CICPayment
 			($bruteVars['pares'] ?? '')
 		);
 		$mac = self::computeHmac($fields, $this->key);
-		//trace('$fields = '.$fields);
+		$this->logger->info('CICPayment $fields = '.$fields);
 
-		if (strtolower($bruteVars['MAC']) == $mac) {
+		if (strtolower($bruteVars['MAC']) === $mac) {
 			$macOk = true;
 			$reponseRenvoyee = "version=2\ncdr=0\n";
 		}
 		else {
 			$macOk = false;
 			$reponseRenvoyee = "version=2\ncdr=1\n";
-			//trace('Le MAC ne correspond pas. MAC obtenu : '.$mac);
+			$this->logger->info('Le MAC ne correspond pas. MAC obtenu : '.$mac);
 		}
 
-		$paiementValid = $macOk && ($bruteVars['code-retour'] == "payetest" || $bruteVars['code-retour'] == "paiement");
-		$paiementTest = ($bruteVars['code-retour'] == "payetest");
+		$paiementValid = $macOk && ($bruteVars['code-retour'] === 'payetest' || $bruteVars['code-retour'] === 'paiement');
+		$paiementTest = ($bruteVars['code-retour'] === 'payetest');
 
 		$currency = substr($bruteVars['montant'], -3);
 		$montantTtc   = substr($bruteVars['montant'], 0, -3);
 
-		$resultData = [
+		// trace('$resultData = '.\My\ArrayList\ArrayHelper::displayStringRecursive($resultData));
+
+		return [
 			'reference' 					=> $bruteVars['reference'],
 			'currency' 						=> $currency,
 			'montant_ttc' 					=> $montantTtc,
@@ -438,11 +577,8 @@ class CICPayment
 			'paiement_test' 				=> $paiementTest,
 			'accuse_reception_display' 		=> $reponseRenvoyee,
 			'texte_libre' 					=> $bruteVars['texte-libre'],
-			'numero_autorisation' 			=> (isset($bruteVars['numauto'])?$bruteVars['numauto']:''),
+			'numero_autorisation' 			=> ($bruteVars['numauto'] ?? ''),
 		];
-		// trace('$resultData = '.\My\ArrayList\ArrayHelper::displayStringRecursive($resultData));
-
-		return $resultData;
 	}
 
 

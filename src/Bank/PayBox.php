@@ -23,6 +23,13 @@ class PayBox
 	const VERSION_PAYBOX_DIRECT = '00103';
 	const VERSION_PAYBOX_DIRECT_PLUS = '00104';
 
+	const CALL_ORIGIN_NOT_SPECIFIED = '020';
+	const CALL_ORIGIN_TELEPHONE_ORDER = '021';
+	const CALL_ORIGIN_MAIL_ORDER = '022';
+	const CALL_ORIGIN_MINITEL = '023';
+	const CALL_ORIGIN_INTERNET_PAYMENT = '024';
+	const CALL_ORIGIN_RECURRING_PAYMENT = '027';
+
 	/**
 	 * Ces constantes sont internes, ne pas utiliser de l'extérieur
 	 */
@@ -39,46 +46,207 @@ class PayBox
 	const TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
 	const TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
 
+	/**
+	 * @var LoggerInterface
+	 */
+	private $logger;
+
+	/**
+	 * @var string
+	 */
 	private $version;
-	private $typeQuestion;
+
+	/**
+	 * @var string
+	 */
 	private $numSite;
-	private $rang;
+
+	/**
+	 * @var string
+	 */
 	private $identifier;
+
+	/**
+	 * @var string
+	 */
 	private $httpPassword;
+
+	/**
+	 * @var string
+	 */
 	private $secretKey;
+
+	/**
+	 * @var string
+	 */
+	private $rang;
+
+	/**
+	 * @var bool
+	 */
 	private $isTest = false;
+
+	/**
+	 * @var bool
+	 */
 	private $useForm = false;
 
-	private $numQuestion;
-	private $montant;
-	private $devise = 'EUR';
-	private $reference;
-	private $subscriberRef;
+
+	/**
+	 * Date and time of the request
+	 * @var \DateTime|null
+	 */
 	private $date;
 
+	/**
+	 * @var string
+	 */
+	private $typeQuestion;
+
+	/**
+	 * Unique identifier for the request that allows to avoid confusion in case of multiple	simultaneous requests.
+	 * @var int
+	 */
+	private $numQuestion;
+
+	/**
+	 * Amount of the transaction
+	 * @var float
+	 */
+	private $montant;
+
+	/**
+	 * Currency code for the transaction.
+	 * @var string
+	 */
+	private $devise = 'EUR';
+
+	/**
+	 * This is the merchant order reference (free field). This allows the merchant to link his platform to the Paybox platform using a reference number.
+	 * @var string
+	 */
+	private $reference;
+
+	/**
+	 * Merchant reference number allowing him to clearly identify the subscriber (profile) that corresponds to the transaction.
+	 * @var string
+	 */
+	private $subscriberRef;
+
+	/**
+	 * @var string
+	 */
 	private $porteurEmail;
+
+	/**
+	 * PAN (card number) of the customer, without any spaces and left aligned, or subscriber number for the request.
+	 * @var string
+	 */
 	private $porteur;
+
+	/**
+	 * Expiry date of the card
+	 * @var string
+	 */
 	private $dateValidite;
+
+	/**
+	 * Visual cryptogram on the back of the card
+	 * @var string
+	 */
 	private $cvv;
 
+	/**
+	 * This parameter allows to inform the acquirer (bank) how the transaction was initiated and how the card entry was realized.
+	 * @var string
+	 */
 	private $activite;
-	private $archivage;
-	private $differe;
-	private $numAppel;
-	private $numTransaction;
-	private $autorisation;
-	private $pays;
 
+	/**
+	 * This reference is transmitted to the acquirer (bank) of the merchant during the settlement of the transaction. The reference needs to be unique and allows the merchant to inquire for additional information from the acquirer (bank) in case of a dispute.
+	 * @var string
+	 */
+	private $archivage;
+
+	/**
+	 * Number of days to postpone the settlement
+	 * @var int
+	 */
+	private $differe;
+
+	/**
+	 * @var string
+	 */
 	private $formCssClass;
+
+	/**
+	 * @var string
+	 */
 	private $buttonCssClass;
+
+	/**
+	 * @var string
+	 */
 	private $buttonText;
+
+	/**
+	 * @var string
+	 */
 	private $urlResponseOk;
+
+	/**
+	 * @var string
+	 */
 	private $urlResponseRefused;
+
+	/**
+	 * @var string
+	 */
 	private $urlResponseCanceled;
+
+	/**
+	 * @var string
+	 */
 	private $urlResponseWaiting;
+
+	/**
+	 * @var string
+	 */
 	private $urlIpn;
 
+
+	/**
+	 * This number is returned by Verifone when a transaction is successfully processed.
+	 * @var int
+	 */
+	private $numAppel;
+
+	/**
+	 * This number is returned by Verifone when a transaction is successfully processed.
+	 * @var int
+	 */
+	private $numTransaction;
+
+	/**
+	 * Authorization number provided by the merchant that was obtained by telephone call to	the acquirer (bank)
+	 * @var string
+	 */
+	private $autorisation;
+
+	/**
+	 * Country code of the issuance of the card
+	 * @var string
+	 */
+	private $pays;
+
+	/**
+	 * @var string
+	 */
 	private $codeReponse;
+
+	/**
+	 * @var string
+	 */
 	private $libelleReponse;
 
 
@@ -166,363 +334,548 @@ class PayBox
 		'00099' => 'Incohérence entre la question et la réponse. Refaire une nouvelle tentative ultérieurement',
 	];
 
-	private $logger;
-
 	public function __construct()
 	{
 		$this->logger = new NullLogger();
 	}
 
+	/**
+	 *
+	 */
 	public function newPayment(): void
 	{
 		$this->codeReponse = '99999';
 	}
 
-	public function doAuthorization()
+	/**
+	 * @return array|null
+	 */
+	public function doAuthorization(): ?array
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_SEULE;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
-	public function doDebit()
+	/**
+	 * @return array|null
+	 */
+	public function doDebit(): ?array
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_DEBIT;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
-	public function doAuthorizationAndDebit()
+	/**
+	 * @return array|null
+	 */
+	public function doAuthorizationAndDebit(): ?array
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_AND_DEBIT;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
-	public function addSubscriber()
+	/**
+	 * @return array|null
+	 */
+	public function addSubscriber(): ?array
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_INSCRIPTION_ABONNE;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
-	public function deleteSubscriber()
+	/**
+	 * @return array|null
+	 */
+	public function deleteSubscriber(): ?array
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_SUPPRESSION_ABONNE;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
-	public function getFormSubscriberRegister()
+	/**
+	 * @return string|null
+	 */
+	public function getFormSubscriberRegister(): ?string
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_INSCRIPTION_ABONNE;
 		$this->useForm = true;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
-	public function getForm()
+	/**
+	 * @return string|null
+	 */
+	public function getForm(): ?string
 	{
 		$this->useForm = true;
-		return $this->doRequest();
+
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
 
-	public function getNumQuestion()
+
+	// ========== Set Request ==========
+
+	/**
+	 * Set the logger to use to log debugging data.
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
 	{
-		return $this->numQuestion;
+		$this->logger = $logger;
+
+		return $this;
 	}
 
-	public function getVersion()
+	/**
+	 * @param string $version
+	 * @return self
+	 */
+	public function setVersion(string $version): self
 	{
-		return $this->version;
+		$this->version = $version;
+
+		return $this;
 	}
 
-	public function getIsTest()
+	/**
+	 * @param string $numSite
+	 * @return self
+	 */
+	public function setNumSite(string $numSite): self
 	{
-		return $this->isTest;
+		$this->numSite = $numSite;
+
+		return $this;
 	}
 
-	public function getRang()
+	/**
+	 * @param string $identifier
+	 * @return self
+	 */
+	public function setIdentifier(string $identifier): self
 	{
-		return $this->rang;
+		$this->identifier = $identifier;
+
+		return $this;
 	}
 
-	public function getDate()
+	/**
+	 * @param string $httpPassword
+	 * @return self
+	 */
+	public function setHttpPassword(string $httpPassword): self
 	{
-		return $this->date;
+		$this->httpPassword = $httpPassword;
+
+		return $this;
 	}
 
-	public function getNumSite()
+	/**
+	 * @param string $secretKey
+	 * @return self
+	 */
+	public function setSecretKey(string $secretKey): self
 	{
-		return $this->numSite;
+		$this->secretKey = $secretKey;
+
+		return $this;
 	}
 
-	public function getReference()
+	/**
+	 * @param string $rang
+	 * @return self
+	 */
+	public function setRang(string $rang): self
 	{
-		return $this->reference;
+		$this->rang = $rang;
+
+		return $this;
 	}
 
-	public function getSubscriberRef()
+	/**
+	 * @param bool $isTest
+	 * @return self
+	 */
+	public function setIsTest(bool $isTest): self
 	{
-		return $this->subscriberRef;
+		$this->isTest = $isTest;
+
+		return $this;
 	}
 
-	public function getMontant()
+
+
+	/**
+	 * @param \DateTime|null $date
+	 * @return self
+	 */
+	public function setDate(?\DateTime $date): self
 	{
-		return $this->montant;
+		$this->date = $date;
+
+		return $this;
 	}
 
-	public function getDevise()
+	/**
+	 * @param int $questionNumber
+	 * @return self
+	 */
+	public function setQuestionNumber(int $questionNumber): self
 	{
-		return $this->devise;
+		$this->numQuestion = $questionNumber;
+
+		return $this;
 	}
 
-	public function getPorteurEmail()
+	/**
+	 * @param float $total
+	 * @return self
+	 */
+	public function setTotal(float $total): self
 	{
-		return $this->porteurEmail;
+		$this->montant = round($total, 2);
+
+		return $this;
 	}
 
-	public function getPorteur()
+	/**
+	 * @param float $transactionAmount
+	 * @return self
+	 */
+	public function setTransactionAmount(float $transactionAmount): self
 	{
-		return $this->porteur;
+		return $this->setTotal($transactionAmount);
 	}
 
-	public function getDateValidite()
+	/**
+	 * @param string $currency
+	 * @return self
+	 */
+	public function setCurrency(string $currency): self
 	{
-		return $this->dateValidite;
+		$this->devise = $currency;
+
+		return $this;
 	}
 
-	public function getCvv()
+	/**
+	 * @param string|null $reference
+	 * @return self
+	 */
+	public function setReference(?string $reference): self
 	{
-		return $this->cvv;
+		$this->reference = $reference;
+
+		return $this;
 	}
 
-	public function getActivite()
+	/**
+	 * @param $subscriberRef
+	 * @return self
+	 */
+	public function setSubscriberReference($subscriberRef): self
 	{
-		return $this->activite;
+		$this->subscriberRef = $subscriberRef;
+
+		return $this;
 	}
 
-	public function getArchivage()
+	/**
+	 * @param string $porteurEmail
+	 * @return self
+	 */
+	public function setCustomerEmail(string $porteurEmail): self
 	{
-		return $this->archivage;
+		$this->porteurEmail = $porteurEmail;
+
+		return $this;
 	}
 
-	public function getDiffere()
+	/**
+	 * @param string $creditCardNumber
+	 * @return self
+	 */
+	public function setCreditCardNumber(string $creditCardNumber): self
 	{
-		return $this->differe;
+		$this->porteur = $creditCardNumber;
+
+		return $this;
 	}
 
-	public function getNumAppel()
+	/**
+	 * @param string $creditCardToken
+	 * @return self
+	 */
+	public function setCreditCardToken(string $creditCardToken): self
+	{
+		$this->porteur = $creditCardToken;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $dateValidite
+	 * @return self
+	 */
+	public function setExpirationDate(string $dateValidite): self
+	{
+		$this->dateValidite = $dateValidite;
+
+		return $this;
+	}
+
+	/**
+	 * @param $cvv
+	 * @return self
+	 */
+	public function setCvc($cvv): self
+	{
+		$this->cvv = $cvv;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $callOrigin
+	 * @return self
+	 */
+	public function setCallOrigin(string $callOrigin): self
+	{
+		$this->activite = $callOrigin;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $archivingReference
+	 * @return self
+	 */
+	public function setArchivingReference(string $archivingReference): self
+	{
+		$this->archivage = $archivingReference;
+
+		return $this;
+	}
+
+	/**
+	 * @param int $numberOfDays
+	 * @return self
+	 */
+	public function setNumberOfDaysForPostponedSettlement(int $numberOfDays): self
+	{
+		$this->differe = $numberOfDays;
+
+		return $this;
+	}
+
+	/**
+	 * @param int $callNumber
+	 * @return self
+	 */
+	public function setCallNumber(int $callNumber): self
+	{
+		$this->numAppel = $callNumber;
+
+		return $this;
+	}
+
+	/**
+	 * @param int $transactionNumber
+	 * @return self
+	 */
+	public function setTransactionNumber(int $transactionNumber): self
+	{
+		$this->numTransaction = $transactionNumber;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $authorizationNumber
+	 * @return self
+	 */
+	public function setAuthorizationNumber(string $authorizationNumber): self
+	{
+		$this->autorisation = $authorizationNumber;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $formCssClass
+	 * @return self
+	 */
+	public function setFormCssClass(?string $formCssClass): self
+	{
+		$this->formCssClass = $formCssClass;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $buttonCssClass
+	 * @return self
+	 */
+	public function setButtonCssClass(?string $buttonCssClass): self
+	{
+		$this->buttonCssClass = $buttonCssClass;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $buttonText
+	 * @return self
+	 */
+	public function setButtonText(?string $buttonText): self
+	{
+		$this->buttonText = $buttonText;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $urlResponseOk
+	 * @return self
+	 */
+	public function setUrlResponseOk(?string $urlResponseOk): self
+	{
+		$this->urlResponseOk = $urlResponseOk;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $urlResponseRefused
+	 * @return self
+	 */
+	public function setUrlResponseRefused(?string $urlResponseRefused): self
+	{
+		$this->urlResponseRefused = $urlResponseRefused;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $urlResponseCanceled
+	 * @return self
+	 */
+	public function setUrlResponseCanceled(?string $urlResponseCanceled): self
+	{
+		$this->urlResponseCanceled = $urlResponseCanceled;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $urlResponseWaiting
+	 * @return self
+	 */
+	public function setUrlResponseWaiting(?string $urlResponseWaiting): self
+	{
+		$this->urlResponseWaiting = $urlResponseWaiting;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $urlIpn
+	 * @return self
+	 */
+	public function setUrlIpn(?string $urlIpn): self
+	{
+		$this->urlIpn = $urlIpn;
+
+		return $this;
+	}
+
+
+	// ========== Get Response ==========
+
+	/**
+	 * @return int|null
+	 */
+	public function getCallNumber(): ?int
 	{
 		return $this->numAppel;
 	}
 
-	public function getNumTransaction()
+	/**
+	 * @return int|null
+	 */
+	public function getTransactionNumber(): ?int
 	{
 		return $this->numTransaction;
 	}
 
-	public function getAutorisation()
+	/**
+	 * @return string|null
+	 */
+	public function getAuthorizationNumber(): ?string
 	{
 		return $this->autorisation;
 	}
 
-	public function getPays()
+	/**
+	 * @return string|null
+	 */
+	public function getCardCountryCode(): ?string
 	{
 		return $this->pays;
 	}
 
-	public function getCodeReponse()
+	/**
+	 * @return string|null
+	 */
+	public function getResponseCode(): ?string
 	{
 		return $this->codeReponse;
 	}
 
-	public function getLibelleReponse()
+	/**
+	 * @return string|null
+	 */
+	public function getResponseMessage(): ?string
 	{
 		return $this->libelleReponse;
 	}
 
 
+
+	// ========== Private function ==========
+
 	/**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
+	 * @return array|bool|string
 	 */
-	public function setLogger(LoggerInterface $logger): void
-	{
-		$this->logger = $logger;
-	}
-
-	public function setNumQuestion($numQuestion): void
-	{
-		$this->numQuestion = $numQuestion;
-	}
-
-	public function setVersion($version): void
-	{
-		$this->version = $version;
-	}
-
-	public function setIdentifier($identifier): void
-	{
-		$this->identifier = $identifier;
-	}
-
-	public function setHttpPassword($httpPassword): void
-	{
-		$this->httpPassword = $httpPassword;
-	}
-
-	public function setSecretKey($secretKey): void
-	{
-		$this->secretKey = $secretKey;
-	}
-
-	public function setIsTest($isTest): void
-	{
-		$this->isTest = $isTest;
-	}
-
-	public function setIdentifiant($identifiant): void
-	{
-		$this->identifiant = $identifiant;
-	}
-
-	public function setRang($rang): void
-	{
-		$this->rang = $rang;
-	}
-
-	public function setDate($date): void
-	{
-		$this->date = $date;
-	}
-
-	public function setNumSite($numSite): void
-	{
-		$this->numSite = $numSite;
-	}
-
-	public function setReference($reference): void
-	{
-		$this->reference = $reference;
-	}
-
-	public function setSubscriberRef($subscriberRef): void
-	{
-		$this->subscriberRef = $subscriberRef;
-	}
-
-	public function setMontant($montant): void
-	{
-		$this->montant = round($montant, 2);
-	}
-
-	public function setDevise($devise): void
-	{
-		$this->devise = $devise;
-	}
-
-	public function setPorteurEmail($porteurEmail): void
-	{
-		$this->porteurEmail = $porteurEmail;
-	}
-
-	public function setPorteur($porteur): void
-	{
-		$this->porteur = $porteur;
-	}
-
-	public function setDateValidite($dateValidite): void
-	{
-		$this->dateValidite = $dateValidite;
-	}
-
-	public function setCvv($cvv): void
-	{
-		$this->cvv = $cvv;
-	}
-
-	public function setActivite($activite): void
-	{
-		$this->activite = $activite;
-	}
-
-	public function setArchivage($archivage): void
-	{
-		$this->archivage = $archivage;
-	}
-
-	public function setDiffere($differe): void
-	{
-		$this->differe = $differe;
-	}
-
-	public function setNumAppel($numAppel): void
-	{
-		$this->numAppel = $numAppel;
-	}
-
-	public function setNumTransaction($numTransaction): void
-	{
-		$this->numTransaction = $numTransaction;
-	}
-
-	public function setAutorisation($autorisation): void
-	{
-		$this->autorisation = $autorisation;
-	}
-
-	public function setPays($pays): void
-	{
-		$this->pays = $pays;
-	}
-
-	public function setFormCssClass($formCssClass): void
-	{
-		$this->formCssClass = $formCssClass;
-	}
-
-	public function setButtonCssClass($buttonCssClass): void
-	{
-		$this->buttonCssClass = $buttonCssClass;
-	}
-
-	public function setButtonText($buttonText): void
-	{
-		$this->buttonText = $buttonText;
-	}
-
-	public function setUrlResponseOk($urlResponseOk): void
-	{
-		$this->urlResponseOk = $urlResponseOk;
-	}
-
-	public function setUrlResponseRefused($urlResponseRefused): void
-	{
-		$this->urlResponseRefused = $urlResponseRefused;
-	}
-
-	public function setUrlResponseCanceled($urlResponseCanceled): void
-	{
-		$this->urlResponseCanceled = $urlResponseCanceled;
-	}
-
-	public function setUrlResponseWaiting($urlResponseWaiting): void
-	{
-		$this->urlResponseWaiting = $urlResponseWaiting;
-	}
-
-	public function setUrlIpn($urlIpn): void
-	{
-		$this->urlIpn = $urlIpn;
-	}
-
-	public function setCodeReponse($codeReponse): void
-	{
-		$this->codeReponse = $codeReponse;
-	}
-
-	public function setLibelleReponse($libelleReponse): void
-	{
-		$this->libelleReponse = $libelleReponse;
-	}
-
-
 	private function doRequest()
 	{
 		$this->version = (empty($this->version) ? self::VERSION_PAYBOX_DIRECT_PLUS : $this->version);
@@ -667,6 +1020,9 @@ class PayBox
 		return $data;
 	}
 
+	/**
+	 * @return array|null
+	 */
 	private function doHttpRequestToPayBox(): ?array
 	{
 		$urlPaiement = ($this->isTest ? self::URL_PAIEMENT_TEST : self::URL_PAIEMENT);
@@ -679,7 +1035,7 @@ class PayBox
 			'CLE' => $this->httpPassword,
 
 			'NUMQUESTION' => $this->numQuestion,
-			'MONTANT' => $this->getAmountFormated(),
+			'MONTANT' => $this->getFormattedAmount(),
 			'DEVISE' => $this->getCurrencyCode(),
 			'REFERENCE' => $this->reference,
 			'REFABONNE' => $this->subscriberRef,
@@ -859,7 +1215,7 @@ class PayBox
 
 	private function getTimestamp(): int
 	{
-		return ($this->date !== null ? strtotime($this->date) : time());
+		return ($this->date !== null ? $this->date->getTimestamp() : time());
 	}
 
 	private function _checkHttpPassword(): bool
@@ -893,29 +1249,16 @@ class PayBox
 		return $this->montant * 100;
 	}
 
-	private function getAmountFormated(): ?string
+	private function getFormattedAmount(): ?string
 	{
 		$montantFormate = (string) $this->getAmount();
 		for ($numChar = strlen($montantFormate); $numChar < 10; $numChar++, $montantFormate = '0' . $montantFormate);
 		return $montantFormate;
 	}
 
-	// Formatage de la devise
 	private function getCurrencyCode(): ?int
 	{
-		$currencyCode = null;
-		switch ($this->devise) {
-			case 'EUR' :
-				$currencyCode = 978;
-				break;
-			case 'USD' :
-				$currencyCode = 840;
-				break;
-			case 'CFA' :
-				$currencyCode = 952;
-				break;
-		}
-		return $currencyCode;
+		return Currency::getNumericCode($this->devise);
 	}
 
 	private function getExpirationDateFormatted(): ?string

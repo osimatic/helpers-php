@@ -114,12 +114,22 @@ class Duration
 		return $strMinute.$strSeconde;
 	}
 
-	private static function getFormattedMinutesInChrono(int $nbMinutes, string $displayMode='standard')
+	/**
+	 * @param int $nbMinutes
+	 * @param string $displayMode
+	 * @return string
+	 */
+	private static function getFormattedMinutesInChrono(int $nbMinutes, string $displayMode='standard'): string
 	{
 		return sprintf('%02d', $nbMinutes).($displayMode==='chrono'?'\'':'');
 	}
 
-	private static function getFormattedSecondsInChrono(int $nbSeconds, string $displayMode='standard')
+	/**
+	 * @param int $nbSeconds
+	 * @param string $displayMode
+	 * @return string
+	 */
+	private static function getFormattedSecondsInChrono(int $nbSeconds, string $displayMode='standard'): string
 	{
 		return ($displayMode==='input_time'?':':($displayMode!=='chrono'?'.':'')).sprintf('%02d', $nbSeconds).($displayMode==='chrono'?'"':'');
 	}
