@@ -17,6 +17,12 @@ class OutgoingCall
 	protected $calledNumber;
 
 	/**
+	 * Numéro de téléphone affiché sur le téléphone de l'appelé
+	 * @var string
+	 */
+	protected $displayedNumber;
+
+	/**
 	 * Date/heure de l'appel. Permet d'effectuer l'appel en différé (null = appel immédiat).
 	 * @var \DateTime
 	 */
@@ -33,18 +39,16 @@ class OutgoingCall
 
 	/**
 	 * Définit le numéro de téléphone appelé.
-	 * @param string $phoneNumber le numéro de téléphone appelé.
+	 * @param string $phoneNumber
 	 * @return self
 	 */
 	public function setCalledNumber(?string $phoneNumber): self
 	{
 		$phoneNumber = PhoneNumber::parse(trim($phoneNumber));
-		if (!PhoneNumber::isValid($phoneNumber)) {
+		if (PhoneNumber::isValid($phoneNumber)) {
 			//trace('Invalid number : '.$mobileNumber);
-			return $this;
+			$this->calledNumber = $phoneNumber;
 		}
-
-		$this->calledNumber = $phoneNumber;
 
 		return $this;
 	}
@@ -55,6 +59,29 @@ class OutgoingCall
 	public function getCalledNumber(): ?string
 	{
 		return $this->calledNumber;
+	}
+
+	/**
+	 * Définit le numéro de téléphone affiché.
+	 * @param string $phoneNumber
+	 * @return self
+	 */
+	public function setDisplayedNumber(?string $phoneNumber): self
+	{
+		$phoneNumber = PhoneNumber::parse(trim($phoneNumber));
+		if (PhoneNumber::isValid($phoneNumber)) {
+			$this->displayedNumber = $phoneNumber;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getDisplayedNumber(): ?string
+	{
+		return $this->displayedNumber;
 	}
 
 
