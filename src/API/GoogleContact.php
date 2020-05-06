@@ -100,7 +100,9 @@ class GoogleContact
 		$clientHTTP = new \GuzzleHttp\Client();
 		try {
 			$res = $clientHTTP->request('GET', 'https://www.google.com/m8/feeds/contacts/default/full?max-results=150&alt=json&v=3.0&oauth_token='.$accessToken);
-		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
+		}
+		//catch (\GuzzleHttp\Exception\GuzzleException $e) {
+		catch (\Exception $e) {
 			//var_dump($e->getMessage());
 			return null;
 		}

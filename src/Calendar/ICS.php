@@ -62,6 +62,21 @@ class ICS
 
 
 	/**
+	 * @param Event $event
+	 */
+	public function setFromEvent(Event $event): void
+	{
+		$this->setSummary($event->getName());
+		$this->setDescription($event->getDescription());
+		$this->setDateStart($event->getStartDate());
+		$this->setDateEnd($event->getEndDate());
+		$this->setOrganizerName($event->getOrganizerName());
+		$this->setOrganizerEmail($event->getOrganizerEmail());
+		$this->setLocation($event->getLocationName());
+		$this->setUrl($event->getUrl());
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getSummary(): string

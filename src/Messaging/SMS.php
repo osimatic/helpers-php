@@ -2,7 +2,7 @@
 
 namespace Osimatic\Helpers\Messaging;
 
-use Osimatic\Helpers\ContactDetails\PhoneNumber;
+use Osimatic\Helpers\Messaging\PhoneNumber;
 
 /**
  * Class SMS

@@ -77,7 +77,9 @@ class SendinBlue
 			];
 			$options[\GuzzleHttp\RequestOptions::JSON] = $queryData;
 			$res = $httpClient->request('POST', $url, $options);
-		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
+		}
+		//catch (\GuzzleHttp\Exception\GuzzleException $e) {
+		catch (\Exception $e) {
 			//var_dump($e->getMessage());
 			return null;
 		}

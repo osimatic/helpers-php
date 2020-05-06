@@ -21,7 +21,7 @@ class ZipArchive
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
+		return File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
 
 	/**

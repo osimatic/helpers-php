@@ -399,26 +399,26 @@ class Str
 	 * @author Jay Salvat (blog.jaysalvat.com)
 	 * @link http://blog.jaysalvat.com/articles/gerer-facilement-les-singuliers-pluriels-en-php.php
 	 */
-	public static function pluralize(float $nb = 1, string $string, array $values = []): string
+	public static function pluralize(float $nb, string $string, array $values = []): string
 	{
 		// remplace {#} par le chiffre
-		$string = str_replace("{#}", $nb, $string);
+		$string = str_replace('{#}', $nb, $string);
 		// cherche toutes les occurences de {...}
 		preg_match_all("/\{(.*?)\}/", $string, $matches);
 		foreach($matches[1] as $k=>$v) {
 			// on coupe l'occurence à |
-			$part = explode("|", $v);
+			$part = explode('|', $v);
 			// si aucun
-			if ($nb == 0) {
-				$mod = (count($part) == 1) ? "" : $part[0];
+			if ($nb === 0) {
+				$mod = (count($part) === 1) ? '' : $part[0];
 			}
 			// si singulier
-			else if ($nb == 1) {
-				$mod = (count($part) == 1) ? "" : ((count($part) == 2) ? $part[0] : $part[1]);
+			else if ($nb === 1) {
+				$mod = (count($part) === 1) ? '' : ((count($part) == 2) ? $part[0] : $part[1]);
 			}
 			// sinon pluriel
 			else {
-				$mod = (count($part) == 1) ? $part[0] : ((count($part) == 2) ? $part[1] : $part[2]);
+				$mod = (count($part) === 1) ? $part[0] : ((count($part) == 2) ? $part[1] : $part[2]);
 			}
 			// remplace les occurences trouvées par le bon résultat.
 			$string = str_replace($matches[0][$k], $mod , $string);
@@ -565,13 +565,13 @@ class Str
 	/**
 	 * Supply a string and an array of disallowed words and any matched words will be converted to #### or to the replacement word you've submitted.
 	 * @param string $str the text string
-	 * @param string $censored the array of censoered words
+	 * @param array $censored the array of censoered words
 	 * @param string $replacement the optional replacement value
 	 * @return string
 	 */
-	public static function censorWord(string $str, string $censored, string $replacement='####'): string
+	public static function censorWord(string $str, array $censored, string $replacement='####'): string
 	{
-		if (!is_array($censored)) {
+		if (empty($censored)) {
 			return $str;
 		}
 
@@ -600,26 +600,24 @@ class Str
 	public static function wrapWord(string $str, int $charlim): string
 	{
 		// Se the character limit
-		if ( ! is_numeric($charlim))
+		if ( ! is_numeric($charlim)) {
 			$charlim = 76;
+		}
 
 		// Reduce multiple spaces
 		$str = preg_replace('/ +/', ' ', $str);
 
 		// Standardize newlines
-		if (strpos($str, "\r") !== false)
-		{
+		if (strpos($str, "\r") !== false) {
 			$str = str_replace(array("\r\n", "\r"), "\n", $str);
 		}
 
 		// If the current word is surrounded by {unwrap} tags we'll
 		// strip the entire chunk and replace it with a marker.
 		$unwrap = array();
-		if (preg_match_all("|(\{unwrap\}.+?\{/unwrap\})|s", $str, $matches))
-		{
+		if (preg_match_all("|(\{unwrap\}.+?\{/unwrap\})|s", $str, $matches)) {
 			$nb = count($matches['0']);
-			for ($i = 0; $i < $nb; $i++)
-			{
+			for ($i = 0; $i < $nb; $i++) {
 				$unwrap[] = $matches['1'][$i];
 				$str = str_replace($matches['1'][$i], '{{unwrapped'.$i.'}}', $str);
 			}
@@ -891,13 +889,13 @@ class Str
 	/**
 	 * Génère une chaîne de caractères prononcable (c'est-à-dire alternant les consonnes et les voyelles)
 	 * @param int $nbChar le nombre de caractères de la chaîne a générer
-	 * @param array|null $listeConsonnes la liste des consonnes possibles pour la génération de la chaîne, ou null prendre toutes les consonnes de l'alphabet (null par défaut)
-	 * @param array|null $listeVoyelles la liste des voyelles possibles pour la génération de la chaîne, ou null prendre toutes les voyelles de l'alphabet (null par défaut)
+	 * @param string|null $listeConsonnes la liste des consonnes possibles pour la génération de la chaîne, ou null prendre toutes les consonnes de l'alphabet (null par défaut)
+	 * @param string|null $listeVoyelles la liste des voyelles possibles pour la génération de la chaîne, ou null prendre toutes les voyelles de l'alphabet (null par défaut)
 	 * @param bool $premiereLettreConsonneAleatoire true pour choisir aléatoirement de commencer par une consonne ou une voyelle, false sinon (false par défaut)
 	 * @param bool $premiereLettreConsonne true pour commencer par une consonne, false pour commencer par une voyelle (true par défaut). Ce paramètre est pris en compte seulement si $premiereLettreConsonneAleatoire vaut false
 	 * @return string la chaîne générée
 	 */
-	public static function getRandomPronounceableWord(int $nbChar, ?array $listeConsonnes=null, ?array $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
+	public static function getRandomPronounceableWord(int $nbChar, ?string $listeConsonnes=null, ?string $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
 	{
 		if ($premiereLettreConsonneAleatoire) {
 			$pair = (rand(0, 1) == 0);
@@ -906,10 +904,10 @@ class Str
 			$pair = ($premiereLettreConsonne);
 		}
 
-		if ($listeConsonnes == null) {
+		if ($listeConsonnes === null) {
 			$listeConsonnes = self::CONSONNES;
 		}
-		if ($listeVoyelles == null) {
+		if ($listeVoyelles === null) {
 			$listeVoyelles = self::VOYELLES;
 		}
 		$nbConsonnes = strlen($listeConsonnes);

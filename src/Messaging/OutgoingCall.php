@@ -2,7 +2,7 @@
 
 namespace Osimatic\Helpers\Messaging;
 
-use Osimatic\Helpers\ContactDetails\PhoneNumber;
+use Osimatic\Helpers\Messaging\PhoneNumber;
 
 /**
  * Class OutgoingCall
@@ -10,6 +10,11 @@ use Osimatic\Helpers\ContactDetails\PhoneNumber;
  */
 class OutgoingCall
 {
+	const CALL_RESULT_OK = 'OK';
+	const CALL_RESULT_BUSY = 'BUSY';
+	const CALL_RESULT_NO_RESPONSE = 'NO_RESPONSE';
+	const CALL_RESULT_FAILED = 'FAILED';
+
 	/**
 	 * Numéro de téléphone appelé
 	 * @var string
@@ -27,6 +32,7 @@ class OutgoingCall
 	 * @var \DateTime
 	 */
 	protected $callDateTime;
+
 
 
 	public function __construct()

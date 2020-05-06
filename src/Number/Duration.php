@@ -68,8 +68,8 @@ class Duration
 	 */
 	public static function getNbSecondsRemaining(int $durationInSeconds): int
 	{
-		$nbSecondesRemaining = $durationInSeconds%60;
-		return $nbSecondesRemaining;
+		//$nbSecondesRemaining = $durationInSeconds%60;
+		return $durationInSeconds%60;
 	}
 
 	// ========== Affichage des durées (format chronomètre) ==========

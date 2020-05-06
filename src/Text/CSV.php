@@ -47,7 +47,7 @@ class CSV
 
 		$header = null;
 		$data = [];
-		if (($handle = fopen($filename, 'r')) !== false) {
+		if (($handle = fopen($filename, 'rb')) !== false) {
 			while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
 				if (!$header) {
 					$header = $row;

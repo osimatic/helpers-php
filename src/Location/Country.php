@@ -2,6 +2,10 @@
 
 namespace Osimatic\Helpers\Location;
 
+/**
+ * Class Country
+ * @package Osimatic\Helpers\Location
+ */
 class Country
 {
 	public const EUROPEAN_UNION = [
@@ -260,6 +264,7 @@ class Country
 	 */
 	public static function getCountryNameByCountryCode(string $countryCode): ?string
 	{
+		//$locale = self::getLocaleByCountryCode($countryCode);
 		return \Locale::getDisplayRegion('-'.$countryCode, \Locale::getDefault());
 	}
 
@@ -326,19 +331,19 @@ class Country
 		}
 
 		// Australie
-		if (in_array($countryIsoCode, ['CC', 'CX', 'NF'])) {
-			//return 'AU';
-		}
+		//if (in_array($countryIsoCode, ['CC', 'CX', 'NF'])) {
+		//	return 'AU';
+		//}
 
 		// Etats-Unis
-		if (in_array($countryIsoCode, ['MP'])) {
-			//return 'US';
-		}
+		//if (in_array($countryIsoCode, ['MP'])) {
+		//	return 'US';
+		//}
 
 		// Nouvelle-Zélande
-		if (in_array($countryIsoCode, ['TK'])) {
-			//return 'NZ';
-		}
+		//if (in_array($countryIsoCode, ['TK'])) {
+		//	return 'NZ';
+		//}
 
 		return $countryIsoCode;
 	}

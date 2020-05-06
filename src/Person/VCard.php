@@ -1,11 +1,11 @@
 <?php
 
-namespace Osimatic\Helpers\ContactDetails;
+namespace Osimatic\Helpers\Person;
 
 /**
  * Class VCard
  * Cette classes contient des fonctions relatives au fichier VCard.
- * @package Osimatic\Helpers\ContactDetails
+ * @package Osimatic\Helpers\Person
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  * @link https://en.wikipedia.org/wiki/VCard
  */
@@ -603,7 +603,7 @@ class VCard
 				}
 				switch (mb_strtoupper($element)) {
 					case 'FN':
-						$cardData->fullname = $value;
+						$cardData['fullname'] = $value;
 						break;
 					case 'N':
 						foreach($this->parseName($value) as $key => $val) {
@@ -611,53 +611,53 @@ class VCard
 						}
 						break;
 					case 'BDAY':
-						$cardData->birthday = $this->parseBirthday($value);
+						$cardData['birthday'] = $this->parseBirthday($value);
 						break;
 					case 'ADR':
-						if (!isset($cardData->address)) {
-							$cardData->address = array();
+						if (!isset($cardData['address'])) {
+							$cardData['address'] = [];
 						}
 						$key = !empty($types) ? implode(';', $types) : 'WORK;POSTAL';
-						$cardData->address[$key][] = $this->parseAddress($value);
+						$cardData['address'][$key][] = $this->parseAddress($value);
 						break;
 					case 'TEL':
-						if (!isset($cardData->phone)) {
-							$cardData->phone = array();
+						if (!isset($cardData['phone'])) {
+							$cardData['phone'] = [];
 						}
 						$key = !empty($types) ? implode(';', $types) : 'default';
-						$cardData->phone[$key][] = $value;
+						$cardData['phone'][$key][] = $value;
 						break;
 					case 'EMAIL':
-						if (!isset($cardData->email)) {
-							$cardData->email = array();
+						if (!isset($cardData['email'])) {
+							$cardData['email'] = [];
 						}
 						$key = !empty($types) ? implode(';', $types) : 'default';
-						$cardData->email[$key][] = $value;
+						$cardData['email'][$key][] = $value;
 						break;
 					case 'REV':
-						$cardData->revision = $value;
+						$cardData['revision'] = $value;
 						break;
 					case 'VERSION':
-						$cardData->version = $value;
+						$cardData['version'] = $value;
 						break;
 					case 'ORG':
-						$cardData->organization = $value;
+						$cardData['organization'] = $value;
 						break;
 					case 'URL':
-						if (!isset($cardData->url)) {
-							$cardData->url = array();
+						if (!isset($cardData['url'])) {
+							$cardData['url'] = [];
 						}
 						$key = !empty($types) ? implode(';', $types) : 'default';
-						$cardData->url[$key][] = $value;
+						$cardData['url'][$key][] = $value;
 						break;
 					case 'TITLE':
-						$cardData->title = $value;
+						$cardData['title'] = $value;
 						break;
 					case 'PHOTO':
 						if ($rawValue) {
-							$cardData->rawPhoto = $value;
+							$cardData['rawPhoto'] = $value;
 						} else {
-							$cardData->photo = $value;
+							$cardData['photo'] = $value;
 						}
 						break;
 				}
@@ -841,7 +841,11 @@ class VCard
 
 	private function parseBirthday($value): \DateTime
 	{
-		return new \DateTime($value);
+		try {
+			return new \DateTime($value);
+		}
+		catch (\Exception $e) { }
+		return null;
 	}
 
 	/**

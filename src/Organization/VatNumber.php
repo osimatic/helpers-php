@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Company;
+namespace Osimatic\Helpers\Organization;
 
 class VatNumber
 {

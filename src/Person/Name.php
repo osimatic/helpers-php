@@ -1,7 +1,11 @@
 <?php
 
-namespace Osimatic\Helpers\ContactDetails;
+namespace Osimatic\Helpers\Person;
 
+/**
+ * Class Name
+ * @package Osimatic\Helpers\Person
+ */
 class Name
 {
 	/**
@@ -12,13 +16,15 @@ class Name
 	/**
 	 * @var string|null
 	 */
-	private $firstName = '';
+	private $firstName;
 
 	/**
 	 * @var string|null
 	 */
-	private $lastName = '';
+	private $lastName;
 
+
+	// ========== Vérification ==========
 
 	/**
 	 * @param string $value
@@ -47,13 +53,16 @@ class Name
 		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){3,100}+$/u', $value);
 	}
 
+
+	// ========== Affichage ==========
+
 	/**
 	 * @param int $civility
 	 * @param string $firstName
 	 * @param string $lastName
 	 * @return string
 	 */
-	public static function format(?int $civility, ?string $firstName, ?string $lastName): ?string
+	public static function getFormattedName(?int $civility, ?string $firstName, ?string $lastName): ?string
 	{
 		return (new NameFormatter())->format(
 			(new self())
@@ -63,6 +72,21 @@ class Name
 		);
 	}
 
+	/**
+	 * @return string
+	 */
+	public function format(): ?string
+	{
+		return (new NameFormatter())->format($this);
+	}
+
+	public function __toString()
+	{
+		return $this->format() ?? '';
+	}
+
+
+	// ========== Get / Set ==========
 
 	/**
 	 * @return int|null

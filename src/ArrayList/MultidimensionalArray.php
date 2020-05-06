@@ -171,9 +171,9 @@ class MultidimensionalArray
 
 	private static function sortCompareRecursive($sousArray1, $sousArray2)
 	{
-		if (self::$sortDepth == 0) {
-
-		}
+		//if (self::$sortDepth == 0) {
+		//
+		//}
 
 		if (!isset(self::$sortListColumnSorting[self::$sortDepth])) {
 			self::$sortDepth = 0;

@@ -1,7 +1,11 @@
 <?php
 
-namespace Osimatic\Helpers\ContactDetails;
+namespace Osimatic\Helpers\Messaging;
 
+/**
+ * Class PhoneNumber
+ * @package Osimatic\Helpers\Messaging
+ */
 class PhoneNumber
 {
 

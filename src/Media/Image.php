@@ -276,8 +276,7 @@ class Image
 			return false;
 		}
 
-		$width 	= $size[0];
-		$height = $size[1];
+		[$width, $height] = $size;
 
 		// If either a max width or max height are not specified, we default to something large so the unspecified dimension isn't a constraint on our resized image.
 		// If neither are specified but the color is, we aren't going to be resizing at all, just coloring.
@@ -297,7 +296,6 @@ class Image
 		// if ((!$maxWidth && !$maxHeight) || (!$color && $maxWidth >= $width && $maxHeight >= $height)) {
 		if (!$color && !$ratio && $maxWidth >= $width && $maxHeight >= $height) {
 			//trace("Pas de modification à faire sur l'image.");
-
 			// afficher éventuellement l'image
 			return true;
 		}
@@ -345,10 +343,9 @@ class Image
 			$tnHeight	= $maxHeight;
 		}
 
-
 		// Determine the quality of the output image
-		if ($quality == null) {
-			$quality = self::RESIZING_DEFAULT_QUALITY;
+		if ($quality === null) {
+			$quality = 90;
 		}
 
 		// Set up a blank canvas for our resized image (destination)
@@ -365,7 +362,7 @@ class Image
 				$mime				= 'image/png';
 				$doSharpen			= false;
 				// We are converting the GIF to a PNG and PNG needs a compression level of 0 (no compression) through 9
-				$quality			= round(10 - ($quality / 10));
+				$quality			= (int) round(10 - ($quality / 10));
 				break;
 
 			case 'image/x-png':
@@ -374,7 +371,7 @@ class Image
 				$outputFunction		= 'ImagePng';
 				$doSharpen			= false;
 				// PNG needs a compression level of 0 (no compression) through 9
-				$quality			= round(10 - ($quality / 10));
+				$quality			= (int) round(10 - ($quality / 10));
 				break;
 
 			default:
@@ -395,8 +392,9 @@ class Image
 			}
 			else {
 				// Fill the background with the specified color for matting purposes
-				if ($color[0] == '#')
+				if ($color[0] == '#') {
 					$color = substr($color, 1);
+				}
 
 				$background	= false;
 

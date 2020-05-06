@@ -1291,8 +1291,10 @@ class PayBox
 			];
 			$options['form_params'] = $queryData;
 			$res = $client->request('POST', $url, $options);
-		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
-			var_dump($e->getMessage());
+		}
+		//catch (\GuzzleHttp\Exception\GuzzleException $e) {
+		catch (\Exception $e) {
+			//var_dump($e->getMessage());
 			return false;
 		}
 		return $res;

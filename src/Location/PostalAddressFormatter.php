@@ -15,10 +15,8 @@ use Symfony\Component\Yaml\Yaml;
  *
  * Also based on the Perl address formatter using the same address templates:
  * @link https://metacpan.org/pod/Geo::Address::Formatter
- *
- * Test cases come from the OpenCageData repo.
  */
-class AddressFormatter
+class PostalAddressFormatter
 {
 	private $separator;
 	private $components = [];
@@ -30,9 +28,10 @@ class AddressFormatter
 		'state',
 	];
 
-	public function __construct($separator="\n")
+	public function __construct(?string $separator="\n")
 	{
-		$this->separator = $separator;
+		$this->setSeparator($separator);
+
 		try {
 			$this->loadTemplates();
 		} catch (\Exception $e) {
@@ -40,10 +39,32 @@ class AddressFormatter
 	}
 
 	/**
-	 * Pass a PredictHQ\Address\Address object here
+	 * @param string|null $separator
+	 * @return self
 	 */
-	public function format(Address $address, $options = [])
+	public function setSeparator(?string $separator=null): self
 	{
+		if (null !== $separator) {
+			$this->separator = $separator;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Pass a PredictHQ\Address\Address object here
+	 * @param PostalAddress $address
+	 * @param array $options
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public function format(PostalAddress $address, array $options = [], ?string $separator=null): string
+	{
+		$this->setSeparator($separator);
+		if (null === $this->separator) {
+			$this->separator = "\n";
+		}
+
 		$addressArray = [];
 
 		if (strlen($address->getAttention()) > 0) {

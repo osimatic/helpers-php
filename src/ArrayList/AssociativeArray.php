@@ -14,23 +14,25 @@ class AssociativeArray
 	 */
 	public static function getAllCombinations(array $words): array
 	{
-		if ( count($words) <= 1 ) {
-			$result = $words;
+		if (count($words) <= 1) {
+			return $words;
 		}
-		else {
-			$result = array();
-			for ( $i = 0; $i < count($words); ++$i ) {
-				$firstword = $words[$i];
-				$remainingwords = array();
-				for ( $j = 0; $j < count($words); ++$j ) {
-					if ( $i <> $j ) $remainingwords[] = $words[$j];
-				}
-				$combos = wordcombos($remainingwords);
-				for ( $j = 0; $j < count($combos); ++$j ) {
-					$result[] = $firstword . ' ' . $combos[$j];
+
+		$result = [];
+		for ($i = 0, $iMax = count($words); $i < $iMax; ++$i ) {
+			$firstword = $words[$i];
+			$remainingwords = array();
+			for ($j = 0, $jMax = count($words); $j < $jMax; ++$j ) {
+				if ( $i <> $j ) {
+					$remainingwords[] = $words[$j];
 				}
 			}
+			$combos = self::getAllCombinations($remainingwords);
+			for ($j = 0, $jMax = count($combos); $j < $jMax; ++$j ) {
+				$result[] = $firstword . ' ' . $combos[$j];
+			}
 		}
+
 		return $result;
 	}
 

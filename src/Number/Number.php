@@ -14,7 +14,7 @@ class Number
 	 */
 	public static function addLeadingZero($number, int $nbDigitMin, ?string $thousandsSeparator=null): string
 	{
-		$tmp = str_replace((is_null($thousandsSeparator)?'.':$thousandsSeparator), '', $number);
+		$tmp = str_replace(($thousandsSeparator ?? '.'), '', $number);
 		$nbLeadingZero = $nbDigitMin-(strlen((string) (int) $tmp));
 		return str_pad($number, $nbLeadingZero, '0', STR_PAD_LEFT);
 	}

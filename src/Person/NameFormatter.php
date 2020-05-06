@@ -1,7 +1,11 @@
 <?php
 
-namespace Osimatic\Helpers\ContactDetails;
+namespace Osimatic\Helpers\Person;
 
+/**
+ * Class NameFormatter
+ * @package Osimatic\Helpers\Person
+ */
 class NameFormatter
 {
 	public function __construct()
@@ -60,7 +64,7 @@ class NameFormatter
 	 * @param bool $editCase
 	 * @return string
 	 */
-	public function format(Name $name, bool $editCase=true)
+	public function format(Name $name, bool $editCase=true): string
 	{
 		//$nameDisplay = $this->formatTitle($name->getTitle(), $locale);
 		$nameDisplay = '';
@@ -69,7 +73,11 @@ class NameFormatter
 		return $nameDisplay;
 	}
 
-	private static function ucname($string)
+	/**
+	 * @param string|null $string
+	 * @return string
+	 */
+	private static function ucname(?string $string): string
 	{
 		$string = ucwords(mb_strtolower($string));
 		//$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
