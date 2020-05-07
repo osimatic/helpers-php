@@ -72,15 +72,7 @@ class GoogleMaps
 			return null;
 		}
 
-		$result = json_decode($json, true);
-
-		if ($result['status'] === 'ZERO_RESULTS' || !isset($result['results'])) {
-			$this->logger->info('Aucun résultat trouvé.');
-			return null;
-		}
-
-		// var_dump($json);
-		return $result;
+		return $this->getResults($json);
 	}
 
 	/**
@@ -110,14 +102,7 @@ class GoogleMaps
 			return null;
 		}
 
-		$result = json_decode($json, true);
-
-		if ($result['status'] === 'ZERO_RESULTS' || !isset($result['results'])) {
-			$this->logger->info('Aucun résultat trouvé.');
-			return null;
-		}
-
-		return $result['results'];
+		return $this->getResults($json);
 	}
 
 	/**
@@ -174,7 +159,6 @@ class GoogleMaps
 			return $address;
 		}
 
-		//trace('Erreur inconnue : '.$result['status'].'.');
 		return null;
 	}
 
@@ -194,7 +178,6 @@ class GoogleMaps
 			return $addressComponents;
 		}
 
-		//trace('Erreur inconnue : '.$result['status'].'.');
 		return null;
 	}
 
@@ -304,6 +287,28 @@ class GoogleMaps
 				$addressComponents['postal_code'] = $resultAddressComponent['long_name'];
 			}
 		}
+
+		$addressComponents['street_number'] ??= '';
+		$addressComponents['route'] ??= '';
+
+		// on génère la ligne numéro/rue depuis le champs "formatted_address", car la ligne numéro/rue n'est pas disponible dans le champs "address_components"
+		//$result['formatted_address'] = '131, Avenue Charles de Gaulle, 92200 Neuilly-sur-Seine, France';
+		$streetAddress = $result['formatted_address'] ?? '';
+		if (false !== ($pos = strpos($streetAddress, ',', strpos($streetAddress, $addressComponents['route'])))) {
+			$streetAddress = substr($streetAddress, 0, $pos);
+		}
+		//if (false !== ($pos = strrpos($streetAddress, ','))) {
+		//	$streetAddress = trim(substr($streetAddress, $pos + 1));
+		//}
+		if (!empty($streetAddress) && strstr($streetAddress, $addressComponents['route'])) {
+			$addressComponents['street'] = $streetAddress;
+		}
+		else {
+			// si on arrive pas à la récupérer depuis le champs "formatted_address", on concatene simplement le numéro et rue récupéré dans le champs "address_components"
+			// on ne fais pas ceci directement car selon les pays le numéro de la rue se trouve à la fin, au début, précédé de "No.", etc.
+			$addressComponents['street'] = trim($addressComponents['street_number'].' '.$addressComponents['route']);
+		}
+
 		return $addressComponents;
 	}
 
@@ -331,6 +336,43 @@ class GoogleMaps
 			return null;
 		}
 		return $formattedAddress;
+	}
+
+	/**
+	 * @param string $json
+	 * @return array|null
+	 */
+	private function getResults(string $json): ?array
+	{
+		$result = json_decode($json, true);
+
+		if ($result['status'] === 'REQUEST_DENIED') {
+			$this->logger->info('Accès refusé : '.($result['error_message'] ?? ''));
+			return null;
+		}
+
+		if ($result['status'] === 'OVER_QUERY_LIMIT') {
+			$this->logger->info('Quota atteint : '.($result['error_message'] ?? ''));
+			return null;
+		}
+
+		if ($result['status'] === 'INVALID_REQUEST') {
+			$this->logger->info('Requête invalide : '.($result['error_message'] ?? ''));
+			return null;
+		}
+
+		if ($result['status'] === 'UNKNOWN_ERROR' || $result['status'] === 'ERROR') {
+			$this->logger->info('Erreur pendant la requete vers l\'API Google : '.($result['error_message'] ?? ''));
+			return null;
+		}
+
+		if ($result['status'] === 'ZERO_RESULTS' || !isset($result['results'])) {
+			$this->logger->info('Aucun résultat trouvé.');
+			return null;
+		}
+
+		// var_dump($json);
+		return $result['results'];
 	}
 
 }
