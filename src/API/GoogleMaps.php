@@ -140,6 +140,25 @@ class GoogleMaps
 	}
 
 	/**
+	 * @param string $address
+	 * @return array|null
+	 */
+	public function getAddressComponentsFromAddress(string $address): ?array
+	{
+		$results = $this->geocoding($address);
+		if (null === $results) {
+			return null;
+		}
+
+		$AddressComponents = self::getAddressComponentsFromResult($results[0]);
+		if (null !== $AddressComponents) {
+			return $AddressComponents;
+		}
+
+		return null;
+	}
+
+	/**
 	 * @param string $coordinates
 	 * @return string|null
 	 */
@@ -153,6 +172,26 @@ class GoogleMaps
 		$address = self::getFormattedAddressFromResult($results[0]);
 		if (null !== $address) {
 			return $address;
+		}
+
+		//trace('Erreur inconnue : '.$result['status'].'.');
+		return null;
+	}
+
+	/**
+	 * @param string $coordinates
+	 * @return array|null
+	 */
+	public function getAddressComponentsFromCoordinates(string $coordinates): ?array
+	{
+		$results = $this->reverseGeocoding($coordinates);
+		if (null === $results) {
+			return null;
+		}
+
+		$addressComponents = self::getAddressComponentsFromResult($results[0]);
+		if (null !== $addressComponents) {
+			return $addressComponents;
 		}
 
 		//trace('Erreur inconnue : '.$result['status'].'.');
@@ -230,7 +269,7 @@ class GoogleMaps
 	 * @param array|null $result
 	 * @return array
 	 */
-	private static function getAddressComponentsFromResult(?array $result): array
+	public static function getAddressComponentsFromResult(?array $result): array
 	{
 		$addressComponents = [];
 		foreach (($result['address_components'] ?? []) as $resultAddressComponent) {
@@ -240,7 +279,16 @@ class GoogleMaps
 			if (in_array('route', $resultAddressComponent['types'], true)) {
 				$addressComponents['route'] = $resultAddressComponent['long_name'];
 			}
+			if (in_array('sublocality_level_1', $resultAddressComponent['types'], true)) {
+				$addressComponents['suburb'] = $resultAddressComponent['long_name'];
+			}
 			if (in_array('locality', $resultAddressComponent['types'], true)) {
+				$addressComponents['locality'] = $resultAddressComponent['long_name'];
+			}
+			if (in_array('postal_town', $resultAddressComponent['types'], true)) {
+				$addressComponents['locality'] = $resultAddressComponent['long_name'];
+			}
+			if (in_array('administrative_area_level_3', $resultAddressComponent['types'], true)) {
 				$addressComponents['locality'] = $resultAddressComponent['long_name'];
 			}
 			if (in_array('administrative_area_level_2', $resultAddressComponent['types'], true)) {
@@ -263,7 +311,7 @@ class GoogleMaps
 	 * @param array|null $result
 	 * @return string|null
 	 */
-	private static function getCoordinatesFromResult(?array $result): ?string
+	public static function getCoordinatesFromResult(?array $result): ?string
 	{
 		$lat = $result['geometry']['location']['lat'] ?? null;
 		$lng = $result['geometry']['location']['lng'] ?? null;
@@ -277,7 +325,7 @@ class GoogleMaps
 	 * @param array|null $result
 	 * @return string|null
 	 */
-	private static function getFormattedAddressFromResult(?array $result): ?string
+	public static function getFormattedAddressFromResult(?array $result): ?string
 	{
 		if (empty($formattedAddress = $result['formatted_address'] ?? null)) {
 			return null;
