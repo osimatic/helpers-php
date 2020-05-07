@@ -48,9 +48,27 @@ class Name
 	 * @param string $value
 	 * @return bool
 	 */
+	public static function checkGivenName(?string $value): bool
+	{
+		return self::checkFirstName($value);
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
 	public static function checkLastName(?string $value): bool
 	{
 		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){3,100}+$/u', $value);
+	}
+
+	/**
+	 * @param string $value
+	 * @return bool
+	 */
+	public static function checkFamilyName(?string $value): bool
+	{
+		return self::checkLastName($value);
 	}
 
 
@@ -139,6 +157,44 @@ class Name
 	 * @return Name
 	 */
 	public function setLastName(?string $lastName): self
+	{
+		$this->lastName = $lastName;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getGivenName(): ?string
+	{
+		return $this->firstName;
+	}
+
+	/**
+	 * @param string|null $firstName
+	 * @return Name
+	 */
+	public function setGivenName(?string $firstName): self
+	{
+		$this->firstName = $firstName;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getFamilyName(): ?string
+	{
+		return $this->lastName;
+	}
+
+	/**
+	 * @param string|null $lastName
+	 * @return Name
+	 */
+	public function setFamilyName(?string $lastName): self
 	{
 		$this->lastName = $lastName;
 
