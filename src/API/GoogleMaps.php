@@ -282,6 +282,7 @@ class GoogleMaps
 			}
 			if (in_array('country', $resultAddressComponent['types'], true)) {
 				$addressComponents['country'] = $resultAddressComponent['long_name'];
+				$addressComponents['country_code'] = $resultAddressComponent['short_name'];
 			}
 			if (in_array('postal_code', $resultAddressComponent['types'], true)) {
 				$addressComponents['postal_code'] = $resultAddressComponent['long_name'];
