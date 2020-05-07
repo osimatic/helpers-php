@@ -201,7 +201,7 @@ class Email
 	 */
 	public function __construct()
 	{
-		$this->sendingDateTime = \Osimatic\Helpers\DateTime\DateTime::getCurrentDateTime();
+		$this->sendingDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
 	}
 
 

@@ -37,7 +37,7 @@ class OutgoingCall
 
 	public function __construct()
 	{
-		$this->callDateTime = \Osimatic\Helpers\DateTime\DateTime::getCurrentDateTime();
+		$this->callDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
 	}
 
 
