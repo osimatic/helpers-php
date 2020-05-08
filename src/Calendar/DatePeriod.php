@@ -30,7 +30,7 @@ class DatePeriod
 			return $this->getPeriod($periodStart, $periodEnd, 'P1M', 'Y-n');
 		}
 		if ($groupBy === 'day_of_week') {
-			return ['0', '1', '2', '3', '4', '5', '6'];
+			return ['1', '2', '3', '4', '5', '6', '7'];
 		}
 
 		return null;
