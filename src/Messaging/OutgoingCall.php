@@ -16,6 +16,12 @@ class OutgoingCall
 	const CALL_RESULT_FAILED = 'FAILED';
 
 	/**
+	 * The identifier property represents any kind of identifier.
+	 * @var string|null
+	 */
+	private $identifier;
+
+	/**
 	 * Numéro de téléphone appelé
 	 * @var string
 	 */
@@ -38,6 +44,22 @@ class OutgoingCall
 	public function __construct()
 	{
 		$this->callDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getIdentifier(): ?string
+	{
+		return $this->identifier;
+	}
+
+	/**
+	 * @param string|null $identifier
+	 */
+	public function setIdentifier(?string $identifier): void
+	{
+		$this->identifier = $identifier;
 	}
 
 

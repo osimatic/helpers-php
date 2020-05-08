@@ -26,6 +26,12 @@ class Email
 	public const ENCODING_QUOTED_PRINTABLE = 'quoted-printable';
 
 	/**
+	 * The identifier property represents any kind of identifier.
+	 * @var string|null
+	 */
+	private $identifier;
+
+	/**
 	 * The From email address for the message.
 	 * @var string
 	 */
@@ -202,6 +208,24 @@ class Email
 	public function __construct()
 	{
 		$this->sendingDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
+	}
+
+
+
+	/**
+	 * @return string|null
+	 */
+	public function getIdentifier(): ?string
+	{
+		return $this->identifier;
+	}
+
+	/**
+	 * @param string|null $identifier
+	 */
+	public function setIdentifier(?string $identifier): void
+	{
+		$this->identifier = $identifier;
 	}
 
 
@@ -1098,7 +1122,7 @@ class Email
 	}
 
 
-	// ==========  ==========
+	// ========== Réinitialiser ==========
 
 	/**
 	 * Réinitialise tout.

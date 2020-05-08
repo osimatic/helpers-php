@@ -50,6 +50,41 @@ class VCard
 	];
 
 	/**
+	 * @param Person $person
+	 * @return self
+	 */
+	public function setFromPerson(Person $person): self
+	{
+		$this->addName($person->getFamilyName() ?? '', $person->getGivenName() ?? '');
+		if (null !== $person->getBirthDate()) {
+			$this->addBirthday($person->getBirthDate());
+		}
+		if (null !== ($postalAddress = $person->getAddress())) {
+			$this->addAddress(
+				'',
+				'',
+				$postalAddress->getRoad() ?? '',
+				$postalAddress->getCity() ?? '',
+				$postalAddress->getState() ?? '',
+				$postalAddress->getPostcode() ?? '',
+				$postalAddress->getCountry() ?? ''
+			);
+		}
+		$this->addEmail($person->getEmail() ?? '');
+		if (null !== $person->getFixedLineNumber()) {
+			$this->addPhoneNumber($person->getFixedLineNumber(), 'HOME');
+		}
+		if (null !== $person->getMobileNumber()) {
+			$this->addPhoneNumber($person->getMobileNumber(), 'CELL');
+		}
+		if (null !== ($organization = $person->getWorksFor())) {
+			$this->addCompany($organization->getName());
+		}
+
+		return $this;
+	}
+
+	/**
 	 * Add name
 	 * @param string [optional] $lastName
 	 * @param string [optional] $firstName
@@ -106,15 +141,15 @@ class VCard
 
 	/**
 	 * Add birthday
-	 * @param string $date Format is YYYY-MM-DD
+	 * @param \DateTime $date
 	 * @return self
 	 */
-	public function addBirthday(string $date): self
+	public function addBirthday(\DateTime $date): self
 	{
 		$this->setProperty(
 			'birthday',
 			'BDAY',
-			$date
+			$date->format('Y-m-d')
 		);
 		return $this;
 	}
@@ -139,7 +174,7 @@ class VCard
 		string $region = '',
 		string $zip = '',
 		string $country = '',
-		string $type = 'WORK;POSTAL'
+		string $type = 'HOME'
 	): self
 	{
 		// init value
@@ -250,16 +285,16 @@ class VCard
 	}
 
 	/**
-	 * Add jobtitle or functional position or function
-	 * @param string $jobtitle The jobtitle or functional position or function for the person.
+	 * Add job title or functional position or function
+	 * @param string $jobTitle The job title or functional position or function for the person.
 	 * @return self
 	 */
-	public function addJobtitle(string $jobtitle): self
+	public function addJobTitle(string $jobTitle): self
 	{
 		$this->setProperty(
 			'jobtitle',
 			'TITLE' . $this->getCharsetString(),
-			$jobtitle
+			$jobTitle
 		);
 		return $this;
 	}

@@ -14,6 +14,12 @@ class SMS
 	public const MESSAGE_NB_CHAR_MAX = 160;
 
 	/**
+	 * The identifier property represents any kind of identifier.
+	 * @var string|null
+	 */
+	private $identifier;
+
+	/**
 	 * Tableau contenant la liste des numéros de téléphone des destinataires du SMS.
 	 * @var array
 	 */
@@ -53,6 +59,22 @@ class SMS
 	public function __construct()
 	{
 		$this->sendingDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getIdentifier(): ?string
+	{
+		return $this->identifier;
+	}
+
+	/**
+	 * @param string|null $identifier
+	 */
+	public function setIdentifier(?string $identifier): void
+	{
+		$this->identifier = $identifier;
 	}
 
 
