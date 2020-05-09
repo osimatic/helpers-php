@@ -15,19 +15,19 @@ class DatePeriod
 	 * @param \DateTime $periodEnd
 	 * @return array
 	 */
-	public function getListOfPeriod(string $groupBy, \DateTime $periodStart, \DateTime $periodEnd): ?array
+	public static function getListOfPeriod(string $groupBy, \DateTime $periodStart, \DateTime $periodEnd): ?array
 	{
 		if ($groupBy === 'hour') {
 			return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
 		}
 		if ($groupBy === 'day_of_month') {
-			return $this->getPeriod($periodStart, $periodEnd, 'P1D', 'Y-m-d');
+			return self::getPeriod($periodStart, $periodEnd, 'P1D', 'Y-m-d');
 		}
 		if ($groupBy === 'week') {
-			return $this->getPeriod($periodStart, $periodEnd, 'P1W', 'Y-W');
+			return self::getPeriod($periodStart, $periodEnd, 'P1W', 'Y-W');
 		}
 		if ($groupBy === 'month') {
-			return $this->getPeriod($periodStart, $periodEnd, 'P1M', 'Y-n');
+			return self::getPeriod($periodStart, $periodEnd, 'P1M', 'Y-n');
 		}
 		if ($groupBy === 'day_of_week') {
 			return ['1', '2', '3', '4', '5', '6', '7'];
@@ -43,7 +43,7 @@ class DatePeriod
 	 * @param $dateFormat
 	 * @return array|null
 	 */
-	private function getPeriod(\DateTime $startDate, \DateTime $endDate, $dateInterval, $dateFormat): ?array
+	private static function getPeriod(\DateTime $startDate, \DateTime $endDate, $dateInterval, $dateFormat): ?array
 	{
 		if ($dateInterval === 'P1D') {
 			$startIntervalDate = $startDate;
