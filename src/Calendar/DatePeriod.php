@@ -8,6 +8,20 @@ namespace Osimatic\Helpers\Calendar;
  */
 class DatePeriod
 {
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return int
+	 */
+	public static function getNbDays(\DateTime $periodStart, \DateTime $periodEnd): int
+	{
+		try {
+			$startDate = new \DateTime($periodStart->format('Y-m-d') . ' 00:00:00');
+			$endDate = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
+			return (int) $startDate->diff($endDate)->format('%r%a');
+		} catch (\Exception $e) { }
+		return 0;
+	}
 
 	/**
 	 * @param string $groupBy
