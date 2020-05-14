@@ -29,6 +29,16 @@ class Date
 		return ucfirst(strftime('%B', mktime(0, 0, 0, $month)));
 	}
 
+	/**
+	 * @param int $year
+	 * @param int $month
+	 * @return int
+	 */
+	public static function getNumberOfDaysInMonth(int $year, int $month): int
+	{
+		return date('t', mktime(0, 0, 0, $month, 1, $year));
+	}
+
 	// ========== Année ==========
 
 }
