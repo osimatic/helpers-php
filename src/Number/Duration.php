@@ -140,7 +140,7 @@ class Duration
 	/**
 	 * Vérifie la validité d'une durée saisie dans un formulaire, via un champ text (saisie de int) ou un champs de type time (saisie de type hh:mm:ss)
 	 * Accepte donc des durées sous la forme "10:23:02" ou "1220" (secondes)
-	 * @param $enteredDuration
+	 * @param mixed $enteredDuration
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
@@ -156,7 +156,7 @@ class Duration
 
 	/**
 	 * Parse une durée au format "entier" (nombre de secondes) ou format "string" (type hh:mm:ss) et retourne la durée en secondes
-	 * @param $enteredDuration
+	 * @param mixed $enteredDuration
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
@@ -172,7 +172,7 @@ class Duration
 	}
 
 	/**
-	 * @param $enteredDuration
+	 * @param mixed $enteredDuration
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos

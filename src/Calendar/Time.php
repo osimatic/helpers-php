@@ -29,7 +29,7 @@ class Time
 	}
 
 	/**
-	 * @param $enteredTime
+	 * @param mixed $enteredTime
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
@@ -38,7 +38,7 @@ class Time
 	 */
 	public static function checkValue($enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
-		if (!is_array($timeArray = self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos))) {
+		if (null === ($timeArray = self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos))) {
 			return false;
 		}
 
@@ -48,7 +48,24 @@ class Time
 	// ========== Parse ==========
 
 	/**
-	 * @param $enteredTime
+	 * @param mixed $enteredTime
+	 * @param string $separator
+	 * @param int $hourPos
+	 * @param int $minutePos
+	 * @param int $secondPos
+	 * @return string|null
+	 */
+	public static function parseToSqlTime($enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?string
+	{
+		if (null === ($timeArray = self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos))) {
+			return null;
+		}
+
+		return date('H:i:s', mktime($timeArray[0], $timeArray[1], $timeArray[2]));
+	}
+
+	/**
+	 * @param mixed $enteredTime
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
