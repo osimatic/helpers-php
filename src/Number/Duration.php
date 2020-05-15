@@ -144,12 +144,12 @@ class Duration
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
-	 * @param int $secondPost
+	 * @param int $secondPos
 	 * @return bool
 	 */
-	public static function check($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPost=3): bool
+	public static function check($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
-		return (null !== self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPost));
+		return (null !== self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos));
 	}
 
 	// ========== Parse ==========
@@ -160,12 +160,12 @@ class Duration
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
-	 * @param int $secondPost
+	 * @param int $secondPos
 	 * @return int
 	 */
-	public static function parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPost=3): int
+	public static function parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): int
 	{
-		if (null !== ($duration = self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPost))) {
+		if (null !== ($duration = self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos))) {
 			return $duration;
 		}
 		return 0;
@@ -176,31 +176,20 @@ class Duration
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
-	 * @param int $secondPost
+	 * @param int $secondPos
 	 * @return int
 	 */
-	private static function _parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPost=3): ?int
+	private static function _parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?int
 	{
 		if (preg_match("/^-?[0-9]{0,10}$/", $enteredDuration)) {
 			return (int) $enteredDuration;
 		}
 
-		$timeArray = explode($separator, $enteredDuration);
-		$hourPos--;
-		$minutePos--;
-		$secondPost--;
-
-		if (!isset($timeArray[$hourPos]) || !is_numeric($timeArray[$hourPos])) {
-			return null;
-		}
-		if (!isset($timeArray[$minutePos]) || !is_numeric($timeArray[$minutePos])) {
-			return null;
-		}
-		if (isset($timeArray[$secondPost]) && !is_numeric($timeArray[$secondPost])) {
+		if (null === ($timeArray = \Osimatic\Helpers\Calendar\Time::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos))) {
 			return null;
 		}
 
-		return $timeArray[$hourPos] * 3600 + $timeArray[$minutePos] * 60 + ($timeArray[$secondPost] ?? 0);
+		return ($timeArray[0] ?? 0) * 3600 + ($timeArray[1] ?? 0) * 60 + ($timeArray[2] ?? 0);
 	}
 
 }
