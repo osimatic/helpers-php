@@ -129,26 +129,19 @@ class Audio
 	/**
 	 * Envoi au navigateur du client un fichier audio.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param string $audioFilePath le chemin complet vers le fichier audio
+	 * @param string $filePath le chemin complet vers le fichier audio
 	 * @param string|null $fileName le nom que prendra le fichier audio lorsque le client le téléchargera, ou null pour utiliser le nom actuel du fichier audio (null par défaut)
 	 */
-	public static function output(string $audioFilePath, ?string $fileName=null): void
+	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		$extension = self::getExtension($audioFilePath);
+		$extension = self::getExtension($filePath);
 		$mimeType = 'audio/'.$extension;
 		if ('wav' === $extension) {
 			$mimeType = 'audio/x-wav';
 		}
 		// todo : mime-type pour mp3 et ogg
 
-		header('Content-Disposition: attachment; filename="'.($fileName ?? basename($audioFilePath)).'"');
-		header('Content-Type: application/force-download');
-		header('Content-Transfer-Encoding: '.$mimeType);
-		header('Content-Length: '.filesize($audioFilePath));
-		header('Pragma: no-cache');
-		header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');
-		header('Expires: 0');
-		readfile($audioFilePath);
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, $mimeType);
 	}
 
 	/**

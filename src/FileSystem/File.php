@@ -33,6 +33,31 @@ class File
 	}
 
 	/**
+	 * Envoi un fichier au navigateur du client.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @param string|null $transferEncoding
+	 */
+	public static function output(string $filePath, ?string $fileName=null, ?string $transferEncoding='binary'): void
+	{
+		if (!headers_sent()) {
+			header('Content-Type: application/force-download');
+			header('Content-Disposition: attachment; filename="'.($fileName ?? basename($filePath)).'"');
+			header('Content-Transfer-Encoding: '.$transferEncoding);
+			header('Content-Description: File Transfer');
+			header('Content-Length: '.filesize($filePath));
+			header('Pragma: no-cache'); //header('Pragma: public');
+			header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');
+			header('Expires: 0');
+
+			//header("Content-type: application/force-download");
+			//header("Content-Disposition: attachment; filename=$name");
+			readfile($filePath);
+		}
+	}
+
+	/**
 	 * Retourne la taille plus l'unité arrondie
 	 * @param float $bytes taille en octets
 	 * @param int $numberOfDecimalPlaces le nombre de chiffre après la virgule pour l'affichage du nombre correspondant à la taille

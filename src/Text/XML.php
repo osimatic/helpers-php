@@ -8,13 +8,13 @@ class XML
 	// ========== Affichage ==========
 
 	/**
-	 * @param string $xmlFilePath
+	 * @param string $filePath
 	 */
-	public static function output(string $xmlFilePath): void
+	public static function output(string $filePath): void
 	{
 		if (!headers_sent()) {
 			header('Content-Type: text/xml');
-			readfile($xmlFilePath);
+			readfile($filePath);
 		}
 	}
 

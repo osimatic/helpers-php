@@ -41,7 +41,7 @@ class PDF
 		return $this;
 	}
 
-	// ========== Vérification de PDF ==========
+	// ========== Vérification ==========
 
 	/**
 	 * @param string $filePath
@@ -53,7 +53,36 @@ class PDF
 		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
 
-	// ========== Génération de PDF ==========
+	// ========== Affichage ==========
+
+	/**
+	 * Envoi au navigateur du client un fichier PDF.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 */
+	public static function display(string $filePath, ?string $fileName=null): void
+	{
+		if (!headers_sent()) {
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename="'.($fileName ?? basename($filePath)).'"');
+			header('Content-Length: '.filesize($filePath));
+			readfile($filePath);
+		}
+	}
+
+	/**
+	 * Envoi au navigateur du client un fichier PDF.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 */
+	public static function output(string $filePath, ?string $fileName=null): void
+	{
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
+	}
+
+	// ========== Génération ==========
 
 	/**
 	 * @param string $html

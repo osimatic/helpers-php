@@ -27,23 +27,12 @@ class ZipArchive
 	/**
 	 * Envoi au navigateur du client un fichier zip.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param string $zipFilepath
+	 * @param string $filePath
 	 * @param string|null $fileName
 	 */
-	public static function output(string $zipFilepath, ?string $fileName=null): void
+	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		if (!headers_sent()) {
-			header('Content-disposition: attachment; filename="'.($fileName ?? basename($zipFilepath)).'"');
-			header('Content-Type: application/force-download');
-			header('Content-Transfer-Encoding: binary');
-			header('Content-Length: '.filesize($zipFilepath));
-			header('Pragma: no-cache');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');
-			header('Expires: 0');
-			//header("Content-type: application/force-download");
-			//header("Content-Disposition: attachment; filename=$name");
-			readfile($zipFilepath);
-		}
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
 	}
 
 	/**

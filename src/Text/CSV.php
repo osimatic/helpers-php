@@ -64,21 +64,15 @@ class CSV
 	// ========== Affichage ==========
 
 	/**
-	 * @param string $csvFilePath
+	 * Envoi au navigateur du client un fichier CSV.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param string $filePath
 	 * @param string|null $fileName
 	 */
-	public static function output(string $csvFilePath, ?string $fileName=null): void
+	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		if (!headers_sent()) {
-			header('Content-disposition: attachment; filename="'.($fileName ?? basename($csvFilePath)).'"');
-			header('Content-Type: application/force-download');
-			header('Content-Transfer-Encoding: text/csv');
-			header('Content-Length: ' .filesize($csvFilePath));
-			header('Pragma: no-cache');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');
-			header('Expires: 0');
-			readfile($csvFilePath);
-		}
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/csv');
+
 	}
 
 	// ========== Ecriture ==========
