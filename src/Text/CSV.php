@@ -72,7 +72,6 @@ class CSV
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
 		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/csv');
-
 	}
 
 	// ========== Ecriture ==========
