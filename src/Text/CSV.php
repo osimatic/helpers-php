@@ -161,9 +161,10 @@ class CSV
 	 * @param array $tableBody
 	 * @param array|null $tableFoot
 	 * @param string|null $title
+	 * @param bool $utf8encode
 	 * @return bool
 	 */
-	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot, ?string $title=null): bool
+	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot, ?string $title=null, bool $utf8encode=false): bool
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
@@ -186,6 +187,10 @@ class CSV
 
 		if (!empty($title)) {
 			$table = array_merge([[$title]], $table);
+		}
+
+		if ($utf8encode) {
+			$table = \Osimatic\Helpers\Text\Encoding::utf8Encode($table);
 		}
 
 		$str = $serializer->encode($table, 'csv');
