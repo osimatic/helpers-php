@@ -135,4 +135,72 @@ class Duration
 	}
 
 
+	// ========== Check ==========
+
+	/**
+	 * Vérifie la validité d'une durée saisie dans un formulaire, via un champ text (saisie de int) ou un champs de type time (saisie de type hh:mm:ss)
+	 * Accepte donc des durées sous la forme "10:23:02" ou "1220" (secondes)
+	 * @param $enteredDuration
+	 * @param string $separator
+	 * @param int $hourPos
+	 * @param int $minutePos
+	 * @param int $secondPost
+	 * @return bool
+	 */
+	public static function check($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPost=3): bool
+	{
+		return (null !== self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPost));
+	}
+
+	// ========== Parse ==========
+
+	/**
+	 * Parse une durée au format "entier" (nombre de secondes) ou format "string" (type hh:mm:ss) et retourne la durée en secondes
+	 * @param $enteredDuration
+	 * @param string $separator
+	 * @param int $hourPos
+	 * @param int $minutePos
+	 * @param int $secondPost
+	 * @return int
+	 */
+	public static function parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPost=3): int
+	{
+		if (null !== ($duration = self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPost))) {
+			return $duration;
+		}
+		return 0;
+	}
+
+	/**
+	 * @param $enteredDuration
+	 * @param string $separator
+	 * @param int $hourPos
+	 * @param int $minutePos
+	 * @param int $secondPost
+	 * @return int
+	 */
+	private static function _parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPost=3): ?int
+	{
+		if (preg_match("/^-?[0-9]{0,10}$/", $enteredDuration)) {
+			return (int) $enteredDuration;
+		}
+
+		$timeArray = explode($separator, $enteredDuration);
+		$hourPos--;
+		$minutePos--;
+		$secondPost--;
+
+		if (!isset($timeArray[$hourPos]) || !is_numeric($timeArray[$hourPos])) {
+			return null;
+		}
+		if (!isset($timeArray[$minutePos]) || !is_numeric($timeArray[$minutePos])) {
+			return null;
+		}
+		if (isset($timeArray[$secondPost]) && !is_numeric($timeArray[$secondPost])) {
+			return null;
+		}
+
+		return $timeArray[$hourPos] * 3600 + $timeArray[$minutePos] * 60 + ($timeArray[$secondPost] ?? 0);
+	}
+
 }
