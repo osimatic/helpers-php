@@ -51,37 +51,37 @@ class Email
 	protected $sender;
 
 	/**
-	 * Tableau contenant la liste des personnes en "répondre à" du mail.
-	 * Une personne "répondre à" est elle même un tableau contenant :
-	 * [0] => son adresse email
-	 * [1] => son nom (non obligatoire)
+	 * The array of reply-to names and addresses.
+	 * A reply-to element is an array containing :
+	 * [0] => email address
+	 * [1] => name (optional)
 	 * @var array
 	 */
 	private $replyTo = [];
 
 	/**
-	 * Tableau contenant la liste des destinataires du mail.
-	 * Un destinataire est lui même un tableau contenant :
-	 * [0] => son adresse email
-	 * [1] => son nom (non obligatoire)
+	 * The array of 'to' names and addresses.
+	 * A recipient element is an array containing :
+	 * [0] => email address
+	 * [1] => name (optional)
 	 * @var array
 	 */
 	private $listTo = [];
 
 	/**
-	 * Tableau contenant la liste des destinataires en copie du mail.
-	 * Un destinataire en copie est lui même un tableau contenant :
-	 * [0] => son adresse email
-	 * [1] => son nom (non obligatoire)
+	 * The array of 'cc' names and addresses.
+	 * A recipient element is an array containing :
+	 * [0] => email address
+	 * [1] => name (optional)
 	 * @var array
 	 */
 	private $listCc = [];
 
 	/**
-	 * Tableau contenant la liste des destinataires en copie cachée du mail.
-	 * Un destinataire en copie cachée est lui même un tableau contenant :
-	 * [0] => son adresse email
-	 * [1] => son nom (non obligatoire)
+	 * The array of 'bcc' names and addresses.
+	 * A recipient element is an array containing :
+	 * [0] => email address
+	 * [1] => name (optional)
 	 * @var array
 	 */
 	private $listBcc = [];
@@ -93,18 +93,18 @@ class Email
 	private $confirmReadingTo;
 
 	/**
-	 * Tableau contenant la liste des pièces jointes.
-	 * Une pièce jointe est elle même un tableau contenant :
+	 * The array of attachments.
+	 * An attachment element is an array containing :
 	 * [0] => String si la pièce jointe est une string à la place d'un fichier ou
 	 * Chemin complet vers le fichier si la pièce jointe est un fichier ou
 	 * Chemin complet vers l'image si la pièce jointe est une embedded image
-	 * [1] => Nom du fichier correspondant à la pièce jointe
-	 * [2] => Nom de la pièce jointe affiché dans le mail
-	 * [3] => Encodage du fichier en pièce jointe. Vaut "base64" par défaut.
-	 * [4] => Type MIME de la pièce jointe. Vaut "application/octet-stream" par défaut.
-	 * [5] => true si la pièce jointe est une string à la place d'un fichier, false sinon
-	 * [6] => "attachment" si c'est une pièce jointe à part, "inline" si c'est une embedded image
-	 * [7] => 0 si c'est une pièce jointe à part, id unique si c'est une embedded image
+	 * [1] => Filename of attachment
+	 * [2] => Filename of attachment displayed in the email
+	 * [3] => Filename encoding (default "base64")
+	 * [4] => MIME type of attachment (default "application/octet-stream")
+	 * [5] => boolean indicating if attachment is a string (true) or a file (false)
+	 * [6] => "attachment" if it's an attachment, "inline" if it's an embedded image
+	 * [7] => Content ID of the attachment. Use this to reference the content when using an embedded image in HTML.
 	 * @var array
 	 */
 	private $listAttachments = [];
@@ -405,7 +405,7 @@ class Email
 	}
 
 	/**
-	 * Réinitialise le nom et l'adresse e-mail de la personne pour la réponse.
+	 * Clear all ReplyTo recipients.
 	 */
 	public function clearReplyTo(): void
 	{
@@ -686,7 +686,7 @@ class Email
 	}
 
 	/**
-	 * Réinitialise la liste des destinataires (supprime tous ceux actuellement présents).
+	 * Clear all To recipients.
 	 */
 	public function clearListTo(): void
 	{
@@ -699,7 +699,7 @@ class Email
 	}
 
 	/**
-	 * Réinitialise la liste des destinataires en copie (supprime tous ceux actuellement présents).
+	 * Clear all CC recipients.
 	 */
 	public function clearListCc(): void
 	{
@@ -712,7 +712,7 @@ class Email
 	}
 
 	/**
-	 * Réinitialise la liste des destinataires en copie cachée (supprime tous ceux actuellement présents).
+	 * Clear all BCC recipients.
 	 */
 	public function clearListBcc(): void
 	{
@@ -725,7 +725,7 @@ class Email
 	}
 
 	/**
-	 * Réinitialise la liste des destinataires, ainsi que ceux en copie et en copie cachée.
+	 * Clear all recipient types.
 	 */
 	public function clearRecipients(): void
 	{
@@ -733,6 +733,14 @@ class Email
 		$this->listCc = [];
 		$this->listBcc = [];
 		$this->allAdresses = [];
+	}
+
+	/**
+	 * Clear all recipient types.
+	 */
+	public function clearAllRecipients(): void
+	{
+		$this->clearRecipients();
 	}
 
 	// ========== Attachement ==========
