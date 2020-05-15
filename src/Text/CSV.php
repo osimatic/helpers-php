@@ -77,9 +77,42 @@ class CSV
 
 	// ========== Ecriture ==========
 
+	private $title;
 	private $tableHead = [];
 	private $tableBody = [];
 	private $tableFoot = [];
+
+	/**
+	 * @param string $title
+	 * @return self
+	 */
+	public function setTitle(string $title): self
+	{
+		$this->title = $title;
+
+		return $this;
+	}
+
+	/**
+	 * @param array|null $tableHead
+	 * @param array $tableBody
+	 * @param array|null $tableFoot
+	 * @return self
+	 */
+	public function setTable(?array $tableHead, array $tableBody, ?array $tableFoot): self
+	{
+		if (!empty($tableHead)) {
+			$this->tableHead[] = $tableHead;
+		}
+
+		$this->tableBody[] = $tableBody;
+
+		if (!empty($tableFoot)) {
+			$this->tableFoot[] = $tableFoot;
+		}
+
+		return $this;
+	}
 
 	/**
 	 * @param $cell
@@ -128,9 +161,10 @@ class CSV
 	 * @param array|null $tableHead
 	 * @param array $tableBody
 	 * @param array|null $tableFoot
+	 * @param string|null $title
 	 * @return bool
 	 */
-	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot): bool
+	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot, ?string $title=null): bool
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
@@ -149,6 +183,10 @@ class CSV
 		if (!empty($tableFoot)) {
 			$tableFoot = array_values($tableFoot);
 			$table = array_merge($table, [$tableFoot]);
+		}
+
+		if (!empty($title)) {
+			$table = array_merge([[$title]], $table);
 		}
 
 		$str = $serializer->encode($table, 'csv');
