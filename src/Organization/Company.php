@@ -10,7 +10,7 @@ class Company
 	 */
 	public static function checkCompanyName(string $companyName): bool
 	{
-		return preg_match('/^([0-9a-zA-Z\'&àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\.\(\)\s\/-]{3,100})+$/u', $companyName);
+		return preg_match('/^([0-9a-zA-Z\'&àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\.\(\)\s\/-]{3,100})$/u', $companyName);
 	}
 
 	/**
