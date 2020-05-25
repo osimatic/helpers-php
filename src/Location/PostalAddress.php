@@ -124,11 +124,12 @@ class PostalAddress
 	// ========== Affichage ==========
 
 	/**
+	 * @param string|null $separator
 	 * @return string
 	 */
-	public function format(): ?string
+	public function format(?string $separator=null): ?string
 	{
-		return (new PostalAddressFormatter())->format($this);
+		return (new PostalAddressFormatter())->format($this, [], $separator);
 	}
 
 	public function __toString()

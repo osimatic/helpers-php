@@ -77,7 +77,7 @@ class NameFormatter
 	 * @param string|null $string
 	 * @return string
 	 */
-	private static function ucname(?string $string): string
+	public static function ucname(?string $string): string
 	{
 		$string = ucwords(mb_strtolower($string));
 		//$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
