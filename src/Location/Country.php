@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\Location;
 
+use Symfony\Component\Intl\Countries;
+
 /**
  * Class Country
  * @package Osimatic\Helpers\Location
@@ -224,7 +226,7 @@ class Country
 	 */
 	public static function checkCountryCode(?string $countryIsoCode): bool
 	{
-		return \Locale::getRegion($countryIsoCode) !== false;
+		return Countries::exists($countryIsoCode);
 	}
 
 	/**
