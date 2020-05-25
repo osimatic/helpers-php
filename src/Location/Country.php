@@ -242,6 +242,25 @@ class Country
 	}
 
 	/**
+	 * @param string|null $countryName
+	 * @return string|null
+	 */
+	public static function getCountryCodeByCountryName(?string $countryName): ?string
+	{
+		if (null === $countryName) {
+			return null;
+		}
+
+		$countryName = mb_strtolower($countryName);
+		foreach (Countries::getNames() as $countryCode => $name) {
+			if (mb_strtolower($name) === $countryName) {
+				return $countryCode;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * @param string|null $countryIsoCode
 	 * @param string|null $zipCode
 	 * @return bool
