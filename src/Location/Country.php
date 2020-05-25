@@ -219,6 +219,15 @@ class Country
 	// ========== Country code ==========
 
 	/**
+	 * @param string|null $countryIsoCode
+	 * @return bool
+	 */
+	public static function checkCountryCode(?string $countryIsoCode): bool
+	{
+		return \Locale::getRegion($countryIsoCode) !== false;
+	}
+
+	/**
 	 * @param string|null $locale
 	 * @return string|null
 	 */
