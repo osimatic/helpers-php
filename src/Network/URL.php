@@ -8,6 +8,17 @@ namespace Osimatic\Helpers\Network;
  */
 class URL
 {
+	// ========== Check ==========
+
+	/**
+	 * Vérifie la syntaxe d'une URL
+	 * @param string $url l'URL à vérifier
+	 * @return boolean true si l'URL est syntaxiquement correcte, false sinon
+	 */
+	public static function check(string $url): bool
+	{
+		return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED);
+	}
 
 	// ========== Affichage ==========
 
@@ -65,14 +76,7 @@ class URL
 	{
 		$host = self::getHost($url, false, true);
 
-		$tld = substr($host, strrpos($host, '.'));
-
-		if (!$withPoint) {
-			$tld = substr($tld, 1);
-		}
-
-		return $tld;
-		//return substr($host, strrpos($host, '.')+1);
+		return DNS::getTld($host, $withPoint);
 	}
 
 	/**
@@ -95,19 +99,7 @@ class URL
 	{
 		$host = self::getHost($url, false, true);
 
-		$hostWithoutTld = substr($host, 0, strrpos($host, '.'));
-		if (strrpos($hostWithoutTld, '.')) {
-			$sld = substr($hostWithoutTld, strrpos($hostWithoutTld, '.')+1);
-		}
-		else {
-			$sld = $hostWithoutTld;
-		}
-
-		if ($withTld) {
-			$sld .= self::getTld($url);
-		}
-
-		return $sld;
+		return DNS::getSld($host);
 	}
 
 	/**
