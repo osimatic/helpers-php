@@ -22,6 +22,11 @@ class FirebaseMessaging
 	 */
 	private $serviceKeyFile;
 
+	/**
+	 * @var array|null
+	 */
+	private $result;
+
 	public function __construct()
 	{
 		$this->logger = new NullLogger();
@@ -59,6 +64,15 @@ class FirebaseMessaging
 
 		return $this;
 	}
+
+	/**
+	 * @return array|null
+	 */
+	public function getResult(): ?array
+	{
+		return $this->result;
+	}
+
 
 
 	/**
@@ -134,6 +148,8 @@ class FirebaseMessaging
 
 		$jsonResult = \GuzzleHttp\json_decode((string) $result->getBody(), true);
 		$this->logger->info((string) $result->getBody());
+
+		$this->result = $jsonResult;
 
 		//return $jsonResult;
 		return true;

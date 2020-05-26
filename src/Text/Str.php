@@ -874,7 +874,7 @@ class Str
 	public static function toURLFriendly(string $str): string
 	{
 		$str = self::removeAccents($str);
-		$str = preg_replace(array('/[^a-zA-Z0-9 \'-]/', '/[ -\']+/', '/^-|-$/'), array('', '-', ''), $str);
+		$str = preg_replace(['/[^a-zA-Z0-9 \'-]/', '/[ -\']+/', '/^-|-$/'], ['', '-', ''], $str);
 		$str = preg_replace('/-inc$/i', '', $str);
 		return strtolower($str);
 	}

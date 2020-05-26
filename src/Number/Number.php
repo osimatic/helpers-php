@@ -145,7 +145,7 @@ class Number
 
 		// formattage virgule
 		$str = str_replace(',', '.', $str);
-		if (substr_count($str, '.') == 0) {
+		if (substr_count($str, '.') !== 0) {
 			$str .= '.0';
 		}
 
