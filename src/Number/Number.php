@@ -73,9 +73,10 @@ class Number
 			return false;
 		}
 
-		if (strpos($str, '.') === false) {
-			return false;
-		}
+		// mise en commentaire pour autoriser aussi la saisie des entiers
+		//if (strpos($str, '.') === false) {
+		//	return false;
+		//}
 
 		return true;
 	}
