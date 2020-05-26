@@ -101,13 +101,13 @@ class CSV
 	public function setTable(?array $tableHead, array $tableBody, ?array $tableFoot): self
 	{
 		if (!empty($tableHead)) {
-			$this->tableHead[] = $tableHead;
+			$this->tableHead = $tableHead;
 		}
 
-		$this->tableBody[] = $tableBody;
+		$this->tableBody = $tableBody;
 
 		if (!empty($tableFoot)) {
-			$this->tableFoot[] = $tableFoot;
+			$this->tableFoot = $tableFoot;
 		}
 
 		return $this;
@@ -148,11 +148,12 @@ class CSV
 
 	/**
 	 * @param string $filePath
+	 * @param bool $utf8encode
 	 * @return bool
 	 */
-	public function save(string $filePath): bool
+	public function save(string $filePath, bool $utf8encode=false): bool
 	{
-		return self::generateFile($filePath, $this->tableHead, $this->tableBody, $this->tableFoot);
+		return self::generateFile($filePath, $this->tableHead, $this->tableBody, $this->tableFoot, $this->title, $utf8encode);
 	}
 
 	/**
