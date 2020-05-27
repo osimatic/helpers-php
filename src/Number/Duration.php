@@ -4,6 +4,25 @@ namespace Osimatic\Helpers\Number;
 
 class Duration
 {
+	// ========== Calcul entre 2 plages horaires ==========
+
+	/**
+	 * @param int $timeSlot1StartTimestamp
+	 * @param int $timeSlotEnd1Timestamp
+	 * @param int $timeSlot2StartTimestamp
+	 * @param int $timeSlotEnd2Timestamp
+	 * @return int
+	 */
+	public static function getDurationOfIntersectionBetweenTwoTimeSlot(int $timeSlot1StartTimestamp, int $timeSlotEnd1Timestamp, int $timeSlot2StartTimestamp, int $timeSlotEnd2Timestamp): int
+	{
+		$timestampCalcStart = ($timeSlot1StartTimestamp > $timeSlot2StartTimestamp ? $timeSlot1StartTimestamp : $timeSlot2StartTimestamp);
+		$timestampCalcEnd = ($timeSlotEnd1Timestamp < $timeSlotEnd2Timestamp ? $timeSlotEnd1Timestamp : $timeSlotEnd2Timestamp);
+		if ($timestampCalcEnd > $timestampCalcStart) {
+			return $timestampCalcEnd - $timestampCalcStart;
+		}
+		return 0;
+	}
+
 	// ========== Calcul de nombres d'élément ==========
 
 	/**
