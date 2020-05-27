@@ -42,9 +42,7 @@ class ZipArchive
 	 */
 	public static function archive(string $filePath, array $files): void
 	{
-		if (file_exists($filePath)) {
-			unlink($filePath);
-		}
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);
@@ -63,9 +61,7 @@ class ZipArchive
 	 */
 	public static function archiveFilesFromString(string $filePath, array $contentFiles): void
 	{
-		if (file_exists($filePath)) {
-			unlink($filePath);
-		}
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);
