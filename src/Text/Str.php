@@ -12,24 +12,24 @@ class Str
 	/**
 	 * Remplace une série de caractère par un autre caractère dans une chaîne.
 	 * @param string $str la chaîne sur laquelle remplacer des caractères
-	 * @param array $listeRemplacementChar liste des caractères à remplacer (sensible à la casse) : en clé, le caractère à remplacer ; en valeur, le caractère de remplacement.
+	 * @param array $replacements liste des caractères à remplacer (sensible à la casse) : en clé, le caractère à remplacer ; en valeur, le caractère de remplacement.
 	 * @param boolean $replaceUppercaseChar true pour remplacer également les caractères en majuscule, false sinon (false par défaut)
 	 * @param boolean $replaceLowercaseChar true pour remplacer également les caractères en minuscule, false sinon (false par défaut)
 	 * @param boolean $replaceBrutChar true pour remplacer les caractères tels quels, false sinon (true par défaut)
 	 * @return string la chaîne avec les caractères remplacés
 	 */
-	public static function replaceListChar(string $str, array $listeRemplacementChar, bool $replaceUppercaseChar=false, bool $replaceLowercaseChar=false, bool $replaceBrutChar=true): string
+	public static function replaceListChar(string $str, array $replacements, bool $replaceUppercaseChar=false, bool $replaceLowercaseChar=false, bool $replaceBrutChar=true): string
 	{
 		if ($replaceBrutChar) {
-			$str = str_replace(array_keys($listeRemplacementChar), array_values($listeRemplacementChar), $str);
+			$str = str_replace(array_keys($replacements), array_values($replacements), $str);
 		}
 		if ($replaceLowercaseChar) {
-			$str = str_replace(array_map('mb_strtolower', array_keys($listeRemplacementChar)), array_map('mb_strtolower', array_values($listeRemplacementChar)), $str);
+			$str = str_replace(array_map('mb_strtolower', array_keys($replacements)), array_map('mb_strtolower', array_values($replacements)), $str);
 		}
 		if ($replaceUppercaseChar) {
 			// Probleme de conversion des caracteres šž du à la fonction replaceListChar (cf. test StringTest::testSupprimerDiacritiques)
 			// mb_strtoupper ne met pas en majuscule ces deux caracteres, ce qui entraine leur remplacement par s et z
-			$str = str_replace(array_map('mb_strtoupper', array_keys($listeRemplacementChar)), array_map('mb_strtoupper', array_values($listeRemplacementChar)), $str);
+			$str = str_replace(array_map('mb_strtoupper', array_keys($replacements)), array_map('mb_strtoupper', array_values($replacements)), $str);
 			// $str = str_replace(mb_strtoupper($listeRemplacementChar), mb_strtoupper($lettreRemplacement), $str);
 		}
 		return $str;
@@ -38,22 +38,22 @@ class Str
 	/**
 	 * Supprime une série de caractère dans une chaîne.
 	 * @param string $str la chaîne sur laquelle supprimer des caractères
-	 * @param array $listeSuppressionChar liste des caractères à supprimer (sensible à la casse).
+	 * @param array $charactersToRemove liste des caractères à supprimer (sensible à la casse).
 	 * @param boolean $replaceUppercaseChar true pour supprimer également les caractères en majuscule, false sinon (false par défaut)
 	 * @param boolean $replaceLowercaseChar true pour supprimer également les caractères en minuscule, false sinon (false par défaut)
 	 * @param boolean $replaceBrutChar true pour supprimer les caractères tels quels, false sinon (true par défaut)
 	 * @return string la chaîne avec les caractères supprimés
 	 */
-	public static function removeListeChar(string $str, array $listeSuppressionChar, bool $replaceUppercaseChar=false, bool $replaceLowercaseChar=false, bool $replaceBrutChar=true): string
+	public static function removeListeChar(string $str, array $charactersToRemove, bool $replaceUppercaseChar=false, bool $replaceLowercaseChar=false, bool $replaceBrutChar=true): string
 	{
 		if ($replaceBrutChar) {
-			$str = str_replace($listeSuppressionChar, '', $str);
+			$str = str_replace($charactersToRemove, '', $str);
 		}
 		if ($replaceLowercaseChar) {
-			$str = str_replace(array_map('mb_strtolower', array_values($listeSuppressionChar)), '', $str);
+			$str = str_replace(array_map('mb_strtolower', array_values($charactersToRemove)), '', $str);
 		}
 		if ($replaceUppercaseChar) {
-			$str = str_replace(array_map('mb_strtoupper', array_values($listeSuppressionChar)), '', $str);
+			$str = str_replace(array_map('mb_strtoupper', array_values($charactersToRemove)), '', $str);
 		}
 		return $str;
 	}
@@ -95,7 +95,7 @@ class Str
 		}
 		$min = min($scores);
 		if ($min <= $distanceMax) {
-			return array_search($min, $scores);
+			return array_search($min, $scores, true);
 		}
 		return null;
 	}
@@ -103,11 +103,11 @@ class Str
 	/**
 	 * @param $val1
 	 * @param $val2
-	 * @param bool $ordreNaturel
+	 * @param bool $naturalOrder
 	 * @param bool $caseSensitive
 	 * @return int
 	 */
-	public static function compare($val1, $val2, bool $ordreNaturel=false, bool $caseSensitive=false): int
+	public static function compare($val1, $val2, bool $naturalOrder=false, bool $caseSensitive=false): int
 	{
 		if (is_numeric($val1) && is_numeric($val2)) {
 			if ($val1 < $val2) {
@@ -119,7 +119,7 @@ class Str
 			return 0;
 		}
 
-		if ($ordreNaturel) {
+		if ($naturalOrder) {
 			if ($caseSensitive) {
 				return strnatcmp($val1, $val2); // Comparaison ordre naturel, sensible à la casse
 			}
@@ -138,11 +138,11 @@ class Str
 	 * Coupe une chaîne de caractères avant un certains nombre de caractères, le début de la chaîne étant tronquée, et ajoute éventuellement une chaîne avant la coupure
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (le début étant coupé)
-	 * @param bool $nePasCouperEnPleinMot true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
+	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
 	 * @param string $strAddingAtBeginning la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("..." par défaut)
 	 * @return string la chaîne coupée
 	 */
-	public static function truncateTextAtBeginning(string $string, int $nbCharMax, bool $nePasCouperEnPleinMot = true, string $strAddingAtBeginning = '...'): string
+	public static function truncateTextAtBeginning(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtBeginning = '...'): string
 	{
 		$space = ' ';
 		$stringTruncate = $string;
@@ -150,7 +150,7 @@ class Str
 		if (strlen($string) > $nbCharMax) {
 			$stringTruncate = substr($string, -$nbCharMax);
 
-			if ($nePasCouperEnPleinMot && $string[$nbCharMax-1] != $space) {
+			if ($dontCutInMiddleOfWord && $string[$nbCharMax-1] !== $space) {
 				$posSpace = strpos($stringTruncate, $space);
 				if ($posSpace !== false) {
 					$stringTruncate = substr($stringTruncate, $posSpace);
@@ -167,11 +167,11 @@ class Str
 	 * Coupe une chaîne de caractères après un certains nombre de caractères, la fin de la chaîne étant tronquée, et ajoute éventuellement une chaîne après la coupure
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (la fin étant coupé)
-	 * @param bool $nePasCouperEnPleinMot true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
+	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
 	 * @param string $strAddingAtEnd la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("..." par défaut)
 	 * @return string la chaîne coupée
 	 */
-	public static function truncateTextAtEnd(string $string, int $nbCharMax, bool $nePasCouperEnPleinMot = true, string $strAddingAtEnd = '...'): string
+	public static function truncateTextAtEnd(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtEnd = '...'): string
 	{
 		$space = ' ';
 		$stringTruncate = $string;
@@ -179,7 +179,7 @@ class Str
 		if (strlen($string) > $nbCharMax) {
 			$stringTruncate = substr($string, 0, $nbCharMax);
 
-			if ($nePasCouperEnPleinMot && $string[$nbCharMax-1] != $space) {
+			if ($dontCutInMiddleOfWord && $string[$nbCharMax-1] != $space) {
 				$posSpace = strrpos($stringTruncate, $space);
 				if ($posSpace !== false) {
 					$stringTruncate = substr($stringTruncate, 0, $posSpace);
@@ -192,14 +192,14 @@ class Str
 	}
 
 	/**
-	 * TODO : prendre en compte le paramètre $nePasCouperEnPleinMot
+	 * TODO : prendre en compte le paramètre $dontCutInMiddleOfWord
 	 * @param string $string
 	 * @param int $nbCharMax
-	 * @param bool $nePasCouperEnPleinMot
+	 * @param bool $dontCutInMiddleOfWord
 	 * @param string $strAddingInMiddle
 	 * @return string
 	 */
-	public static function truncateTextInMiddle(string $string, int $nbCharMax, bool $nePasCouperEnPleinMot = true, string $strAddingInMiddle = '[...]'): string
+	public static function truncateTextInMiddle(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingInMiddle = '[...]'): string
 	{
 		$stringTruncate = $string;
 
@@ -247,12 +247,12 @@ class Str
 
 	/**
 	 * @param string $string
-	 * @param bool $autoriserNumerique
+	 * @param bool $numericAllowed
 	 * @return bool
 	 */
-	public static function checkLowercase(string $string, bool $autoriserNumerique=true): bool
+	public static function checkLowercase(string $string, bool $numericAllowed=true): bool
 	{
-		if ($autoriserNumerique) {
+		if ($numericAllowed) {
 			$string = str_replace('/\d/', '', $string);
 		}
 		return ctype_lower($string);
@@ -260,12 +260,12 @@ class Str
 
 	/**
 	 * @param string $string
-	 * @param bool $autoriserNumerique
+	 * @param bool $numericAllowed
 	 * @return bool
 	 */
-	public static function checkUppercase(string $string, bool $autoriserNumerique=true): bool
+	public static function checkUppercase(string $string, bool $numericAllowed=true): bool
 	{
-		if ($autoriserNumerique) {
+		if ($numericAllowed) {
 			$string = str_replace('/\d/', '', $string);
 		}
 		return ctype_upper($string);
@@ -514,9 +514,9 @@ class Str
 	 */
 	public static function removePunctuation(string $str, string $replace=''): string
 	{
-		$listeCaratacteresPonctuation = [',', '‚', ';', ':', '.', '…', '?', '!', '"', '\'', '(', ')', '[', ']', '{', '}', '‘', '’', '“', '”', '«', '»', '<', '>'];
-		foreach ($listeCaratacteresPonctuation as $caratacterePonctuation) {
-			$str = preg_replace('#([\s]*)\\'.$caratacterePonctuation.'([\s]*)#', $replace, $str);
+		$charList = [',', '‚', ';', ':', '.', '…', '?', '!', '"', '\'', '(', ')', '[', ']', '{', '}', '‘', '’', '“', '”', '«', '»', '<', '>'];
+		foreach ($charList as $char) {
+			$str = preg_replace('#([\s]*)\\'.$char.'([\s]*)#', $replace, $str);
 		}
 		return $str;
 	}
@@ -581,7 +581,7 @@ class Str
 		$delim = '[-_\'\"`(){}<>\[\]|!?@#%&,.:;^~*+=\/ 0-9\n\r\t]';
 
 		foreach ($censored as $badword) {
-			if ($replacement != '') {
+			if ($replacement !== '') {
 				$str = preg_replace("/({$delim})(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")({$delim})/i", "\\1{$replacement}\\3", $str);
 			}
 			else {
@@ -650,7 +650,7 @@ class Str
 			}
 
 			// If $temp contains data it means we had to split up an over-length word into smaller chunks so we'll add it back to our current line
-			if ($temp != '') {
+			if ($temp !== '') {
 				$output .= $temp."\n".$line;
 			}
 			else {
@@ -898,7 +898,7 @@ class Str
 	public static function getRandomPronounceableWord(int $nbChar, ?string $listeConsonnes=null, ?string $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
 	{
 		if ($premiereLettreConsonneAleatoire) {
-			$pair = (rand(0, 1) == 0);
+			$pair = (rand(0, 1) === 0);
 		}
 		else {
 			$pair = ($premiereLettreConsonne);
@@ -915,11 +915,11 @@ class Str
 
 		$motPrononcable = '';
 		for ($i=0; $i<$nbChar; $i++) {
-			if ($pair == true) {
-				$motPrononcable .= $listeConsonnes{mt_rand(0, $nbConsonnes-1)};
+			if ($pair === true) {
+				$motPrononcable .= $listeConsonnes[mt_rand(0, $nbConsonnes-1)];
 			}
 			else {
-				$motPrononcable .= $listeVoyelles{mt_rand(0, $nbVoyelles-1)};
+				$motPrononcable .= $listeVoyelles[mt_rand(0, $nbVoyelles-1)];
 			}
 
 			$pair = !$pair;
@@ -939,7 +939,7 @@ class Str
 		$strRand = '';
 		$nbLettres = strlen($listeChar);
 		for ($i=0; $i<$nbChar; $i++) {
-			$charRand = $listeChar{mt_rand(0, $nbLettres-1)};
+			$charRand = $listeChar[mt_rand(0, $nbLettres-1)];
 			$strRand .= $charRand;
 		}
 		return $strRand;
@@ -963,10 +963,10 @@ class Str
 
 		$suiteCaractereAlphabetique = '';
 		for ($i=0; $i<$nbChar; $i++) {
-			$caractereAlphabetique = $listeLettres{mt_rand(0, $nbLettres-1)};
+			$caractereAlphabetique = $listeLettres[mt_rand(0, $nbLettres-1)];
 
 			if ($lowercaseEnabled && $uppercaseEnabled) {
-				if (rand(0, 1) == 1) {
+				if (rand(0, 1) === 1) {
 					$caractereAlphabetique = strtoupper($caractereAlphabetique);
 				}
 			}
@@ -993,7 +993,7 @@ class Str
 
 		$suiteCaractereNumerique = '';
 		for ($i=0; $i<$nbChar; $i++) {
-			$caractereNumerique = $listeChiffres{mt_rand(0, $nbChiffres-1)};
+			$caractereNumerique = $listeChiffres[mt_rand(0, $nbChiffres-1)];
 
 			if (false === $startWith0 && 0 === $i && '0' === $caractereNumerique) {
 				$i--;
@@ -1027,26 +1027,27 @@ class Str
 			$suiteCaractereAlphanumerique = '';
 			for ($i=0; $i<$nbChar; $i++) {
 				if (!$uppercaseEnabled && !$lowercaseEnabled) {
-					$caractereAlphanumerique = self::getRandomNumericString(1);
+					$suiteCaractereAlphanumerique .= self::getRandomNumericString(1);
+					continue;
 				}
-				else {
-					$typeCaractere = rand(1, $nbTypeCaractere);
-					switch ($typeCaractere) {
-						case 1 :
-							$caractereAlphanumerique = self::getRandomNumericString(1);
-							break;
 
-						case 2 :
-							$caractereAlphanumerique = self::getRandomAlphaString(1);
-							if ($uppercaseEnabled && !$lowercaseEnabled) {
-								$caractereAlphanumerique = strtoupper(self::getRandomAlphaString(1));
-							}
-							break;
+				$caractereAlphanumerique = null;
+				$typeCaractere = rand(1, $nbTypeCaractere);
+				switch ($typeCaractere) {
+					case 1 :
+						$caractereAlphanumerique = self::getRandomNumericString(1);
+						break;
 
-						case 3 :
+					case 2 :
+						$caractereAlphanumerique = self::getRandomAlphaString(1);
+						if ($uppercaseEnabled && !$lowercaseEnabled) {
 							$caractereAlphanumerique = strtoupper(self::getRandomAlphaString(1));
-							break;
-					}
+						}
+						break;
+
+					case 3 :
+						$caractereAlphanumerique = strtoupper(self::getRandomAlphaString(1));
+						break;
 				}
 
 				$suiteCaractereAlphanumerique .= $caractereAlphanumerique;
