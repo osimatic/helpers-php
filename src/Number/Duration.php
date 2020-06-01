@@ -211,4 +211,22 @@ class Duration
 		return ($timeArray[0] ?? 0) * 3600 + ($timeArray[1] ?? 0) * 60 + ($timeArray[2] ?? 0);
 	}
 
+	// ========== Conversion en durée décimales ==========
+
+	/**
+	 * @param int $duration (en secondes)
+	 * @return float
+	 */
+	public static function convertToNbDecimalHours(int $duration): float {
+		return round($duration / 3600, 2);
+	}
+
+	/**
+	 * @param int $duration (en secondes)
+	 * @return float
+	 */
+	public static function convertToNbDecimalMinutes(int $duration): float {
+		return round($duration / 60, 2);
+	}
+
 }
