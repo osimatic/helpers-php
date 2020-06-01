@@ -7,16 +7,52 @@ class Number
 	// ========== Affichage ==========
 
 	/**
-	 * @param mixed $number
+	 * @param int|float $number
 	 * @param int $nbDigitMin
 	 * @param string|null $thousandsSeparator
 	 * @return string
 	 */
 	public static function addLeadingZero($number, int $nbDigitMin, ?string $thousandsSeparator=null): string
 	{
-		$tmp = str_replace(($thousandsSeparator ?? '.'), '', $number);
-		$nbLeadingZero = $nbDigitMin-(strlen((string) (int) $tmp));
+		$tmp = str_replace($thousandsSeparator ?? '.', '', $number);
+		$nbLeadingZero = $nbDigitMin - strlen((string) (int) $tmp);
 		return str_pad($number, $nbLeadingZero, '0', STR_PAD_LEFT);
+	}
+
+	/**
+	 * @param int|float $number
+	 * @param int $decimals
+	 * @return string
+	 */
+	public static function format($number, int $decimals=2): string
+	{
+		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
+		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
+		return $fmt->format($number);
+	}
+
+	/**
+	 * @param int|float $number
+	 * @param int $decimals
+	 * @return string
+	 */
+	public static function formatScientific($number, int $decimals=2): string
+	{
+		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::SCIENTIFIC);
+		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
+		return $fmt->format($number);
+	}
+
+	/**
+	 * @param int|float $number
+	 * @param int $decimals
+	 * @return string
+	 */
+	public static function formatSpellOut($number, int $decimals=2): string
+	{
+		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::SPELLOUT);
+		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
+		return $fmt->format($number);
 	}
 
 	/**
@@ -60,14 +96,14 @@ class Number
 	}
 
 	/**
-	 * @param $str
+	 * @param mixed $str
 	 * @param bool $negativeAllowed
 	 * @param bool $positiveAllowed
 	 * @return bool
 	 */
-	public static function checkFloat(string $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	public static function checkFloat($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
-		$str = self::clean($str);
+		$str = self::clean((string) $str);
 
 		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
 			return false;
@@ -82,14 +118,14 @@ class Number
 	}
 
 	/**
-	 * @param $str
+	 * @param mixed $str
 	 * @param bool $negativeAllowed
 	 * @param bool $positiveAllowed
 	 * @return bool
 	 */
 	public static function checkInt($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
-		$str = self::clean($str);
+		$str = self::clean((string) $str);
 
 		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
 			return false;
@@ -103,7 +139,7 @@ class Number
 	}
 
 	/**
-	 * @param $str
+	 * @param mixed $str
 	 * @param bool $negativeAllowed
 	 * @param bool $positiveAllowed
 	 * @return bool
@@ -195,7 +231,7 @@ class Number
 	// ========== Type / Composition d'un nombre ==========
 
 	/**
-	 * @param $val
+	 * @param int|float $val
 	 * @return bool
 	 */
 	public static function isInteger($val): bool
@@ -204,7 +240,7 @@ class Number
 	}
 
 	/**
-	 * @param $val
+	 * @param int|float $val
 	 * @return bool
 	 */
 	public static function isFloat($val): bool
@@ -265,7 +301,7 @@ class Number
 	}
 
 	/**
-	 * @param $number
+	 * @param int|float $number
 	 * @return bool
 	 */
 	public static function checkLuhn($number): bool

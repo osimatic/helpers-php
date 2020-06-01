@@ -44,7 +44,7 @@ class Company
 			return false;
 		}
 		// Vérification de la validité du SIREN par la clé de contrôle, suivant l'algorithme de Luhn (clé "1-2").
-		return \Osimatic\Helpers\Number\Number::checkLuhn($siren);
+		return \Osimatic\Helpers\Number\Number::checkLuhn((int) $siren);
 	}
 
 	/**
@@ -68,7 +68,7 @@ class Company
 			return false;
 		}
 		// Vérification de la validité du SIRET par la clé de contrôle, suivant l'algorithme de Luhn (clé "1-2").
-		return \Osimatic\Helpers\Number\Number::checkLuhn($siret);
+		return \Osimatic\Helpers\Number\Number::checkLuhn((int) $siret);
 	}
 
 	/**
