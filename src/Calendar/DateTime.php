@@ -40,21 +40,23 @@ class DateTime
 	/**
 	 * @param \DateTime $dateTime
 	 * @param string|null $locale
+	 * @param int $dateFormatter
 	 * @return string
 	 */
-	public static function formatDate(\DateTime $dateTime, ?string $locale=null): string
+	public static function formatDate(\DateTime $dateTime, ?string $locale=null, int $dateFormatter=\IntlDateFormatter::SHORT): string
 	{
-		return \IntlDateFormatter::create($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE)->format($dateTime->getTimestamp());
+		return \IntlDateFormatter::create($locale, $dateFormatter, \IntlDateFormatter::NONE)->format($dateTime->getTimestamp());
 	}
 
 	/**
 	 * @param \DateTime $dateTime
 	 * @param string|null $locale
+	 * @param int $timeFormatter
 	 * @return string
 	 */
-	public static function formatTime(\DateTime $dateTime, ?string $locale=null): string
+	public static function formatTime(\DateTime $dateTime, ?string $locale=null, int $timeFormatter=\IntlDateFormatter::SHORT): string
 	{
-		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, \IntlDateFormatter::SHORT)->format($dateTime->getTimestamp());
+		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, $timeFormatter)->format($dateTime->getTimestamp());
 	}
 
 	/**
