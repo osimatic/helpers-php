@@ -33,6 +33,16 @@ class Number
 
 	/**
 	 * @param int|float $number
+	 * @return string
+	 */
+	public static function formatOrdinal($number): string
+	{
+		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::ORDINAL);
+		return $fmt->format($number);
+	}
+
+	/**
+	 * @param int|float $number
 	 * @param int $decimals
 	 * @return string
 	 */
