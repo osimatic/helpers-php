@@ -141,6 +141,22 @@ class DateTime
 	}
 
 	/**
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfNextWeek(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('first day of next week')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfNextWeek(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of next week')).' 00:00:00');
+	}
+
+	/**
 	 * @param int $year
 	 * @param int $week
 	 * @return string
@@ -192,6 +208,22 @@ class DateTime
 	public static function getLastDayOfPreviousMonth(): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of previous month')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfNextMonth(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('first day of next month')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfNextMonth(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of next month')).' 00:00:00');
 	}
 
 	/**
