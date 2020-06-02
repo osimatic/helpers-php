@@ -24,6 +24,16 @@ class DatePeriod
 	}
 
 	/**
+	 * @param \DateTime $startDateTime
+	 * @param \DateTime $endDateTime
+	 * @return int
+	 */
+	public static function getNbDaysBetweenDatesAndTimes(\DateTime $startDateTime, \DateTime $endDateTime): int
+	{
+		return (int) $startDateTime->diff($endDateTime)->format('%r%a');
+	}
+
+	/**
 	 * @param string $groupBy
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
