@@ -109,6 +109,38 @@ class DateTime
 	// ========== Semaine ==========
 
 	/**
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfCurrentWeek(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfWeek(date('Y'), date('m')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfCurrentWeek(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek(date('Y'), date('m')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfPreviousWeek(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('first day of previous week')).' 00:00:00');
+	}
+
+	/**
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfPreviousWeek(): ?\DateTime
+	{
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of previous week')).' 00:00:00');
+	}
+
+	/**
 	 * @param int $year
 	 * @param int $week
 	 * @return string
