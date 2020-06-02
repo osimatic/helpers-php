@@ -35,6 +35,15 @@ class Number
 	 * @param int|float $number
 	 * @return string
 	 */
+	public static function formatInt($number): string
+	{
+		return self::format($number, 0);
+	}
+
+	/**
+	 * @param int|float $number
+	 * @return string
+	 */
 	public static function formatOrdinal($number): string
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::ORDINAL);
