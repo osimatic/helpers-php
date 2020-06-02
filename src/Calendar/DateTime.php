@@ -51,6 +51,16 @@ class DateTime
 	/**
 	 * @param \DateTime $dateTime
 	 * @param string|null $locale
+	 * @return string
+	 */
+	public static function formatDateInLong(\DateTime $dateTime, ?string $locale=null): string
+	{
+		return self::formatDate($dateTime, $locale, \IntlDateFormatter::LONG);
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param string|null $locale
 	 * @param int $timeFormatter
 	 * @return string
 	 */
