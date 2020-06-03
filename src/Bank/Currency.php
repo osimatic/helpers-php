@@ -37,6 +37,18 @@ class Currency
 	}
 
 	/**
+	 * @param string $currencyCode
+	 * @return bool
+	 */
+	public static function check(string $currencyCode): bool
+	{
+		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
+			->addMethodMapping('loadValidatorMetadata')
+			->getValidator();
+		return $validator->validate($currencyCode, new \Symfony\Component\Validator\Constraints\Currency())->count() === 0;
+	}
+
+	/**
 	 * @param float $number
 	 * @param string $currency
 	 * @param int $decimals

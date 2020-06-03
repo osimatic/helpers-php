@@ -127,6 +127,17 @@ class Audio
 	}
 
 	/**
+	 * @param string $ismn
+	 * @return bool
+	 * @link https://en.wikipedia.org/wiki/International_Standard_Music_Number
+	 */
+	public static function checkIsmn(string $ismn): bool
+	{
+		// todo
+		return true;
+	}
+
+	/**
 	 * Envoi au navigateur du client un fichier audio.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath le chemin complet vers le fichier audio

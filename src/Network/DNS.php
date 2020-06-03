@@ -17,6 +17,13 @@ class DNS
 		//return filter_var($url, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
 
 		return preg_match('/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/', $dns) === 1;
+
+		/*
+		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
+			->addMethodMapping('loadValidatorMetadata')
+			->getValidator();
+		return $validator->validate($dns, new \Symfony\Component\Validator\Constraints\Hostname())->count() === 0;
+		*/
 	}
 
 	// ========== Components of DNS ==========
@@ -26,6 +33,7 @@ class DNS
 	 * @param string $dns le nom de domaine dans laquelle récupérer le domaine de premier niveau
 	 * @param boolean $withPoint true pour ajouter le séparateur "." avant le domaine de premier niveau, false sinon (true par défaut)
 	 * @return string le domaine de premier niveau contenu dans le nom de domaine
+	 * @link https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains
 	 */
 	public static function getTld(string $dns, bool $withPoint=true): string
 	{
