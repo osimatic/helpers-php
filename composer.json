@@ -21,7 +21,8 @@
 	  	"symfony/serializer": "*",
 	  	"symfony/intl": "*",
 		"symfony/yaml": "*",
-		"symfony/property-access": "*"
+		"symfony/property-access": "*",
+		"symfony/validator": "*"
 	},
 	"license": "mit",
 	"authors": [

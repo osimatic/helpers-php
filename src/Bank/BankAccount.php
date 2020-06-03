@@ -38,7 +38,7 @@ class BankAccount
 		$MovedChar = substr($iban, 4).substr($iban,0,4);
 		$MovedCharArray = str_split($MovedChar);
 
-		$NewString = "";
+		$NewString = '';
 		foreach ($MovedCharArray AS $key => $value) {
 			if (!is_numeric($MovedCharArray[$key])) {
 				$MovedCharArray[$key] = $Chars[$MovedCharArray[$key]];
@@ -47,6 +47,18 @@ class BankAccount
 		}
 
 		return (bcmod($NewString, '97') == 1);
+	}
+
+	/**
+	 * @param string $bic
+	 * @return bool
+	 */
+	public static function checkBic(string $bic): bool
+	{
+		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
+			->addMethodMapping('loadValidatorMetadata')
+			->getValidator();
+		return $validator->validate($bic, new \Symfony\Component\Validator\Constraints\Bic())->count() === 0;
 	}
 
 }
