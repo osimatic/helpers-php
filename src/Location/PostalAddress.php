@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\Location;
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * Class PostalAddress
  * @package Osimatic\Helpers\Location
@@ -98,7 +100,26 @@ class PostalAddress
 	 */
 	public static function checkStreet(?string $value): bool
 	{
-		return preg_match('/(([0-9]+ )?[a-zA-Z ]){1,200}$/', $value);
+		//return preg_match('/(([0-9]+ )?[a-zA-Z ]){1,200}$/', $value);
+		return preg_match('/^(.){1,200}$/u', $value);
+	}
+
+	/**
+	 * @param string $value
+	 * @param string|null $country
+	 * @return bool
+	 */
+	public static function checkPostalCode(?string $value, ?string $country=null): bool
+	{
+		// Si le pays est fourni, on vérifie le code postal spécifique à ce pays
+		if (null !== $country) {
+			$regEx = Yaml::parse(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'postal_codes.yaml'));
+			if (!empty($regEx[$country])) {
+				return preg_match('/^'.$regEx[$country].'$/u', $value);
+			}
+		}
+
+		return preg_match('/^([\-\.\s\w]){3,15}$/u', $value);
 	}
 
 	/**
@@ -107,7 +128,7 @@ class PostalAddress
 	 */
 	public static function checkZipCode(?string $value): bool
 	{
-		return preg_match('/^[\s0-9a-zA-Z]{3,15}$/', $value);
+		return self::checkPostalCode($value);
 	}
 
 	/**
@@ -117,7 +138,8 @@ class PostalAddress
 	public static function checkCity(?string $value): bool
 	{
 		// /^([a-zA-Z'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){2-100}$/
-		return preg_match('/^[a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]+$/u', $value);
+		//return preg_match('/^[a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]+$/u', $value);
+		return preg_match('/^(.){1,100}$/u', $value);
 	}
 
 
