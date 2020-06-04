@@ -62,8 +62,7 @@ class GoogleMaps
 	 */
 	public function geocoding(string $address): ?array
 	{
-		$address = str_replace('’', "'", $address);
-		$address = str_replace(array('+', ' '), array('%2B', '+'), utf8_encode($address));
+		$address = str_replace(['’', '+', ' '], ["'", '%2B', '+'], $address);
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
 
