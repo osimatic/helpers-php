@@ -104,23 +104,53 @@ class GoogleMaps
 		return $this->getResults($json);
 	}
 
+
+
+	/**
+	 * @param string $address
+	 * @return array|null
+	 */
+	public function getAddressDataFromAddress(string $address): ?array
+	{
+		if (null === ($results = $this->geocoding($address))) {
+			return null;
+		}
+
+		if (null === ($coordinates = self::getCoordinatesFromResult($results[0]))) {
+			return null;
+		}
+
+		return [
+			'coordinates' => $coordinates,
+			'formatted_address' => self::getFormattedAddressFromResult($results[0]),
+			'address_components' => self::getAddressComponentsFromResult($results[0]),
+		];
+	}
+
 	/**
 	 * @param string $address
 	 * @return string|null
 	 */
 	public function getCoordinatesFromAddress(string $address): ?string
 	{
-		$results = $this->geocoding($address);
-		if (null === $results) {
+		if (null === ($results = $this->geocoding($address))) {
 			return null;
 		}
 
-		$coordinates = self::getCoordinatesFromResult($results[0]);
-		if (null !== $coordinates) {
-			return $coordinates;
+		return self::getCoordinatesFromResult($results[0]);
+	}
+
+	/**
+	 * @param string $address
+	 * @return string|null
+	 */
+	public function getFormattedAddressFromAddress(string $address): ?string
+	{
+		if (null === ($results = $this->geocoding($address))) {
+			return null;
 		}
 
-		return null;
+		return self::getFormattedAddressFromResult($results[0]);
 	}
 
 	/**
@@ -129,17 +159,36 @@ class GoogleMaps
 	 */
 	public function getAddressComponentsFromAddress(string $address): ?array
 	{
-		$results = $this->geocoding($address);
-		if (null === $results) {
+		if (null === ($results = $this->geocoding($address))) {
 			return null;
 		}
 
-		$AddressComponents = self::getAddressComponentsFromResult($results[0]);
-		if (null !== $AddressComponents) {
-			return $AddressComponents;
+		return self::getAddressComponentsFromResult($results[0]);
+	}
+
+
+
+
+
+	/**
+	 * @param string $coordinates
+	 * @return array|null
+	 */
+	public function getAddressDataFromCoordinates(string $coordinates): ?array
+	{
+		if (null === ($results = $this->reverseGeocoding($coordinates))) {
+			return null;
 		}
 
-		return null;
+		if (null === ($formattedAddress = self::getFormattedAddressFromResult($results[0]))) {
+			return null;
+		}
+
+		return [
+			'coordinates' => $coordinates,
+			'formatted_address' => $formattedAddress,
+			'address_components' => self::getAddressComponentsFromResult($results[0]),
+		];
 	}
 
 	/**
@@ -148,17 +197,11 @@ class GoogleMaps
 	 */
 	public function getFormattedAddressFromCoordinates(string $coordinates): ?string
 	{
-		$results = $this->reverseGeocoding($coordinates);
-		if (null === $results) {
+		if (null === ($results = $this->reverseGeocoding($coordinates))) {
 			return null;
 		}
 
-		$address = self::getFormattedAddressFromResult($results[0]);
-		if (null !== $address) {
-			return $address;
-		}
-
-		return null;
+		return self::getFormattedAddressFromResult($results[0]);
 	}
 
 	/**
@@ -167,18 +210,14 @@ class GoogleMaps
 	 */
 	public function getAddressComponentsFromCoordinates(string $coordinates): ?array
 	{
-		$results = $this->reverseGeocoding($coordinates);
-		if (null === $results) {
+		if (null === ($results = $this->reverseGeocoding($coordinates))) {
 			return null;
 		}
 
-		$addressComponents = self::getAddressComponentsFromResult($results[0]);
-		if (null !== $addressComponents) {
-			return $addressComponents;
-		}
-
-		return null;
+		return self::getAddressComponentsFromResult($results[0]);
 	}
+
+
 
 	/**
 	 * Retourne durée en seconde et distance en mètres
@@ -251,8 +290,12 @@ class GoogleMaps
 	 * @param array|null $result
 	 * @return array
 	 */
-	public static function getAddressComponentsFromResult(?array $result): array
+	public static function getAddressComponentsFromResult(?array $result): ?array
 	{
+		if (empty($formattedAddress = $result['address_components'] ?? null)) {
+			return null;
+		}
+
 		$addressComponents = [];
 		foreach (($result['address_components'] ?? []) as $resultAddressComponent) {
 			if (in_array('street_number', $resultAddressComponent['types'], true)) {
