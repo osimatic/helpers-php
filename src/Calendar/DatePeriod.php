@@ -44,7 +44,9 @@ class DatePeriod
 		$list = [];
 		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
 			if (null !== $weekDays || in_array((int) date('N', $timestamp), $weekDays, true)) {
-				$list[] = date('Y-m-d', $timestamp);
+				try {
+					$list[] = new \DateTime('@' . $timestamp);
+				} catch (\Exception $e) { }
 			}
 		}
 		return $list;
