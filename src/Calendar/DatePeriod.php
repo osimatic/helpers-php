@@ -43,7 +43,7 @@ class DatePeriod
 	{
 		$list = [];
 		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
-			if (null !== $weekDays || in_array((int) date('N', $timestamp), $weekDays, true)) {
+			if (null === $weekDays || in_array((int) date('N', $timestamp), $weekDays, true)) {
 				try {
 					$list[] = new \DateTime('@' . $timestamp);
 				} catch (\Exception $e) { }
