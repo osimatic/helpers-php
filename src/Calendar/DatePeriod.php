@@ -37,7 +37,7 @@ class DatePeriod
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
 	 * @param int[]|null $weekDays
-	 * @return array
+	 * @return \DateTime[]
 	 */
 	public static function getListDaysOfMonths(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays): array
 	{
