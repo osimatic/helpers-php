@@ -879,6 +879,17 @@ class Str
 		return strtolower($str);
 	}
 
+	/**
+	 * Mulit-byte Unserialize
+	 * UTF-8 will screw up a serialized string
+	 * @param string
+	 * @return array|null
+	 */
+	public static function mb_unserialize(string $string): ?array {
+		$array = unserialize(preg_replace_callback('!s:(\d+):"(.*?)";!s', fn($m) => 's:' .strlen($m[2]).':"'.$m[2].'";', $string));
+		return $array !== false ? $array : null;
+	}
+
 	// ========== Random ==========
 
 	const VOYELLES 					= 'aeiouy';
