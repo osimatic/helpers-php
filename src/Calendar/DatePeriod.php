@@ -34,6 +34,23 @@ class DatePeriod
 	}
 
 	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @param int[]|null $weekDays
+	 * @return array
+	 */
+	public static function getListDaysOfMonths(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays): array
+	{
+		$list = [];
+		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
+			if (null !== $weekDays || in_array((int) date('N', $timestamp), $weekDays, true)) {
+				$list[] = date('Y-m-d', $timestamp);
+			}
+		}
+		return $list;
+	}
+
+	/**
 	 * @param string $groupBy
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
