@@ -132,8 +132,9 @@ class PDF
 
 	/**
 	 * @param string $filePath
+	 * @param array $options
 	 */
-	public function generateFile(string $filePath): void
+	public function generateFile(string $filePath, array $options=[]): void
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
@@ -148,7 +149,7 @@ class PDF
 		}
 
 		try {
-			$snappy->generateFromHtml($this->body, $filePath);
+			$snappy->generateFromHtml($this->body, $filePath, $options);
 		}
 		catch (\Exception $e) {
 			$this->logger->error('Exception lors de la génération du fichier PDF : '.$e->getMessage());
