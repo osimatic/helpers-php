@@ -41,6 +41,10 @@ class File
 	 */
 	public static function output(string $filePath, ?string $fileName=null, ?string $transferEncoding='binary'): void
 	{
+		if (!file_exists($filePath)) {
+			return;
+		}
+
 		if (!headers_sent()) {
 			header('Content-Type: application/force-download');
 			header('Content-Disposition: attachment; filename="'.($fileName ?? basename($filePath)).'"');

@@ -15,7 +15,7 @@ class DirectDebitTransaction
 		$timestampNextMonth = $invoiceDate->getTimestamp() + (20*24*3600);
 		$transactionTimestamp = mktime(0, 0, 0, date('m', $timestampNextMonth), $transactionDay, date('Y', $timestampNextMonth));
 		try {
-			return new \DateTime('@'.$transactionTimestamp);
+			return (new \DateTime('@'.$transactionTimestamp))->setTimezone($invoiceDate->getTimezone());
 		}
 		catch (\Exception $e) { }
 		return null;

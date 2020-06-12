@@ -176,6 +176,10 @@ class Audio
 			return;
 		}
 
+		if (!file_exists($audioFilePath)) {
+			return;
+		}
+
 		$extension = self::getExtension($audioFilePath);
 		if (in_array($extension, array('mp3', 'wav'))) {
 			header('Content-Type: audio/' . $extension);
@@ -197,6 +201,10 @@ class Audio
 	 */
 	public static function playStream(string $audioFilePath): void
 	{
+		if (!file_exists($audioFilePath)) {
+			return;
+		}
+
 		/*
 		if (!isset($_SERVER['PATH_INFO'])) {
 			$_SERVER['PATH_INFO'] = substr($_SERVER["ORIG_SCRIPT_FILENAME"], strlen($_SERVER["SCRIPT_FILENAME"]));
