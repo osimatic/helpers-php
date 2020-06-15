@@ -29,32 +29,6 @@ class DateTime
 
 	/**
 	 * @param \DateTime $dateTime
-	 * @param string $dateFormatter
-	 * @param string $timeFormatter
-	 * @param string|null $locale
-	 * @return string
-	 */
-	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter, string $timeFormatter, ?string $locale=null): ?string
-	{
-		if (null === $dateTime) {
-			return null;
-		}
-
-		$getDateTimeFormatter = static function ($formatter) {
-			switch ($formatter) {
-				case 'none': return \IntlDateFormatter::NONE;
-				case 'full': return \IntlDateFormatter::FULL;
-				case 'long': return \IntlDateFormatter::LONG;
-				case 'medium': return \IntlDateFormatter::MEDIUM;
-			}
-			return \IntlDateFormatter::SHORT;
-		};
-
-		return self::format($dateTime, $getDateTimeFormatter($dateFormatter), $getDateTimeFormatter($timeFormatter), $locale);
-	}
-
-	/**
-	 * @param \DateTime $dateTime
 	 * @param string|null $locale
 	 * @return string
 	 */
@@ -94,6 +68,70 @@ class DateTime
 	{
 		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, $timeFormatter)->format($dateTime->getTimestamp());
 	}
+
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param string $dateFormatter
+	 * @param string $timeFormatter
+	 * @param string|null $locale
+	 * @return string
+	 */
+	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter, string $timeFormatter, ?string $locale=null): ?string
+	{
+		if (null === $dateTime) {
+			return null;
+		}
+
+		return self::format($dateTime, self::getDateTimeFormatterFromTwig($dateFormatter), self::getDateTimeFormatterFromTwig($timeFormatter), $locale);
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param string $dateFormatter
+	 * @param string|null $locale
+	 * @return string
+	 */
+	public static function formatDateFromTwig(?\DateTime $dateTime, string $dateFormatter, ?string $locale=null): ?string
+	{
+		if (null === $dateTime) {
+			return null;
+		}
+
+		return self::format($dateTime, self::getDateTimeFormatterFromTwig($dateFormatter), \IntlDateFormatter::NONE, $locale);
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param string $timeFormatter
+	 * @param string|null $locale
+	 * @return string
+	 */
+	public static function formatTimeFromTwig(?\DateTime $dateTime, string $timeFormatter, ?string $locale=null): ?string
+	{
+		if (null === $dateTime) {
+			return null;
+		}
+
+		return self::format($dateTime, \IntlDateFormatter::NONE, self::getDateTimeFormatterFromTwig($timeFormatter), $locale);
+	}
+
+	/**
+	 * @param string $formatter
+	 * @return int
+	 */
+	private static function getDateTimeFormatterFromTwig(string $formatter): int
+	{
+		switch ($formatter) {
+			case 'none': return \IntlDateFormatter::NONE;
+			case 'full': return \IntlDateFormatter::FULL;
+			case 'long': return \IntlDateFormatter::LONG;
+			case 'medium': return \IntlDateFormatter::MEDIUM;
+		}
+		return \IntlDateFormatter::SHORT;
+	}
+
+
 
 	/**
 	 * @param string $str
