@@ -29,6 +29,32 @@ class DateTime
 
 	/**
 	 * @param \DateTime $dateTime
+	 * @param string $dateFormatter
+	 * @param string $timeFormatter
+	 * @param string|null $locale
+	 * @return string
+	 */
+	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter, string $timeFormatter, ?string $locale=null): ?string
+	{
+		if (null === $dateTime) {
+			return null;
+		}
+
+		$getDateTimeFormatter = static function ($formatter) {
+			switch ($formatter) {
+				case 'none': return \IntlDateFormatter::NONE;
+				case 'full': return \IntlDateFormatter::FULL;
+				case 'long': return \IntlDateFormatter::LONG;
+				case 'medium': return \IntlDateFormatter::MEDIUM;
+			}
+			return \IntlDateFormatter::SHORT;
+		};
+
+		return self::format($dateTime, $getDateTimeFormatter($dateFormatter), $getDateTimeFormatter($timeFormatter), $locale);
+	}
+
+	/**
+	 * @param \DateTime $dateTime
 	 * @param string|null $locale
 	 * @return string
 	 */
