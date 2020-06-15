@@ -77,7 +77,7 @@ class DateTime
 	 * @param string|null $locale
 	 * @return string
 	 */
-	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter, string $timeFormatter, ?string $locale=null): ?string
+	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter='short', string $timeFormatter='short', ?string $locale=null): ?string
 	{
 		if (null === $dateTime) {
 			return null;
@@ -92,7 +92,7 @@ class DateTime
 	 * @param string|null $locale
 	 * @return string
 	 */
-	public static function formatDateFromTwig(?\DateTime $dateTime, string $dateFormatter, ?string $locale=null): ?string
+	public static function formatDateFromTwig(?\DateTime $dateTime, string $dateFormatter='short', ?string $locale=null): ?string
 	{
 		if (null === $dateTime) {
 			return null;
@@ -107,7 +107,7 @@ class DateTime
 	 * @param string|null $locale
 	 * @return string
 	 */
-	public static function formatTimeFromTwig(?\DateTime $dateTime, string $timeFormatter, ?string $locale=null): ?string
+	public static function formatTimeFromTwig(?\DateTime $dateTime, string $timeFormatter='short', ?string $locale=null): ?string
 	{
 		if (null === $dateTime) {
 			return null;
