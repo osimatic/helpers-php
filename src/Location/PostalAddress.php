@@ -146,6 +146,26 @@ class PostalAddress
 	// ========== Affichage ==========
 
 	/**
+	 * @param PostalAddress $postalAddress
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public static function formatFromTwig(PostalAddress $postalAddress, ?string $separator='<br/>'): ?string
+	{
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+	}
+
+	/**
+	 * @param PostalAddress $postalAddress
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public static function formatInlineFromTwig(PostalAddress $postalAddress, ?string $separator=', '): ?string
+	{
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+	}
+
+	/**
 	 * @param string|null $separator
 	 * @return string
 	 */

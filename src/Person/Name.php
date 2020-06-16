@@ -91,6 +91,15 @@ class Name
 	}
 
 	/**
+	 * @param Name $name
+	 * @return string
+	 */
+	public static function formatFromTwig(Name $name): ?string
+	{
+		return (new NameFormatter())->format($name);
+	}
+
+	/**
 	 * @return string
 	 */
 	public function format(): ?string
