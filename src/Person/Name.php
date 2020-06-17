@@ -37,38 +37,42 @@ class Name
 
 	/**
 	 * @param string $value
+	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
-	public static function checkFirstName(?string $value): bool
+	public static function checkFirstName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})$/u', $value);
+		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})$/u', $value);
 	}
 
 	/**
 	 * @param string $value
+	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
-	public static function checkGivenName(?string $value): bool
+	public static function checkGivenName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return self::checkFirstName($value);
+		return self::checkFirstName($value, $numbersAllowed);
 	}
 
 	/**
 	 * @param string $value
+	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
-	public static function checkLastName(?string $value): bool
+	public static function checkLastName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return preg_match('/^([a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})$/u', $value);
+		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})$/u', $value);
 	}
 
 	/**
 	 * @param string $value
+	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
-	public static function checkFamilyName(?string $value): bool
+	public static function checkFamilyName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return self::checkLastName($value);
+		return self::checkLastName($value, $numbersAllowed);
 	}
 
 
