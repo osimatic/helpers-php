@@ -170,6 +170,26 @@ class DateTime
 		return null;
 	}
 
+	// ========== Comparaison ==========
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isInThePast(\DateTime $dateTime): bool
+	{
+		return $dateTime < self::getCurrentDateTime();
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isInTheFuture(\DateTime $dateTime): bool
+	{
+		return $dateTime > self::getCurrentDateTime();
+	}
+
 	// ========== Semaine ==========
 
 	/**
