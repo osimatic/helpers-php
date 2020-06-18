@@ -444,15 +444,15 @@ class CICPayment
 	{
 		$SAFE_OUT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890._-';
 		$result = '';
-		for ($i=0, $iMax = strlen($data); $i< $iMax; $i++) {
-			if (strstr($SAFE_OUT_CHARS, $data{$i})) {
-				$result .= $data{$i};
+		for ($i=0, $iMax = strlen($data); $i < $iMax; $i++) {
+			if (strstr($SAFE_OUT_CHARS, $data[$i])) {
+				$result .= $data[$i];
 			}
-			else if (($var = bin2hex(substr($data,$i,1))) <= '7F') {
+			else if (($var = bin2hex(substr($data, $i,1))) <= '7F') {
 				$result .= '&#x' . $var . ';';
 			}
 			else {
-				$result .= $data{$i};
+				$result .= $data[$i];
 			}
 		}
 		return $result;
