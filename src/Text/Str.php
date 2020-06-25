@@ -271,6 +271,75 @@ class Str
 		return ctype_upper($string);
 	}
 
+	/**
+	 * @param string $string
+	 * @param int $nbCharMin
+	 * @param int $nbCharMax
+	 * @return bool
+	 */
+	public static function checkLength(string $string, int $nbCharMin, int $nbCharMax): bool
+	{
+		if ($nbCharMin > $nbCharMax) {
+			return false;
+		}
+
+		if (!preg_match('#^(.){'.($nbCharMin===$nbCharMax?$nbCharMin:$nbCharMin.','.$nbCharMax).'}$#', $string)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param string $string
+	 * @param int $nbCharMin
+	 * @param int $nbCharMax
+	 * @return bool
+	 */
+	public static function checkForAlphabeticCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
+	{
+		if (!ctype_alpha($string)) {
+			return false;
+		}
+
+		return self::checkLength($string, $nbCharMin, $nbCharMax);
+	}
+
+	/**
+	 * @param string $string
+	 * @param int $nbCharMin
+	 * @param int $nbCharMax
+	 * @return bool
+	 */
+	public static function checkForAlphanumericCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
+	{
+		if (!ctype_alnum($string)) {
+			return false;
+		}
+
+		return self::checkLength($string, $nbCharMin, $nbCharMax);
+	}
+
+	/**
+	 * @param string $string
+	 * @param int $nbCharMin
+	 * @param int $nbCharMax
+	 * @param bool $canStartWithZero
+	 * @return bool
+	 */
+	public static function checkForNumericCharacters(string $string, int $nbCharMin, int $nbCharMax, bool $canStartWithZero=true): bool
+	{
+		if (!ctype_digit($string)) {
+			return false;
+		}
+
+		if (false === $canStartWithZero && $string !== '' && $string[0] === '0') {
+			return false;
+		}
+
+		return self::checkLength($string, $nbCharMin, $nbCharMax);
+	}
+
 	// ========== Comptage de caractère ==========
 
 	/**
