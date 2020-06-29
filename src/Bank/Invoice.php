@@ -2,12 +2,24 @@
 
 namespace Osimatic\Helpers\Bank;
 
+use Osimatic\Helpers\Organization\Organization;
+
 class Invoice
 {
 	/**
-	 * @var string
+	 * @var Organization|null
 	 */
-	protected string $orderReference;
+	protected ?Organization $seller;
+
+	/**
+	 * @var Organization|null
+	 */
+	protected ?Organization $buyer;
+
+	/**
+	 * @var string|null
+	 */
+	protected ?string $orderReference;
 
 	/**
 	 * @var string
@@ -87,7 +99,39 @@ class Invoice
 
 
 
-	
+
+	/**
+	 * @return Organization|null
+	 */
+	public function getSeller(): ?Organization
+	{
+		return $this->seller;
+	}
+
+	/**
+	 * @param Organization|null $seller
+	 */
+	public function setSeller(?Organization $seller): void
+	{
+		$this->seller = $seller;
+	}
+
+	/**
+	 * @return Organization|null
+	 */
+	public function getBuyer(): ?Organization
+	{
+		return $this->buyer;
+	}
+
+	/**
+	 * @param Organization|null $buyer
+	 */
+	public function setBuyer(?Organization $buyer): void
+	{
+		$this->buyer = $buyer;
+	}
+
 	/**
 	 * @return string
 	 */
