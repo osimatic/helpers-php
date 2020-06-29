@@ -959,6 +959,15 @@ class Str
 		return $array !== false ? $array : null;
 	}
 
+	/**
+	 * Mulit-byte ucfirst
+	 * @param string
+	 * @return string
+	 */
+	public static function mb_ucfirst(string $string): string {
+		return mb_strtoupper(mb_substr($string, 0, 1)).mb_substr($string, 1);
+	}
+
 	// ========== Random ==========
 
 	const VOYELLES 					= 'aeiouy';
