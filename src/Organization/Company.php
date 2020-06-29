@@ -106,7 +106,7 @@ class Company
 	public static function formatFranceRcs(string $siret): string
 	{
 		$siren = substr($siret, 0, -5);
-		return chunk_split($siren, 3, ' ');
+		return 'B '.chunk_split($siren, 3, ' ');
 	}
 
 	// ========== MONACO ==========
