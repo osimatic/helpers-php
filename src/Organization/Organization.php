@@ -95,10 +95,34 @@ class Organization
 	private $vatID;
 
 	/**
-	 * The date that this organization was founded.
+	 * The legal form of the organization.
+	 * @var string|null
+	 */
+	private $legalForm;
+
+	/**
+	 * The capital amount of the organization.
 	 * @var float|null
 	 */
 	private $capital;
+
+	/**
+	 * The registration number of the organization.
+	 * @var string|null
+	 */
+	private $registrationNumber;
+
+	/**
+	 * The city where the organization was registered.
+	 * @var string|null
+	 */
+	private $registrationCity;
+
+	/**
+	 * The country where the organization was registered.
+	 * @var string|null
+	 */
+	private $registrationCountry;
 
 	/**
 	 * The date that this organization was founded.
@@ -346,6 +370,22 @@ class Organization
 	}
 
 	/**
+	 * @return string|null
+	 */
+	public function getLegalForm(): ?string
+	{
+		return $this->legalForm;
+	}
+
+	/**
+	 * @param string|null $legalForm
+	 */
+	public function setLegalForm(?string $legalForm): void
+	{
+		$this->legalForm = $legalForm;
+	}
+
+	/**
 	 * @return float|null
 	 */
 	public function getCapital(): ?float
@@ -359,6 +399,54 @@ class Organization
 	public function setCapital(?float $capital): void
 	{
 		$this->capital = $capital;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getRegistrationNumber(): ?string
+	{
+		return $this->registrationNumber;
+	}
+
+	/**
+	 * @param string|null $registrationNumber
+	 */
+	public function setRegistrationNumber(?string $registrationNumber): void
+	{
+		$this->registrationNumber = $registrationNumber;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getRegistrationCity(): ?string
+	{
+		return $this->registrationCity;
+	}
+
+	/**
+	 * @param string|null $registrationCity
+	 */
+	public function setRegistrationCity(?string $registrationCity): void
+	{
+		$this->registrationCity = $registrationCity;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getRegistrationCountry(): ?string
+	{
+		return $this->registrationCountry;
+	}
+
+	/**
+	 * @param string|null $registrationCountry
+	 */
+	public function setRegistrationCountry(?string $registrationCountry): void
+	{
+		$this->registrationCountry = $registrationCountry;
 	}
 
 	/**
