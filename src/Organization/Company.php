@@ -97,6 +97,18 @@ class Company
 		return array_key_exists($codeNaf, $listCodeNaf);
 	}
 
+	/**
+	 * Formate un numéro SIRET pour être affiché en tant que RCS
+	 * @link https://fr.wikipedia.org/wiki/Registre_du_commerce_et_des_soci%C3%A9t%C3%A9s_(France)
+	 * @param string $siret
+	 * @return string
+	 */
+	public static function formatFranceRcs(string $siret): string
+	{
+		$siren = substr($siret, 0, -5);
+		return chunk_split($siren, 3, ' ');
+	}
+
 	// ========== MONACO ==========
 
 	/**
