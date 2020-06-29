@@ -124,11 +124,7 @@ class PostalAddressFormatter
 
 	public function formatArray($addressArray, $options = [])
 	{
-		$countryCode = (isset($options['country'])) ? $options['country'] : $this->determineCountryCode($addressArray);
-
-		if (strlen($countryCode) > 0){
-			$addressArray['country_code'] = $countryCode;
-		}
+		$countryCode = $this->determineCountryCode($addressArray);
 
 		//Set the alias values (unless it would override something)
 		foreach ($this->componentAliases as $key => $val) {
@@ -409,11 +405,13 @@ class PostalAddressFormatter
 
 		//Make sure it is 2 characters
 		if (strlen($countryCode) == 2) {
+			$countryCode = strtoupper($countryCode);
+
 			if (strtoupper($countryCode) == 'UK') {
 				$countryCode = 'GB';
 			}
 
-			$countryCode = strtoupper($countryCode);
+			$addressArray['country'] = Country::getCountryNameByCountryCode($countryCode);
 
 			/**
 			 * Check if the country config tells us to use a different country code.
@@ -463,6 +461,8 @@ class PostalAddressFormatter
 				}
 			}
 		}
+
+		$addressArray['country_code'] = $countryCode;
 
 		return $countryCode;
 	}

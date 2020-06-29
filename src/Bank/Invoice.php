@@ -6,12 +6,6 @@ use Osimatic\Helpers\Organization\Organization;
 
 class Invoice
 {
-	public const PAYMENT_METHOD_CREDIT_CARD = 'CREDIT_CARD';
-	public const PAYMENT_METHOD_TRANSFER = 'TRANSFER';
-	public const PAYMENT_METHOD_CHEQUE = 'CHECK';
-	public const PAYMENT_METHOD_PAYPAL = 'PAYPAL';
-	public const PAYMENT_METHOD_DIRECT_DEBIT = 'DIRECT_DEBIT'; // Prélèvement SEPA
-
 	/**
 	 * @var Organization|null
 	 */
