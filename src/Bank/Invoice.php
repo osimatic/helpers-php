@@ -82,14 +82,14 @@ class Invoice
 	protected ?\DateTime $paymentDate;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected string $paymentMethod;
+	protected ?string $paymentMethod;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected string $bankCardAuthorizationNumber;
+	protected ?string $bankCardAuthorizationNumber;
 
 	/**
 	 * @var string|null
@@ -341,33 +341,33 @@ class Invoice
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function getPaymentMethod(): string
+	public function getPaymentMethod(): ?string
 	{
 		return $this->paymentMethod;
 	}
 
 	/**
-	 * @param string $paymentMethod
+	 * @param string|null $paymentMethod
 	 */
-	public function setPaymentMethod(string $paymentMethod): void
+	public function setPaymentMethod(?string $paymentMethod): void
 	{
 		$this->paymentMethod = $paymentMethod;
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function getBankCardAuthorizationNumber(): string
+	public function getBankCardAuthorizationNumber(): ?string
 	{
 		return $this->bankCardAuthorizationNumber;
 	}
 
 	/**
-	 * @param string $bankCardAuthorizationNumber
+	 * @param string|null $bankCardAuthorizationNumber
 	 */
-	public function setBankCardAuthorizationNumber(string $bankCardAuthorizationNumber): void
+	public function setBankCardAuthorizationNumber(?string $bankCardAuthorizationNumber): void
 	{
 		$this->bankCardAuthorizationNumber = $bankCardAuthorizationNumber;
 	}
