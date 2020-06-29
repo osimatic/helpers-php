@@ -96,6 +96,12 @@ class Organization
 
 	/**
 	 * The date that this organization was founded.
+	 * @var float|null
+	 */
+	private $capital;
+
+	/**
+	 * The date that this organization was founded.
 	 * @var \DateTime|null
 	 */
 	private $foundingDate;
@@ -337,6 +343,22 @@ class Organization
 	public function setVatID(?string $vatID): void
 	{
 		$this->vatID = $vatID;
+	}
+
+	/**
+	 * @return float|null
+	 */
+	public function getCapital(): ?float
+	{
+		return $this->capital;
+	}
+
+	/**
+	 * @param float|null $capital
+	 */
+	public function setCapital(?float $capital): void
+	{
+		$this->capital = $capital;
 	}
 
 	/**
