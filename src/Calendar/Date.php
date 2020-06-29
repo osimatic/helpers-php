@@ -13,7 +13,7 @@ class Date
 	public static function getDayName(int $dayOfWeek): string
 	{
 		$timestamp = strtotime('monday this week');
-		return \Osimatic\Helpers\Text\Str::mb_ucfirst(strftime('%A', ($timestamp+($dayOfWeek*3600*24))));
+		return ucfirst(strftime('%A', ($timestamp+($dayOfWeek*3600*24))));
 	}
 
 	// ========== Jour du mois ==========
@@ -26,7 +26,7 @@ class Date
 	 */
 	public static function getMonthName(int $month): string
 	{
-		return \Osimatic\Helpers\Text\Str::mb_ucfirst(strftime('%B', mktime(0, 0, 0, $month)));
+		return ucfirst(strftime('%B', mktime(0, 0, 0, $month)));
 	}
 
 	/**

@@ -320,7 +320,7 @@ class Country
 	{
 		$locale = self::getLocaleByCountryCode($countryCode);
 		if (!empty($locale)) {
-			return \Osimatic\Helpers\Text\Str::mb_ucfirst(\Locale::getDisplayLanguage($locale, \Locale::getDefault()));
+			return ucfirst(\Locale::getDisplayLanguage($locale, \Locale::getDefault()));
 		}
 		return null;
 	}
