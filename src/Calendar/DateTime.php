@@ -192,6 +192,16 @@ class DateTime
 
 	// ========== Semaine ==========
 
+	public static function getWeekNumber(\DateTime $dateTime): array {
+		$weekNumber = $dateTime->format('W');
+		$year = $dateTime->format('Y');
+		// si weekNumber = 1 et que mois de sqlDate = 12, mettre year++
+		if (((int)$weekNumber) === 1 && ((int)$dateTime->format('m')) === 12) {
+			$year++;
+		}
+		return [$year, $weekNumber];
+	}
+
 	/**
 	 * @return \DateTime|null
 	 */
