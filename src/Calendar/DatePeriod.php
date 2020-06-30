@@ -39,7 +39,7 @@ class DatePeriod
 	 * @param int[]|null $weekDays
 	 * @return \DateTime[]
 	 */
-	public static function getListDaysOfMonths(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays): array
+	public static function getListDaysOfMonths(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays=null): array
 	{
 		$list = [];
 		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
