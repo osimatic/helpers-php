@@ -243,9 +243,11 @@ class DateTime
 
 	/**
 	 * @param \DateTime $dateTime
+	 * @param string $country
+	 * @param array $options
 	 * @return bool
 	 */
-	public static function isPublicHoliday(\DateTime $dateTime): bool
+	public static function isPublicHoliday(\DateTime $dateTime, string $country='FR', array $options=[]): bool
 	{
 		// todo
 		return false;
