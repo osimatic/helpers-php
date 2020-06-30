@@ -190,9 +190,76 @@ class DateTime
 		return $dateTime > self::getCurrentDateTime();
 	}
 
+
+
+	// ========== Jour ==========
+
+	// Jours dans une semaine
+
+	/**
+	 * Jour ouvré avec jour férié ou non
+	 * @param \DateTime $dateTime
+	 * @param bool $withPublicHoliday
+	 * @return bool
+	 */
+	public static function isWorkingDay(\DateTime $dateTime, bool $withPublicHoliday=true): bool
+	{
+		if (self::isWeekend($dateTime)) {
+			return false;
+		}
+		if ($withPublicHoliday && self::isPublicHoliday($dateTime)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Jour ouvrable avec jour férié ou non
+	 * @param \DateTime $dateTime
+	 * @param bool $withPublicHoliday
+	 * @return bool
+	 */
+	public static function isBusinessDay(\DateTime $dateTime, bool $withPublicHoliday=true): bool
+	{
+		$dayOfWeek = (int) $dateTime->format('N');
+		if ($dayOfWeek === 7) {
+			return false;
+		}
+		if ($withPublicHoliday && self::isPublicHoliday($dateTime)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isWeekend(\DateTime $dateTime): bool
+	{
+		$dayOfWeek = (int) $dateTime->format('N');
+		return ($dayOfWeek === 6 || $dayOfWeek === 7);
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isPublicHoliday(\DateTime $dateTime): bool
+	{
+		// todo
+		return false;
+	}
+
+
 	// ========== Semaine ==========
 
-	public static function getWeekNumber(\DateTime $dateTime): array {
+	/**
+	 * @param \DateTime $dateTime
+	 * @return array
+	 */
+	public static function getWeekNumber(\DateTime $dateTime): array
+	{
 		$weekNumber = $dateTime->format('W');
 		$year = $dateTime->format('Y');
 		// si weekNumber = 1 et que mois de sqlDate = 12, mettre year++
