@@ -39,6 +39,53 @@ class SqlDate
 		return checkdate($month, $day, $year);
 	}
 
+	// ========== Extraction ==========
+
+	/**
+	 * Retourne le jour, à partir d'une date au format SQL.
+	 * @param string $sqlDate
+	 * @return int le jour, au format numérique
+	 * TODO : extraire via substr pour une meilleure performance
+	 */
+	public static function getYear(string $sqlDate): int
+	{
+		return (int) date('Y', strtotime($sqlDate.' 00:00:00'));
+	}
+
+	/**
+	 * Retourne le mois, à partir d'une date au format SQL.
+	 * @param string $sqlDate
+	 * @return int le mois, au format numérique
+	 */
+	public static function getMonth(string $sqlDate): int
+	{
+		return (int) date('m', strtotime($sqlDate.' 00:00:00'));
+	}
+
+	/**
+	 * Retourne l'année, à partir d'une date au format SQL.
+	 * @param string $sqlDate
+	 * @return int l'année
+	 */
+	public static function getDay(string $sqlDate): int
+	{
+		return (int) date('d', strtotime($sqlDate.' 00:00:00'));
+	}
+
+	// ========== Fabrication ==========
+
+	/**
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @return string
+	 */
+	public static function get(int $year, int $month, int $day): string
+	{
+		return $year.'-'.sprintf('%02d', $month).'-'.sprintf('%02d', $day);
+	}
+
+
 	// ========== Semaine ==========
 
 	/**
