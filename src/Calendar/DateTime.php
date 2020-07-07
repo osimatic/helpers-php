@@ -173,6 +173,26 @@ class DateTime
 	// ========== Comparaison ==========
 
 	/**
+	 * @param \DateTime $dateTime1
+	 * @param \DateTime $dateTime2
+	 * @return bool
+	 */
+	public static function isDateAfter(\DateTime $dateTime1, \DateTime $dateTime2): bool
+	{
+		return $dateTime1->format('Y-m-d') > $dateTime2->format('Y-m-d');
+	}
+
+	/**
+	 * @param \DateTime $dateTime1
+	 * @param \DateTime $dateTime2
+	 * @return bool
+	 */
+	public static function isDateBefore(\DateTime $dateTime1, \DateTime $dateTime2): bool
+	{
+		return $dateTime1->format('Y-m-d') < $dateTime2->format('Y-m-d');
+	}
+
+	/**
 	 * @param \DateTime $dateTime
 	 * @return bool
 	 */
