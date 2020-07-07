@@ -54,6 +54,37 @@ class DatePeriod
 	}
 
 	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return string
+	 */
+	public static function getLabel(\DateTime $periodStart, \DateTime $periodEnd): string
+	{
+		if ($periodStart->format('Y-m-d') === $periodEnd->format('Y-m-d')) {
+			return 'le '.((int) $periodStart->format('d')).' '.Date::getMonthName((int) $periodStart->format('m')).' '.$periodStart->format('Y');
+		}
+
+		$periodStartYear = (int) $periodStart->format('Y');
+		$periodEndYear = (int) $periodEnd->format('Y');
+
+		if ($periodStartYear === $periodEndYear) {
+			$periodStartDay = (int) $periodStart->format('d');
+			$periodEndDay = (int) $periodEnd->format('d');
+			$periodStartMonth = (int) $periodStart->format('m');
+			$periodEndMonth = (int) $periodEnd->format('m');
+
+			if ($periodStartMonth === $periodEndMonth && $periodStartDay === 1 && $periodEndDay === Date::getNumberOfDaysInMonth($periodEndMonth, $periodEndYear)) {
+				return 'en '.Date::getMonthName($periodStartMonth).' '.$periodStartYear;
+			}
+			if ($periodStartDay === 1 && $periodStartMonth === 1 && $periodEndMonth === 12 && $periodEndDay === 31) {
+				return 'en '.$periodStartYear;
+			}
+		}
+
+		return 'du '.DateTime::formatDate($periodStart).' au '.DateTime::formatDate($periodEnd);
+	}
+
+	/**
 	 * @param string $groupBy
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
