@@ -38,11 +38,7 @@ class Time
 	 */
 	public static function checkValue($enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
-		if (null === ($timeArray = self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos))) {
-			return false;
-		}
-
-		return self::check($timeArray[0], $timeArray[1], $timeArray[2]);
+		return null !== self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos);
 	}
 
 	// ========== Parse ==========
@@ -89,11 +85,15 @@ class Time
 			return null;
 		}
 
-		return [
-			(int) $timeArray[$hourPos],
-			(int) $timeArray[$minutePos],
-			(int) ($timeArray[$secondPos] ?? 0),
-		];
+		$hour = (int) $timeArray[$hourPos];
+		$minute = (int) $timeArray[$minutePos];
+		$second = (int) ($timeArray[$secondPos] ?? 0);
+
+		if (!self::check($hour, $minute, $second)) {
+			return null;
+		}
+
+		return [$hour, $minute, $second];
 	}
 
 
