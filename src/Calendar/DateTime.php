@@ -273,6 +273,34 @@ class DateTime
 		return false;
 	}
 
+	/**
+	 * @param \DateTime $dateTime
+	 * @param int $nbDays
+	 * @return \DateTime
+	 */
+	public static function moveBackOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
+	{
+		try {
+			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
+		} catch (\Exception $e) {
+		}
+		return $dateTime->modify('-'.$nbDays.' day');
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param int $nbDays
+	 * @return \DateTime
+	 */
+	public static function moveForwardOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
+	{
+		try {
+			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
+		} catch (\Exception $e) {
+		}
+		return $dateTime->modify('+'.$nbDays.' day');
+	}
+
 
 	// ========== Semaine ==========
 
@@ -360,6 +388,34 @@ class DateTime
 	}
 
 	// ========== Mois ==========
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param int $nbMonths
+	 * @return \DateTime
+	 */
+	public static function moveBackOfNbMonths(\DateTime $dateTime, int $nbMonths): \DateTime
+	{
+		try {
+			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
+		} catch (\Exception $e) {
+		}
+		return $dateTime->modify('-'.$nbMonths.' month');
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @param int $nbMonths
+	 * @return \DateTime
+	 */
+	public static function moveForwardOfNbMonths(\DateTime $dateTime, int $nbMonths): \DateTime
+	{
+		try {
+			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
+		} catch (\Exception $e) {
+		}
+		return $dateTime->modify('+'.$nbMonths.' month');
+	}
 
 	/**
 	 * @return \DateTime|null
