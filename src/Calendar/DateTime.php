@@ -5,9 +5,9 @@ namespace Osimatic\Helpers\Calendar;
 class DateTime
 {
 	/**
-	 * @return \DateTime|null
+	 * @return \DateTime
 	 */
-	public static function getCurrentDateTime(): ?\DateTime
+	public static function getCurrentDateTime(): \DateTime
 	{
 		try {
 			return new \DateTime('now');
