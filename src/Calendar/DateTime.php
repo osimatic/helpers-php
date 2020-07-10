@@ -152,10 +152,20 @@ class DateTime
 	 */
 	public static function parseDate(string $str): ?\DateTime
 	{
-		if (empty($str) || false === SqlDate::check($sqlDate = SqlDate::parse($str))) {
+		if (empty($str)) {
 			return null;
 		}
-		return self::parseFromSqlDateTime($sqlDate.' 00:00:00');
+
+		// Format YYYY-mm-ddTHH:ii:ss
+		if (strlen($str) === strlen('YYYY-mm-ddTHH:ii:ss') && null !== ($dateTime = self::parseFromSqlDateTime($str))) {
+			return $dateTime;
+		}
+
+		if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
+			return self::parseFromSqlDateTime($sqlDate.' 00:00:00');
+		}
+
+		return null;
 	}
 
 	/**
