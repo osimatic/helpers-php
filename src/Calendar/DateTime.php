@@ -387,6 +387,20 @@ class DateTime
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek($year, $week).' 00:00:00');
 	}
 
+	/**
+	 * @param \DateTime $dateTime
+	 * @param int $weekDay
+	 * @return \DateTime
+	 */
+	public static function getNextWeekDay(\DateTime $dateTime, int $weekDay): \DateTime
+	{
+		$timestampCurrent = $dateTime->getTimestamp();
+		while (((int) date('N', $timestampCurrent)) !== $weekDay) {
+			$timestampCurrent += 86400;
+		}
+		return new \DateTime(date('Y-m-d H:i:s', $timestampCurrent));
+	}
+
 	// ========== Mois ==========
 
 	/**
