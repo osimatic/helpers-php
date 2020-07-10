@@ -33,6 +33,16 @@ class File
 	}
 
 	/**
+	 * Retourne l'exension d'un fichier
+	 * @param string $filePath
+	 * @return string
+	 */
+	public static function getExtension(string $filePath): string
+	{
+		return pathinfo($filePath, PATHINFO_EXTENSION);
+	}
+
+	/**
 	 * Envoi un fichier au navigateur du client.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath
