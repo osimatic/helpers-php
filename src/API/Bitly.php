@@ -53,9 +53,9 @@ class Bitly
 	{
 		$version = '2.0.1';
 
-		$url = 'http://api.bit.ly/shorten?version='.$version.'&longUrl='.urlencode($url).'&login='.$this->login.'&apiKey='.$this->key.'&format=json';
+		$apiUrl = 'http://api.bit.ly/shorten?version='.$version.'&longUrl='.urlencode($url).'&login='.$this->login.'&apiKey='.$this->key.'&format=json';
 
-		$response = file_get_contents($url);
+		$response = file_get_contents($apiUrl);
 
 		if ($response === false) {
 			return null;
