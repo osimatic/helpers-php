@@ -2,144 +2,121 @@
 
 namespace Osimatic\Helpers\Person;
 
-use Osimatic\Helpers\Location\Place;
+use Osimatic\Helpers\Location\PlaceInterface;
 use Osimatic\Helpers\Location\PostalAddress;
-use Osimatic\Helpers\Organization\Organization;
+use Osimatic\Helpers\Organization\OrganizationInterface;
 
 /**
- * Class Person
- * @package Osimatic\Helpers\Person
+ * @deprecated use PersonInterface instead
  */
-class Person
+class Person implements PersonInterface
 {
 	/**
-	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
 	private $identifier;
 
 	/**
-	 * Given name, e. g. the first name of a Person. This can be used along with familyName.
 	 * @var string|null
 	 */
 	private $givenName;
 
 	/**
-	 * Family name, e. g. the last name of a Person. This can be used along with givenName.
 	 * @var string|null
 	 */
 	private $familyName;
 
 	/**
-	 * An additional name for a Person, can be used for a middle name.
 	 * @var string|null
 	 */
 	private $additionalName;
 
 	/**
-	 * Gender of the person. 1 for male, 2 for female.
 	 * @var int|null
 	 */
 	private $gender;
 
 	/**
-	 * Physical address of the person.
 	 * @var PostalAddress|null
 	 */
 	private $address;
 
 	/**
-	 * Date of birth.
 	 * @var \DateTime|null
 	 */
 	private $birthDate;
 
 	/**
-	 * The place where the person was born.
-	 * @var Place|null
+	 * @var PlaceInterface|null
 	 */
 	private $birthPlace;
 
 	/**
-	 * Date of death.
 	 * @var \DateTime|null
 	 */
 	private $deathDate;
 
 	/**
-	 * The place where the person died.
-	 * @var Place|null
+	 * @var PlaceInterface|null
 	 */
 	private $deathPlace;
 
 	/**
-	 * Email address.
 	 * @var string|null
 	 */
 	private $nationality;
 
 	/**
-	 * The height of the person.
 	 * @var string|null
 	 */
 	private $height;
 
 	/**
-	 * The weight of the person.
 	 * @var string|null
 	 */
 	private $weight;
 
 	/**
-	 * Nationality of the person (country code).
 	 * @var string|null
 	 */
 	private $email;
 
 	/**
-	 * The fixed-line number of the person.
 	 * @var string|null
 	 */
 	private $fixedLineNumber;
 
 	/**
-	 * The mobile number of the person.
 	 * @var string|null
 	 */
 	private $mobileNumber;
 
 	/**
-	 * A contact location for a person's residence.
-	 * @var Place|null
+	 * @var PlaceInterface|null
 	 */
 	private $homeLocation;
 
 	/**
-	 * A contact location for a person's place of work.
-	 * @var Place|null
+	 * @var PlaceInterface|null
 	 */
 	private $workLocation;
 
 	/**
-	 * Organizations that the person works for.
-	 * @var Organization|null
+	 * @var OrganizationInterface|null
 	 */
 	private $worksFor;
 
 	/**
-	 * The job title of the person (for example, Financial Manager).
 	 * @var string|null
 	 */
 	private $jobTitle;
 
 	/**
-	 * The International Standard of Industrial Classification of All Economic Activities (ISIC), Revision 4.
 	 * @var string|null
 	 */
 	private $isicV4;
 
 	/**
-	 * The Tax / Fiscal ID of the organization or person, e.g. the TIN in the US or the CIF/NIF in Spain.
 	 * @var string|null
 	 */
 	private $taxID;
@@ -280,17 +257,17 @@ class Person
 	}
 
 	/**
-	 * @return Place|null
+	 * @return PlaceInterface|null
 	 */
-	public function getBirthPlace(): ?Place
+	public function getBirthPlace(): ?PlaceInterface
 	{
 		return $this->birthPlace;
 	}
 
 	/**
-	 * @param Place|null $birthPlace
+	 * @param PlaceInterface|null $birthPlace
 	 */
-	public function setBirthPlace(?Place $birthPlace): void
+	public function setBirthPlace(?PlaceInterface $birthPlace): void
 	{
 		$this->birthPlace = $birthPlace;
 	}
@@ -312,17 +289,17 @@ class Person
 	}
 
 	/**
-	 * @return Place|null
+	 * @return PlaceInterface|null
 	 */
-	public function getDeathPlace(): ?Place
+	public function getDeathPlace(): ?PlaceInterface
 	{
 		return $this->deathPlace;
 	}
 
 	/**
-	 * @param Place|null $deathPlace
+	 * @param PlaceInterface|null $deathPlace
 	 */
-	public function setDeathPlace(?Place $deathPlace): void
+	public function setDeathPlace(?PlaceInterface $deathPlace): void
 	{
 		$this->deathPlace = $deathPlace;
 	}
@@ -424,49 +401,49 @@ class Person
 	}
 
 	/**
-	 * @return Place|null
+	 * @return PlaceInterface|null
 	 */
-	public function getHomeLocation(): ?Place
+	public function getHomeLocation(): ?PlaceInterface
 	{
 		return $this->homeLocation;
 	}
 
 	/**
-	 * @param Place|null $homeLocation
+	 * @param PlaceInterface|null $homeLocation
 	 */
-	public function setHomeLocation(?Place $homeLocation): void
+	public function setHomeLocation(?PlaceInterface $homeLocation): void
 	{
 		$this->homeLocation = $homeLocation;
 	}
 
 	/**
-	 * @return Place|null
+	 * @return PlaceInterface|null
 	 */
-	public function getWorkLocation(): ?Place
+	public function getWorkLocation(): ?PlaceInterface
 	{
 		return $this->workLocation;
 	}
 
 	/**
-	 * @param Place|null $workLocation
+	 * @param PlaceInterface|null $workLocation
 	 */
-	public function setWorkLocation(?Place $workLocation): void
+	public function setWorkLocation(?PlaceInterface $workLocation): void
 	{
 		$this->workLocation = $workLocation;
 	}
 
 	/**
-	 * @return Organization|null
+	 * @return OrganizationInterface|null
 	 */
-	public function getWorksFor(): ?Organization
+	public function getWorksFor(): ?OrganizationInterface
 	{
 		return $this->worksFor;
 	}
 
 	/**
-	 * @param Organization|null $worksFor
+	 * @param OrganizationInterface|null $worksFor
 	 */
-	public function setWorksFor(?Organization $worksFor): void
+	public function setWorksFor(?OrganizationInterface $worksFor): void
 	{
 		$this->worksFor = $worksFor;
 	}

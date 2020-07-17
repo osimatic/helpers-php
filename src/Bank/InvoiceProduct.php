@@ -2,7 +2,10 @@
 
 namespace Osimatic\Helpers\Bank;
 
-class InvoiceProduct
+/**
+ * @deprecated use InvoiceProductInterface instead
+ */
+class InvoiceProduct implements InvoiceProductInterface
 {
 	protected float $unitPrice;
 	protected float $quantity;

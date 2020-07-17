@@ -5,133 +5,111 @@ namespace Osimatic\Helpers\Organization;
 use Osimatic\Helpers\Location\PostalAddress;
 
 /**
- * Class Organization
- * @package Osimatic\Helpers\Organization
+ * @deprecated use OrganizationInterface instead
  */
-class Organization
+class Organization implements OrganizationInterface
 {
 	/**
-	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
 	private $identifier;
 
 	/**
-	 * The name of the organization.
 	 * @var string|null
 	 */
 	private $name;
 
 	/**
-	 * The official name of the organization, e.g. the registered company name.
 	 * @var string|null
 	 */
 	private $legalName;
 
 	/**
-	 * A description of the organization.
 	 * @var string|null
 	 */
 	private $description;
 
 	/**
-	 * An organization identifier that uniquely identifies a legal entity as defined in ISO 17442.
 	 * @var string|null
 	 */
 	private $leiCode;
 
 	/**
-	 * The International Standard of Industrial Classification of All Economic Activities (ISIC), Revision 4 code.
 	 * @var string|null
 	 */
 	private $isicV4;
 
 	/**
-	 * A relationship between an organization and a department of that organization, also described as an organization (allowing different urls, logos, opening hours).
 	 * @var Organization|null
 	 */
 	private $department;
 
 	/**
-	 * Physical address of the organization.
 	 * @var PostalAddress|null
 	 */
 	private $address;
 
 	/**
-	 * Telephone number of the organization.
 	 * @var string|null
 	 */
 	private $phoneNumber;
 
 	/**
-	 * 	URL of the organization.
 	 * @var string|null
 	 */
 	private $url;
 
 	/**
-	 * An associated logo.
 	 * @var string|null
 	 */
 	private $logo;
 
 	/**
-	 * Email address.
 	 * @var string|null
 	 */
 	private $email;
 
 	/**
-	 * The number of employees in an organization e.g. business.
 	 * @var int|null
 	 */
 	private $numberOfEmployees;
 
 	/**
-	 * The Value-added Tax ID of the organization or person.
 	 * @var string|null
 	 */
 	private $vatID;
 
 	/**
-	 * The legal form of the organization.
 	 * @var string|null
 	 */
 	private $legalForm;
 
 	/**
-	 * The capital amount of the organization.
 	 * @var float|null
 	 */
 	private $capital;
 
 	/**
-	 * The registration number of the organization.
 	 * @var string|null
 	 */
 	private $registrationNumber;
 
 	/**
-	 * The city where the organization was registered.
 	 * @var string|null
 	 */
 	private $registrationCity;
 
 	/**
-	 * The country where the organization was registered.
 	 * @var string|null
 	 */
 	private $registrationCountry;
 
 	/**
-	 * The date that this organization was founded.
 	 * @var \DateTime|null
 	 */
 	private $foundingDate;
 
 	/**
-	 * The date that this organization was dissolved.
 	 * @var \DateTime|null
 	 */
 	private $dissolutionDate;

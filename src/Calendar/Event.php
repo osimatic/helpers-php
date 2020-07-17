@@ -4,8 +4,8 @@ namespace Osimatic\Helpers\Calendar;
 
 use Osimatic\Helpers\Location\Place;
 use Osimatic\Helpers\Location\PostalAddress;
-use Osimatic\Helpers\Organization\Organization;
-use Osimatic\Helpers\Person\Person;
+use Osimatic\Helpers\Organization\OrganizationInterface;
+use Osimatic\Helpers\Person\PersonInterface;
 
 /**
  * Class Event
@@ -33,13 +33,13 @@ class Event
 
 	/**
 	 * An organizer of an Event.
-	 * @var Person|null
+	 * @var PersonInterface|null
 	 */
 	private $organizer;
 
 	/**
 	 * An organizer of an Event.
-	 * @var Organization|null
+	 * @var OrganizationInterface|null
 	 */
 	private $organizingOrganization;
 
@@ -207,33 +207,33 @@ class Event
 	}
 
 	/**
-	 * @return Person|null
+	 * @return PersonInterface|null
 	 */
-	public function getOrganizer(): ?Person
+	public function getOrganizer(): ?PersonInterface
 	{
 		return $this->organizer;
 	}
 
 	/**
-	 * @param Person|null $organizer
+	 * @param PersonInterface|null $organizer
 	 */
-	public function setOrganizer(?Person $organizer): void
+	public function setOrganizer(?PersonInterface $organizer): void
 	{
 		$this->organizer = $organizer;
 	}
 
 	/**
-	 * @return Organization|null
+	 * @return OrganizationInterface|null
 	 */
-	public function getOrganizingOrganization(): ?Organization
+	public function getOrganizingOrganization(): ?OrganizationInterface
 	{
 		return $this->organizingOrganization;
 	}
 
 	/**
-	 * @param Organization|null $organizingOrganization
+	 * @param OrganizationInterface|null $organizingOrganization
 	 */
-	public function setOrganizingOrganization(?Organization $organizingOrganization): void
+	public function setOrganizingOrganization(?OrganizationInterface $organizingOrganization): void
 	{
 		$this->organizingOrganization = $organizingOrganization;
 	}

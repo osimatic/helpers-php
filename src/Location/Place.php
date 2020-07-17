@@ -3,91 +3,76 @@
 namespace Osimatic\Helpers\Location;
 
 /**
- * Class Place
- * @package Osimatic\Helpers\Location
+ * @deprecated use PlaceInterface instead
  */
-class Place
+class Place implements PlaceInterface
 {
 	/**
-	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
 	private $identifier;
 
 	/**
-	 * The name of the place.
 	 * @var string|null
 	 */
 	private $name;
 
 	/**
-	 * A description of the place.
 	 * @var string|null
 	 */
 	private $description;
 
 	/**
-	 * Physical address of the place.
 	 * @var PostalAddress|null
 	 */
 	private $address;
 
 	/**
-	 * The telephone number.
 	 * @var string|null
 	 */
 	private $phoneNumber;
 
 	/**
-	 * The latitude of a location.
 	 * @var float|null
 	 */
 	private $latitude;
 
 	/**
-	 * The longitude of a location.
 	 * @var float|null
 	 */
 	private $longitude;
 
 	/**
-	 * The building an Accommodation if the address contains many buildings.
 	 * @var string|null
 	 */
 	private $building;
 
 	/**
-	 * The floor level for an Accommodation in a multi-storey building. Since counting systems vary internationally, the local system should be used where possible.
 	 * @var string|null
 	 */
 	private $floorLevel;
 
 	/**
-	 * The general opening hours for a business. Opening hours can be specified as a weekly time range, starting with days, then times per day. Multiple days can be listed with commas ',' separating each day. Day or time ranges are specified using a hyphen '-'.
 	 * @var string|null
 	 */
 	private $openingHours;
 
 	/**
-	 * An associated logo URL.
 	 * @var string|null
 	 */
 	private $logo;
 
 	/**
-	 * A photograph URL of this place.
 	 * @var string|null
 	 */
 	private $photo;
 
 	/**
-	 * A flag to signal that the item, event, or place is accessible for free.
 	 * @var boolean
 	 */
 	private $isAccessibleForFree = true;
 
 	/**
-	 * A flag to signal that the Place is open to public visitors.
 	 * @var boolean
 	 */
 	private $publicAccess = true;

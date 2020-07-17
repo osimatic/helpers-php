@@ -50,10 +50,10 @@ class VCard
 	];
 
 	/**
-	 * @param Person $person
+	 * @param PersonInterface $person
 	 * @return self
 	 */
-	public function setFromPerson(Person $person): self
+	public function setFromPerson(PersonInterface $person): self
 	{
 		$this->addName($person->getFamilyName() ?? '', $person->getGivenName() ?? '');
 		if (null !== $person->getBirthDate()) {

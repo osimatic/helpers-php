@@ -2,19 +2,22 @@
 
 namespace Osimatic\Helpers\Bank;
 
-use Osimatic\Helpers\Organization\Organization;
+use Osimatic\Helpers\Organization\OrganizationInterface;
 
-class Invoice
+/**
+ * @deprecated use InvoiceInterface instead
+ */
+class Invoice implements InvoiceInterface
 {
 	/**
-	 * @var Organization|null
+	 * @var OrganizationInterface|null
 	 */
-	protected ?Organization $seller;
+	protected ?OrganizationInterface $seller;
 
 	/**
-	 * @var Organization|null
+	 * @var OrganizationInterface|null
 	 */
-	protected ?Organization $buyer;
+	protected ?OrganizationInterface $buyer;
 
 	/**
 	 * @var string|null
@@ -37,7 +40,7 @@ class Invoice
 	protected string $billingCity;
 
 	/**
-	 * @var InvoiceProduct[]
+	 * @var InvoiceProductInterface[]
 	 */
 	protected array $productsList;
 
@@ -101,33 +104,33 @@ class Invoice
 
 
 	/**
-	 * @return Organization|null
+	 * @return OrganizationInterface|null
 	 */
-	public function getSeller(): ?Organization
+	public function getSeller(): ?OrganizationInterface
 	{
 		return $this->seller;
 	}
 
 	/**
-	 * @param Organization|null $seller
+	 * @param OrganizationInterface|null $seller
 	 */
-	public function setSeller(?Organization $seller): void
+	public function setSeller(?OrganizationInterface $seller): void
 	{
 		$this->seller = $seller;
 	}
 
 	/**
-	 * @return Organization|null
+	 * @return OrganizationInterface|null
 	 */
-	public function getBuyer(): ?Organization
+	public function getBuyer(): ?OrganizationInterface
 	{
 		return $this->buyer;
 	}
 
 	/**
-	 * @param Organization|null $buyer
+	 * @param OrganizationInterface|null $buyer
 	 */
-	public function setBuyer(?Organization $buyer): void
+	public function setBuyer(?OrganizationInterface $buyer): void
 	{
 		$this->buyer = $buyer;
 	}
@@ -197,7 +200,7 @@ class Invoice
 	}
 
 	/**
-	 * @return InvoiceProduct[]
+	 * @return InvoiceProductInterface[]
 	 */
 	public function getProductsList(): array
 	{
@@ -205,7 +208,7 @@ class Invoice
 	}
 
 	/**
-	 * @param InvoiceProduct[] $productsList
+	 * @param InvoiceProductInterface[] $productsList
 	 */
 	public function setProductsList(array $productsList): void
 	{

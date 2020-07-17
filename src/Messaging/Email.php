@@ -110,12 +110,6 @@ class Email
 	private $listAttachments = [];
 
 	/**
-	 * Format du mail (true si le mail est au format HTML, false s'il est au format texte).
-	 * @var boolean
-	 */
-	private $isHtml = false;
-
-	/**
 	 * The Subject of the message.
 	 * @var string
 	 */
@@ -143,7 +137,7 @@ class Email
 	private $priority;
 
 	/**
-	 * Encodage de caractère du mail.
+	 * The character set of the message.
 	 * @var string
 	 */
 	private $charSet = 'utf-8';
@@ -152,7 +146,7 @@ class Email
 	 * The MIME Content-type of the message.
 	 * @var string
 	 */
-	private $contentType = self::CONTENT_TYPE_PLAINTEXT;
+	private $contentType = 'text/html';
 
 	/**
 	 * The message encoding.
@@ -233,8 +227,8 @@ class Email
 	// ========== Expéditeur ==========
 
 	/**
-	 * Get de l'adresse e-mail de l'expéditeur du mail.
-	 * @return string : l'adresse e-mail de l'expéditeur.
+	 * Return the From email address for the message.
+	 * @return string
 	 */
 	public function getFromEmailAddress(): string
 	{
@@ -242,8 +236,8 @@ class Email
 	}
 
 	/**
-	 * Set de l'adresse e-mail de l'expéditeur du mail.
-	 * @param string $emailAddress : l'adresse e-mail de l'expéditeur.
+	 * Sets the From email address for the message.
+	 * @param string|null $emailAddress
 	 * @return self
 	 */
 	public function setFromEmailAddress(?string $emailAddress): self
@@ -260,8 +254,8 @@ class Email
 	}
 
 	/**
-	 * Get du nom de l'expéditeur du mail.
-	 * @return string : le nom de l'expéditeur.
+	 * Return the From name of the message.
+	 * @return string
 	 */
 	public function getFromName(): string
 	{
@@ -269,8 +263,8 @@ class Email
 	}
 
 	/**
-	 * Set du nom de l'expéditeur du mail.
-	 * @param string $name : le nom de l'expéditeur.
+	 * Sets the From name of the message.
+	 * @param string $name|null
 	 * @return self
 	 */
 	public function setFromName(?string $name): self
@@ -284,7 +278,7 @@ class Email
 	/**
 	 * Set the fromEmailAddress and fromName properties.
 	 * @param string $emailAddress
-	 * @param string $name
+	 * @param string|null $name
 	 * @param bool $auto Whether to also set the Sender address, defaults to true
 	 * @return self
 	 */
@@ -301,7 +295,7 @@ class Email
 	}
 
 	/**
-	 * @param string $emailAddress
+	 * @param string|null $emailAddress
 	 * @return self
 	 */
 	public function setSender(?string $emailAddress): self
@@ -314,13 +308,14 @@ class Email
 	/**
 	 * @return string
 	 */
-	public function getSender(): string
+	public function getSender(): ?string
 	{
 		return $this->sender ?? null;
 	}
 
 
 	/**
+	 * Return The email address that a reading confirmation should be sent to, also known as read receipt.
 	 * @return string
 	 */
 	public function getConfirmReadingTo(): string
@@ -329,7 +324,8 @@ class Email
 	}
 
 	/**
-	 * @param string $emailAddress
+	 * Sets the email address that a reading confirmation should be sent to, also known as read receipt.
+	 * @param string|null $emailAddress
 	 * @return self
 	 */
 	public function setConfirmReadingTo(?string $emailAddress): self
@@ -346,7 +342,7 @@ class Email
 	}
 
 	/**
-	 * Réinitialise le nom et l'adresse e-mail de l'expéditeur.
+	 * Clear sender.
 	 */
 	public function clearSender(): void
 	{
@@ -360,8 +356,8 @@ class Email
 	// ========== Répondre à ==========
 
 	/**
-	 * Get du nom et de l'adresse e-mail de la personne qui peut recevoir la réponse au mail.
-	 * @return array : un tableau contenant le nom et l'adresse e-mail de la personne pour la réponse.
+	 * Return all "Reply-To" addresses.
+	 * @return array
 	 */
 	public function getReplyTo(): array
 	{
@@ -369,6 +365,7 @@ class Email
 	}
 
 	/**
+	 * Return the first "Reply-To" email address.
 	 * @return string
 	 */
 	public function getReplyToEmail(): string
@@ -377,9 +374,9 @@ class Email
 	}
 
 	/**
-	 * Ajoute une personne qui peut recevoir la réponse au mail.
-	 * @param string $emailAddress : l'adresse e-mail pour la réponse.
-	 * @param string $name : le nom de la personne pour la réponse.
+	 * Add a "Reply-To" address.
+	 * @param string $emailAddress
+	 * @param string $name|null
 	 * @return self
 	 */
 	public function addReplyTo(?string $emailAddress, ?string $name = ''): self
@@ -390,9 +387,9 @@ class Email
 	}
 
 	/**
-	 * Set du nom et de l'adresse e-mail de la personne qui peut recevoir la réponse au mail.
-	 * @param string $emailAddress : adresse e-mail pour la réponse.
-	 * @param string $name : nom de la personne pour la réponse.
+	 * Sets the "Reply-To" address.
+	 * @param string $emailAddress
+	 * @param string $name
 	 * @return self
 	 */
 	public function setReplyTo(?string $emailAddress, ?string $name = ''): self
@@ -425,8 +422,8 @@ class Email
 	// ========== Destinataires ==========
 
 	/**
-	 * Récupère la liste des destinataires du mail.
-	 * @return array : un tableau contenant la liste des destinataires du mail.
+	 * Return the array of 'to' names and addresses.
+	 * @return array
 	 */
 	public function getListTo(): array
 	{
@@ -434,22 +431,17 @@ class Email
 	}
 
 	/**
+	 * Return all 'to' email addresses.
 	 * @return array
 	 */
 	public function getListToEmails(): array
 	{
-		$listEmails = [];
-		foreach ($this->listTo as $email) {
-			if (!empty($email[0])) {
-				$listEmails[] = $email[0];
-			}
-		}
-		return $listEmails;
+		return array_filter(array_map(fn($email) => $email[0] ?? null, $this->listTo));
 	}
 
 	/**
-	 * Récupère la liste des destinataires en copie du mail.
-	 * @return array : un tableau contenant la liste des destinataires en copie du mail.
+	 * The array of 'cc' names and addresses.
+	 * @return array
 	 */
 	public function getListCc(): array
 	{
@@ -457,41 +449,34 @@ class Email
 	}
 
 	/**
+	 * Return all 'cc' email addresses.
 	 * @return array
 	 */
 	public function getListCcEmails(): array
 	{
-		$listEmails = array();
-		foreach ($this->listCc as $email) {
-			if (!empty($email[0])) {
-				$listEmails[] = $email[0];
-			}
-		}
-		return $listEmails;
+		return array_filter(array_map(fn($email) => $email[0] ?? null, $this->listCc));
 	}
 
 	/**
-	 * Récupère la liste des destinataires en copie cachée du mail.
-	 * @return array : un tableau contenant la liste des destinataires en copie cachée du mail.
+	 * The array of 'bcc' names and addresses.
+	 * @return array
 	 */
 	public function getListBcc(): array
 	{
 		return $this->listBcc;
 	}
 
+	/**
+	 * Return all 'bcc' email addresses.
+	 * @return array
+	 */
 	public function getListBccEmails(): array
 	{
-		$listEmails = array();
-		foreach ($this->listBcc as $email) {
-			if (!empty($email[0])) {
-				$listEmails[] = $email[0];
-			}
-		}
-		return $listEmails;
+		return array_filter(array_map(fn($email) => $email[0] ?? null, $this->listBcc));
 	}
 
 	/**
-	 * Allows for public read access to 'all_recipients' property.
+	 * Return all recipient email addresses ('to', 'cc' and 'bcc').
 	 * @return array
 	 */
 	public function getAllRecipientAddresses(): array
@@ -501,9 +486,9 @@ class Email
 
 
 	/**
-	 * Ajoute un destinataire pour le mail.
-	 * @param string $emailAddress : l'adresse e-mail du destinataire.
-	 * @param string $name : le nom du destinataire.
+	 * Add a "To" address.
+	 * @param string $emailAddress The email address to send to
+	 * @param string|null $name
 	 * @return self
 	 */
 	public function addTo(?string $emailAddress, ?string $name = ''): self
@@ -514,7 +499,8 @@ class Email
 	}
 
 	/**
-	 * @param string|null $emailAddress
+	 * Add a "To" address.
+	 * @param string $emailAddress The email address to send to
 	 * @param string|null $name
 	 * @return self
 	 */
@@ -526,10 +512,9 @@ class Email
 	}
 
 	/**
-	 * Ajoute un destinataire en copie pour le mail.
-	 * Attention, les destinataires en copie ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
-	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie.
-	 * @param string $name : le nom du destinataire en copie.
+	 * Add a "CC" address..
+	 * @param string $emailAddress The email address to send to
+	 * @param string|null $name
 	 * @return self
 	 */
 	public function addCc(?string $emailAddress, ?string $name = ''): self
@@ -540,10 +525,9 @@ class Email
 	}
 
 	/**
-	 * Ajoute un destinataire en copie cachée pour le mail.
-	 * Attention, les destinataires en copie cachée ne sont pas pris en compte pour certains mailer (fonction mail() de PHP, MailByFile, etc.).
-	 * @param string $emailAddress : l'adresse e-mail du destinataire en copie cachée.
-	 * @param string $name : le nom du destinataire en copie cachée.
+	 * Add a "BCC" address.
+	 * @param string $emailAddress The email address to send to
+	 * @param string|null $name
 	 * @return self
 	 */
 	public function addBcc(?string $emailAddress, ?string $name = ''): self
@@ -554,43 +538,44 @@ class Email
 	}
 
 	/**
-	 * Ajoute une liste de destinataires pour le mail.
-	 * @param array $listTo
+	 * Add "To" addresses.
+	 * @param array $recipientList
 	 * @return self
 	 */
-	public function addListTo(array $listTo): self
+	public function addListTo(array $recipientList): self
 	{
-		$this->addEmailAddressList('listTo', $listTo);
+		$this->addEmailAddressList('listTo', $recipientList);
 
 		return $this;
 	}
 
 	/**
-	 * Ajoute une liste de destinataires en copie pour le mail.
-	 * @param array $listCc
+	 * Add "CC" addresses.
+	 * @param array $recipientList
 	 * @return self
 	 */
-	public function addListCc(array $listCc): self
+	public function addListCc(array $recipientList): self
 	{
-		$this->addEmailAddressList('listCc', $listCc);
+		$this->addEmailAddressList('listCc', $recipientList);
 
 		return $this;
 	}
 
 	/**
-	 * Ajoute une liste de destinataires en copie cachée pour le mail.
-	 * @param array $listBcc
+	 * Add "BCC" addresses.
+	 * @param array $recipientList
 	 * @return self
 	 */
-	public function addListBcc(array $listBcc): self
+	public function addListBcc(array $recipientList): self
 	{
-		$this->addEmailAddressList('listBcc', $listBcc);
+		$this->addEmailAddressList('listBcc', $recipientList);
 
 		return $this;
 	}
 
 
 	/**
+	 * Sets the "To" address.
 	 * @param string|null $emailAddress
 	 * @param string|null $name
 	 * @return self
@@ -604,6 +589,7 @@ class Email
 	}
 
 	/**
+	 * Sets the "To" address.
 	 * @param string|null $emailAddress
 	 * @param string|null $name
 	 * @return self
@@ -617,53 +603,81 @@ class Email
 	}
 
 	/**
-	 * Définie une liste de destinataires pour le mail.
-	 * @param array $listRecipients
+	 * Sets the "CC" address.
+	 * @param string|null $emailAddress
+	 * @param string|null $name
 	 * @return self
 	 */
-	public function setListRecipients(array $listRecipients): self
+	public function setCc(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddressList('listTo', $listRecipients);
+		$this->addEmailAddress('listCc', $emailAddress, $name);
 
 		return $this;
 	}
 
 	/**
-	 * Définie une liste de destinataires pour le mail.
-	 * @param array $listTo
+	 * Sets the "BCC" address.
+	 * @param string|null $emailAddress
+	 * @param string|null $name
 	 * @return self
 	 */
-	public function setListTo(array $listTo): self
+	public function setBcc(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddressList('listTo', $listTo);
+		$this->addEmailAddress('listBcc', $emailAddress, $name);
 
 		return $this;
 	}
 
 	/**
-	 * Définie une liste de destinataires en copie pour le mail.
-	 * @param array $listCc
+	 * Sets "To" addresses.
+	 * @param array $recipientList
 	 * @return self
 	 */
-	public function setListCc(array $listCc): self
+	public function setListRecipients(array $recipientList): self
+	{
+		$this->clearListTo();
+		$this->addEmailAddressList('listTo', $recipientList);
+
+		return $this;
+	}
+
+	/**
+	 * Sets "To" addresses.
+	 * @param array $recipientList
+	 * @return self
+	 */
+	public function setListTo(array $recipientList): self
+	{
+		$this->clearListTo();
+		$this->addEmailAddressList('listTo', $recipientList);
+
+		return $this;
+	}
+
+	/**
+	 * Sets "CC" addresses.
+	 * @param array $recipientList
+	 * @return self
+	 */
+	public function setListCc(array $recipientList): self
 	{
 		$this->clearListCc();
-		$this->addEmailAddressList('listCc', $listCc);
+		$this->addEmailAddressList('listCc', $recipientList);
 
 		return $this;
 	}
 
 	/**
-	 * Définie une liste de destinataires en copie cachée pour le mail.
-	 * @param array $listBcc
+	 * Sets "BCC" addresses.
+	 * @param array $recipientList
 	 * @return self
 	 */
-	public function setListBcc(array $listBcc): self
+	public function setListBcc(array $recipientList): self
 	{
 		$this->clearListBcc();
-		$this->addEmailAddressList('listBcc', $listBcc);
+		$this->addEmailAddressList('listBcc', $recipientList);
 
 		return $this;
 	}
@@ -996,8 +1010,8 @@ class Email
 	// ========== Subject and text ==========
 
 	/**
-	 * Get du sujet du mail.
-	 * @return string sujet du mail.
+	 * Return the subject of the message.
+	 * @return string
 	 */
 	public function getSubject(): string
 	{
@@ -1005,8 +1019,8 @@ class Email
 	}
 
 	/**
-	 * Set du sujet du mail.
-	 * @param string $subject sujet du mail.
+	 * Sets the subject of the message.
+	 * @param string
 	 * @param bool $encode
 	 * @return self
 	 */
@@ -1021,31 +1035,44 @@ class Email
 	}
 
 	/**
+	 * Return true if the message type is HTML, false if plain.
 	 * @return bool
 	 */
 	public function isHTML(): bool
 	{
-		return $this->isHtml;
+		return $this->contentType === 'text/html';
 	}
 
 	/**
-	 * Définit le format du mail au format HTML.
+	 * Sets message type to HTML or plain.
 	 * @return self
 	 */
 	public function setHtmlFormat(): self
 	{
-		$this->isHtml = true;
+		$this->contentType = 'text/html';
 
 		return $this;
 	}
 
 	/**
-	 * Définit le format du mail au format texte.
+	 * Sets message type to plain.
 	 * @return self
 	 */
 	public function setTextFormat(): self
 	{
-		$this->isHtml = false;
+		$this->contentType = 'text/plain';
+
+		return $this;
+	}
+
+	/**
+	 * Sets MIME type of the message.
+	 * @param string $contentType
+	 * @return self
+	 */
+	public function setContentType(string $contentType): self
+	{
+		$this->contentType = $contentType;
 
 		return $this;
 	}
@@ -1057,12 +1084,18 @@ class Email
 	 */
 	public function setIsHTML(bool $isHtml): self
 	{
-		$this->isHtml = $isHtml;
+		if ($isHtml) {
+			$this->setHtmlFormat();
+		}
+		else {
+			$this->setTextFormat();
+		}
 
 		return $this;
 	}
 
 	/**
+	 * Return the character set of the message.
 	 * @return string
 	 */
 	public function getCharSet(): string
@@ -1071,7 +1104,7 @@ class Email
 	}
 
 	/**
-	 * Définit l'encodage de caractère du mail.
+	 * Sets the character set of the message.
 	 * @param string $charSet
 	 * @return self
 	 */
@@ -1083,7 +1116,7 @@ class Email
 	}
 
 	/**
-	 * Get du texte du mail.
+	 * Return the HTML or plain text message body.
 	 * @return string texte du mail.
 	 */
 	public function getText(): string
@@ -1092,8 +1125,8 @@ class Email
 	}
 
 	/**
-	 * Set du texte du mail.
-	 * @param string $text texte du mail.
+	 * Sets the HTML or plain text message body.
+	 * @param string $text
 	 * @param bool $encode
 	 * @return self
 	 */
@@ -1110,7 +1143,7 @@ class Email
 	// ========== Sending options ==========
 
 	/**
-	 * Get de la date et heure de l'envoi du mail.
+	 * Return the sending date time of the message.
 	 */
 	public function getSendingDateTime(): ?\DateTime
 	{
@@ -1118,7 +1151,7 @@ class Email
 	}
 
 	/**
-	 * Set de la date et heure de l'envoi du mail.
+	 * Sets the sending date time of the message.
 	 * @param \DateTime $sendingDateTime
 	 * @return self
 	 */
@@ -1133,7 +1166,7 @@ class Email
 	// ========== Réinitialiser ==========
 
 	/**
-	 * Réinitialise tout.
+	 * Clear everything.
 	 */
 	public function clear(): void
 	{

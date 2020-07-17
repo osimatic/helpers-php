@@ -2,7 +2,7 @@
 
 namespace Osimatic\Helpers\Number;
 
-use Osimatic\Helpers\Location\Place;
+use Osimatic\Helpers\Location\PlaceInterface;
 
 class Distance
 {
@@ -72,11 +72,11 @@ class Distance
 
 	/**
 	 * Retourne distance en mètre
-	 * @param Place $originPlace
-	 * @param Place $destinationPlace
+	 * @param PlaceInterface $originPlace
+	 * @param PlaceInterface $destinationPlace
 	 * @return float
 	 */
-	public static function calculateBetweenPlaces(Place $originPlace, Place $destinationPlace): float
+	public static function calculateBetweenPlaces(PlaceInterface $originPlace, PlaceInterface $destinationPlace): float
 	{
 		return self::calculateBetweenLatitudeAndLongitude($originPlace->getLatitude(), $originPlace->getLongitude(), $destinationPlace->getLatitude(), $destinationPlace->getLongitude() );
 	}
