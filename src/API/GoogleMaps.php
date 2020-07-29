@@ -91,8 +91,8 @@ class GoogleMaps
 	 */
 	public function reverseGeocodingFromLatitudeAndLongitude(float $latitude, float $longitude): ?array
 	{
-		$latitude = str_replace(' ', '', $latitude);
-		$longitude = str_replace(' ', '', $longitude);
+		$latitude = str_replace([' ', ','], ['', '.'], (string) $latitude);
+		$longitude = str_replace([' ', ','], ['', '.'], (string) $longitude);
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latitude.','.$longitude.'&key='.$this->apiKey;
 
@@ -337,13 +337,13 @@ class GoogleMaps
 		// on génère la ligne numéro/rue depuis le champs "formatted_address", car la ligne numéro/rue n'est pas disponible dans le champs "address_components"
 		//$result['formatted_address'] = '131, Avenue Charles de Gaulle, 92200 Neuilly-sur-Seine, France';
 		$streetAddress = $result['formatted_address'] ?? '';
-		if (false !== ($pos = strpos($streetAddress, ',', strpos($streetAddress, $addressComponents['route'])))) {
+		if (!empty($addressComponents['route']) && false !== ($pos = strpos($streetAddress, ',', strpos($streetAddress, $addressComponents['route'])))) {
 			$streetAddress = substr($streetAddress, 0, $pos);
 		}
 		//if (false !== ($pos = strrpos($streetAddress, ','))) {
 		//	$streetAddress = trim(substr($streetAddress, $pos + 1));
 		//}
-		if (!empty($streetAddress) && strstr($streetAddress, $addressComponents['route'])) {
+		if (!empty($addressComponents['route']) && !empty($streetAddress) && strstr($streetAddress, $addressComponents['route'])) {
 			$addressComponents['street'] = $streetAddress;
 		}
 		else {
