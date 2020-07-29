@@ -34,4 +34,14 @@ interface BankAccountInterface
 	 */
 	public function setBic(string $value): void;
 
+	/**
+	 * @return string
+	 */
+	public function getBankingDomiciliation(): string;
+
+	/**
+	 * @param string $value
+	 */
+	public function setBankingDomiciliation(string $value): void;
+
 }
