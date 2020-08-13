@@ -45,7 +45,7 @@ class DatePeriod
 		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
 			if (null === $weekDays || in_array((int) date('N', $timestamp), $weekDays, true)) {
 				try {
-					$list[] = new \DateTime(date('Y-m-dTH:i:s', $timestamp));
+					$list[] = new \DateTime(date('Y-m-d H:i:s', $timestamp));
 					//$list[] = new \DateTime('@' . $timestamp); // pb de timezone
 				} catch (\Exception $e) { }
 			}
