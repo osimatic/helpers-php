@@ -1046,7 +1046,7 @@ class Str
 	public static function getRandomAlphaString(int $nbChar, bool $uppercaseEnabled=false, bool $lowercaseEnabled=true): string
 	{
 		if (!$lowercaseEnabled && !$uppercaseEnabled) {
-			return null;
+			return '';
 		}
 
 		$listeLettres = self::LETTRES;
