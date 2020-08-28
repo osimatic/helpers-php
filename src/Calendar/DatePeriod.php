@@ -47,7 +47,9 @@ class DatePeriod
 		$list = [];
 		$dateRange = new \DatePeriod($startIntervalDate, new \DateInterval('P1D'), $endIntervalDate);
 		foreach ($dateRange as $date) {
-			$list[] = $date;
+			if (null === $weekDays || in_array((int) $date->format('N'), $weekDays, true)) {
+				$list[] = $date;
+			}
 		}
 		/*
 		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
