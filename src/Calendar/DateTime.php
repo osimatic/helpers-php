@@ -404,11 +404,15 @@ class DateTime
 	 */
 	public static function getNextWeekDay(\DateTime $dateTime, int $weekDay): \DateTime
 	{
-		$timestampCurrent = $dateTime->getTimestamp();
-		while (((int) date('N', $timestampCurrent)) !== $weekDay) {
-			$timestampCurrent += 86400;
+		//$timestampCurrent = $dateTime->getTimestamp();
+		//while (((int) date('N', $timestampCurrent)) !== $weekDay) {
+		//	$timestampCurrent += 86400;
+		//}
+		//return new \DateTime(date('Y-m-d H:i:s', $timestampCurrent));
+		while (((int) $dateTime->format('N')) !== $weekDay) {
+			$dateTime->modify('+1 day');
 		}
-		return new \DateTime(date('Y-m-d H:i:s', $timestampCurrent));
+		return $dateTime;
 	}
 
 	// ========== Mois ==========

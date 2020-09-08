@@ -41,7 +41,17 @@ class DatePeriod
 	 */
 	public static function getListDaysOfMonths(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays=null): array
 	{
+		$startIntervalDate = (clone $periodStart)->setTime(0, 0, 0);
+		$endIntervalDate = (clone $periodEnd)->setTime(0, 0, 0)->modify('+1 day');
+
 		$list = [];
+		$dateRange = new \DatePeriod($startIntervalDate, new \DateInterval('P1D'), $endIntervalDate);
+		foreach ($dateRange as $date) {
+			if (null === $weekDays || in_array((int) $date->format('N'), $weekDays, true)) {
+				$list[] = $date;
+			}
+		}
+		/*
 		for ($timestamp=$periodStart->getTimestamp(); $timestamp<=$periodEnd->getTimestamp(); $timestamp+=86400) {
 			if (null === $weekDays || in_array((int) date('N', $timestamp), $weekDays, true)) {
 				try {
@@ -50,6 +60,7 @@ class DatePeriod
 				} catch (\Exception $e) { }
 			}
 		}
+		*/
 		return $list;
 	}
 
@@ -122,15 +133,15 @@ class DatePeriod
 	{
 		if ($dateInterval === 'P1D') {
 			$startIntervalDate = $startDate;
-			$endIntervalDate = $endDate->modify('+1 day');
+			$endIntervalDate = (clone $endDate)->modify('+1 day');
 		}
 		elseif ($dateInterval === 'P1W') {
-			$startIntervalDate = $startDate->modify('Monday this week');
-			$endIntervalDate = $endDate->modify('this Sunday');
+			$startIntervalDate = (clone $startDate)->modify('Monday this week');
+			$endIntervalDate = (clone $endDate)->modify('this Sunday');
 		}
 		elseif ($dateInterval === 'P1M') {
-			$startIntervalDate = $startDate->modify('first day of this month');
-			$endIntervalDate = $endDate->modify('last day of this month');
+			$startIntervalDate = (clone $startDate)->modify('first day of this month');
+			$endIntervalDate = (clone $endDate)->modify('last day of this month');
 		}
 		else {
 			return null;
