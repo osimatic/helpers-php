@@ -42,7 +42,7 @@ class Name
 	 */
 	public static function checkFirstName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})$/u', $value);
+		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,120})$/u', $value);
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Name
 	 */
 	public static function checkLastName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,100})$/u', $value);
+		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{2,120})$/u', $value);
 	}
 
 	/**
