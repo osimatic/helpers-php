@@ -564,7 +564,7 @@ class PayBox
 	 */
 	public function setTotal(float $total): self
 	{
-		$this->montant = round($total, 2);
+		$this->montant = $total;
 
 		return $this;
 	}
@@ -1258,7 +1258,7 @@ class PayBox
 
 	private function getAmount(): int
 	{
-		return $this->montant * 100;
+		return round($this->montant * 100, 2);
 	}
 
 	private function getFormattedAmount(): ?string
