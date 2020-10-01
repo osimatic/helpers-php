@@ -412,6 +412,8 @@ class PayBox
 		return $result;
 	}
 
+
+
 	/**
 	 * @return string|null
 	 */
@@ -814,6 +816,16 @@ class PayBox
 	public function setUrlIpn(?string $urlIpn): self
 	{
 		$this->urlIpn = $urlIpn;
+
+		return $this;
+	}
+
+	/**
+	 * @return self
+	 */
+	public function setAuthorizationOnly(): self
+	{
+		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_SEULE;
 
 		return $this;
 	}
