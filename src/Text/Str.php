@@ -945,7 +945,7 @@ class Str
 		$str = self::removeAccents($str);
 		$str = preg_replace(['/[^a-zA-Z0-9 \'-]/', '/[ -\']+/', '/^-|-$/'], ['', '-', ''], $str);
 		$str = preg_replace('/-inc$/i', '', $str);
-		return strtolower($str);
+		return mb_strtolower($str);
 	}
 
 	/**

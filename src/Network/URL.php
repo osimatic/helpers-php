@@ -17,7 +17,8 @@ class URL
 	 */
 	public static function check(string $url): bool
 	{
-		return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED);
+		//return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED);
+		return filter_var($url, FILTER_VALIDATE_URL);
 	}
 
 	// ========== Affichage ==========

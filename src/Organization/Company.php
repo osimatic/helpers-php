@@ -93,7 +93,7 @@ class Company
 			return false;
 		}
 
-		$listCodeNaf = parse_ini_file(__DIR__.'conf/france_code_naf.ini', true);
+		$listCodeNaf = parse_ini_file(__DIR__.'/conf/france_code_naf.ini', true);
 		return array_key_exists($codeNaf, $listCodeNaf);
 	}
 

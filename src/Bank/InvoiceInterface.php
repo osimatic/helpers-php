@@ -4,6 +4,9 @@ namespace Osimatic\Helpers\Bank;
 
 use Osimatic\Helpers\Organization\OrganizationInterface;
 
+/**
+ * https://schema.org/Invoice
+ */
 interface InvoiceInterface
 {
 	/**

@@ -189,7 +189,7 @@ class DateTime
 	 */
 	public static function isDateAfter(\DateTime $dateTime1, \DateTime $dateTime2): bool
 	{
-		return $dateTime1->format('Y-m-d') > $dateTime2->format('Y-m-d');
+		return $dateTime1->format('Ymd') > $dateTime2->format('Ymd');
 	}
 
 	/**
@@ -199,7 +199,7 @@ class DateTime
 	 */
 	public static function isDateBefore(\DateTime $dateTime1, \DateTime $dateTime2): bool
 	{
-		return $dateTime1->format('Y-m-d') < $dateTime2->format('Y-m-d');
+		return $dateTime1->format('Ymd') < $dateTime2->format('Ymd');
 	}
 
 	/**
@@ -218,6 +218,24 @@ class DateTime
 	public static function isInTheFuture(\DateTime $dateTime): bool
 	{
 		return $dateTime > self::getCurrentDateTime();
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isDateInThePast(\DateTime $dateTime): bool
+	{
+		return $dateTime->format('Ymd') < self::getCurrentDateTime()->format('Ymd');
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isDateInTheFuture(\DateTime $dateTime): bool
+	{
+		return $dateTime->format('Ymd') > self::getCurrentDateTime()->format('Ymd');
 	}
 
 
@@ -404,11 +422,15 @@ class DateTime
 	 */
 	public static function getNextWeekDay(\DateTime $dateTime, int $weekDay): \DateTime
 	{
-		$timestampCurrent = $dateTime->getTimestamp();
-		while (((int) date('N', $timestampCurrent)) !== $weekDay) {
-			$timestampCurrent += 86400;
+		//$timestampCurrent = $dateTime->getTimestamp();
+		//while (((int) date('N', $timestampCurrent)) !== $weekDay) {
+		//	$timestampCurrent += 86400;
+		//}
+		//return new \DateTime(date('Y-m-d H:i:s', $timestampCurrent));
+		while (((int) $dateTime->format('N')) !== $weekDay) {
+			$dateTime->modify('+1 day');
 		}
-		return new \DateTime(date('Y-m-d H:i:s', $timestampCurrent));
+		return $dateTime;
 	}
 
 	// ========== Mois ==========

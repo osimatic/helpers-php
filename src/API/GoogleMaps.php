@@ -2,6 +2,7 @@
 
 namespace Osimatic\Helpers\API;
 
+use Osimatic\Helpers\Location\GeographicCoordinates;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -91,10 +92,7 @@ class GoogleMaps
 	 */
 	public function reverseGeocodingFromLatitudeAndLongitude(float $latitude, float $longitude): ?array
 	{
-		$latitude = str_replace([' ', ','], ['', '.'], (string) $latitude);
-		$longitude = str_replace([' ', ','], ['', '.'], (string) $longitude);
-
-		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latitude.','.$longitude.'&key='.$this->apiKey;
+		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($latitude, $longitude).'&key='.$this->apiKey;
 
 		if (($json = file_get_contents($url)) === false) {
 			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
@@ -366,7 +364,7 @@ class GoogleMaps
 		if (empty($lat) || empty($lng)) {
 			return null;
 		}
-		return $lat.','.$lng;
+		return GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($lat, $lng);
 	}
 
 	/**

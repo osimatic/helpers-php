@@ -12,17 +12,17 @@ class Invoice implements InvoiceInterface
 	/**
 	 * @var OrganizationInterface|null
 	 */
-	protected ?OrganizationInterface $seller;
+	protected ?OrganizationInterface $seller = null;
 
 	/**
 	 * @var OrganizationInterface|null
 	 */
-	protected ?OrganizationInterface $buyer;
+	protected ?OrganizationInterface $buyer = null;
 
 	/**
 	 * @var string|null
 	 */
-	protected ?string $orderReference;
+	protected ?string $orderReference = null;
 
 	/**
 	 * @var string
@@ -42,7 +42,7 @@ class Invoice implements InvoiceInterface
 	/**
 	 * @var InvoiceProductInterface[]
 	 */
-	protected array $productsList;
+	protected array $productsList = [];
 
 	/**
 	 * @var float
@@ -72,7 +72,7 @@ class Invoice implements InvoiceInterface
 	/**
 	 * @var \DateTime|null
 	 */
-	protected ?\DateTime $validationDate;
+	protected ?\DateTime $validationDate = null;
 
 	/**
 	 * @var string
@@ -82,22 +82,22 @@ class Invoice implements InvoiceInterface
 	/**
 	 * @var \DateTime|null
 	 */
-	protected ?\DateTime $paymentDate;
+	protected ?\DateTime $paymentDate = null;
 
 	/**
 	 * @var string|null
 	 */
-	protected ?string $paymentMethod;
+	protected ?string $paymentMethod = null;
 
 	/**
 	 * @var string|null
 	 */
-	protected ?string $bankCardAuthorizationNumber;
+	protected ?string $bankCardAuthorizationNumber = null;
 
 	/**
 	 * @var string|null
 	 */
-	protected ?string $deliveryType;
+	protected ?string $deliveryType = null;
 
 
 
