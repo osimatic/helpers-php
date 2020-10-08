@@ -82,6 +82,8 @@ class Currency
 	private static function clean(string $str): string
 	{
 		// retrait de l'espace insécable
+		//$str = preg_replace("\u{00a0}", '', $str);
+		//$str = preg_replace("\u{0020}", '', $str);
 		return str_replace("\xE2\x80\xAF", ' ', $str);
 	}
 
