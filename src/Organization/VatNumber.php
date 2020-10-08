@@ -59,7 +59,7 @@ class VatNumber
 
 		// Vérification de la validité
 		try {
-			$client = new \SoapClient('http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl', 2);
+			$client = new \SoapClient('http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl');
 			$response = $client->checkVat(['countryCode' => $countryCode, 'vatNumber' => $vatNumber]);
 			if (!$response->valid) {
 				return false;
