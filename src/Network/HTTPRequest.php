@@ -26,8 +26,12 @@ class HTTPRequest
 	{
 		//trace('URL : '.$url);
 
-		// Configuration de l'URL
 		$ch = curl_init();
+
+		// Configuration de l'URL
+		if ($method === 'GET') {
+			$url .= (strstr($url, '?') === false ? '?' : '') . '&' . http_build_query($queryParameters);
+		}
 		curl_setopt($ch, CURLOPT_URL, $url);
 
 		// Configuration du protocole
