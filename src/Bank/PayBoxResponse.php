@@ -18,7 +18,7 @@ class PayBoxResponse
 	 */
 	public function getResponseCode(): ?string
 	{
-		return $this->responseCode;
+		return $this->responseCode ?? null;
 	}
 
 	/**
@@ -34,7 +34,7 @@ class PayBoxResponse
 	 */
 	public function getCallNumber(): ?string
 	{
-		return $this->callNumber;
+		return $this->callNumber ?? null;
 	}
 
 	/**
@@ -50,7 +50,7 @@ class PayBoxResponse
 	 */
 	public function getTransactionNumber(): ?string
 	{
-		return $this->transactionNumber;
+		return $this->transactionNumber ?? null;
 	}
 
 	/**
@@ -66,7 +66,7 @@ class PayBoxResponse
 	 */
 	public function getAuthorizationNumber(): ?string
 	{
-		return $this->authorizationNumber;
+		return $this->authorizationNumber ?? null;
 	}
 
 	/**
@@ -82,7 +82,7 @@ class PayBoxResponse
 	 */
 	public function getCardHash(): ?string
 	{
-		return $this->cardHash;
+		return $this->cardHash ?? null;
 	}
 
 	/**
@@ -98,7 +98,7 @@ class PayBoxResponse
 	 */
 	public function getCardLastDigits(): ?string
 	{
-		return $this->cardLastDigits;
+		return $this->cardLastDigits ?? null;
 	}
 
 	/**
@@ -114,7 +114,7 @@ class PayBoxResponse
 	 */
 	public function getCardExpiryDate(): ?string
 	{
-		return $this->cardExpiryDate;
+		return $this->cardExpiryDate ?? null;
 	}
 
 	/**
