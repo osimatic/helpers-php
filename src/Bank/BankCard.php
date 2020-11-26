@@ -21,6 +21,15 @@ class BankCard
 	}
 
 	/**
+	 * @param string $csc
+	 * @return bool
+	 */
+	public static function checkCardCSC(string $csc): bool
+	{
+		return strlen($csc) >= 3 && strlen($csc) <= 4;
+	}
+
+	/**
 	 * @param string $cardNumber
 	 * @return string
 	 */
