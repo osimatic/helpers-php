@@ -15,8 +15,9 @@ class BankCard
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();
-		$constraint = new \Symfony\Component\Validator\Constraints\CardScheme();
-		$constraint->schemes = ['VISA', 'MASTERCARD', 'AMEX'];
+		//$constraint = new \Symfony\Component\Validator\Constraints\CardScheme();
+		//$constraint->schemes = ['VISA', 'MASTERCARD', 'AMEX'];
+		$constraint = new \Symfony\Component\Validator\Constraints\CardScheme(['schemes' => ['VISA', 'MASTERCARD', 'AMEX']]);
 		return $validator->validate($cardNumber, $constraint)->count() === 0;
 	}
 
