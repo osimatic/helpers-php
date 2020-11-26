@@ -72,7 +72,19 @@ class Company
 	}
 
 	/**
+	 * Retourne la liste des code NAF selon la NAF 2008 (732 postes).
+	 * @link http://fr.wikipedia.org/wiki/Code_NAF
+	 * @return array la liste des codes NAF
+	 */
+	public static function getFranceApeCodeList(): array
+	{
+		return parse_ini_file(__DIR__.'/conf/france_code_naf.ini', true);
+	}
+
+	/**
 	 * Vérifie la validité d'un code NAF ou APE
+	 * @link http://fr.wikipedia.org/wiki/Code_APE
+	 * @link https://fr.wikipedia.org/wiki/Activit%C3%A9_principale_exerc%C3%A9e
 	 * @param string $codeApe
 	 * @return bool
 	 */
@@ -83,7 +95,6 @@ class Company
 
 	/**
 	 * Vérifie la validité d'un code NAF
-	 * @link http://fr.wikipedia.org/wiki/Code_APE
 	 * @param string $codeNaf
 	 * @return bool
 	 */
@@ -93,8 +104,17 @@ class Company
 			return false;
 		}
 
-		$listCodeNaf = parse_ini_file(__DIR__.'/conf/france_code_naf.ini', true);
-		return array_key_exists($codeNaf, $listCodeNaf);
+		return array_key_exists($codeNaf, self::getFranceApeCodeList());
+	}
+
+	/**
+	 * Retourne le libellé du code APE
+	 * @param string $ape
+	 * @return string
+	 */
+	public static function getFranceApeLabel(string $ape): string
+	{
+		return self::getFranceApeCodeList()[$ape] ?? '';
 	}
 
 	/**

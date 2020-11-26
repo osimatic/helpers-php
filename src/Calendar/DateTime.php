@@ -9,10 +9,7 @@ class DateTime
 	 */
 	public static function getCurrentDateTime(): \DateTime
 	{
-		try {
-			return new \DateTime('now');
-		} catch (\Exception $e) {}
-		return null;
+		return new \DateTime();
 	}
 
 	/**
@@ -529,6 +526,18 @@ class DateTime
 	public static function getLastDayOfMonth(int $year, int $month): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfMonth($year, $month).' 00:00:00');
+	}
+
+	// ========== Année ==========
+
+	/**
+	 * @param \DateTime $from
+	 * @return int
+	 */
+	public static function calculateAge(\DateTime $from): int
+	{
+		$to = new \DateTime();
+		return (int) $from->diff($to)->y;
 	}
 
 }
