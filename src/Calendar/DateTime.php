@@ -395,9 +395,9 @@ class DateTime
 	/**
 	 * @param int $year
 	 * @param int $week
-	 * @return string
+	 * @return \DateTime|null
 	 */
-	public static function getFirstDayOfWeek(int $year, int $week): string
+	public static function getFirstDayOfWeek(int $year, int $week): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfWeek($year, $week).' 00:00:00');
 	}
@@ -405,9 +405,9 @@ class DateTime
 	/**
 	 * @param int $year
 	 * @param int $week
-	 * @return string
+	 * @return \DateTime|null
 	 */
-	public static function getLastDayOfWeek(int $year, int $week): string
+	public static function getLastDayOfWeek(int $year, int $week): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek($year, $week).' 00:00:00');
 	}
