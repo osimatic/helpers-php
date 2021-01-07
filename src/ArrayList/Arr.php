@@ -144,8 +144,6 @@ class Arr
 		return $keys[mt_rand(0, count($keys) - 1)];
 	}
 
-	// ========== Recherche ==========
-
 	/**
 	 * Equivalent de la fonction in_array mais ne tenant pas compte de la casse
 	 * @param mixed $needle La valeur recherchée.
@@ -304,6 +302,24 @@ class Arr
 	{
 		return self::deleteListKeys($array, [$key]);
 	}
+
+	// ========== Opération sur les valeurs ==========
+
+	/**
+	 * @param array $array
+	 * @return array
+	 */
+	public static function array_cumulative_sum(array $array): array
+	{
+		$cumulativeArray = [];
+		$sum = 0;
+		foreach ($array as $value) {
+			$sum += $value;
+			$cumulativeArray[] = $sum;
+		}
+		return $cumulativeArray;
+	}
+
 
 	// ========== Callback ==========
 
