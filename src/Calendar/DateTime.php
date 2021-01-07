@@ -365,7 +365,7 @@ class DateTime
 	 */
 	public static function getFirstDayOfPreviousWeek(): ?\DateTime
 	{
-		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('first day of previous week')).' 00:00:00');
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('monday last week')).' 00:00:00');
 	}
 
 	/**
@@ -373,7 +373,7 @@ class DateTime
 	 */
 	public static function getLastDayOfPreviousWeek(): ?\DateTime
 	{
-		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of previous week')).' 00:00:00');
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('sunday last week')).' 00:00:00');
 	}
 
 	/**
@@ -381,7 +381,7 @@ class DateTime
 	 */
 	public static function getFirstDayOfNextWeek(): ?\DateTime
 	{
-		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('first day of next week')).' 00:00:00');
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('monday next week')).' 00:00:00');
 	}
 
 	/**
@@ -389,7 +389,7 @@ class DateTime
 	 */
 	public static function getLastDayOfNextWeek(): ?\DateTime
 	{
-		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('last day of next week')).' 00:00:00');
+		return self::parseFromSqlDateTime(date('Y-m-d', strtotime('sunday next week')).' 00:00:00');
 	}
 
 	/**
