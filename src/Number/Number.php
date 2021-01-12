@@ -115,6 +115,15 @@ class Number
 	}
 
 	/**
+	 * @param float|null $str
+	 * @return string
+	 */
+	public static function floatToString(?float $str): string
+	{
+		return self::clean($str);
+	}
+
+	/**
 	 * @param mixed $str
 	 * @param bool $negativeAllowed
 	 * @param bool $positiveAllowed
