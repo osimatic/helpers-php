@@ -349,7 +349,7 @@ class DateTime
 	 */
 	public static function getFirstDayOfCurrentWeek(): ?\DateTime
 	{
-		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfWeek(date('Y'), date('m')).' 00:00:00');
+		return self::parseFromSqlDateTime(SqlDate::getFirstDayOfWeek(date('Y'), date('W')).' 00:00:00');
 	}
 
 	/**
@@ -357,7 +357,7 @@ class DateTime
 	 */
 	public static function getLastDayOfCurrentWeek(): ?\DateTime
 	{
-		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek(date('Y'), date('m')).' 00:00:00');
+		return self::parseFromSqlDateTime(SqlDate::getLastDayOfWeek(date('Y'), date('W')).' 00:00:00');
 	}
 
 	/**
