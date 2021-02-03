@@ -153,7 +153,7 @@ class Number
 	 */
 	public static function checkInt($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
-		$str = self::clean((string) $str);
+		$str = self::clean((string) $str, false);
 
 		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
 			return false;
@@ -194,9 +194,10 @@ class Number
 
 	/**
 	 * @param string|null $str
+	 * @param bool $addDecimalIfNotPresent
 	 * @return string
 	 */
-	private static function clean(?string $str): string
+	private static function clean(?string $str, bool $addDecimalIfNotPresent=true): string
 	{
 		if ($str === null || $str === '') {
 			return '0';
@@ -210,7 +211,7 @@ class Number
 
 		// formattage virgule
 		$str = str_replace(',', '.', $str);
-		if (substr_count($str, '.') === 0) {
+		if ($addDecimalIfNotPresent && substr_count($str, '.') === 0) {
 			$str .= '.0';
 		}
 
