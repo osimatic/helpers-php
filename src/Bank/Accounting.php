@@ -62,7 +62,7 @@ class Accounting
 			catch (\Exception $e) {}
 
 			// Ligne débit
-			$account = $this->accounts[$accountkey]['debit'] ?? '';
+			$account = $transaction['debit_account'] ?? $this->accounts[$accountkey]['debit'] ?? '';
 			$tableBody[] = [
 				$transactionDate->format('d/m/Y'),
 				'VT',
