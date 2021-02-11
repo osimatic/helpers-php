@@ -555,6 +555,18 @@ class Str
 
 	/**
 	 * @param string $str
+	 * @return string
+	 */
+	public static function removeNonBreakingSpaces(string $str): string
+	{
+		// retrait de l'espace insécable
+		//$str = preg_replace("\u{00a0}", '', $str);
+		//$str = preg_replace("\u{0020}", '', $str);
+		return str_replace("\xE2\x80\xAF", ' ', $str);
+	}
+
+	/**
+	 * @param string $str
 	 * @param string $replace
 	 * @return string
 	 */

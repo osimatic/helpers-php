@@ -59,7 +59,7 @@ class Currency
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::CURRENCY);
 		$fmt->setTextAttribute(\NumberFormatter::CURRENCY_CODE, $currency);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return self::clean($fmt->formatCurrency($number, $currency));
+		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->formatCurrency($number, $currency));
 	}
 
 	/**
@@ -72,19 +72,7 @@ class Currency
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return self::clean($fmt->format($number)).' '.$currency;
-	}
-
-	/**
-	 * @param string $str
-	 * @return string
-	 */
-	private static function clean(string $str): string
-	{
-		// retrait de l'espace insécable
-		//$str = preg_replace("\u{00a0}", '', $str);
-		//$str = preg_replace("\u{0020}", '', $str);
-		return str_replace("\xE2\x80\xAF", ' ', $str);
+		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number)).' '.$currency;
 	}
 
 }
