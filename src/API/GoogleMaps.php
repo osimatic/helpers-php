@@ -67,12 +67,11 @@ class GoogleMaps
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
 
-		if (($json = file_get_contents($url)) === false) {
-			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
+		if (null === ($results = $this->request($url))) {
 			return null;
 		}
 
-		return $this->getResults($json);
+		return $this->getResults($results);
 	}
 
 	/**
@@ -94,12 +93,11 @@ class GoogleMaps
 	{
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($latitude, $longitude).'&key='.$this->apiKey;
 
-		if (($json = file_get_contents($url)) === false) {
-			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
+		if (null === ($results = $this->request($url))) {
 			return null;
 		}
 
-		return $this->getResults($json);
+		return $this->getResults($results);
 	}
 
 
@@ -266,11 +264,11 @@ class GoogleMaps
 		}
 
 		$url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'.http_build_query($params).'&key='.$this->apiKey;
-		if (($json = file_get_contents($url)) === false) {
+
+		if (null === ($results = $this->request($url))) {
 			return null;
 		}
 
-		$results = json_decode($json, true);
 		if (empty($results['status']) || $results['status'] !== 'OK') {
 			return null;
 		}
@@ -379,14 +377,49 @@ class GoogleMaps
 		return $formattedAddress;
 	}
 
+	// private
+
 	/**
-	 * @param string $json
+	 * @param string $url
+	 * @return null|mixed
+	 */
+	private function request(string $url)
+	{
+		/*
+		if (($json = file_get_contents($url)) === false) {
+			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
+			return null;
+		}
+		return $json;
+		*/
+
+		$client = new \GuzzleHttp\Client();
+		try {
+			$options = [
+				'http_errors' => false,
+			];
+			$res = $client->request('GET', $url, $options);
+		}
+		catch (\Exception $e) {
+			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
+			return null;
+		}
+
+		try {
+			return \GuzzleHttp\json_decode((string) $res->getBody(), true);
+		}
+		catch (\Exception $e) {
+			$this->logger->error('Erreur pendant le décodage du résultat.');
+		}
+		return null;
+	}
+
+	/**
+	 * @param array $result
 	 * @return array|null
 	 */
-	private function getResults(string $json): ?array
+	private function getResults(array $result): ?array
 	{
-		$result = json_decode($json, true);
-
 		if ($result['status'] === 'REQUEST_DENIED') {
 			$this->logger->info('Accès refusé : '.($result['error_message'] ?? ''));
 			return null;
