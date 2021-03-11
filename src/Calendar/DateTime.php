@@ -528,6 +528,65 @@ class DateTime
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfMonth($year, $month).' 00:00:00');
 	}
 
+	/**
+	 * Renvoi le n-ième jour de la semaine d'un mois donné. Exemple : "2ème mercredi du mois"
+	 * @param int $year
+	 * @param int $month
+	 * @param int $weekDay
+	 * @param int $number
+	 * @return \DateTime|null
+	 */
+	public static function getWeekDayOfMonth(int $year, int $month, int $weekDay, int $number): ?\DateTime
+	{
+		$weekDayName = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'][$weekDay-1] ?? null;
+		if (null === $weekDayName) {
+			return null;
+		}
+
+		$numberName = ['first', 'second', 'third', 'fourth', 'fifth'][$number-1] ?? null;
+		if (null === $numberName) {
+			return null;
+		}
+
+		try {
+			$dateTime = new \DateTime($year.'-'.$month.'-01 00:00:00');
+			$dateTime->modify($numberName.' '.$weekDayName.' of this month');
+
+			if (((int) $dateTime->format('Y')) !== $year || ((int) $dateTime->format('m')) !== $month) {
+				return null;
+			}
+
+			return $dateTime;
+		}
+		catch (\Exception $e) { }
+		return null;
+	}
+
+	/**
+	 * Renvoi le dernier jour de la semaine d'un mois donné. Exemple : "Dernier mercredi du mois"
+	 * @param int $year
+	 * @param int $month
+	 * @param int $weekDay
+	 * @return \DateTime|null
+	 */
+	public static function getLastWeekDayOfMonth(int $year, int $month, int $weekDay): ?\DateTime
+	{
+		$weekDayName = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'][$weekDay-1] ?? null;
+		if (null === $weekDayName) {
+			return null;
+		}
+		try {
+			$dateTime = new \DateTime($year.'-'.$month.'-01 00:00:00');
+			$dateTime->modify('+1 month');
+			$dateTime->modify('last wednesday');
+			return $dateTime;
+		}
+		catch (\Exception $e) { }
+		return null;
+	}
+
+
+
 	// ========== Année ==========
 
 	/**
