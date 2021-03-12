@@ -578,7 +578,7 @@ class DateTime
 		try {
 			$dateTime = new \DateTime($year.'-'.$month.'-01 00:00:00');
 			$dateTime->modify('+1 month');
-			$dateTime->modify('last wednesday');
+			$dateTime->modify('last '.$weekDayName);
 			return $dateTime;
 		}
 		catch (\Exception $e) { }
