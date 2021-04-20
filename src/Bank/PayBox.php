@@ -82,6 +82,11 @@ class PayBox
 	private $rang;
 
 	/**
+	 * @var string
+	 */
+	private $locale = 'FR';
+
+	/**
 	 * @var bool
 	 */
 	private $isTest = false;
@@ -519,6 +524,17 @@ class PayBox
 	public function setRang(string $rang): self
 	{
 		$this->rang = $rang;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $locale
+	 * @return self
+	 */
+	public function setLocale(string $locale): self
+	{
+		$this->locale = $locale;
 
 		return $this;
 	}
@@ -1145,6 +1161,7 @@ class PayBox
 			'PBX_SITE' => $this->numSite,
 			'PBX_RANG' => $this->rang,
 			'PBX_IDENTIFIANT' => $this->identifier,
+			'PBX_LANGUE' => $this->getLanguageCode(),
 			'PBX_TOTAL' => $this->getAmount(),
 			'PBX_DEVISE' => $this->getCurrencyCode(),
 			'PBX_CMD' => $this->reference,
@@ -1170,6 +1187,7 @@ class PayBox
 			. '<input type="hidden" name="PBX_SITE" value="' . $this->numSite . '">'
 			. '<input type="hidden" name="PBX_RANG" value="' . $this->rang . '">'
 			. '<input type="hidden" name="PBX_IDENTIFIANT" value="' . $this->identifier . '">'
+			. '<input type="hidden" name="PBX_LANGUE" value="' . $this->getLanguageCode() . '">'
 			. '<input type="hidden" name="PBX_TOTAL" value="' . $this->getAmount() . '">'
 			. '<input type="hidden" name="PBX_DEVISE" value="' . $this->getCurrencyCode() . '">'
 			. '<input type="hidden" name="PBX_CMD" value="' . $this->reference . '">'
@@ -1254,6 +1272,32 @@ class PayBox
 		$msg = implode('&', $vars);
 		$binKey = pack('H*', $this->secretKey);
 		return strtoupper(hash_hmac('sha512', $msg, $binKey));
+	}
+
+	private function getLanguageCode(): string
+	{
+		if (in_array($this->locale, ['en_GB', 'GB', 'UK'], true)) {
+			return 'GBR'; // Anglais
+		}
+		if (in_array($this->locale, ['es_ES', 'ES'], true)) {
+			return 'ESP'; // Espagnol
+		}
+		if (in_array($this->locale, ['pt_PT', 'PT'], true)) {
+			return 'PRT'; // Portugais
+		}
+		if (in_array($this->locale, ['it_IT', 'IT'], true)) {
+			return 'ITA'; // Italien
+		}
+		if (in_array($this->locale, ['de_DE', 'DE'], true)) {
+			return 'DEU'; // Allemand
+		}
+		if (in_array($this->locale, ['nl_NL', 'NL'], true)) {
+			return 'NLD'; // Néerlandais
+		}
+		if (in_array($this->locale, ['sv_SE', 'SE'], true)) {
+			return 'SWE'; // Suédois
+		}
+		return 'FRA';
 	}
 
 	private function getAmount(): int
