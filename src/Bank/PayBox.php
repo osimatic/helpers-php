@@ -1276,25 +1276,25 @@ class PayBox
 
 	private function getLanguageCode(): string
 	{
-		if (in_array($this->locale, ['en_GB', 'GB', 'UK'], true)) {
+		if (in_array($this->locale, ['en', 'en_GB', 'en-GB', 'GB', 'UK'], true)) {
 			return 'GBR'; // Anglais
 		}
-		if (in_array($this->locale, ['es_ES', 'ES'], true)) {
+		if (in_array($this->locale, ['es', 'es_ES', 'es-ES', 'ES'], true)) {
 			return 'ESP'; // Espagnol
 		}
-		if (in_array($this->locale, ['pt_PT', 'PT'], true)) {
+		if (in_array($this->locale, ['pt', 'pt_PT', 'pt-PT', 'PT'], true)) {
 			return 'PRT'; // Portugais
 		}
-		if (in_array($this->locale, ['it_IT', 'IT'], true)) {
+		if (in_array($this->locale, ['it', 'it_IT', 'it-IT', 'IT'], true)) {
 			return 'ITA'; // Italien
 		}
-		if (in_array($this->locale, ['de_DE', 'DE'], true)) {
+		if (in_array($this->locale, ['de', 'de_DE', 'de-DE', 'DE'], true)) {
 			return 'DEU'; // Allemand
 		}
-		if (in_array($this->locale, ['nl_NL', 'NL'], true)) {
+		if (in_array($this->locale, ['nl', 'nl_NL', 'nl-NL', 'NL'], true)) {
 			return 'NLD'; // Néerlandais
 		}
-		if (in_array($this->locale, ['sv_SE', 'SE'], true)) {
+		if (in_array($this->locale, ['sv_SE', 'sv-SE', 'SE'], true)) {
 			return 'SWE'; // Suédois
 		}
 		return 'FRA';
