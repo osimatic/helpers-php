@@ -289,15 +289,47 @@ class Audio
 			return false;
 		}
 
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on replace le fichier audio source (en mettant l'extension wav si ce n'est pas le cas)
+		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension wav si ce n'est pas le cas)
 		if (empty($destAudioFilePath)) {
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted'.substr($srcAudioFilePath, strrpos($srcAudioFilePath, '.'));
 		}
-		if ($wavFileInfos['audio']['dataformat'] != 'wav') {
+		if ($wavFileInfos['audio']['dataformat'] !== 'wav') {
 			$destAudioFilePath = substr($destAudioFilePath, 0, strrpos($destAudioFilePath, '.')+1).'wav';
 		}
 
-		$params = ($wavFileInfos['audio']['dataformat'] == 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
+		$params = ($wavFileInfos['audio']['dataformat'] === 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
+		$commandLine = $this->soxBinaryPath.' '.$params;
+
+		// Envoi de la commande
+		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		$lastLine = system($commandLine);
+		//$lastLine = exec($commandLine, $output, $returnVar);
+		//var_dump($output, $lastLine);
+
+		return true;
+	}
+
+	/**
+	 * Exemple de commande : sox -t wav -r 8000 -c 1 file.wav -t mp3 file.mp3
+	 * @param string $srcAudioFilePath
+	 * @param string|null $destAudioFilePath
+	 * @return bool|string
+	 */
+	public function convertWavToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
+	{
+		// Vérification que le fichier soit un fichier wav
+		$wavFileInfos = self::getInfos($srcAudioFilePath);
+		if (empty($wavFileInfos['audio']['dataformat']) || $wavFileInfos['audio']['dataformat'] !== 'wav') {
+			$this->logger->error('Message audio pas au format WAV');
+			return false;
+		}
+
+		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
+		if (empty($destAudioFilePath)) {
+			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
+		}
+
+		$params = '-t wav -r 8000 -c 1 "'.$srcAudioFilePath.'" -t mp3 "'.$destAudioFilePath.'"';
 		$commandLine = $this->soxBinaryPath.' '.$params;
 
 		// Envoi de la commande
