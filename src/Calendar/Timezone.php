@@ -25,4 +25,42 @@ class Timezone
 		return $validator->validate($timezone, $constraint)->count() === 0;
 	}
 
+	public static function format(string $timezone, bool $withCountry=true, bool $withCities=true): string
+	{
+		$timezone = mb_strtolower($timezone);
+		$listTimeZones = self::getListTimeZones();
+
+		foreach ($listTimeZones as $timezoneName => $timezoneData) {
+			if (mb_strtolower($timezoneName) !== $timezone) {
+				continue;
+			}
+
+			$displayCities = $withCities && !empty($timezoneData['cities']);
+			$countryName = \Osimatic\Helpers\Location\Country::getCountryNameByCountryCode($timezoneData['country']);
+
+			$str = $timezoneData['utc'].' - '.$timezoneName;
+			if ($withCountry || $displayCities) {
+				$str .= ' (';
+				if ($withCountry) {
+					$str .= ($countryName ?? $timezoneData['country']);
+				}
+				if ($withCountry && $displayCities) {
+					$str .= ' : ';
+				}
+				if ($displayCities) {
+					$str .= implode(', ', $timezoneData['cities']);
+				}
+				$str .= ')';
+			}
+			return $str;
+		}
+
+		return '';
+	}
+
+	public static function getListTimeZones(): array
+	{
+		return parse_ini_file(__DIR__.'/conf/time_zones.ini', true);
+	}
+
 }
