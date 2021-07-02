@@ -41,7 +41,7 @@ class Timezone
 				continue;
 			}
 
-			return self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'], $timezoneData['cities'], $withCountry, $withCities);
+			return self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'] ?? null, $timezoneData['cities'] ?? [], $withCountry, $withCities);
 		}
 
 		return '';
@@ -50,25 +50,26 @@ class Timezone
 	/**
 	 * @param string $timezoneName
 	 * @param string $utc
-	 * @param string|null $countryCode
+	 * @param string|null $countryCodeOrCountryName
 	 * @param string[] $cities
 	 * @param bool $withCountry
 	 * @param bool $withCities
 	 * @return string
 	 */
-	public static function formatWithData(string $timezoneName, string $utc, ?string $countryCode=null, array $cities=[], bool $withCountry=true, bool $withCities=true): string
+	public static function formatWithData(string $timezoneName, string $utc, ?string $countryCodeOrCountryName=null, array $cities=[], bool $withCountry=true, bool $withCities=true): string
 	{
-		$displayCities = $withCities && !empty($timezoneData['cities']);
+		$withCities = $withCities && !empty($cities);
+		$withCountry = $withCountry && !empty($countryCodeOrCountryName);
 		$str = $utc.' - '.$timezoneName;
-		if ($withCountry || $displayCities) {
+		if ($withCountry || $withCities) {
 			$str .= ' (';
 			if ($withCountry) {
-				$str .= (\Osimatic\Helpers\Location\Country::getCountryNameByCountryCode($countryCode) ?? $countryCode);
+				$str .= (\Osimatic\Helpers\Location\Country::getCountryNameByCountryCode($countryCodeOrCountryName) ?? $countryCodeOrCountryName);
 			}
-			if ($withCountry && $displayCities) {
+			if ($withCountry && $withCities) {
 				$str .= ' : ';
 			}
-			if ($displayCities) {
+			if ($withCities) {
 				$str .= implode(', ', $cities);
 			}
 			$str .= ')';
@@ -87,7 +88,7 @@ class Timezone
 
 		$listTimeZonesLabel = [];
 		foreach ($listTimeZones as $timezoneName => $timezoneData) {
-			$listTimeZonesLabel[$timezoneName] = self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'], $timezoneData['cities'], $withCountry, $withCities);
+			$listTimeZonesLabel[$timezoneName] = self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'] ?? null, $timezoneData['cities'] ?? [], $withCountry, $withCities);
 		}
 		return $listTimeZonesLabel;
 	}

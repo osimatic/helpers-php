@@ -295,7 +295,10 @@ class Country
 	public static function getCountryNameByCountryCode(string $countryCode): ?string
 	{
 		//$locale = self::getLocaleByCountryCode($countryCode);
-		return \Locale::getDisplayRegion('-'.$countryCode, \Locale::getDefault());
+		if (!empty($countryName = \Locale::getDisplayRegion('-'.$countryCode, \Locale::getDefault()))) {
+			return $countryName;
+		}
+		return null;
 	}
 
 	/**
