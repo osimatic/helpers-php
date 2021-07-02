@@ -25,6 +25,12 @@ class Timezone
 		return $validator->validate($timezone, $constraint)->count() === 0;
 	}
 
+	/**
+	 * @param string $timezone
+	 * @param bool $withCountry
+	 * @param bool $withCities
+	 * @return string
+	 */
 	public static function format(string $timezone, bool $withCountry=true, bool $withCities=true): string
 	{
 		$timezone = mb_strtolower($timezone);
@@ -35,29 +41,60 @@ class Timezone
 				continue;
 			}
 
-			$displayCities = $withCities && !empty($timezoneData['cities']);
-			$countryName = \Osimatic\Helpers\Location\Country::getCountryNameByCountryCode($timezoneData['country']);
-
-			$str = $timezoneData['utc'].' - '.$timezoneName;
-			if ($withCountry || $displayCities) {
-				$str .= ' (';
-				if ($withCountry) {
-					$str .= ($countryName ?? $timezoneData['country']);
-				}
-				if ($withCountry && $displayCities) {
-					$str .= ' : ';
-				}
-				if ($displayCities) {
-					$str .= implode(', ', $timezoneData['cities']);
-				}
-				$str .= ')';
-			}
-			return $str;
+			return self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'], $timezoneData['cities'], $withCountry, $withCities);
 		}
 
 		return '';
 	}
 
+	/**
+	 * @param string $timezoneName
+	 * @param string $utc
+	 * @param string|null $countryCode
+	 * @param string[] $cities
+	 * @param bool $withCountry
+	 * @param bool $withCities
+	 * @return string
+	 */
+	public static function formatWithData(string $timezoneName, string $utc, ?string $countryCode=null, array $cities=[], bool $withCountry=true, bool $withCities=true): string
+	{
+		$displayCities = $withCities && !empty($timezoneData['cities']);
+		$str = $utc.' - '.$timezoneName;
+		if ($withCountry || $displayCities) {
+			$str .= ' (';
+			if ($withCountry) {
+				$str .= (\Osimatic\Helpers\Location\Country::getCountryNameByCountryCode($countryCode) ?? $countryCode);
+			}
+			if ($withCountry && $displayCities) {
+				$str .= ' : ';
+			}
+			if ($displayCities) {
+				$str .= implode(', ', $cities);
+			}
+			$str .= ')';
+		}
+		return $str;
+	}
+
+	/**
+	 * @param bool $withCountry
+	 * @param bool $withCities
+	 * @return string[]
+	 */
+	public static function getListTimeZonesLabel(bool $withCountry=true, bool $withCities=true): array
+	{
+		$listTimeZones = self::getListTimeZones();
+
+		$listTimeZonesLabel = [];
+		foreach ($listTimeZones as $timezoneName => $timezoneData) {
+			$listTimeZonesLabel[$timezoneName] = self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'], $timezoneData['cities'], $withCountry, $withCities);
+		}
+		return $listTimeZonesLabel;
+	}
+
+	/**
+	 * @return array
+	 */
 	public static function getListTimeZones(): array
 	{
 		return parse_ini_file(__DIR__.'/conf/time_zones.ini', true);
