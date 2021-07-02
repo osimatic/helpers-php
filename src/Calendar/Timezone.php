@@ -41,7 +41,7 @@ class Timezone
 				continue;
 			}
 
-			return self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'] ?? null, $timezoneData['cities'] ?? [], $withCountry, $withCities);
+			return self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'], $timezoneData['cities'] ?? [], $withCountry, $withCities);
 		}
 
 		return '';
@@ -88,7 +88,7 @@ class Timezone
 
 		$listTimeZonesLabel = [];
 		foreach ($listTimeZones as $timezoneName => $timezoneData) {
-			$listTimeZonesLabel[$timezoneName] = self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'] ?? null, $timezoneData['cities'] ?? [], $withCountry, $withCities);
+			$listTimeZonesLabel[$timezoneName] = self::formatWithData($timezoneName, $timezoneData['utc'], $timezoneData['country'], $timezoneData['cities'] ?? [], $withCountry, $withCities);
 		}
 		return $listTimeZonesLabel;
 	}
