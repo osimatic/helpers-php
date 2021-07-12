@@ -628,6 +628,9 @@ class DateTime
 			foreach ($listOfPublicHolidays as $key => $tabJourFerie) {
 				$listOfPublicHolidays[$key]['date'] = $year.'-'.sprintf('%02d', $tabJourFerie['month']).'-'.sprintf('%02d', $tabJourFerie['day']);
 				$listOfPublicHolidays[$key]['key'] ??= $listOfPublicHolidays[$key]['date'];
+
+				// ajout jour de l'année dans le label
+				$listOfPublicHolidays[$key]['label'] = $tabJourFerie['label'].(preg_match('/[1-2][0-9][0-9][0-9]-((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $listOfPublicHolidays[$key]['key'])!==false?' ('.$tabJourFerie['day'].($tabJourFerie['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\Date::getMonthName($tabJourFerie['month']).')':'');
 			}
 			return $listOfPublicHolidays;
 		};
