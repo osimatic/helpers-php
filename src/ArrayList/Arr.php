@@ -321,7 +321,7 @@ class Arr
 	}
 
 
-	// ========== Callback ==========
+	// ========== Map ==========
 
 	/**
 	 * @param array $array
@@ -367,6 +367,31 @@ class Arr
 			}
 		}
 		return array_merge(self::quickSort($left), array($pivot_key => $pivot), self::quickSort($right));
+	}
+
+	/**
+	 * @param mixed $val1
+	 * @param mixed $val2
+	 * @param bool $naturalOrder
+	 * @param bool $caseSensitive
+	 * @return int
+	 */
+	public static function compareValue($val1, $val2, bool $naturalOrder=false, bool $caseSensitive=false): int {
+		if (is_numeric($val1) && is_numeric($val2)) {
+			return $val1 <=> $val2;
+		}
+
+		if ($naturalOrder) {
+			if ($caseSensitive) {
+				return strnatcmp($val1, $val2); // Comparaison ordre naturel, sensible à la casse
+			}
+			return strnatcasecmp($val1, $val2); // Comparaison ordre naturel, insensible à la casse
+		}
+
+		if ($caseSensitive) {
+			return strcmp($val1, $val2); // Comparaison, sensible à la casse
+		}
+		return strcasecmp($val1, $val2); // Comparaison, insensible à la casse
 	}
 
 }
