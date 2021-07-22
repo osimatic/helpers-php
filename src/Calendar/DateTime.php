@@ -633,7 +633,7 @@ class DateTime
 				$publicHolidayData['key'] ??= $publicHolidayData['date'];
 
 				// ajout jour de l'année dans le label
-				if (preg_match('/[1-2][0-9][0-9][0-9]-((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $publicHolidayData['key']) !== false) {
+				if (preg_match('/[1-2][0-9][0-9][0-9]-((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $publicHolidayData['key']) !== 0) {
 					$publicHolidayData['label'] .= ' ('.$publicHolidayData['day'].($publicHolidayData['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\Date::getMonthName($publicHolidayData['month']).')';
 				}
 
