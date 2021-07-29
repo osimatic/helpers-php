@@ -655,8 +655,8 @@ class DateTime
 			return $fillData([
 				// --- BELGIQUE - Fêtes civiles ---
 
-				// 1er janvier - Jour de l'an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l\'an'],
+				// 1er janvier - Jour de l’an
+				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
 				// 1er mai - Fête du Travail
 				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
@@ -678,8 +678,8 @@ class DateTime
 				// Lundi de Pâques (1 jour après Pâques)
 				['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'],
 
-				// Jeudi de l'Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l\'Ascension'],
+				// Jeudi de l’Ascension (39 jours après Pâques)
+				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
 
 				// Pentecôte (49 jours après Pâques)
 				['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'],
@@ -703,8 +703,8 @@ class DateTime
 			return $fillData([
 				// --- LUXEMBOURG - Fêtes civiles ---
 
-				// 1er janvier - Jour de l'an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l\'an'],
+				// 1er janvier - Jour de l’an
+				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
 				// 1er mai - Fête du Travail
 				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
@@ -720,8 +720,8 @@ class DateTime
 				// Lundi de Pâques (1 jour après Pâques)
 				['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'],
 
-				// Jeudi de l'Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l\'Ascension'],
+				// Jeudi de l’Ascension (39 jours après Pâques)
+				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
 
 				// Pentecôte (49 jours après Pâques)
 				['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'],
@@ -750,8 +750,8 @@ class DateTime
 			return $fillData([
 				// --- SUISSE - Fêtes civiles ---
 
-				// 1er janvier - Jour de l'an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l\'an'],
+				// 1er janvier - Jour de l’an
+				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
 				// 1er mars - Instauration de la République
 				['day' => 1, 'month' => 3, 'label' => 'Instauration de la République'],
@@ -797,8 +797,8 @@ class DateTime
 				// Lundi de Pâques (1 jour après Pâques)
 				['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'],
 
-				// Jeudi de l'Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l\'Ascension'],
+				// Jeudi de l’Ascension (39 jours après Pâques)
+				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
 
 				// Pentecôte (49 jours après Pâques)
 				['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'],
@@ -832,18 +832,53 @@ class DateTime
 			]);
 		}
 
-		// ---------- FRANCE ----------
-		if ($country === 'FR') {
+		// ---------- MAROC ----------
+		if ($country === 'MA') {
 			// --- FRANCE - Fêtes civiles ---
 			$listOfPublicHolidays = [
-				// 1er janvier - Jour de l'an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l\'an'],
+				// 1er janvier - Jour de l’an
+				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+
+				// 11 janvier - Manifeste de l’Indépendance du Maroc
+				['day' => 11, 'month' => 1, 'label' => 'Manifeste de l’Indépendance'],
 
 				// 1er mai - Fête du Travail
 				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
 
-				// 8 mai - Victoire des Alliés sur l'Allemagne nazie (8 mai 1945)
-				['day' => 8, 'month' => 5,'label' => 'Victoire des Alliés', 'nom_complet' => 'Victoire des Alliés sur l\'Allemagne nazie (8 mai 1945)'],
+				// 30 juillet - Fête du Trône
+				['day' => 30, 'month' => 7,'label' => 'Fête du Trône'],
+
+				// 14 août - Commémoration de l’allégeance de l’oued Eddahab
+				['day' => 14, 'month' => 8,'label' => 'Allégeance Oued Eddahab'],
+
+				// 20 août - Révolution du roi et du peuple
+				['day' => 20, 'month' => 8,'label' => 'Révolution du roi et du peuple'],
+
+				// 21 août - Fête de la Jeunesse
+				['day' => 21, 'month' => 8,'label' => 'Fête de la Jeunesse'],
+
+				// 6 novembre - La marche verte
+				['day' => 6, 'month' => 11,'label' => 'La marche verte'],
+
+				// 18 novembre - Fête de l’indépendance
+				['day' => 18, 'month' => 11,'label' => 'Fête de l’indépendance'],
+			];
+
+			return $fillData($listOfPublicHolidays);
+		}
+
+		// ---------- FRANCE ----------
+		if ($country === 'FR') {
+			// --- FRANCE - Fêtes civiles ---
+			$listOfPublicHolidays = [
+				// 1er janvier - Jour de l’an
+				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+
+				// 1er mai - Fête du Travail
+				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
+
+				// 8 mai - Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)
+				['day' => 8, 'month' => 5,'label' => 'Victoire des Alliés', 'nom_complet' => 'Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)'],
 
 				// 14 juillet - Fête nationale (France) (Fête de la Fédération 14 juillet 1790)
 				['day' => 14, 'month' => 7, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale française (Fête de la Fédération 14 juillet 1790)'],
@@ -867,9 +902,9 @@ class DateTime
 			$timeLundiPaques = $timePaques+(1*24*3600);
 			$listOfPublicHolidays[] = ['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'];
 
-			// Jeudi de l'Ascension (39 jours après Pâques)
+			// Jeudi de l’Ascension (39 jours après Pâques)
 			$timeJeudiAscension = $timePaques+(39*24*3600);
-			$listOfPublicHolidays[] = ['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l\'Ascension'];
+			$listOfPublicHolidays[] = ['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'];
 
 			// Pentecôte (49 jours après Pâques)
 			$timePentecote = $timePaques+(49*24*3600);
