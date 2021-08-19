@@ -7,11 +7,10 @@ namespace Osimatic\Helpers\Calendar;
  * @package Osimatic\Helpers\Calendar
  * @link https://www.islamicfinder.org/islamic-date-converter/?language=fr
  * @link https://github.com/khaled-alshamaa/ar-php
+ * @link https://www.ar-php.org/ar-example-Mktime-php-arabic.html
  * @link https://github.com/hubaishan/HijriDateLib
  * @link https://fr.wikipedia.org/wiki/Calendrier_h%C3%A9girien
  * @link https://www.phpclasses.org/browse/file/66919.html
- * @link
- * @link
  */
 class IslamicCalendar
 {
