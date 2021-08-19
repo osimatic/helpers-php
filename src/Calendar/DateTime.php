@@ -601,6 +601,15 @@ class DateTime
 	{
 		$listOfPublicHolidays = self::getListOfPublicHolidays($country, $dateTime->format('Y'), $options);
 		foreach ($listOfPublicHolidays as $publicHoliday) {
+			if (($publicHoliday['calendar'] ?? null) === 'islamic') {
+				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertGregorianDateToIslamicDate($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('d'));
+				if ($publicHoliday['month'] === $hijriMonth && $publicHoliday['day'] === $hijriDay) {
+				//if (IslamicCalendar::isGregorianDateTimeEqualToIslamicDay($dateTime, $publicHoliday['month'], $publicHoliday['day'])) {
+					return true;
+				}
+				continue;
+			}
+
 			if ($publicHoliday['date'] === $dateTime->format('Y-m-d')) {
 				return true;
 			}
@@ -629,12 +638,23 @@ class DateTime
 				$publicHolidayData['day'] = (int) $publicHolidayData['day'];
 				$publicHolidayData['month'] = (int) $publicHolidayData['month'];
 
-				$publicHolidayData['date'] = $year.'-'.sprintf('%02d', $publicHolidayData['month']).'-'.sprintf('%02d', $publicHolidayData['day']);
+				if (($publicHolidayData['calendar'] ?? null) === 'islamic') {
+					$publicHolidayData['date'] = null;
+				}
+				else {
+					$publicHolidayData['date'] = $year.'-'.sprintf('%02d', $publicHolidayData['month']).'-'.sprintf('%02d', $publicHolidayData['day']);
+				}
+
 				$publicHolidayData['key'] ??= $publicHolidayData['date'];
 
 				// ajout jour de l'année dans le label
 				if (preg_match('/[1-2][0-9][0-9][0-9]-((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $publicHolidayData['key']) !== 0) {
-					$publicHolidayData['label'] .= ' ('.$publicHolidayData['day'].($publicHolidayData['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\Date::getMonthName($publicHolidayData['month']).')';
+					if (($publicHolidayData['calendar'] ?? null) === 'islamic') {
+						$publicHolidayData['label'] .= ' ('.$publicHolidayData['day'].($publicHolidayData['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\IslamicCalendar::getMonthName($publicHolidayData['month']).')';
+					}
+					else {
+						$publicHolidayData['label'] .= ' ('.$publicHolidayData['day'].($publicHolidayData['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\Date::getMonthName($publicHolidayData['month']).')';
+					}
 				}
 
 				$listOfPublicHolidays[$key] = $publicHolidayData;
@@ -659,7 +679,7 @@ class DateTime
 				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
+				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
 
 				// 21 juillet - Fête nationale (Belgique)
 				['day' => 21, 'month' => 7, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale belge'],
@@ -707,7 +727,7 @@ class DateTime
 				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
+				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
 
 				// 23 juin - Fête nationale (Luxembourg) (célébration de l’anniversaire de SAR le Grand-Duc)
 				['day' => 23, 'month' => 6, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale luxembourgeoise'],
@@ -757,7 +777,7 @@ class DateTime
 				['day' => 1, 'month' => 3, 'label' => 'Instauration de la République'],
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
+				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
 
 				// 23 juin - Commémoration du plébiscite
 				['day' => 23, 'month' => 6, 'label' => 'Commémoration du plébiscite'],
@@ -834,8 +854,9 @@ class DateTime
 
 		// ---------- MAROC ----------
 		if ($country === 'MA') {
-			// --- FRANCE - Fêtes civiles ---
-			$listOfPublicHolidays = [
+			return $fillData([
+				// --- MAROC - Fêtes civiles ---
+
 				// 1er janvier - Jour de l’an
 				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
@@ -843,28 +864,40 @@ class DateTime
 				['day' => 11, 'month' => 1, 'label' => 'Manifeste de l’Indépendance'],
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
+				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
 
 				// 30 juillet - Fête du Trône
-				['day' => 30, 'month' => 7,'label' => 'Fête du Trône'],
+				['day' => 30, 'month' => 7, 'label' => 'Fête du Trône'],
 
 				// 14 août - Commémoration de l’allégeance de l’oued Eddahab
-				['day' => 14, 'month' => 8,'label' => 'Allégeance Oued Eddahab'],
+				['day' => 14, 'month' => 8, 'label' => 'Allégeance Oued Eddahab'],
 
 				// 20 août - Révolution du roi et du peuple
-				['day' => 20, 'month' => 8,'label' => 'Révolution du roi et du peuple'],
+				['day' => 20, 'month' => 8, 'label' => 'Révolution du roi et du peuple'],
 
 				// 21 août - Fête de la Jeunesse
-				['day' => 21, 'month' => 8,'label' => 'Fête de la Jeunesse'],
+				['day' => 21, 'month' => 8, 'label' => 'Fête de la Jeunesse'],
 
 				// 6 novembre - La marche verte
-				['day' => 6, 'month' => 11,'label' => 'La marche verte'],
+				['day' => 6, 'month' => 11, 'label' => 'La marche verte'],
 
 				// 18 novembre - Fête de l’indépendance
-				['day' => 18, 'month' => 11,'label' => 'Fête de l’indépendance'],
-			];
+				['day' => 18, 'month' => 11, 'label' => 'Fête de l’indépendance'],
 
-			return $fillData($listOfPublicHolidays);
+				// --- MAROC - Fêtes religieuses ---
+
+				// 1er chawal - Aïd el-Fitr
+				['day' => 1, 'month' => 10, 'calendar' => 'islamic', 'key' => 'aid_el_fitr', 'label' => 'Aïd el-Fitr'],
+
+				// 10 dhou al-hijja - Aïd al-Adha
+				['day' => 10, 'month' => 12, 'calendar' => 'islamic', 'key' => 'aid_al_adha', 'label' => 'Aïd al-Adha'],
+
+				// 12 rabia al awal - Al-Mawlid
+				['day' => 12, 'month' => 3, 'calendar' => 'islamic', 'key' => 'al_mawlid', 'label' => 'Al-Mawlid'],
+
+				// 1er Mouharram - Jour de l’an hégire
+				['day' => 1, 'month' => 1, 'calendar' => 'islamic', 'key' => 'jour_an_hegire', 'label' => 'Jour de l’an hégire'],
+			]);
 		}
 
 		// ---------- FRANCE ----------
@@ -875,10 +908,10 @@ class DateTime
 				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5,'label' => 'Fête du Travail'],
+				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
 
 				// 8 mai - Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)
-				['day' => 8, 'month' => 5,'label' => 'Victoire des Alliés', 'nom_complet' => 'Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)'],
+				['day' => 8, 'month' => 5, 'label' => 'Victoire des Alliés', 'nom_complet' => 'Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)'],
 
 				// 14 juillet - Fête nationale (France) (Fête de la Fédération 14 juillet 1790)
 				['day' => 14, 'month' => 7, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale française (Fête de la Fédération 14 juillet 1790)'],

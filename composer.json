@@ -22,7 +22,8 @@
 	  	"symfony/intl": "*",
 		"symfony/yaml": "*",
 		"symfony/property-access": "*",
-		"symfony/validator": "*"
+		"symfony/validator": "*",
+	  	"ext-calendar": "*"
 	},
 	"license": "mit",
 	"authors": [
