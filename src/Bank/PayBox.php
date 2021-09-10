@@ -915,13 +915,10 @@ class PayBox
 		if ($this->isTest) {
 			$this->version = self::VERSION_PAYBOX_DIRECT_PLUS;
 			$this->numSite = '1999888';
-			$this->identifier = '2';
+			$this->identifier = '109518543';
 			$this->httpPassword = '1999888I';
 			$this->secretKey = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
-			$this->rang = '32';
-			//if (!$this->useForm) {
-			//	$this->rang = '63';
-			//}
+			$this->rang = '63';
 		}
 
 		if (empty($this->numSite) || strlen($this->numSite) !== 7) {
