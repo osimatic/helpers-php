@@ -1419,7 +1419,7 @@ class PayBox
 	 * @param array $queryData
 	 * @return bool|ResponseInterface
 	 */
-	private static function post($url, array $queryData = [])
+	private static function post(string $url, array $queryData = [])
 	{
 		//var_dump($this->countryService->getCountryByHost());
 		//var_dump(\App\Service\Helper\CountryHelper::getLocaleByCountryCode($this->countryService->getCountryByHost()));
