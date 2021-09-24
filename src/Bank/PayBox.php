@@ -5,6 +5,8 @@ namespace Osimatic\Helpers\Bank;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\Http\Message\ResponseInterface;
+use Osimatc\Helpers\Bank\ShoppingCartInterface;
+use Osimatic\Helpers\Bank\BillingAddressInterface;
 
 /**
  * Cette classe permet d'effectuer un paiement par CB via la plateforme PayBox
@@ -254,6 +256,16 @@ class PayBox
 	 */
 	private $libelleReponse;
 
+	/**
+	 * @var ShoppingCartInterface
+	 */
+	private $shoppingCart;
+
+	/**
+	 * @var BillingAddressInterface
+	 */
+	private $billingAddress;
+	
 
 	private static $visaResponseCodes = [
 		'00100' => 'Transaction approuvée ou traitée avec succès',
@@ -846,6 +858,40 @@ class PayBox
 		return $this;
 	}
 
+	/**
+	 * @return BillingAddressInterface
+	 */
+	private function getBillingAddress(): BillingAddressInterface
+	{
+	   return $this->billingAddress;
+	}
+	
+	/**
+	 * @param BillingAddressInterface
+	 * @return self
+	 */
+	 public function setBillingAddress(BillingAddressInterface $billingAddress): void
+	{
+		$this->billingAddress = $billingAddress;
+	}
+
+	/**
+	 * @return ShoppingCartInterface
+	 */
+	private function getShoppingCart(): ShoppingCartInterface
+	{
+	   return $this->shoppingCart;
+	}
+	
+	/**
+	 * @param ShoppingCart
+	 * @return self
+	 */
+	 public function setShoppingCart(ShoppingCartInterface $shoppingCart): void
+	{
+		$this->shoppingCart = $shoppingCart;
+	}
+
 
 	// ========== Get Response ==========
 
@@ -897,9 +943,38 @@ class PayBox
 		return $this->libelleReponse;
 	}
 
-
+	
 
 	// ========== Private function ==========
+
+
+	/**
+	 * @return string
+	 */
+	private function getBillingAddressAsXml(): string
+	{
+		if (null == ($billingAddress = $this->getBillingAddress())) {
+			return null;
+		}
+
+		return '<?xml version="1.0" encoding="utf-8"?><Billing>'
+			.'<Address><FirstName>'.$billingAddress->getFirstName().'</FirstName><LastName>'.$billingAddress->getLastName().'</LastName><Address1>'.$billingAddress->getStreet().'</Address1>'
+			.'<Address2>'.$billingAddress->getStreet2().'</Address2><ZipCode>'.$billingAddress->getZipCode().'</ZipCode><City>'.$billingAddress->getCity().'</City><CountryCode>'.$billingAddress->getCountryCode().'</CountryCode></Address>'
+			.'</Billing>';
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getShoppingCartAsXml(): string
+	{
+		if (null == ($shoppingCart = $this->getShoppingCart())) {
+			return null;
+		}
+
+		return '<?xml version="1.0" encoding="utf-8"?><shoppingcart><total><totalQuantity>'.$shoppingCart->getTotalQuantity().'</totalQuantity></total></shoppingcart>';
+	}
+
 
 	/**
 	 * @return array|bool|string
@@ -1141,20 +1216,8 @@ class PayBox
 
 	private function getHtml(): string
 	{
-		$urlForm = ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM);
-
-		$typePaiement = 'CARTE';
-		// $typeCarte = 'CB,VISA,EUROCARD_MASTERCARD,E_CARD';
-		$typeCarte = 'CB';
-
-		// $dateTime = date(DATE_ISO8601, $timestamp);
-		$dateTime = date('c', $this->getTimestamp());
-		$authorizationOnly = (in_array($this->typeQuestion, [self::TYPE_OPERATION_AUTORISATION_SEULE, self::TYPE_OPERATION_INSCRIPTION_ABONNE], true) ? 'O' : 'N');
-		//$authorizationOnly = 'O';
-		$returnedVars = $this->getReturnedVars();
-
-		// Calcul du HMAC
-		$hmac = $this->getHmac([
+		//variables demandées par PayBox
+		$pbxVars = [
 			'PBX_SITE' => $this->numSite,
 			'PBX_RANG' => $this->rang,
 			'PBX_IDENTIFIANT' => $this->identifier,
@@ -1164,47 +1227,37 @@ class PayBox
 			'PBX_CMD' => $this->reference,
 			'PBX_PORTEUR' => $this->porteurEmail,
 			'PBX_REFABONNE' => $this->subscriberRef,
-			'PBX_RETOUR' => $returnedVars,
+			'PBX_RETOUR' => $this->getReturnedVars(),
 			'PBX_HASH' => 'SHA512',
-			'PBX_TIME' => $dateTime,
-			'PBX_AUTOSEULE' => $authorizationOnly,
+			'PBX_TIME' => date('c', $this->getTimestamp()),
+			'PBX_AUTOSEULE' => (in_array($this->typeQuestion, [self::TYPE_OPERATION_AUTORISATION_SEULE, self::TYPE_OPERATION_INSCRIPTION_ABONNE], true) ? 'O' : 'N'),
 			'PBX_REPONDRE_A' => $this->urlIpn,
 			'PBX_RUF1' => 'POST',
 			'PBX_EFFECTUE' => $this->urlResponseOk,
 			'PBX_REFUSE' => $this->urlResponseRefused,
 			'PBX_ANNULE' => $this->urlResponseCanceled,
 			'PBX_ATTENTE' => $this->urlResponseWaiting,
-			'PBX_TYPEPAIEMENT' => $typePaiement,
-			'PBX_TYPECARTE' => $typeCarte,
-		]);
+			'PBX_TYPEPAIEMENT' => 'CARTE',
+			'PBX_TYPECARTE' => 'CB',
+			'PBX_SHOPPINGCART' => $this->getShoppingCartAsXml(),
+			'PBX_BILLING' => $this->getBillingAddressAsXml()
+		];
+
+		// Calcul du HMAC
+		$hmac = $this->getHmac($pbxVars);
 
 		// Construction HTML
-		return ''
-			. '<form method="POST" action="' . $urlForm . '" class="' . ($this->formCssClass ?? '') . '">'
-			. '<input type="hidden" name="PBX_SITE" value="' . $this->numSite . '">'
-			. '<input type="hidden" name="PBX_RANG" value="' . $this->rang . '">'
-			. '<input type="hidden" name="PBX_IDENTIFIANT" value="' . $this->identifier . '">'
-			. '<input type="hidden" name="PBX_LANGUE" value="' . $this->getLanguageCode() . '">'
-			. '<input type="hidden" name="PBX_TOTAL" value="' . $this->getAmount() . '">'
-			. '<input type="hidden" name="PBX_DEVISE" value="' . $this->getCurrencyCode() . '">'
-			. '<input type="hidden" name="PBX_CMD" value="' . $this->reference . '">'
-			. '<input type="hidden" name="PBX_PORTEUR" value="' . $this->porteurEmail . '">'
-			. '<input type="hidden" name="PBX_REFABONNE" value="' . $this->subscriberRef . '">'
-			. '<input type="hidden" name="PBX_RETOUR" value="' . $returnedVars . '">'
-			. '<input type="hidden" name="PBX_HASH" value="SHA512">'
-			. '<input type="hidden" name="PBX_TIME" value="' . $dateTime . '">'
-			. '<input type="hidden" name="PBX_AUTOSEULE" value="' . $authorizationOnly . '">'
-			. '<input type="hidden" name="PBX_REPONDRE_A" value="' . $this->urlIpn . '">'
-			. '<input type="hidden" name="PBX_RUF1" value="POST">'
-			. '<input type="hidden" name="PBX_EFFECTUE" value="' . $this->urlResponseOk . '">'
-			. '<input type="hidden" name="PBX_REFUSE" value="' . $this->urlResponseRefused . '">'
-			. '<input type="hidden" name="PBX_ANNULE" value="' . $this->urlResponseCanceled . '">'
-			. '<input type="hidden" name="PBX_ATTENTE" value="' . $this->urlResponseWaiting . '">'
-			. '<input type="hidden" name="PBX_TYPEPAIEMENT" value="' . $typePaiement . '">'
-			. '<input type="hidden" name="PBX_TYPECARTE" value="' . $typeCarte . '">'
-			. '<input type="hidden" name="PBX_HMAC" value="' . $hmac . '">'
+		$form = ''.'<form method="POST" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
+		
+		foreach ($pbxVars as $index => $value) {
+			$form .= '<input type="hidden" name="'.$index.'" value="' . ($index == 'PBX_SHOPPINGCART' || $index == 'PBX_BILLING' ? htmlspecialchars($value) : $value) . '">';
+		}
+
+		$form .= '<input type="hidden" name="PBX_HMAC" value="' . $hmac . '">'
 			. '<input type="submit" class="' . ($this->buttonCssClass ?? 'btn btn-primary') . '" value="' . $this->buttonText . '">'
 			. '</form>';
+
+		return $form;
 	}
 
 	private function getTypeOperationFormatted(): string
@@ -1231,12 +1284,11 @@ class PayBox
 
 	private function getReturnedVars(): string
 	{
-		// $returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_hash:H;card_last_digits:J;card_expiry_date:D;response_code:E';
 		$returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_last_digits:J;card_expiry_date:D;response_code:E';
 		if ($this->typeQuestion === self::TYPE_OPERATION_INSCRIPTION_ABONNE) {
-			//$returnedVars .= ';card_ref:U';
 			$returnedVars .= ';card_ref:U;bin6:N';
 		}
+
 		return $returnedVars;
 	}
 
@@ -1263,11 +1315,14 @@ class PayBox
 	private function getHmac($varsList): string
 	{
 		$vars = [];
+
 		foreach ($varsList as $key => $value) {
 			$vars[] = $key . '=' . $value;
 		}
+
 		$msg = implode('&', $vars);
 		$binKey = pack('H*', $this->secretKey);
+		
 		return strtoupper(hash_hmac('sha512', $msg, $binKey));
 	}
 
