@@ -182,6 +182,12 @@ class PayBox
 	private $differe;
 
 	/**
+	 * Version du 3D Secure
+	 * @var bool
+	 */
+	private bool $is3DSecureV2 = false;
+
+	/**
 	 * @var string
 	 */
 	private $formCssClass;
@@ -244,7 +250,7 @@ class PayBox
 	 * Country code of the issuance of the card
 	 * @var string
 	 */
-	private $pays;
+	private $cardCountryCode;
 
 	/**
 	 * @var string
@@ -265,7 +271,7 @@ class PayBox
 	 * @var BillingAddressInterface
 	 */
 	private $billingAddress;
-	
+
 
 	private static $visaResponseCodes = [
 		'00100' => 'Transaction approuvée ou traitée avec succès',
@@ -859,6 +865,24 @@ class PayBox
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function is3DSecureV2(): bool
+	{
+		return $this->is3DSecureV2;
+	}
+
+	/**
+	 * @return self
+	 */
+	public function set3DSecureV2(): self
+	{
+		$this->is3DSecureV2 = true;
+
+		return $this;
+	}
+
+	/**
 	 * @return BillingAddressInterface
 	 */
 	private function getBillingAddress(): BillingAddressInterface
@@ -867,12 +891,14 @@ class PayBox
 	}
 	
 	/**
-	 * @param BillingAddressInterface
+	 * @param BillingAddressInterface $billingAddress
 	 * @return self
 	 */
-	 public function setBillingAddress(BillingAddressInterface $billingAddress): void
+	 public function setBillingAddress(BillingAddressInterface $billingAddress): self
 	{
 		$this->billingAddress = $billingAddress;
+
+		return $this;
 	}
 
 	/**
@@ -884,12 +910,14 @@ class PayBox
 	}
 	
 	/**
-	 * @param ShoppingCart
+	 * @param ShoppingCartInterface $shoppingCart
 	 * @return self
 	 */
-	 public function setShoppingCart(ShoppingCartInterface $shoppingCart): void
+	 public function setShoppingCart(ShoppingCartInterface $shoppingCart): self
 	{
 		$this->shoppingCart = $shoppingCart;
+
+		return $this;
 	}
 
 
@@ -924,7 +952,7 @@ class PayBox
 	 */
 	public function getCardCountryCode(): ?string
 	{
-		return $this->pays;
+		return $this->cardCountryCode;
 	}
 
 	/**
@@ -949,26 +977,26 @@ class PayBox
 
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	private function getBillingAddressAsXml(): string
+	private function getBillingAddressAsXml(): ?string
 	{
-		if (null == ($billingAddress = $this->getBillingAddress())) {
+		if (null === ($billingAddress = $this->getBillingAddress())) {
 			return null;
 		}
 
 		return '<?xml version="1.0" encoding="utf-8"?><Billing>'
 			.'<Address><FirstName>'.$billingAddress->getFirstName().'</FirstName><LastName>'.$billingAddress->getLastName().'</LastName><Address1>'.$billingAddress->getStreet().'</Address1>'
-			.'<Address2>'.$billingAddress->getStreet2().'</Address2><ZipCode>'.$billingAddress->getZipCode().'</ZipCode><City>'.$billingAddress->getCity().'</City><CountryCode>'.$billingAddress->getCountryCode().'</CountryCode></Address>'
+			.'<Address2>'.$billingAddress->getStreet2().'</Address2><ZipCode>'.$billingAddress->getZipCode().'</ZipCode><City>'.$billingAddress->getCity().'</City><CountryCode>'.\Osimatic\Helpers\Location\Country::getCountryNumericCodeFromCountryCode($billingAddress->getCountryCode()).'</CountryCode></Address>'
 			.'</Billing>';
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	private function getShoppingCartAsXml(): string
+	private function getShoppingCartAsXml(): ?string
 	{
-		if (null == ($shoppingCart = $this->getShoppingCart())) {
+		if (null === ($shoppingCart = $this->getShoppingCart())) {
 			return null;
 		}
 
@@ -1152,7 +1180,7 @@ class PayBox
 			'NUMAPPEL' => $this->numAppel,
 			'NUMTRANS' => $this->numTransaction,
 			'AUTORISATION' => $this->autorisation,
-			'PAYS' => $this->pays,
+			'PAYS' => '', // champs vide permettant le renvoi du code pays de la carte dans la réponse
 		];
 
 		foreach ($postData as $cleVar => $value) {
@@ -1239,9 +1267,12 @@ class PayBox
 			'PBX_ATTENTE' => $this->urlResponseWaiting,
 			'PBX_TYPEPAIEMENT' => 'CARTE',
 			'PBX_TYPECARTE' => 'CB',
-			'PBX_SHOPPINGCART' => $this->getShoppingCartAsXml(),
-			'PBX_BILLING' => $this->getBillingAddressAsXml()
 		];
+
+		if ($this->is3DSecureV2()) {
+			$pbxVars['PBX_SHOPPINGCART'] = $this->getShoppingCartAsXml();
+			$pbxVars['PBX_BILLING'] = $this->getBillingAddressAsXml();
+		}
 
 		// Calcul du HMAC
 		$hmac = $this->getHmac($pbxVars);
@@ -1250,7 +1281,7 @@ class PayBox
 		$form = ''.'<form method="POST" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
 		
 		foreach ($pbxVars as $index => $value) {
-			$form .= '<input type="hidden" name="'.$index.'" value="' . ($index == 'PBX_SHOPPINGCART' || $index == 'PBX_BILLING' ? htmlspecialchars($value) : $value) . '">';
+			$form .= '<input type="hidden" name="'.$index.'" value="' . ($index === 'PBX_SHOPPINGCART' || $index === 'PBX_BILLING' ? htmlspecialchars($value) : $value) . '">';
 		}
 
 		$form .= '<input type="hidden" name="PBX_HMAC" value="' . $hmac . '">'

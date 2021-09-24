@@ -233,7 +233,7 @@ class Country
 	 * @param string|null $locale
 	 * @return string|null
 	 */
-	public static function getCountryCodeByLocale(?string $locale=null): ?string
+	public static function getCountryCodeFromLocale(?string $locale=null): ?string
 	{
 		if (null === $locale) {
 			$locale = \Locale::getDefault();
@@ -245,7 +245,7 @@ class Country
 	 * @param string|null $countryName
 	 * @return string|null
 	 */
-	public static function getCountryCodeByCountryName(?string $countryName): ?string
+	public static function getCountryCodeFromCountryName(?string $countryName): ?string
 	{
 		if (null === $countryName) {
 			return null;
@@ -286,13 +286,30 @@ class Country
 		return in_array($countryIsoCode, self::EUROPEAN_UNION, true);
 	}
 
+	/**
+	 * @param string|null $countryIsoCode
+	 * @return int|null
+	 */
+	public static function getCountryNumericCodeFromCountryCode(?string $countryIsoCode): ?int
+	{
+		try {
+			$data = (new \League\ISO3166\ISO3166)->alpha2($countryIsoCode);
+			return $data['numeric'];
+		}
+		catch (\Exception $e) {
+
+		}
+		return null;
+	}
+
+
 	// ========== Country name ==========
 
 	/**
 	 * @param string $countryCode
 	 * @return string|null
 	 */
-	public static function getCountryNameByCountryCode(string $countryCode): ?string
+	public static function getCountryNameFromCountryCode(string $countryCode): ?string
 	{
 		//$locale = self::getLocaleByCountryCode($countryCode);
 		if (!empty($countryName = \Locale::getDisplayRegion('-'.$countryCode, \Locale::getDefault()))) {
@@ -305,7 +322,7 @@ class Country
 	 * @param string|null $locale
 	 * @return string|null
 	 */
-	public static function getCountryNameByLocale(?string $locale=null): ?string
+	public static function getCountryNameFromLocale(?string $locale=null): ?string
 	{
 		if (null === $locale) {
 			$locale = \Locale::getDefault();
@@ -319,7 +336,7 @@ class Country
 	 * @param string $countryCode
 	 * @return string|null
 	 */
-	public static function getLanguageByCountryCode(string $countryCode): ?string
+	public static function getLanguageFromCountryCode(string $countryCode): ?string
 	{
 		$locale = self::getLocaleByCountryCode($countryCode);
 		if (!empty($locale)) {
@@ -332,7 +349,7 @@ class Country
 	 * @param string|null $locale
 	 * @return string|null
 	 */
-	public static function getLanguageByLocale(?string $locale=null): ?string
+	public static function getLanguageFromLocale(?string $locale=null): ?string
 	{
 		if (null === $locale) {
 			$locale = \Locale::getDefault();
@@ -381,4 +398,39 @@ class Country
 		return $countryIsoCode;
 	}
 
+
+
+
+
+	// ========== Deprecated ==========
+
+	/** @deprecated */
+	public static function getCountryCodeByLocale(?string $locale=null): ?string {
+		return self::getCountryCodeFromLocale($locale);
+	}
+
+	/** @deprecated */
+	public static function getCountryCodeByCountryName(?string $countryName): ?string {
+		return self::getCountryCodeFromCountryName($countryName);
+	}
+
+	/** @deprecated */
+	public static function getCountryNameByCountryCode(string $countryCode): ?string {
+		return self::getCountryNameFromCountryCode($countryCode);
+	}
+
+	/** @deprecated */
+	public static function getCountryNameByLocale(?string $locale=null): ?string {
+		return self::getCountryNameFromLocale($locale);
+	}
+
+	/** @deprecated */
+	public static function getLanguageByCountryCode(string $countryCode): ?string {
+		return self::getLanguageFromCountryCode($countryCode);
+	}
+
+	/** @deprecated */
+	public static function getLanguageByLocale(?string $locale=null): ?string {
+		return self::getLanguageFromLocale($locale);
+	}
 }

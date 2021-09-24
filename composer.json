@@ -12,6 +12,7 @@
 		"ext-soap": "*",
 	  	"ext-curl": "*",
 	  	"ext-json": "*",
+		"ext-calendar": "*",
 	  	"psr/log": "^1.0",
 	  	"psr/http-message": "^1.0",
 	  	"giggsey/libphonenumber-for-php": "^8.11",
@@ -23,7 +24,7 @@
 		"symfony/yaml": "*",
 		"symfony/property-access": "*",
 		"symfony/validator": "*",
-	  	"ext-calendar": "*"
+		"league/iso3166": "^3.0"
 	},
 	"license": "mit",
 	"authors": [
