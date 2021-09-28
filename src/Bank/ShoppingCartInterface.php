@@ -1,6 +1,6 @@
 <?php 
 
-namespace Osimatc\Helpers\Bank;
+namespace Osimatic\Helpers\Bank;
 
 /**
  * Represent a shopping cart
