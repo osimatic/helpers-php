@@ -5,7 +5,7 @@ namespace Osimatic\Helpers\Bank;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\Http\Message\ResponseInterface;
-use Osimatc\Helpers\Bank\ShoppingCartInterface;
+use Osimatic\Helpers\Bank\ShoppingCartInterface;
 use Osimatic\Helpers\Bank\BillingAddressInterface;
 
 /**
