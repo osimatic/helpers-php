@@ -64,19 +64,19 @@ class PayBox
 	private $numSite;
 
 	/**
-	 * Unique identifier provided by Paybox and used for Paybox System only
+	 * Unique identifier provided by Paybox, used for Paybox System only ("PBX_IDENTIFIANT" parameter)
 	 * @var string
 	 */
 	private $identifier;
 
 	/**
-	 * Unique key provided by Paybox and used for Paybox Direct only
+	 * Unique key provided by Paybox and used for Paybox Direct only ("CLE" parameter)
 	 * @var string
 	 */
 	private $httpPassword;
 
 	/**
-	 * Unique key generated in back-office and used for Paybox System only (HMAC)
+	 * Unique key generated in back-office and used for Paybox System only (HMAC generation)
 	 * @var string
 	 */
 	private $secretKey;
