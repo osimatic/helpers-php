@@ -64,16 +64,19 @@ class PayBox
 	private $numSite;
 
 	/**
+	 * Unique identifier provided by Paybox and used for Paybox System only
 	 * @var string
 	 */
 	private $identifier;
 
 	/**
+	 * Unique key provided by Paybox and used for Paybox Direct only
 	 * @var string
 	 */
 	private $httpPassword;
 
 	/**
+	 * Unique key generated in back-office and used for Paybox System only (HMAC)
 	 * @var string
 	 */
 	private $secretKey;
@@ -1039,15 +1042,16 @@ class PayBox
 				$this->logger ? $this->logger->error('Identifiant PayBox invalide : ' . $this->identifier) : null;
 				return false;
 			}
+
+			if (!$this->_checkSecretKey()) {
+				$this->logger ? $this->logger->error('Clé secrete invalide : ' . $this->secretKey) : null;
+				return false;
+			}
 		} else {
 			if (!$this->_checkHttpPassword()) {
 				$this->logger ? $this->logger->error('Mot de passe PayBox invalide : ' . $this->httpPassword) : null;
 				return false;
 			}
-		}
-		if (!$this->_checkSecretKey()) {
-			$this->logger ? $this->logger->error('Clé secrete invalide : ' . $this->secretKey) : null;
-			return false;
 		}
 
 		$this->typeQuestion = (empty($this->typeQuestion) ? self::TYPE_OPERATION_AUTORISATION_AND_DEBIT : $this->typeQuestion);
