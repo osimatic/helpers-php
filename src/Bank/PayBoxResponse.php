@@ -74,7 +74,7 @@ class PayBoxResponse
 
 	public static function getFromRequest(array $request): PayBoxResponse {
 		$payBoxResponse = new PayBoxResponse();
-		$payBoxResponse->setReference(urldecode($request['reference'] ?? null));
+		$payBoxResponse->setReference(urldecode($request['ref'] ?? null));
 		$payBoxResponse->setResponseCode(urldecode($request['response_code'] ?? null));
 		$payBoxResponse->setCallNumber(urldecode($request['call_nb'] ?? null));
 		$payBoxResponse->setTransactionNumber(urldecode($request['transact_nb'] ?? null));
@@ -85,11 +85,11 @@ class PayBoxResponse
 			$payBoxResponse->setCardHash(explode('  ', $request['card_ref'])[0] ?? null);
 		}
 
+		$payBoxResponse->setCardLastDigits(urldecode($request['bc_ldigit'] ?? null));
 		if (!empty($request['bin6'])) {
 			$payBoxResponse->setCardNumber($request['bin6'].'********'.($request['bc_ldigit'] ?? '**'));
 		}
 
-		$payBoxResponse->setCardLastDigits(urldecode($request['bc_ldigit'] ?? null));
 		if (!empty($cardExpirationDate = urldecode($request['bc_expdate'] ?? null))) {
 			$cardExpirationSqlDate = '20'.substr($cardExpirationDate, 0, 2).'-'.substr($cardExpirationDate, 2, 2).'-01';
 			$payBoxResponse->setCardExpirationDateTime(new \DateTime(date('Y-m-t H:i:s', strtotime($cardExpirationSqlDate.' 00:00:00'))));
