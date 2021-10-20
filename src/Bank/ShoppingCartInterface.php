@@ -8,37 +8,37 @@ namespace Osimatic\Helpers\Bank;
  */
 interface ShoppingCartInterface
 {
-    /**
-     * @return string
-     */
-    public function getProductName(): string;
+	/**
+	 * @return InvoiceProductInterface[]
+	 */
+	//public function getProductList(): array;
 
 	/**
-	 * @param string $productName
+	 * @param InvoiceProductInterface[] $productList
 	 * @return void
 	 */
-    public function setProductName(string $productName): void;
+	//public function setProductName(array $productList): void;
 
-    /**
-     * @return int
-     */
-    public function getTotalQuantity(): int;
+	/**
+	 * @return int
+	 */
+	public function getTotalQuantity(): int;
 
 	/**
 	 * @param int $totalQuantity
 	 * @return void
 	 */
-    public function setTotalQuantity(int $totalQuantity): void;
-
-    /**
-     * @return int unit price, in cents
-     */
-    public function getUnitPrice(): int;
+	public function setTotalQuantity(int $totalQuantity): void;
 
 	/**
-	 * @param int $unitPrice unit price, in cents
+	 * @return int total price, in cents
+	 */
+	public function getTotalPrice(): int;
+
+	/**
+	 * @param int $totalPrice total price, in cents
 	 * @return void
 	 */
-    public function setUnitPrice(int $unitPrice): void;
+	public function setTotalPrice(int $totalPrice): void;
 
 }
