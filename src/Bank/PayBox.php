@@ -374,9 +374,9 @@ class PayBox
 	}
 
 	/**
-	 * @return array|null
+	 * @return PayBoxResponse|null
 	 */
-	public function doAuthorization(): ?array
+	public function doAuthorization(): ?PayBoxResponse
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_SEULE;
 
@@ -387,9 +387,9 @@ class PayBox
 	}
 
 	/**
-	 * @return array|null
+	 * @return PayBoxResponse|null
 	 */
-	public function doDebit(): ?array
+	public function doDebit(): ?PayBoxResponse
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_DEBIT;
 
@@ -400,9 +400,9 @@ class PayBox
 	}
 
 	/**
-	 * @return array|null
+	 * @return PayBoxResponse|null
 	 */
-	public function doAuthorizationAndDebit(): ?array
+	public function doAuthorizationAndDebit(): ?PayBoxResponse
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_AND_DEBIT;
 
@@ -413,9 +413,9 @@ class PayBox
 	}
 
 	/**
-	 * @return array|null
+	 * @return PayBoxResponse|null
 	 */
-	public function addSubscriber(): ?array
+	public function addSubscriber(): ?PayBoxResponse
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_INSCRIPTION_ABONNE;
 
@@ -426,9 +426,9 @@ class PayBox
 	}
 
 	/**
-	 * @return array|null
+	 * @return PayBoxResponse|null
 	 */
-	public function deleteSubscriber(): ?array
+	public function deleteSubscriber(): ?PayBoxResponse
 	{
 		$this->typeQuestion = self::TYPE_OPERATION_SUPPRESSION_ABONNE;
 
@@ -1008,7 +1008,7 @@ class PayBox
 
 
 	/**
-	 * @return array|bool|string
+	 * @return PayBoxResponse|bool|string
 	 */
 	private function doRequest()
 	{
@@ -1047,7 +1047,8 @@ class PayBox
 				$this->logger ? $this->logger->error('Clé secrete invalide : ' . $this->secretKey) : null;
 				return false;
 			}
-		} else {
+		}
+		else {
 			if (!$this->_checkHttpPassword()) {
 				$this->logger ? $this->logger->error('Mot de passe PayBox invalide : ' . $this->httpPassword) : null;
 				return false;
@@ -1149,7 +1150,7 @@ class PayBox
 		if (empty($data = $this->doHttpRequestToPayBox())) {
 			return false;
 		}
-		return $data;
+		return PayBoxResponse::getFromRequest($data);
 	}
 
 	/**
