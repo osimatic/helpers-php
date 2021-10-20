@@ -9,7 +9,13 @@ namespace Osimatic\Helpers\Bank;
 interface ShoppingCartInterface
 {
     /**
-     * @return string
+     * @return int
      */
-    public function getTotalQuantity(): string;
+    public function getTotalQuantity(): int;
+
+	/**
+	 * @param int $totalQuantity
+	 * @return void
+	 */
+    public function setTotalQuantity(int $totalQuantity): void;
 }
