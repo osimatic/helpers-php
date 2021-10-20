@@ -35,6 +35,11 @@ class PayBoxResponse
 	/**
 	 * @var string|null
 	 */
+	private ?string $cardType = null;
+
+	/**
+	 * @var string|null
+	 */
 	private ?string $cardNumber = null;
 
 	/**
@@ -95,7 +100,7 @@ class PayBoxResponse
 			$payBoxResponse->setCardExpirationDateTime(new \DateTime(date('Y-m-t H:i:s', strtotime($cardExpirationSqlDate.' 00:00:00'))));
 		}
 
-		$payBoxResponse->set3DSecureEnabled($request['3ds_enable'] === 'O');
+		$payBoxResponse->set3DSecureEnabled(($request['3ds_enable'] ?? null) === 'O');
 		if ($payBoxResponse->is3DSecureEnabled()) {
 			$payBoxResponse->set3DSecureAuthentication($request['3ds_auth'] ?? null);
 			$payBoxResponse->set3DSecureVersion(!empty($request['3ds_v'])?self::_3D_SECURE_VERSION_2:self::_3D_SECURE_VERSION_1);
@@ -191,6 +196,22 @@ class PayBoxResponse
 	public function setAuthorizationNumber(?string $authorizationNumber): void
 	{
 		$this->authorizationNumber = $authorizationNumber;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getCardType(): ?string
+	{
+		return $this->cardType;
+	}
+
+	/**
+	 * @param string|null $cardType
+	 */
+	public function setCardType(?string $cardType): void
+	{
+		$this->cardType = $cardType;
 	}
 
 	/**

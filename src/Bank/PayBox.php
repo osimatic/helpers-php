@@ -1147,16 +1147,16 @@ class PayBox
 		}
 
 		// ---------- Méthode HTTP (PayBox Direct) ----------
-		if (empty($data = $this->doHttpRequestToPayBox())) {
+		if (null === ($payboxResponse = $this->doHttpRequestToPayBox())) {
 			return false;
 		}
-		return PayBoxResponse::getFromRequest($data);
+		return $payboxResponse;
 	}
 
 	/**
-	 * @return array|null
+	 * @return PayBoxResponse|null
 	 */
-	private function doHttpRequestToPayBox(): ?array
+	private function doHttpRequestToPayBox(): ?PayBoxResponse
 	{
 		$urlPaiement = ($this->isTest ? self::URL_PAIEMENT_TEST : self::URL_PAIEMENT);
 
@@ -1235,16 +1235,18 @@ class PayBox
 			return null;
 		}
 
-		return [
-			'num_question' => $tabArg['NUMQUESTION'] ?? '',
-			'num_appel' => $tabArg['NUMAPPEL'] ?? '',
-			'num_transaction' => $tabArg['NUMTRANS'] ?? '',
-			'autorisation' => $tabArg['AUTORISATION'] ?? '',
-			'ref_client' => $tabArg['REFABONNE'] ?? '',
-			'cb_num' => $tabArg['PORTEUR'] ?? '',
-			'cb_type' => $tabArg['TYPECARTE'] ?? '',
-			'cb_sha1' => $tabArg['SHA-1'] ?? '',
-		];
+		$payBoxResponse = new PayBoxResponse();
+		$payBoxResponse->setReference(urldecode($tabArg['REFERENCE'] ?? null));
+		$payBoxResponse->setResponseCode(urldecode($tabArg['CODEREPONSE'] ?? null));
+		$payBoxResponse->setAuthorizationNumber(urldecode($tabArg['AUTORISATION'] ?? null));
+		$payBoxResponse->setCallNumber(urldecode($tabArg['NUMAPPEL'] ?? null));
+		$payBoxResponse->setTransactionNumber(urldecode($tabArg['NUMTRANS'] ?? null));
+		$payBoxResponse->setCardNumber(urldecode($tabArg['PORTEUR'] ?? null));
+		$payBoxResponse->setCardHash(urldecode($tabArg['REFABONNE'] ?? null));
+		$payBoxResponse->setCardType(urldecode($tabArg['TYPECARTE'] ?? null));
+		// var non utilisé : $tabArg['NUMQUESTION'] ; $tabArg['SHA-1']
+
+		return $payBoxResponse;
 	}
 
 	private function getHtml(): string
