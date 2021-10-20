@@ -989,7 +989,7 @@ class PayBox
 		}
 
 		return '<?xml version="1.0" encoding="utf-8"?><Billing>'
-			.'<Address><FirstName>'.$billingAddress->getFirstName() ?? '-'.'</FirstName><LastName>'.$billingAddress->getLastName() ?? $billingAddress->getCompanyName().'</LastName><Address1>'.$billingAddress->getStreet().'</Address1>'
+			.'<Address><FirstName>'.($billingAddress->getFirstName() ?? '-').'</FirstName><LastName>'.($billingAddress->getLastName() ?? $billingAddress->getCompanyName()).'</LastName><Address1>'.$billingAddress->getStreet().'</Address1>'
 			.'<Address2>'.$billingAddress->getStreet2().'</Address2><ZipCode>'.$billingAddress->getZipCode().'</ZipCode><City>'.$billingAddress->getCity().'</City><CountryCode>'.\Osimatic\Helpers\Location\Country::getCountryNumericCodeFromCountryCode($billingAddress->getCountryCode()).'</CountryCode></Address>'
 			.'</Billing>';
 	}
