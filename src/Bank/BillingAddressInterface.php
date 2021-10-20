@@ -25,14 +25,14 @@ interface BillingAddressInterface
    public function setLastName(?string $lastName): void;
 
   /**
-    * @return string
+    * @return string|null
     */
-   public function getCompanyName(): string;
+   public function getCompanyName(): ?string;
 
    /**
-    * @param string $companyname 
+    * @param string|null $companyname 
     */
-   public function setCompanyName(string $companyName): void;
+   public function setCompanyName(?string $companyName): void;
 
 	/**
 	 * @return string
