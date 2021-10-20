@@ -4,25 +4,35 @@ namespace Osimatic\Helpers\Bank;
 
 interface BillingAddressInterface 
 {
-	/**
-	 * @return string|null
-	 */
-	public function getFirstName(): ?string;
+   /**
+     * @return string|null
+     */
+    public function getFirstName(): ?string;
 
-	/**
-	* @param string|null $firstName 
-	*/
-	public function setFirstName(?string $firstName): void;
+    /**
+     * @param string|null $firstName 
+     */
+    public function setFirstName(?string $firstName): void;
 
-	/**
-	 * @return string
-	 */
-	public function getLastName(): string;
+   /**
+    * @return string|null
+    */
+   public function getLastName(): ?string;
 
-	/**
-	 * @param string $lastName 
-	 */
-	public function setLastName(string $lastName): void;
+   /**
+    * @param string|null $lastName 
+    */
+   public function setLastName(?string $lastName): void;
+
+  /**
+    * @return string
+    */
+   public function getCompanyName(): string;
+
+   /**
+    * @param string $companyname 
+    */
+   public function setCompanyName(string $companyName): void;
 
 	/**
 	 * @return string
