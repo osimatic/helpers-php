@@ -1319,7 +1319,7 @@ class PayBox
 
 	private function getReturnedVars(): string
 	{
-		$returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_last_digits:J;card_expiry_date:D;response_code:E';
+		$returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_last_digits:J;card_expiry_date:D;response_code:E;3d_secure_authentication:F;3d_secure_enabled:G;3d_secure_version:v';
 		if ($this->typeQuestion === self::TYPE_OPERATION_INSCRIPTION_ABONNE) {
 			$returnedVars .= ';card_ref:U;bin6:N';
 		}
