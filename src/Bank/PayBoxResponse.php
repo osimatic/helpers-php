@@ -292,7 +292,7 @@ class PayBoxResponse
 	/**
 	 * @return int|null
 	 */
-	public function getX3DSecureVersion(): ?int
+	public function get3DSecureVersion(): ?int
 	{
 		return $this->_3DSecureVersion;
 	}
