@@ -1322,19 +1322,9 @@ class PayBox
 
 	private function getReturnedVars(): string
 	{
-		/*
-		Variables modifiées le 20/10/2021 :
-		reference -> ref
-		authorization_number -> authorization_nb
-		transaction_number -> transact_nb
-		call_number -> call_nb
-		card_last_digits -> bc_ldigit
-		card_expiry_date -> bc_expdate
-		*/
-
 		// La longueur total de $returnedVars ne doit pas exéder 150 caractères (sinon erreur PayBox)
 		//$returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_last_digits:J;card_expiry_date:D;response_code:E;3d_secure_authentication:F;3d_secure_enabled:G;3d_secure_version:v';
-		$returnedVars = 'amount:M;ref:R;authorization_nb:A;call_nb:T;transact_nb:S;bc_ldigit:J;bc_expdate:D;response_code:E;3ds_auth:F;3ds_enable:G;3ds_v:v';
+		$returnedVars = 'amount:M;ref:R;authorizt_nb:A;call_nb:T;transact_nb:S;bc_type:C;bc_ldigit:J;bc_expdate:D;response_code:E;3ds:G;3ds_auth:F;3ds_v:v';
 		if ($this->typeQuestion === self::TYPE_OPERATION_INSCRIPTION_ABONNE) {
 			$returnedVars .= ';card_ref:U;bin6:N';
 		}

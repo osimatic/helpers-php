@@ -83,13 +83,14 @@ class PayBoxResponse
 		$payBoxResponse->setResponseCode(urldecode($request['response_code'] ?? null));
 		$payBoxResponse->setCallNumber(urldecode($request['call_nb'] ?? null));
 		$payBoxResponse->setTransactionNumber(urldecode($request['transact_nb'] ?? null));
-		$payBoxResponse->setAuthorizationNumber(urldecode($request['authorization_nb'] ?? null));
+		$payBoxResponse->setAuthorizationNumber(urldecode($request['authorizt_nb'] ?? null));
 
 		if (!empty($request['card_ref'])) {
 			// card_ref contient la chaine suivante : "abc123abc12  2206  ---" (la premiere partie correspond au token de la carte, à utiliser pour débiter la carte ultérieurement)
 			$payBoxResponse->setCardHash(explode('  ', $request['card_ref'])[0] ?? null);
 		}
 
+		$payBoxResponse->setCardType(urldecode($request['bc_type'] ?? null));
 		$payBoxResponse->setCardLastDigits(urldecode($request['bc_ldigit'] ?? null));
 		if (!empty($request['bin6'])) {
 			$payBoxResponse->setCardNumber($request['bin6'].'********'.($request['bc_ldigit'] ?? '**'));
@@ -100,7 +101,7 @@ class PayBoxResponse
 			$payBoxResponse->setCardExpirationDateTime(new \DateTime(date('Y-m-t H:i:s', strtotime($cardExpirationSqlDate.' 00:00:00'))));
 		}
 
-		$payBoxResponse->set3DSecureEnabled(($request['3ds_enable'] ?? null) === 'O');
+		$payBoxResponse->set3DSecureEnabled(($request['3ds'] ?? null) === 'O');
 		if ($payBoxResponse->is3DSecureEnabled()) {
 			$payBoxResponse->set3DSecureAuthentication($request['3ds_auth'] ?? null);
 			$payBoxResponse->set3DSecureVersion(!empty($request['3ds_v'])?self::_3D_SECURE_VERSION_2:self::_3D_SECURE_VERSION_1);
