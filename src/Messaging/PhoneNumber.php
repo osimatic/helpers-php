@@ -141,6 +141,16 @@ class PhoneNumber
 	 * @param string $defaultCountry
 	 * @return bool
 	 */
+	public static function isFixedLine(?string $phoneNumber, string $defaultCountry='FR'): bool
+	{
+		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::FIXED_LINE;
+	}
+
+	/**
+	 * @param string|null $phoneNumber
+	 * @param string $defaultCountry
+	 * @return bool
+	 */
 	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
 		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::PREMIUM_RATE;
