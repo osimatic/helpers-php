@@ -3,6 +3,7 @@
 namespace Osimatic\Helpers\API;
 
 use Osimatic\Helpers\Location\GeographicCoordinates;
+use Osimatic\Helpers\Location\PostalAddress;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -100,27 +101,17 @@ class GoogleMaps
 		return $this->getResults($results);
 	}
 
-
-
 	/**
 	 * @param string $address
-	 * @return array|null
+	 * @return PostalAddress|null
 	 */
-	public function getAddressDataFromAddress(string $address): ?array
+	public function getPostalAddressDataFromAddress(string $address): ?PostalAddress
 	{
 		if (null === ($results = $this->geocoding($address))) {
 			return null;
 		}
 
-		if (null === ($coordinates = self::getCoordinatesFromResult($results[0]))) {
-			return null;
-		}
-
-		return [
-			'coordinates' => $coordinates,
-			'formatted_address' => self::getFormattedAddressFromResult($results[0]),
-			'address_components' => self::getAddressComponentsFromResult($results[0]),
-		];
+		return self::getPostalAddressFromResult($results[0]);
 	}
 
 	/**
@@ -288,7 +279,7 @@ class GoogleMaps
 	 */
 	public static function getAddressComponentsFromResult(?array $result): ?array
 	{
-		if (empty($formattedAddress = $result['address_components'] ?? null)) {
+		if (empty($result['address_components'] ?? null)) {
 			return null;
 		}
 
@@ -381,6 +372,29 @@ class GoogleMaps
 		return $formattedAddress;
 	}
 
+	/**
+	 * @param array|null $result
+	 * @return PostalAddress|null
+	 */
+	public static function getPostalAddressFromResult(?array $result): ?PostalAddress
+	{
+		if (null === ($coordinates = self::getCoordinatesFromResult($result))) {
+			return null;
+		}
+
+		$formattedAddress = self::getFormattedAddressFromResult($result);
+		$addressComponents = self::getAddressComponentsFromResult($result);
+
+		$postalAddress = new PostalAddress();
+		$postalAddress->setRoad($addressComponents['street'] ?? null);
+		$postalAddress->setPostcode($addressComponents['postal_code'] ?? null);
+		$postalAddress->setCity($addressComponents['locality'] ?? null);
+		$postalAddress->setCountryCode($addressComponents['country_code'] ?? null);
+		$postalAddress->setCoordinates($coordinates);
+		$postalAddress->setFormattedAddress($formattedAddress);
+		return $postalAddress;
+	}
+
 	// private
 
 	/**
@@ -451,6 +465,33 @@ class GoogleMaps
 
 		// var_dump($json);
 		return $result['results'];
+	}
+
+
+
+
+	// deprecated
+
+	/**
+	 * @deprecated
+	 * @param string $address
+	 * @return array|null
+	 */
+	public function getAddressDataFromAddress(string $address): ?array
+	{
+		if (null === ($results = $this->geocoding($address))) {
+			return null;
+		}
+
+		if (null === ($coordinates = self::getCoordinatesFromResult($results[0]))) {
+			return null;
+		}
+
+		return [
+			'coordinates' => $coordinates,
+			'formatted_address' => self::getFormattedAddressFromResult($results[0]),
+			'address_components' => self::getAddressComponentsFromResult($results[0]),
+		];
 	}
 
 }
