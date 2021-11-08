@@ -12,9 +12,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setAttention(?string $val): self;
+	public function setAttention(?string $val);
 
 	/**
 	 * @return string|null
@@ -23,9 +23,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setHouseNumber(?string $val): self;
+	public function setHouseNumber(?string $val);
 
 	/**
 	 * @return string|null
@@ -34,9 +34,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setHouse(?string $val): self;
+	public function setHouse(?string $val);
 
 	/**
 	 * @return string|null
@@ -45,9 +45,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setRoad(?string $val): self;
+	public function setRoad(?string $val);
 
 	/**
 	 * @return string|null
@@ -56,9 +56,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setVillage(?string $val): self;
+	public function setVillage(?string $val);
 
 	/**
 	 * @return string|null
@@ -67,9 +67,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setSuburb(?string $val): self;
+	public function setSuburb(?string $val);
 
 	/**
 	 * @return string|null
@@ -78,9 +78,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setCity(?string $val): self;
+	public function setCity(?string $val);
 
 	/**
 	 * @return string|null
@@ -89,9 +89,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setCounty(?string $val): self;
+	public function setCounty(?string $val);
 
 	/**
 	 * @return string|null
@@ -100,9 +100,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setPostcode(?string $val): self;
+	public function setPostcode(?string $val);
 
 	/**
 	 * @return string|null
@@ -111,9 +111,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setStateDistrict(?string $val): self;
+	public function setStateDistrict(?string $val);
 
 	/**
 	 * @return string|null
@@ -122,9 +122,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setState(?string $val): self;
+	public function setState(?string $val);
 
 	/**
 	 * @return string|null
@@ -133,9 +133,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setRegion(?string $val): self;
+	public function setRegion(?string $val);
 
 	/**
 	 * @return string|null
@@ -144,9 +144,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setIsland(?string $val): self;
+	public function setIsland(?string $val);
 
 	/**
 	 * @return string|null
@@ -155,9 +155,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setCountry(?string $val): self;
+	public function setCountry(?string $val);
 
 	/**
 	 * @return string|null
@@ -166,9 +166,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setCountryCode(?string $val): self;
+	public function setCountryCode(?string $val);
 
 	/**
 	 * @return string|null
@@ -177,9 +177,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $val
-	 * @return self
+	 * @return self|void
 	 */
-	public function setContinent(?string $val): self;
+	public function setContinent(?string $val);
 
 	/**
 	 * @return string|null
@@ -188,9 +188,9 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $coordinates
-	 * @return self
+	 * @return self|void
 	 */
-	public function setCoordinates(?string $coordinates): self;
+	public function setCoordinates(?string $coordinates);
 
 	/**
 	 * @return string|null
@@ -199,8 +199,8 @@ interface PostalAddressInterface
 
 	/**
 	 * @param string|null $formattedAddress
-	 * @return self
+	 * @return self|void
 	 */
-	public function setFormattedAddress(?string $formattedAddress): self;
+	public function setFormattedAddress(?string $formattedAddress);
 
 }
