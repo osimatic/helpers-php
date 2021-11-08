@@ -65,32 +65,35 @@ class PostalAddress
 
 	/**
 	 * @param PostalAddressInterface $postalAddress
+	 * @param bool $withAttention
 	 * @param string|null $separator
 	 * @return string
 	 */
-	public static function formatFromTwig(PostalAddressInterface $postalAddress, ?string $separator='<br/>'): ?string
+	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=null): ?string
 	{
 		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
 	}
 
 	/**
 	 * @param PostalAddressInterface $postalAddress
+	 * @param bool $withAttention
 	 * @param string|null $separator
 	 * @return string
 	 */
-	public static function formatInlineFromTwig(PostalAddressInterface $postalAddress, ?string $separator=', '): ?string
+	public static function formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', '): ?string
 	{
-		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+		return self::format($postalAddress, $withAttention, $separator);
 	}
 
 	/**
 	 * @param PostalAddressInterface $postalAddress
+	 * @param bool $withAttention
 	 * @param string|null $separator
 	 * @return string
 	 */
-	public static function format(PostalAddressInterface $postalAddress, ?string $separator=null): ?string
+	public static function formatFromTwig(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
 	{
-		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+		return self::format($postalAddress, $withAttention, $separator);
 	}
 
 
@@ -530,6 +533,17 @@ class PostalAddress
 		$this->formattedAddress = $formattedAddress;
 
 		return $this;
+	}
+
+	/**
+	 * @deprecated
+	 * @param PostalAddressInterface $postalAddress
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public static function formatInlineFromTwig(PostalAddressInterface $postalAddress, ?string $separator=', '): ?string
+	{
+		return self::format($postalAddress, $separator);
 	}
 
 }
