@@ -14,82 +14,92 @@ class PostalAddress
 	/**
 	 * @var string|null
 	 */
-	private $attention;
+	private ?string $attention;
 
 	/**
 	 * @var string|null
 	 */
-	private $houseNumber;
+	private ?string $houseNumber;
 
 	/**
 	 * @var string|null
 	 */
-	private $house;
+	private ?string $house;
 
 	/**
 	 * @var string|null
 	 */
-	private $road;
+	private ?string $road;
 
 	/**
 	 * @var string|null
 	 */
-	private $village;
+	private ?string $village;
 
 	/**
 	 * @var string|null
 	 */
-	private $suburb;
+	private ?string $suburb;
 
 	/**
 	 * @var string|null
 	 */
-	private $city;
+	private ?string $city;
 
 	/**
 	 * @var string|null
 	 */
-	private $county;
+	private ?string $county;
 
 	/**
 	 * @var string|null
 	 */
-	private $postcode;
+	private ?string $postcode;
 
 	/**
 	 * @var string|null
 	 */
-	private $stateDistrict;
+	private ?string $stateDistrict;
 
 	/**
 	 * @var string|null
 	 */
-	private $state;
+	private ?string $state;
 
 	/**
 	 * @var string|null
 	 */
-	private $region;
+	private ?string $region;
 
 	/**
 	 * @var string|null
 	 */
-	private $island;
+	private ?string $island;
 
 	/**
 	 * @var string|null
 	 */
-	private $country;
+	private ?string $country;
 
 	/**
 	 * @var string|null
 	 */
-	private $countryCode;
+	private ?string $countryCode;
 
 	/**
 	 * @var string|null
 	 */
-	private $continent;
+	private ?string $continent;
+
+	/**
+	 * @var string|null
+	 */
+	private ?string $coordinates;
+
+	/**
+	 * @var string|null
+	 */
+	private ?string $formattedAddress;
 
 
 	// ========== Vérification ==========
@@ -183,240 +193,285 @@ class PostalAddress
 
 	// ========== Get / Set ==========
 
+	/**
+	 * @return string|null
+	 */
 	public function getAttention(): ?string
 	{
 		return $this->attention;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setAttention(string $val): self
+	public function setAttention(?string $val): self
 	{
 		$this->attention = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getHouseNumber(): ?string
 	{
 		return $this->houseNumber;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setHouseNumber($val): self
+	public function setHouseNumber(?string $val): self
 	{
 		$this->houseNumber = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getHouse(): ?string
 	{
 		return $this->house;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setHouse($val): self
+	public function setHouse(?string $val): self
 	{
 		$this->house = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getRoad(): ?string
 	{
 		return $this->road;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setRoad($val): self
+	public function setRoad(?string $val): self
 	{
 		$this->road = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getVillage(): ?string
 	{
 		return $this->village;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setVillage($val): self
+	public function setVillage(?string $val): self
 	{
 		$this->village = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getSuburb(): ?string
 	{
 		return $this->suburb;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setSuburb($val): self
+	public function setSuburb(?string $val): self
 	{
 		$this->suburb = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getCity(): ?string
 	{
 		return $this->city;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setCity($val): self
+	public function setCity(?string $val): self
 	{
 		$this->city = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getCounty(): ?string
 	{
 		return $this->county;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setCounty($val): self
+	public function setCounty(?string $val): self
 	{
 		$this->county = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getPostcode(): ?string
 	{
 		return $this->postcode;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setPostcode($val): self
+	public function setPostcode(?string $val): self
 	{
 		$this->postcode = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getStateDistrict(): ?string
 	{
 		return $this->stateDistrict;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setStateDistrict($val): self
+	public function setStateDistrict(?string $val): self
 	{
 		$this->stateDistrict = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getState(): ?string
 	{
 		return $this->state;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setState($val): self
+	public function setState(?string $val): self
 	{
 		$this->state = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getRegion(): ?string
 	{
 		return $this->region;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setRegion($val): self
+	public function setRegion(?string $val): self
 	{
 		$this->region = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getIsland(): ?string
 	{
 		return $this->island;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setIsland($val): self
+	public function setIsland(?string $val): self
 	{
 		$this->island = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getCountry(): ?string
 	{
 		return $this->country;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setCountry($val): self
+	public function setCountry(?string $val): self
 	{
 		$this->country = $val;
 
 		return $this;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getCountryCode(): ?string
 	{
 		return $this->countryCode;
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setCountryCode($val): self
+	public function setCountryCode(?string $val): self
 	{
 		$this->countryCode = $val;
 
@@ -424,7 +479,7 @@ class PostalAddress
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getContinent(): ?string
 	{
@@ -432,12 +487,50 @@ class PostalAddress
 	}
 
 	/**
-	 * @param string $val
+	 * @param string|null $val
 	 * @return self
 	 */
-	public function setContinent($val): self
+	public function setContinent(?string $val): self
 	{
 		$this->continent = $val;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getCoordinates(): ?string
+	{
+		return $this->coordinates;
+	}
+
+	/**
+	 * @param string|null $coordinates
+	 * @return self
+	 */
+	public function setCoordinates(?string $coordinates): self
+	{
+		$this->coordinates = $coordinates;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getFormattedAddress(): ?string
+	{
+		return $this->formattedAddress;
+	}
+
+	/**
+	 * @param string|null $formattedAddress
+	 * @return self
+	 */
+	public function setFormattedAddress(?string $formattedAddress): self
+	{
+		$this->formattedAddress = $formattedAddress;
 
 		return $this;
 	}
