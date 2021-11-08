@@ -177,6 +177,19 @@ class DateTime
 		return null;
 	}
 
+	/**
+	 * @param int $timestamp
+	 * @return \DateTime|null
+	 */
+	public static function parseFromTimestamp(int $timestamp): ?\DateTime
+	{
+		try {
+			//return new \DateTime('@'.$timestamp);
+			return new \DateTime(date('Y-m-d H:i:s', $timestamp));
+		} catch (\Exception $e) {}
+		return null;
+	}
+
 	// ========== Comparaison ==========
 
 	/**
