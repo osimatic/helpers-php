@@ -23,7 +23,7 @@ class Place implements PlaceInterface
 	private $description;
 
 	/**
-	 * @var PostalAddress|null
+	 * @var PostalAddressInterface|null
 	 */
 	private $address;
 
@@ -129,17 +129,17 @@ class Place implements PlaceInterface
 	}
 
 	/**
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress
+	public function getAddress(): ?PostalAddressInterface
 	{
 		return $this->address;
 	}
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void
+	public function setAddress(?PostalAddressInterface $address): void
 	{
 		$this->address = $address;
 	}

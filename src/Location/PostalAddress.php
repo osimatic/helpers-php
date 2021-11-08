@@ -10,6 +10,95 @@ use Symfony\Component\Yaml\Yaml;
  */
 class PostalAddress
 {
+	// ========== Vérification ==========
+
+	/**
+	 * @param string|null $value
+	 * @return bool
+	 */
+	public static function checkStreet(?string $value): bool
+	{
+		//return preg_match('/(([0-9]+ )?[a-zA-Z ]){1,200}$/', $value);
+		return preg_match('/^(.){1,200}$/u', $value);
+	}
+
+	/**
+	 * @param string|null $value
+	 * @param string|null $country
+	 * @return bool
+	 */
+	public static function checkPostalCode(?string $value, ?string $country=null): bool
+	{
+		// Si le pays est fourni, on vérifie le code postal spécifique à ce pays
+		if (null !== $country) {
+			$regEx = Yaml::parse(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'postal_codes.yaml'));
+			if (!empty($regEx[$country])) {
+				return preg_match('/^'.$regEx[$country].'$/u', $value);
+			}
+		}
+
+		return preg_match('/^([\-\.\s\w]){3,15}$/u', $value);
+	}
+
+	/**
+	 * @param string|null $value
+	 * @return bool
+	 */
+	public static function checkZipCode(?string $value): bool
+	{
+		return self::checkPostalCode($value);
+	}
+
+	/**
+	 * @param string|null $value
+	 * @return bool
+	 */
+	public static function checkCity(?string $value): bool
+	{
+		// /^([a-zA-Z'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){2-100}$/
+		//return preg_match('/^[a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]+$/u', $value);
+		return preg_match('/^(.){1,100}$/u', $value);
+	}
+
+
+	// ========== Affichage ==========
+
+	/**
+	 * @param PostalAddressInterface $postalAddress
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public static function formatFromTwig(PostalAddressInterface $postalAddress, ?string $separator='<br/>'): ?string
+	{
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+	}
+
+	/**
+	 * @param PostalAddressInterface $postalAddress
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public static function formatInlineFromTwig(PostalAddressInterface $postalAddress, ?string $separator=', '): ?string
+	{
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+	}
+
+	/**
+	 * @param PostalAddressInterface $postalAddress
+	 * @param string|null $separator
+	 * @return string
+	 */
+	public static function format(PostalAddressInterface $postalAddress, ?string $separator=null): ?string
+	{
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+	}
+
+
+
+
+
+
+	// ========== DEPRECATED ==========
 
 	/**
 	 * @var string|null
@@ -100,98 +189,6 @@ class PostalAddress
 	 * @var string|null
 	 */
 	private ?string $formattedAddress;
-
-
-	// ========== Vérification ==========
-
-	/**
-	 * @param string $value
-	 * @return bool
-	 */
-	public static function checkStreet(?string $value): bool
-	{
-		//return preg_match('/(([0-9]+ )?[a-zA-Z ]){1,200}$/', $value);
-		return preg_match('/^(.){1,200}$/u', $value);
-	}
-
-	/**
-	 * @param string $value
-	 * @param string|null $country
-	 * @return bool
-	 */
-	public static function checkPostalCode(?string $value, ?string $country=null): bool
-	{
-		// Si le pays est fourni, on vérifie le code postal spécifique à ce pays
-		if (null !== $country) {
-			$regEx = Yaml::parse(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'postal_codes.yaml'));
-			if (!empty($regEx[$country])) {
-				return preg_match('/^'.$regEx[$country].'$/u', $value);
-			}
-		}
-
-		return preg_match('/^([\-\.\s\w]){3,15}$/u', $value);
-	}
-
-	/**
-	 * @param string $value
-	 * @return bool
-	 */
-	public static function checkZipCode(?string $value): bool
-	{
-		return self::checkPostalCode($value);
-	}
-
-	/**
-	 * @param string $value
-	 * @return bool
-	 */
-	public static function checkCity(?string $value): bool
-	{
-		// /^([a-zA-Z'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){2-100}$/
-		//return preg_match('/^[a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]+$/u', $value);
-		return preg_match('/^(.){1,100}$/u', $value);
-	}
-
-
-	// ========== Affichage ==========
-
-	/**
-	 * @param PostalAddress $postalAddress
-	 * @param string|null $separator
-	 * @return string
-	 */
-	public static function formatFromTwig(PostalAddress $postalAddress, ?string $separator='<br/>'): ?string
-	{
-		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
-	}
-
-	/**
-	 * @param PostalAddress $postalAddress
-	 * @param string|null $separator
-	 * @return string
-	 */
-	public static function formatInlineFromTwig(PostalAddress $postalAddress, ?string $separator=', '): ?string
-	{
-		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
-	}
-
-	/**
-	 * @param string|null $separator
-	 * @return string
-	 */
-	public function format(?string $separator=null): ?string
-	{
-		return (new PostalAddressFormatter())->format($this, [], $separator);
-	}
-
-	public function __toString()
-	{
-		return $this->format() ?? '';
-	}
-
-
-
-	// ========== Get / Set ==========
 
 	/**
 	 * @return string|null

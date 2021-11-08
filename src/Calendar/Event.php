@@ -2,8 +2,8 @@
 
 namespace Osimatic\Helpers\Calendar;
 
-use Osimatic\Helpers\Location\Place;
-use Osimatic\Helpers\Location\PostalAddress;
+use Osimatic\Helpers\Location\PlaceInterface;
+use Osimatic\Helpers\Location\PostalAddressInterface;
 use Osimatic\Helpers\Organization\OrganizationInterface;
 use Osimatic\Helpers\Person\PersonInterface;
 
@@ -57,13 +57,13 @@ class Event
 
 	/**
 	 * The location of for example where the event is happening, an organization is located, or where an action takes place.
-	 * @var Place|null
+	 * @var PlaceInterface|null
 	 */
 	private $location;
 
 	/**
 	 * The location of for example where the event is happening, an organization is located, or where an action takes place.
-	 * @var PostalAddress|null
+	 * @var PostalAddressInterface|null
 	 */
 	private $address;
 
@@ -143,7 +143,7 @@ class Event
 			$postalAddress = $this->getAddress();
 		}
 		if (null !== $postalAddress) {
-			return $postalAddress->format();
+			return \Osimatic\Helpers\Location\PostalAddress::format($postalAddress);
 		}
 		return null;
 	}
@@ -271,33 +271,33 @@ class Event
 	}
 
 	/**
-	 * @return Place|null
+	 * @return PlaceInterface|null
 	 */
-	public function getLocation(): ?Place
+	public function getLocation(): ?PlaceInterface
 	{
 		return $this->location;
 	}
 
 	/**
-	 * @param Place|null $location
+	 * @param PlaceInterface|null $location
 	 */
-	public function setLocation(?Place $location): void
+	public function setLocation(?PlaceInterface $location): void
 	{
 		$this->location = $location;
 	}
 
 	/**
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress
+	public function getAddress(): ?PostalAddressInterface
 	{
 		return $this->address;
 	}
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void
+	public function setAddress(?PostalAddressInterface $address): void
 	{
 		$this->address = $address;
 	}

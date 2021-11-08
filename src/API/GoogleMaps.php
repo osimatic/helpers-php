@@ -4,6 +4,7 @@ namespace Osimatic\Helpers\API;
 
 use Osimatic\Helpers\Location\GeographicCoordinates;
 use Osimatic\Helpers\Location\PostalAddress;
+use Osimatic\Helpers\Location\PostalAddressInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -102,16 +103,17 @@ class GoogleMaps
 	}
 
 	/**
+	 * @param PostalAddressInterface $postalAddress
 	 * @param string $address
-	 * @return PostalAddress|null
+	 * @return bool
 	 */
-	public function getPostalAddressDataFromAddress(string $address): ?PostalAddress
+	public function initPostalAddressDataFromAddress(PostalAddressInterface $postalAddress, string $address): bool
 	{
 		if (null === ($results = $this->geocoding($address))) {
-			return null;
+			return false;
 		}
 
-		return self::getPostalAddressFromResult($results[0]);
+		return self::initPostalAddressFromResult($postalAddress, $results[0]);
 	}
 
 	/**
@@ -142,11 +144,11 @@ class GoogleMaps
 
 
 	/**
-	 * @param PostalAddress $postalAddress
+	 * @param PostalAddressInterface $postalAddress
 	 * @param string $defaultCountryCode
 	 * @return string|null
 	 */
-	public function getCoordinatesFromPostalAddress(PostalAddress $postalAddress, string $defaultCountryCode='FR'): ?string
+	public function getCoordinatesFromPostalAddress(PostalAddressInterface $postalAddress, string $defaultCountryCode='FR'): ?string
 	{
 		if (empty($postalAddress->getRoad()) || empty($postalAddress->getCity())) {
 			return null;
@@ -177,27 +179,27 @@ class GoogleMaps
 		return null;
 	}
 
-
 	/**
+	 * @param PostalAddressInterface $postalAddress
 	 * @param string $coordinates
-	 * @return PostalAddress|null
+	 * @return bool
 	 */
-	public function getPostalAddressDataFromCoordinates(string $coordinates): ?PostalAddress
+	public function initPostalAddressDataFromCoordinates(PostalAddressInterface $postalAddress, string $coordinates): bool
 	{
 		if (null === ($results = $this->reverseGeocoding($coordinates))) {
-			return null;
+			return false;
 		}
 
 		if (null === ($formattedAddress = self::getFormattedAddressFromResult($results[0]))) {
-			return null;
+			return false;
 		}
 
-		if (null === ($postalAddress = self::getPostalAddressFromResult($results[0]))) {
-			return null;
+		if (false === self::initPostalAddressFromResult($postalAddress, $results[0])) {
+			return false;
 		}
 
 		$postalAddress->setCoordinates($coordinates);
-		return $postalAddress;
+		return true;
 	}
 
 	/**
@@ -382,26 +384,27 @@ class GoogleMaps
 	}
 
 	/**
+	 * @param PostalAddressInterface $postalAddress
 	 * @param array|null $result
-	 * @return PostalAddress|null
+	 * @return bool
 	 */
-	public static function getPostalAddressFromResult(?array $result): ?PostalAddress
+	public static function initPostalAddressFromResult(PostalAddressInterface $postalAddress, ?array $result): bool
 	{
 		if (null === ($coordinates = self::getCoordinatesFromResult($result))) {
-			return null;
+			return false;
 		}
 
 		$formattedAddress = self::getFormattedAddressFromResult($result);
 		$addressComponents = self::getAddressComponentsFromResult($result);
 
-		$postalAddress = new PostalAddress();
 		$postalAddress->setRoad($addressComponents['street'] ?? null);
 		$postalAddress->setPostcode($addressComponents['postal_code'] ?? null);
 		$postalAddress->setCity($addressComponents['locality'] ?? null);
 		$postalAddress->setCountryCode($addressComponents['country_code'] ?? null);
 		$postalAddress->setCoordinates($coordinates);
 		$postalAddress->setFormattedAddress($formattedAddress);
-		return $postalAddress;
+
+		return true;
 	}
 
 	// private
