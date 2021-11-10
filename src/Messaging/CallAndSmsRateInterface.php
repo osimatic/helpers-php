@@ -36,37 +36,37 @@ interface CallAndSmsRateInterface
 
 	/**
 	 * en centimes
-	 * @return int
+	 * @return float
 	 */
-	public function getLandlineRatePerMinute(): int;
+	public function getLandlineRatePerMinute(): float;
 
 	/**
 	 * en centimes
-	 * @param int $landlineRatePerMinute
+	 * @param float $landlineRatePerMinute
 	 */
-	public function setLandlineRatePerMinute(int $landlineRatePerMinute): void;
+	public function setLandlineRatePerMinute(float $landlineRatePerMinute): void;
 
 	/**
 	 * en centimes
-	 * @return int
+	 * @return float
 	 */
-	public function getMobileRatePerMinute(): int;
+	public function getMobileRatePerMinute(): float;
 
 	/**
 	 * en centimes
-	 * @param int $mobileRatePerMinute
+	 * @param float $mobileRatePerMinute
 	 */
-	public function setMobileRatePerMinute(int $mobileRatePerMinute): void;
+	public function setMobileRatePerMinute(float $mobileRatePerMinute): void;
 
 	/**
 	 * en centimes
-	 * @return int
+	 * @return float
 	 */
-	public function getSmsRate(): int;
+	public function getSmsRate(): float;
 
 	/**
 	 * en centimes
-	 * @param int $smsRate
+	 * @param float $smsRate
 	 */
-	public function setSmsRate(int $smsRate): void;
+	public function setSmsRate(float $smsRate): void;
 }
