@@ -51,11 +51,15 @@ class CallAndSmsRate
 	}
 
 	/**
-	 * @param string $countryIsoCode
+	 * @param string|null $countryIsoCode
 	 * @return CallAndSmsRateInterface|null
 	 */
-	public static function getRatesOfCountry(string $countryIsoCode): ?CallAndSmsRateInterface
+	public static function getRatesOfCountry(?string $countryIsoCode): ?CallAndSmsRateInterface
 	{
+		if (empty($countryIsoCode)) {
+			return null;
+		}
+		
 		foreach (self::$callAndSmsRates as $callAndSmsRate) {
 			if ($callAndSmsRate->getCountryCode() === $countryIsoCode) {
 				return $callAndSmsRate;
