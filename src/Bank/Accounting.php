@@ -48,8 +48,8 @@ class Accounting
 		$tableBody = [];
 		foreach ($transactionList as $transaction) {
 			$codeMonnaie = $this->getCurrencyCode($transaction['currency'] ?? 'EUR');
-			$accountkey = $this->getAccountKey($transaction['customer_country'], $transaction['customer_zip_code']);
-			$addTvaLine = BillingTax::getBillingTaxRate($transaction['customer_country'], $transaction['customer_zip_code'], $transaction['customer_vat_number'], 'FR') != 0;
+			$accountkey = $this->getAccountKey($transaction['customer_country'], $transaction['customer_zip_code'], $transaction['customer_vat_number']);
+			$addTvaLine = !empty(BillingTax::getBillingTaxRate($transaction['customer_country'], $transaction['customer_zip_code'], $transaction['customer_vat_number'], 'FR'));
 
 			$transaction['amount_incl_tax'] = round($transaction['amount_incl_tax'], 2);
 			$transaction['amount_excl_tax'] = round($transaction['amount_excl_tax'], 2);
@@ -106,7 +106,7 @@ class Accounting
 		\Osimatic\Helpers\Text\CSV::generateFile($filePath, $tableHead, $tableBody, null);
 	}
 
-	private function getAccountKey(?string $customerCountry, ?string $customerZipCode): string
+	private function getAccountKey(?string $customerCountry, ?string $customerZipCode=null, ?string $vatNumber=null): string
 	{
 		if (Country::isCountryInFranceOverseas($customerCountry, $customerZipCode)) {
 			return 'france_dom';
@@ -115,6 +115,9 @@ class Accounting
 			return 'france';
 		}
 		if (Country::isCountryInEuropeanUnion($customerCountry)) {
+			if (empty($vatNumber)) { // Si n° TVA non renseigné, vente assimilé à France (TVA = 20%)
+				return 'france';
+			}
 			return 'inside_ue';
 		}
 		return 'outside_ue';

@@ -2,7 +2,7 @@
 
 namespace Osimatic\Helpers\Organization;
 
-use Osimatic\Helpers\Location\PostalAddress;
+use Osimatic\Helpers\Location\PostalAddressInterface;
 
 /**
  * @deprecated use OrganizationInterface instead
@@ -45,7 +45,7 @@ class Organization implements OrganizationInterface
 	private $department;
 
 	/**
-	 * @var PostalAddress|null
+	 * @var PostalAddressInterface|null
 	 */
 	private $address;
 
@@ -230,23 +230,23 @@ class Organization implements OrganizationInterface
 	/**
 	 * @param Organization|null $department
 	 */
-	public function setDepartment(?Organization $department): void
+	public function setDepartment(?OrganizationInterface $department): void
 	{
 		$this->department = $department;
 	}
 
 	/**
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress
+	public function getAddress(): ?PostalAddressInterface
 	{
 		return $this->address;
 	}
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void
+	public function setAddress(?PostalAddressInterface $address): void
 	{
 		$this->address = $address;
 	}

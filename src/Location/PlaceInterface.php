@@ -43,14 +43,14 @@ interface PlaceInterface
 
 	/**
 	 * Physical address of the place.
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress;
+	public function getAddress(): ?PostalAddressInterface;
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void;
+	public function setAddress(?PostalAddressInterface $address): void;
 
 	/**
 	 * The telephone number.

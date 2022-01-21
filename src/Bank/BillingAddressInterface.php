@@ -11,8 +11,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string|null $firstName
+	 * @return self|void
 	 */
-	public function setFirstName(?string $firstName): void;
+	public function setFirstName(?string $firstName);
 
 	/**
 	 * @return string|null
@@ -21,8 +22,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string|null $lastName
+	 * @return self|void
 	 */
-	public function setLastName(?string $lastName): void;
+	public function setLastName(?string $lastName);
 
 	/**
 	 * @return string|null
@@ -31,8 +33,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string|null $companyName
+	 * @return self|void
 	 */
-	public function setCompanyName(?string $companyName): void;
+	public function setCompanyName(?string $companyName);
 
 	/**
 	 * @return string
@@ -41,8 +44,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string $street
+	 * @return self|void
 	 */
-	public function setStreet(string $street): void;
+	public function setStreet(string $street);
 
 	/**
 	 * @return string|null
@@ -51,8 +55,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string|null $street2
+	 * @return self|void
 	 */
-	public function setStreet2(?string $street2): void;
+	public function setStreet2(?string $street2);
 
 	/**
 	 * @return string|null
@@ -61,8 +66,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string|null $zipCode
+	 * @return self|void
 	 */
-	public function setZipCode(?string $zipCode): void;
+	public function setZipCode(?string $zipCode);
 
 	/**
 	 * @return string
@@ -71,8 +77,9 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string $city
+	 * @return self|void
 	 */
-	public function setCity(string $city): void;
+	public function setCity(string $city);
 
 	/**
 	 * @return string
@@ -81,6 +88,7 @@ interface BillingAddressInterface
 
 	/**
 	 * @param string $countryCode
+	 * @return self|void
 	 */
-	public function setCountryCode(string $countryCode): void;
+	public function setCountryCode(string $countryCode);
 }

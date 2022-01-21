@@ -177,6 +177,35 @@ class DateTime
 		return null;
 	}
 
+	/**
+	 * @param int $timestamp
+	 * @return \DateTime|null
+	 */
+	public static function parseFromTimestamp(int $timestamp): ?\DateTime
+	{
+		try {
+			//return new \DateTime('@'.$timestamp);
+			return new \DateTime(date('Y-m-d H:i:s', $timestamp));
+		} catch (\Exception $e) {}
+		return null;
+	}
+
+	/**
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @return \DateTime|null
+	 */
+	public static function parseFromYearMonthDay(int $year, int $month, int $day): ?\DateTime
+	{
+		try {
+			$d = new \DateTime();
+			$d->setDate($year, $month, $day);
+			return $d;
+		} catch (\Exception $e) {}
+		return null;
+	}
+
 	// ========== Comparaison ==========
 
 	/**

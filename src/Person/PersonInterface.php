@@ -3,7 +3,7 @@
 namespace Osimatic\Helpers\Person;
 
 use Osimatic\Helpers\Location\PlaceInterface;
-use Osimatic\Helpers\Location\PostalAddress;
+use Osimatic\Helpers\Location\PostalAddressInterface;
 use Osimatic\Helpers\Organization\OrganizationInterface;
 
 /**
@@ -70,14 +70,14 @@ interface PersonInterface
 
 	/**
 	 * Physical address of the person.
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress;
+	public function getAddress(): ?PostalAddressInterface;
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void;
+	public function setAddress(?PostalAddressInterface $address): void;
 
 	/**
 	 * Date of birth.

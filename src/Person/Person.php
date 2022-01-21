@@ -3,7 +3,7 @@
 namespace Osimatic\Helpers\Person;
 
 use Osimatic\Helpers\Location\PlaceInterface;
-use Osimatic\Helpers\Location\PostalAddress;
+use Osimatic\Helpers\Location\PostalAddressInterface;
 use Osimatic\Helpers\Organization\OrganizationInterface;
 
 /**
@@ -37,7 +37,7 @@ class Person implements PersonInterface
 	private $gender;
 
 	/**
-	 * @var PostalAddress|null
+	 * @var PostalAddressInterface|null
 	 */
 	private $address;
 
@@ -225,17 +225,17 @@ class Person implements PersonInterface
 	}
 
 	/**
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress
+	public function getAddress(): ?PostalAddressInterface
 	{
 		return $this->address;
 	}
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void
+	public function setAddress(?PostalAddressInterface $address): void
 	{
 		$this->address = $address;
 	}

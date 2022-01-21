@@ -53,12 +53,13 @@ class PostalAddressFormatter
 
 	/**
 	 * Pass a PredictHQ\Address\Address object here
-	 * @param PostalAddress $address
+	 * @param PostalAddressInterface $address
 	 * @param array $options
 	 * @param string|null $separator
+	 * @param bool $withAttention
 	 * @return string
 	 */
-	public function format(PostalAddress $address, array $options = [], ?string $separator=null): string
+	public function format(PostalAddressInterface $address, array $options = [], ?string $separator=null, bool $withAttention=true): string
 	{
 		$this->setSeparator($separator);
 		if (null === $this->separator) {
@@ -67,7 +68,7 @@ class PostalAddressFormatter
 
 		$addressArray = [];
 
-		if (strlen($address->getAttention()) > 0) {
+		if ($withAttention && strlen($address->getAttention()) > 0) {
 			$addressArray['attention'] = $address->getAttention();
 		}
 		if (strlen($address->getHouseNumber()) > 0) {

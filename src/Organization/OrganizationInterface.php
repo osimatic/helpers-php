@@ -2,7 +2,7 @@
 
 namespace Osimatic\Helpers\Organization;
 
-use Osimatic\Helpers\Location\PostalAddress;
+use Osimatic\Helpers\Location\PostalAddressInterface;
 
 /**
  * Interface OrganizationInterface
@@ -90,14 +90,14 @@ interface OrganizationInterface
 
 	/**
 	 * Physical address of the organization.
-	 * @return PostalAddress|null
+	 * @return PostalAddressInterface|null
 	 */
-	public function getAddress(): ?PostalAddress;
+	public function getAddress(): ?PostalAddressInterface;
 
 	/**
-	 * @param PostalAddress|null $address
+	 * @param PostalAddressInterface|null $address
 	 */
-	public function setAddress(?PostalAddress $address): void;
+	public function setAddress(?PostalAddressInterface $address): void;
 
 	/**
 	 * Telephone number of the organization.
