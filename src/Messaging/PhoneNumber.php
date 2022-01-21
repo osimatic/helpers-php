@@ -180,12 +180,14 @@ class PhoneNumber
 	 */
 	public static function formatFromIvr(?string $phoneNumber): ?string
 	{
-		if (substr($phoneNumber, 0, 1) != '0') {
-			if (strlen($phoneNumber) > 9) {
-				return '00'.$phoneNumber;
-			}
-			if (strlen($phoneNumber) == 9) {
-				return '0' . $phoneNumber;
+		if (substr($phoneNumber, 0, 3) != '+33') {
+			if (substr($phoneNumber, 0, 1) != '0') {
+				if (strlen($phoneNumber) > 9) {
+					return '00'.$phoneNumber;
+				}
+				if (strlen($phoneNumber) == 9) {
+					return '0' . $phoneNumber;
+				}
 			}
 		}
 
@@ -200,9 +202,12 @@ class PhoneNumber
 			'689', // Polynésie Française
 			'681', // Wallis-et-Futuna
 		];
+		
 		foreach ($frenchOverseasCallingCodes as $callingCode) {
-			if (substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
-				$phoneNumber = '+'.substr($phoneNumber, 1);
+			if (substr($phoneNumber, 0, 3) != '+33') {
+				if (substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
+					$phoneNumber = '+'.substr($phoneNumber, 1);
+				}
 			}
 		}
 
