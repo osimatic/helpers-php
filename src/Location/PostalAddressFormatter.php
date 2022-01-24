@@ -68,52 +68,52 @@ class PostalAddressFormatter
 
 		$addressArray = [];
 
-		if ($withAttention && strlen($address->getAttention()) > 0) {
+		if ($withAttention && !empty($address->getAttention())) {
 			$addressArray['attention'] = $address->getAttention();
 		}
-		if (strlen($address->getHouseNumber()) > 0) {
+		if (!empty($address->getHouseNumber())) {
 			$addressArray['house_number'] = $address->getHouseNumber();
 		}
-		if (strlen($address->getHouse()) > 0) {
+		if (!empty($address->getHouse())) {
 			$addressArray['house'] = $address->getHouse();
 		}
-		if (strlen($address->getRoad()) > 0) {
+		if (!empty($address->getRoad())) {
 			$addressArray['road'] = $address->getRoad();
 		}
-		if (strlen($address->getVillage()) > 0) {
+		if (!empty($address->getVillage())) {
 			$addressArray['village'] = $address->getVillage();
 		}
-		if (strlen($address->getSuburb()) > 0) {
+		if (!empty($address->getSuburb())) {
 			$addressArray['suburb'] = $address->getSuburb();
 		}
-		if (strlen($address->getCity()) > 0) {
+		if (!empty($address->getCity())) {
 			$addressArray['city'] = $address->getCity();
 		}
-		if (strlen($address->getCounty()) > 0) {
+		if (!empty($address->getCounty())) {
 			$addressArray['county'] = $address->getCounty();
 		}
-		if (strlen($address->getPostcode()) > 0) {
+		if (!empty($address->getPostcode())) {
 			$addressArray['postcode'] = $address->getPostcode();
 		}
-		if (strlen($address->getStateDistrict()) > 0) {
+		if (!empty($address->getStateDistrict())) {
 			$addressArray['state_district'] = $address->getStateDistrict();
 		}
-		if (strlen($address->getState()) > 0) {
+		if (!empty($address->getState())) {
 			$addressArray['state'] = $address->getState();
 		}
-		if (strlen($address->getRegion()) > 0) {
+		if (!empty($address->getRegion())) {
 			$addressArray['region'] = $address->getRegion();
 		}
-		if (strlen($address->getIsland()) > 0) {
+		if (!empty($address->getIsland())) {
 			$addressArray['island'] = $address->getIsland();
 		}
-		if (strlen($address->getCountry()) > 0) {
+		if (!empty($address->getCountry())) {
 			$addressArray['country'] = $address->getCountry();
 		}
-		if (strlen($address->getCountryCode()) > 0) {
+		if (!empty($address->getCountryCode())) {
 			$addressArray['country_code'] = $address->getCountryCode();
 		}
-		if (strlen($address->getContinent()) > 0) {
+		if (!empty($address->getContinent())) {
 			$addressArray['continent'] = $address->getContinent();
 		}
 

@@ -180,14 +180,12 @@ class PhoneNumber
 	 */
 	public static function formatFromIvr(?string $phoneNumber): ?string
 	{
-		if (substr($phoneNumber, 0, 3) != '+33') {
-			if (substr($phoneNumber, 0, 1) != '0') {
-				if (strlen($phoneNumber) > 9) {
-					return '00'.$phoneNumber;
-				}
-				if (strlen($phoneNumber) == 9) {
-					return '0' . $phoneNumber;
-				}
+		if (substr($phoneNumber, 0, 3) !== '+33' && substr($phoneNumber, 0, 1) !== '0') {
+			if (strlen($phoneNumber) > 9) {
+				return '00'.$phoneNumber;
+			}
+			if (strlen($phoneNumber) === 9) {
+				return '0' . $phoneNumber;
 			}
 		}
 
@@ -204,10 +202,8 @@ class PhoneNumber
 		];
 		
 		foreach ($frenchOverseasCallingCodes as $callingCode) {
-			if (substr($phoneNumber, 0, 3) != '+33') {
-				if (substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
-					$phoneNumber = '+'.substr($phoneNumber, 1);
-				}
+			if (substr($phoneNumber, 0, 3) !== '+33' && substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
+				$phoneNumber = '+'.substr($phoneNumber, 1);
 			}
 		}
 
@@ -222,10 +218,10 @@ class PhoneNumber
 	public static function formatForIvr(?string $phoneNumber, bool $withTrunkCode=true): ?string
 	{
 		// code provisoire car le svi ne sait pas appeler des numéros commencant par 0033
-		if (substr($phoneNumber, 0, 1) == '+') {
+		if (substr($phoneNumber, 0, 1) === '+') {
 			$phoneNumber = '00'.substr($phoneNumber, 1);
 		}
-		if (substr($phoneNumber, 0, 4) == '0033') {
+		if (substr($phoneNumber, 0, 4) === '0033') {
 			$phoneNumber = substr($phoneNumber, 4);
 			if ($withTrunkCode && strlen($phoneNumber) > 5) {
 				$phoneNumber = '0'.$phoneNumber;
