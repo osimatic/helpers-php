@@ -24,7 +24,8 @@
 		"symfony/yaml": "*",
 		"symfony/property-access": "*",
 		"symfony/validator": "*",
-		"league/iso3166": "^3.0"
+		"league/iso3166": "^3.0",
+		"mustache/mustache": "^2.14"
 	},
 	"license": "mit",
 	"authors": [
