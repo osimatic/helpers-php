@@ -86,8 +86,9 @@ class PhoneNumber
 	public static function isPossible(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
 		try {
-			$phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry);
-			return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
+				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
 		return false;
@@ -102,8 +103,9 @@ class PhoneNumber
 	public static function isValid(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
 		try {
-			$phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry);
-			return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
+				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
 		return false;
@@ -133,7 +135,7 @@ class PhoneNumber
 	 */
 	public static function isMobile(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::MOBILE;
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::MOBILE;
 	}
 
 	/**
@@ -143,7 +145,7 @@ class PhoneNumber
 	 */
 	public static function isFixedLine(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::FIXED_LINE;
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::FIXED_LINE;
 	}
 
 	/**
@@ -153,7 +155,7 @@ class PhoneNumber
 	 */
 	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::PREMIUM_RATE;
 	}
 
 	/**
@@ -164,11 +166,12 @@ class PhoneNumber
 	public static function getCountryIsoCode(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
 		try {
-			$phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry);
-			//if ($phoneNumberObj->getCountryCode() == 44) {
-			//	return 'UK'; // bug pour les numéros anglais...
-			//}
-			return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
+			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
+				//if ($phoneNumberObj->getCountryCode() == 44) {
+				//	return 'UK'; // bug pour les numéros anglais...
+				//}
+				return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
+			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
 		return null;
