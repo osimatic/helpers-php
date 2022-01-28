@@ -86,8 +86,9 @@ class PhoneNumber
 	public static function isPossible(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
 		try {
-			$phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry);
-			return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
+				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
 		return false;
@@ -102,8 +103,9 @@ class PhoneNumber
 	public static function isValid(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
 		try {
-			$phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry);
-			return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
+				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
 		return false;
@@ -133,7 +135,7 @@ class PhoneNumber
 	 */
 	public static function isMobile(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::MOBILE;
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::MOBILE;
 	}
 
 	/**
@@ -143,7 +145,7 @@ class PhoneNumber
 	 */
 	public static function isFixedLine(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::FIXED_LINE;
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::FIXED_LINE;
 	}
 
 	/**
@@ -153,7 +155,7 @@ class PhoneNumber
 	 */
 	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) == \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::PREMIUM_RATE;
 	}
 
 	/**
@@ -164,11 +166,12 @@ class PhoneNumber
 	public static function getCountryIsoCode(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
 		try {
-			$phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry);
-			//if ($phoneNumberObj->getCountryCode() == 44) {
-			//	return 'UK'; // bug pour les numéros anglais...
-			//}
-			return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
+			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
+				//if ($phoneNumberObj->getCountryCode() == 44) {
+				//	return 'UK'; // bug pour les numéros anglais...
+				//}
+				return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
+			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
 		return null;
@@ -180,14 +183,12 @@ class PhoneNumber
 	 */
 	public static function formatFromIvr(?string $phoneNumber): ?string
 	{
-		if (substr($phoneNumber, 0, 3) != '+33') {
-			if (substr($phoneNumber, 0, 1) != '0') {
-				if (strlen($phoneNumber) > 9) {
-					return '00'.$phoneNumber;
-				}
-				if (strlen($phoneNumber) == 9) {
-					return '0' . $phoneNumber;
-				}
+		if (substr($phoneNumber, 0, 3) !== '+33' && substr($phoneNumber, 0, 1) !== '0') {
+			if (strlen($phoneNumber) > 9) {
+				return '00'.$phoneNumber;
+			}
+			if (strlen($phoneNumber) === 9) {
+				return '0' . $phoneNumber;
 			}
 		}
 
@@ -204,10 +205,8 @@ class PhoneNumber
 		];
 		
 		foreach ($frenchOverseasCallingCodes as $callingCode) {
-			if (substr($phoneNumber, 0, 3) != '+33') {
-				if (substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
-					$phoneNumber = '+'.substr($phoneNumber, 1);
-				}
+			if (substr($phoneNumber, 0, 3) !== '+33' && substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
+				$phoneNumber = '+'.substr($phoneNumber, 1);
 			}
 		}
 
@@ -222,10 +221,10 @@ class PhoneNumber
 	public static function formatForIvr(?string $phoneNumber, bool $withTrunkCode=true): ?string
 	{
 		// code provisoire car le svi ne sait pas appeler des numéros commencant par 0033
-		if (substr($phoneNumber, 0, 1) == '+') {
+		if (substr($phoneNumber, 0, 1) === '+') {
 			$phoneNumber = '00'.substr($phoneNumber, 1);
 		}
-		if (substr($phoneNumber, 0, 4) == '0033') {
+		if (substr($phoneNumber, 0, 4) === '0033') {
 			$phoneNumber = substr($phoneNumber, 4);
 			if ($withTrunkCode && strlen($phoneNumber) > 5) {
 				$phoneNumber = '0'.$phoneNumber;

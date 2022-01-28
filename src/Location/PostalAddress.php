@@ -71,7 +71,7 @@ class PostalAddress
 	 */
 	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=null): ?string
 	{
-		return (new PostalAddressFormatter())->format($postalAddress, [], $separator);
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator, $withAttention);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class PostalAddress
 
 
 
-	// ========== DEPRECATED ==========
+	// ========== DEPRECATED (use PostalAddressInterface instead) ==========
 
 	/**
 	 * @var string|null
@@ -194,6 +194,7 @@ class PostalAddress
 	private ?string $formattedAddress;
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getAttention(): ?string
@@ -202,6 +203,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -213,6 +215,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getHouseNumber(): ?string
@@ -221,6 +224,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -232,6 +236,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getHouse(): ?string
@@ -240,6 +245,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -251,6 +257,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getRoad(): ?string
@@ -259,6 +266,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -270,6 +278,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getVillage(): ?string
@@ -278,6 +287,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -289,6 +299,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getSuburb(): ?string
@@ -297,6 +308,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -308,6 +320,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getCity(): ?string
@@ -316,6 +329,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -327,6 +341,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getCounty(): ?string
@@ -335,6 +350,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -346,6 +362,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getPostcode(): ?string
@@ -354,6 +371,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -365,6 +383,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getStateDistrict(): ?string
@@ -373,6 +392,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -384,6 +404,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getState(): ?string
@@ -392,6 +413,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -403,6 +425,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getRegion(): ?string
@@ -411,6 +434,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -422,6 +446,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getIsland(): ?string
@@ -430,6 +455,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -441,6 +467,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getCountry(): ?string
@@ -449,6 +476,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -460,6 +488,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getCountryCode(): ?string
@@ -468,6 +497,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -479,6 +509,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getContinent(): ?string
@@ -487,6 +518,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $val
 	 * @return self
 	 */
@@ -498,6 +530,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getCoordinates(): ?string
@@ -506,6 +539,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $coordinates
 	 * @return self
 	 */
@@ -517,6 +551,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @return string|null
 	 */
 	public function getFormattedAddress(): ?string
@@ -525,6 +560,7 @@ class PostalAddress
 	}
 
 	/**
+	 * @deprecated use PostalAddressInterface instead
 	 * @param string|null $formattedAddress
 	 * @return self
 	 */
