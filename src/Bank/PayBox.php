@@ -32,6 +32,8 @@ class PayBox
 	const CALL_ORIGIN_INTERNET_PAYMENT = '024';
 	const CALL_ORIGIN_RECURRING_PAYMENT = '027';
 
+	const DEFAULT_FORM_TIMEOUT = 1800;
+
 	/**
 	 * Ces constantes sont internes, ne pas utiliser de l'extérieur
 	 */
@@ -47,6 +49,7 @@ class PayBox
 	const TYPE_OPERATION_ANNULATION_ABONNE = '00055';
 	const TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
 	const TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
+
 
 	/**
 	 * @var LoggerInterface
@@ -274,6 +277,12 @@ class PayBox
 	 * @var BillingAddressInterface
 	 */
 	private $billingAddress;
+
+	/**
+	 * Paybox system form's expiration in seconds
+	 * @var int
+	 */
+	private $formTimeout = self::DEFAULT_FORM_TIMEOUT;
 
 
 	private static $visaResponseCodes = [
@@ -886,6 +895,24 @@ class PayBox
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getFormTimeout(): int
+	{
+		return $this->formTimeout;
+	}
+
+	/**
+	 * @return self
+	 */
+	public function setFormTimeout($formTimeout): self
+	{
+		$this->formTimeout = $formTimeout;
+
+		return $this;
+	}
+
+	/**
 	 * @return BillingAddressInterface
 	 */
 	private function getBillingAddress(): BillingAddressInterface
@@ -1274,6 +1301,7 @@ class PayBox
 			'PBX_ATTENTE' => $this->urlResponseWaiting,
 			'PBX_TYPEPAIEMENT' => 'CARTE',
 			'PBX_TYPECARTE' => 'CB',
+			'PBX_DISPLAY' => $this->getFormTimeout(),
 		];
 
 		if ($this->is3DSecureV2()) {
