@@ -147,6 +147,7 @@ class PDF
 		if (!empty($this->footer)) {
 			$snappy->setOption('footer-html', $this->footer);
 		}
+		$snappy->setOption('enable-local-file-access', true);
 
 		try {
 			$snappy->generateFromHtml($this->body, $filePath, $options);
