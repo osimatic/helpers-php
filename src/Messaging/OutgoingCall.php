@@ -67,7 +67,7 @@ class OutgoingCall
 
 	/**
 	 * Définit le numéro de téléphone appelé.
-	 * @param string $phoneNumber
+	 * @param string|null $phoneNumber
 	 * @return self
 	 */
 	public function setCalledNumber(?string $phoneNumber): self
@@ -91,7 +91,7 @@ class OutgoingCall
 
 	/**
 	 * Définit le numéro de téléphone affiché.
-	 * @param string $phoneNumber
+	 * @param string|null $phoneNumber
 	 * @return self
 	 */
 	public function setDisplayedNumber(?string $phoneNumber): self
@@ -125,7 +125,7 @@ class OutgoingCall
 
 	/**
 	 * Set de la date et heure de l'appel.
-	 * @param \DateTime $callDateTime
+	 * @param \DateTime|null $callDateTime
 	 * @return self
 	 */
 	public function setCallDateTime(?\DateTime $callDateTime): self

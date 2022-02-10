@@ -36,7 +36,7 @@ class Name
 	}
 
 	/**
-	 * @param string $value
+	 * @param string|null $value
 	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
@@ -46,7 +46,7 @@ class Name
 	}
 
 	/**
-	 * @param string $value
+	 * @param string|null $value
 	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
@@ -56,7 +56,7 @@ class Name
 	}
 
 	/**
-	 * @param string $value
+	 * @param string|null $value
 	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
@@ -66,7 +66,7 @@ class Name
 	}
 
 	/**
-	 * @param string $value
+	 * @param string|null $value
 	 * @param bool $numbersAllowed
 	 * @return bool
 	 */
@@ -79,9 +79,9 @@ class Name
 	// ========== Affichage ==========
 
 	/**
-	 * @param int $civility
-	 * @param string $firstName
-	 * @param string $lastName
+	 * @param int|null $civility
+	 * @param string|null $firstName
+	 * @param string|null $lastName
 	 * @return string
 	 */
 	public static function getFormattedName(?int $civility, ?string $firstName, ?string $lastName): ?string
@@ -116,6 +116,80 @@ class Name
 		return $this->format() ?? '';
 	}
 
+	// ========== Fête ==========
+
+	/**
+	 * Retourne la fête du prénom d'un jour donné (prénom "principal" indiqué sur le calendrier officiel)
+	 * @param int|null $month month of name day (default current month)
+	 * @param int|null $day day of month of name day (default current day of month)
+	 * @param string $country
+	 * @return string|null
+	 */
+	public static function getNameDay(?int $month=null, ?int $day=null, string $country='FR'): ?string
+	{
+		return self::getNameDays($month, $day, $country)[0] ?? null;
+	}
+
+	/**
+	 * Retourne la liste des fêtes du prénoms d'un jour donné
+	 * @param int|null $month month of name day (default current month)
+	 * @param int|null $day day of month of name day (default current day of month)
+	 * @param string $country
+	 * @return array
+	 */
+	public static function getNameDays(?int $month=null, ?int $day=null, string $country='FR'): array
+	{
+		return self::getNameDaysList($country)[sprintf("%02d", $day).'/'.sprintf("%02d", $month)] ?? [];
+	}
+
+	private static array $nameDays = [];
+
+	/**
+	 * @param string $country
+	 * @param bool $rare
+	 * @param bool $special
+	 * @return array
+	 */
+	public static function getNameDaysList(string $country='FR', bool $rare=false, bool $special=false): array
+	{
+		if ((self::$nameDays[$country] ?? null) === null) {
+			// self::$nameDays[$country] = str_getcsv(file_get_contents(), ';');
+			self::$nameDays[$country] = [];
+
+			$filePath = __DIR__.'/conf/name_days_'.mb_strtolower($country).'.csv';
+
+			if (!file_exists($filePath) || false === ($handle = fopen($filePath, 'r'))) {
+				return [];
+			}
+
+			$mainNameDays = [];
+			while (($firstNameData = fgetcsv($handle, 1000, ';')) !== false) {
+				if (count($firstNameData) < 4) continue;
+
+				if (!$rare && (bool)trim($firstNameData[3])) { // si prénom rare, on l'ignore
+					continue;
+				}
+
+				if (!$special && !(bool)trim($firstNameData[4] ?? 0)) { // si fête particulière (exemple : Jour de l'an, fêtes chrétiennes...), on l'ignore
+					continue;
+				}
+
+				if ((bool)trim($firstNameData[2])) { // si prénom "principal"
+					$mainNameDays[trim($firstNameData[1])][] = trim($firstNameData[0]);
+				}
+				self::$nameDays[$country][trim($firstNameData[1])][] = trim($firstNameData[0]);
+			}
+
+			// ajout des prénoms "principal" en début de chaque tableau quotidien
+			foreach ($mainNameDays as $key => $firstName) {
+				array_unshift(self::$nameDays[$country][$key], $firstName);
+			}
+
+			fclose($handle);
+		}
+
+		return self::$nameDays[$country];
+	}
 
 	// ========== Get / Set ==========
 

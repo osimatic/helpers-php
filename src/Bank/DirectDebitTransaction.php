@@ -42,7 +42,7 @@ class DirectDebitTransaction
 	 * @param BankAccountInterface $creditorBankAccount
 	 * @param string $sepaCreditorIdentifier
 	 * @param DirectDebitTransactionInterface[] $listTransactions
-	 * @param string $referenceTransactions
+	 * @param string|null $referenceTransactions
 	 * @param \DateTime|null $transactionDate
 	 * @return bool
 	 */
@@ -62,7 +62,7 @@ class DirectDebitTransaction
 
 		$nbTransactions = count($listTransactions);
 		foreach ($listTransactions as $key => $transaction) {
-			$listTransactions[$key]->setAmount(round($transaction->getAmount(), 2));
+			$transaction->setAmount(round($transaction->getAmount(), 2));
 		}
 
 		$totalAmount = 0;
@@ -181,12 +181,11 @@ class DirectDebitTransaction
 
 
 
-
 	/**
 	 * @param string $filePath
 	 * @param array $creditorData
 	 * @param array $listTransactions
-	 * @param string $referenceTransactions
+	 * @param string|null $referenceTransactions
 	 * @param \DateTime|null $transactionDate
 	 * @return bool
 	 * @deprecated use getTransactionsListXmlFile() instead

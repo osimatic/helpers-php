@@ -264,7 +264,7 @@ class Email
 
 	/**
 	 * Sets the From name of the message.
-	 * @param string $name|null
+	 * @param string|null $name
 	 * @return self
 	 */
 	public function setFromName(?string $name): self
@@ -375,8 +375,8 @@ class Email
 
 	/**
 	 * Add a "Reply-To" address.
-	 * @param string $emailAddress
-	 * @param string $name|null
+	 * @param string|null $emailAddress
+	 * @param string|null $name
 	 * @return self
 	 */
 	public function addReplyTo(?string $emailAddress, ?string $name = ''): self
@@ -388,8 +388,8 @@ class Email
 
 	/**
 	 * Sets the "Reply-To" address.
-	 * @param string $emailAddress
-	 * @param string $name
+	 * @param string|null $emailAddress
+	 * @param string|null $name
 	 * @return self
 	 */
 	public function setReplyTo(?string $emailAddress, ?string $name = ''): self
@@ -487,7 +487,7 @@ class Email
 
 	/**
 	 * Add a "To" address.
-	 * @param string $emailAddress The email address to send to
+	 * @param string|null $emailAddress The email address to send to
 	 * @param string|null $name
 	 * @return self
 	 */
@@ -500,7 +500,7 @@ class Email
 
 	/**
 	 * Add a "To" address.
-	 * @param string $emailAddress The email address to send to
+	 * @param string|null $emailAddress The email address to send to
 	 * @param string|null $name
 	 * @return self
 	 */
@@ -512,8 +512,8 @@ class Email
 	}
 
 	/**
-	 * Add a "CC" address..
-	 * @param string $emailAddress The email address to send to
+	 * Add a "CC" address.
+	 * @param string|null $emailAddress The email address to send to
 	 * @param string|null $name
 	 * @return self
 	 */
@@ -526,7 +526,7 @@ class Email
 
 	/**
 	 * Add a "BCC" address.
-	 * @param string $emailAddress The email address to send to
+	 * @param string|null $emailAddress The email address to send to
 	 * @param string|null $name
 	 * @return self
 	 */
@@ -1020,7 +1020,7 @@ class Email
 
 	/**
 	 * Sets the subject of the message.
-	 * @param string
+	 * @param string|null
 	 * @param bool $encode
 	 * @return self
 	 */
@@ -1126,7 +1126,7 @@ class Email
 
 	/**
 	 * Sets the HTML or plain text message body.
-	 * @param string $text
+	 * @param string|null $text
 	 * @param bool $encode
 	 * @return self
 	 */
@@ -1152,7 +1152,7 @@ class Email
 
 	/**
 	 * Sets the sending date time of the message.
-	 * @param \DateTime $sendingDateTime
+	 * @param \DateTime|null $sendingDateTime
 	 * @return self
 	 */
 	public function setSendingDateTime(?\DateTime $sendingDateTime): self

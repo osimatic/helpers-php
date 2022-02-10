@@ -153,7 +153,7 @@ class SMS
 
 	/**
 	 * Ajoute un destinataire pour le SMS.
-	 * @param string $mobileNumber numéro de téléphone du destinataire.
+	 * @param string|null $mobileNumber numéro de téléphone du destinataire.
 	 * @return self
 	 */
 	public function addRecipient(?string $mobileNumber): self
@@ -165,7 +165,7 @@ class SMS
 
 	/**
 	 * Définit un unique destinataire pour le SMS.
-	 * @param string $mobileNumber le numéro de téléphone du destinataire.
+	 * @param string|null $mobileNumber le numéro de téléphone du destinataire.
 	 * @return self
 	 */
 	public function setRecipient(?string $mobileNumber): self
@@ -368,7 +368,7 @@ class SMS
 
 	/**
 	 * Set de la date et heure de l'envoi du SMS.
-	 * @param \DateTime $sendingDateTime
+	 * @param \DateTime|null $sendingDateTime
 	 * @return self
 	 */
 	public function setSendingDateTime(?\DateTime $sendingDateTime): self
@@ -404,7 +404,7 @@ class SMS
 
 	/**
 	 * Ajoute un destinataire pour le SMS.
-	 * @param string $mobileNumber numéro de téléphone du destinataire.
+	 * @param string|null $mobileNumber numéro de téléphone du destinataire.
 	 * @return bool
 	 */
 	private function addRecipientPhoneNumber(?string $mobileNumber): bool

@@ -1,0 +1,1611 @@
+prenom , date , fete_principale , rare
+
+// Liste des fête du jour ne correpondant pas à des prénoms
+
+"Jour de l\'An" ; 					01/01 ; 1 ; 0 ; 0
+"François de Sales" ; 				24/01 ; 1 ; 0 ; 0
+"Conv. de St Paul" ; 				25/01 ; 1 ; 0 ; 0
+"Thomas d\'Aquin" ; 				28/01 ; 1 ; 0 ; 0
+"Présentation" ; 					02/02 ; 1 ; 0 ; 0
+"N. D. de Lourdes" ; 				11/02 ; 1 ; 0 ; 0
+"Charles le Bon" ; 					02/03 ; 1 ; 0 ; 0
+"Jean de Dieu" ; 					08/03 ; 1 ; 0 ; 0
+"PRINTEMPS" ; 						20/03 ; 1 ; 0 ; 0
+"Catherine de Suè." ; 				24/03 ; 1 ; 0 ; 0
+"J.-B. de la Salle." ; 				07/04 ; 1 ; 0 ; 0
+"Benoît-Joseph" ; 					16/04 ; 1 ; 0 ; 0
+"Jour du Souv." ; 					28/04 ; 1 ; 0 ; 0
+"Catherine de Si." ; 				29/04 ; 1 ; 0 ; 0
+"Fête du travail" ; 				01/05 ; 1 ; 0 ; 0
+"Armistice 1945" ; 					08/05 ; 1 ; 0 ; 0
+"Jeanne d\'Arc" ; 					12/05 ; 1 ; 0 ; 0
+"Visitation de la Ste V." ; 		31/05 ; 1 ; 0 ; 0
+"Antoine de P." ; 					13/06 ; 1 ; 0 ; 0
+"J.-F. Régis" ; 					16/06 ; 1 ; 0 ; 0
+"ÉTÉ" ; 							21/06 ; 1 ; 0 ; 0
+"Fête Nationale" ; 					14/07 ; 1 ; 0 ; 0
+"N.-D. Mt-Carmel" ; 				16/07 ; 1 ; 0 ; 0
+"Marie-Madeleine" ; 				22/07 ; 1 ; 0 ; 0
+"Ignace de Loyola" ; 				31/07 ; 1 ; 0 ; 0
+"Julien-Eymard" ; 					02/08 ; 1 ; 0 ; 0
+"J.-M. Vianney" ; 					04/08 ; 1 ; 0 ; 0
+"Transfiguration" ; 				06/08 ; 1 ; 0 ; 0
+"Assomption" ; 						15/08 ; 1 ; 0 ; 0
+"Rose de Lima" ; 					23/08 ; 1 ; 0 ; 0
+"Nativité N.-D." ; 					08/09 ; 1 ; 0 ; 0
+"Croix Glorieuse" ; 				14/09 ; 1 ; 0 ; 0
+"AUTOMNE" ; 						23/09 ; 1 ; 0 ; 0
+"Vincent de Paul" ; 				27/09 ; 1 ; 0 ; 0
+"Thérèse de l\'Enfant Jésus" ; 		01/10 ; 1 ; 0 ; 0
+"François d\'Assise" ; 				04/10 ; 1 ; 0 ; 0
+"Thérèse d\'Avila" ; 				15/10 ; 1 ; 0 ; 0
+"Jean de Capistran" ; 				23/10 ; 1 ; 0 ; 0
+"Bienvenue" ; 						30/10 ; 1 ; 0 ; 0
+"La Toussaint" ; 					01/11 ; 1 ; 0 ; 0
+"Défunts" ; 						02/11 ; 1 ; 0 ; 0
+"L\'Armistice 1918" ; 				11/11 ; 1 ; 0 ; 0
+"Présence de Marie" ; 				21/11 ; 1 ; 0 ; 0
+"Catherine L." ; 					25/11 ; 1 ; 0 ; 0
+"Jacques de la Marche" ; 			28/11 ; 1 ; 0 ; 0
+"Immaculée Conception" ; 			08/12 ; 1 ; 0 ; 0
+"Pierre Fourier" ; 					09/12 ; 1 ; 0 ; 0
+"Jeanne de Chantal" ; 				12/12 ; 1 ; 0 ; 0
+"HIVER" ; 							21/12 ; 1 ; 0 ; 0
+"Noël" ;  							25/12 ; 1 ; 0 ; 0
+
+// Fête du jour ne correspondant pas à des prénoms, n'apparaissant pas sur le calendrier
+// 25 mars : L'Annonciation
+
+"Prénom" ; "Date" ; "fete_principale" ; "rare"
+
+// Liste des prénoms
+"Aaron" ;			01/07 ; 0 ; 0
+"Abdon" ;			xx/xx ; 0 ; 1
+"Abdonie" ;			xx/xx ; 0 ; 1
+"Abdonise" ;		xx/xx ; 0 ; 1
+"Abel" ;			05/08 ; 1 ; 0
+"Abélard" ;			05/08 ; 0 ; 1
+"Abélie" ;			05/08 ; 0 ; 1
+"Abeline" ;			05/08 ; 0 ; 1
+"Abelle" ;			05/08 ; 0 ; 1
+"Abigaëlle" ;		xx/xx ; 0 ; 1
+"Abigaïl" ;			xx/xx ; 0 ; 1
+"Abraham" ;			20/12 ; 0 ; 0
+"Achille" ;			12/05 ; 0 ; 0
+"Ada" ;				xx/xx ; 0 ; 1 ; 04/12 ?
+"Adalbert" ;		xx/xx ; 0 ; 1
+"Adam" ;			xx/xx ; 0 ; 0 ; 17/06 ?
+"Adel" ;			xx/xx ; 0 ; 0
+"Adèla" ;			24/12 ; 0 ; 1
+"Adélaïde" ;		16/12 ; 0 ; 0
+"Adèle" ;			24/12 ; 1 ; 0
+"Adeleine" ;		24/12 ; 0 ; 1
+"Adélia" ;			24/12 ; 0 ; 1
+"Adélice" ;			xx/xx ; 0 ; 1
+"Adélie" ;			24/12 ; 0 ; 1
+"Adelin" ;			xx/xx ; 0 ; 1
+"Adeline" ;			20/10 ; 1 ; 0
+"Adelle" ;			24/12 ; 0 ; 1
+"Adelphe" ;			11/09 ; 1 ; 0
+"Adéodat" ;			xx/xx ; 0 ; 1
+"Adhémar" ;			xx/xx ; 0 ; 1
+"Adolphe" ;			30/06 ; 0 ; 0
+"Adonis" ;			xx/xx ; 0 ; 1
+"Adonise" ;			xx/xx ; 0 ; 1
+"Adriana" ;			xx/xx ; 0 ; 1
+"Adriane" ;			xx/xx ; 0 ; 1
+"Adrien" ;			08/09 ; 0 ; 0
+"Adrienne" ;		08/09 ; 0 ; 1
+"Agathe" ;			05/02 ; 1 ; 0
+"Agathon" ;			xx/xx ; 0 ; 1
+"Agénor" ;			xx/xx ; 0 ; 1
+"Aglaé" ;			14/05 ; 0 ; 1
+"Aglaée" ;			14/05 ; 0 ; 1
+"Agnan" ;			xx/xx ; 0 ; 1
+"Agnel" ;			xx/xx ; 0 ; 1
+"Agnès" ;			21/01 ; 1 ; 0
+"Aignan" ;			xx/xx ; 0 ; 1
+"Aimable" ;			18/10 ; 0 ; 0
+"Aimé" ;			13/09 ; 1 ; 0
+"Aimée" ;			20/02 ; 1 ; 0
+"Alain" ;			09/09 ; 1 ; 0
+"Alaine" ;			xx/xx ; 0 ; 1
+"Alban" ;			22/06 ; 1 ; 0
+"Albane" ;			22/06 ; 0 ; 0
+"Albéric" ;			15/11 ; 0 ; 1
+"Albert" ;			15/11 ; 1 ; 0
+"Alberte" ;			15/11 ; 0 ; 1
+"Albertine" ;		15/11 ; 0 ; 0
+"Albin" ;			01/03 ; 0 ; 0
+"Albine" ;		 	xx/xx ; 0 ; 1
+"Alcée" ;			xx/xx ; 0 ; 1
+"Alcibiade" ;		xx/xx ; 0 ; 1
+"Alcide" ;			xx/xx ; 0 ; 1
+"Alcidie" ;			xx/xx ; 0 ; 1
+"Alcime" ;			xx/xx ; 0 ; 1
+"Alcine" ;			xx/xx ; 0 ; 1
+"Alcyone" ;			xx/xx ; 0 ; 1
+"Aldebert" ;		xx/xx ; 0 ; 1
+"Aldegonde" ;		xx/xx ; 0 ; 1
+"Aldéric" ;			xx/xx ; 0 ; 1
+"Aldo" ;			xx/xx ; 0 ; 1
+"Aldonce" ;			xx/xx ; 0 ; 1
+"Aldric" ;			xx/xx ; 0 ; 1
+"Aleth" ;			xx/xx ; 0 ; 1
+"Alex" ;			22/04 ; 0 ; 0
+"Alexandra" ;		22/04 ; 0 ; 0
+"Alexandre" ;		22/04 ; 1 ; 0
+"Alexandrine" ;		02/04 ; 0 ; 0
+"Alexane" ;			17/02 ; 0 ; 0
+"Alexiane" ;		17/02 ; 0 ; 1
+"Alexine" ;			xx/xx ; 0 ; 1
+"Alexis" ;			17/02 ; 1 ; 0
+"Alfred" ;			15/08 ; 0 ; 0
+"Alice" ;			16/12 ; 1 ; 0
+"Alida" ;			26/04 ; 1 ; 0
+"Aliénor" ;			25/06 ; 0 ; 0
+"Aliette" ;			xx/xx ; 0 ; 1
+"Aline" ;			20/10 ; 0 ; 0
+"Alisson" ;			xx/xx ; 0 ; 0 ; 16/12 ?
+"Alix" ;			09/01 ; 1 ; 0
+"Alizée" ;			xx/xx ; 0 ; 0
+"Allison" ;			xx/xx ; 0 ; 0 ; 16/12 ?
+"Almire" ;			xx/xx ; 0 ; 1
+"Aloïs" ;			xx/xx ; 0 ; 0 ; 25/08 ?
+"Aloïse" ;			xx/xx ; 0 ; 1
+"Aloys" ;			xx/xx ; 0 ; 1
+"Aloyse" ;			xx/xx ; 0 ; 1
+"Alphée" ;			xx/xx ; 0 ; 1
+"Alphonse" ;		01/08 ; 1 ; 0
+"Alphonsine" ;		xx/xx ; 0 ; 0
+"Alysson" ;			xx/xx ; 0 ; 1
+"Alyzée" ;			xx/xx ; 0 ; 1
+"Amadis" ;			xx/xx ; 0 ; 1
+"Amalric" ;			xx/xx ; 0 ; 1
+"Amanda" ;			09/07 ; 0 ; 0
+"Amande" ;			xx/xx ; 0 ; 1
+"Amandin" ;			xx/xx ; 0 ; 1
+"Amandine" ;		09/07 ; 1 ; 0
+"Amant" ;			xx/xx ; 0 ; 1
+"Amante" ;			xx/xx ; 0 ; 1
+"Amantine" ;		xx/xx ; 0 ; 1
+"Amarande" ;		xx/xx ; 0 ; 1
+"Amaranthe" ;		xx/xx ; 0 ; 1
+"Amaryllis" ;		xx/xx ; 0 ; 1
+"Ambre" ;			07/12 ; 0 ; 0
+"Ambrine" ;			07/12 ; 0 ; 0
+"Ambroise" ;		07/12 ; 1 ; 0
+"Ambroisine" ;		07/12 ; 0 ; 1
+"Amaury" ;			15/01 ; 0 ; 1
+"Amédée" ;			30/03 ; 1 ; 0
+"Amele" ;			xx/xx ; 0 ; 1
+"Ameliane" ;		xx/xx ; 0 ; 1
+"Amélie" ;			19/09 ; 0 ; 0
+"Amélien" ;			xx/xx ; 0 ; 1
+"Ameline" ;			xx/xx ; 0 ; 1 ; 19/09 ?
+"Améthyste" ;		xx/xx ; 0 ; 1
+"Amiel" ;			xx/xx ; 0 ; 1
+"Amour" ;			09/08 ; 1 ; 0
+"Anaël" ;			26/07 ; 0 ; 1
+"Anaëlle" ;			26/07 ; 0 ; 0
+// Annaëlle, Anaïs, Aneth, Anika, Anita, Anna, Annabelle, Annaïc, Annaïck, Annaïg ou Anaïg, Anneto, Annette, Annick, Annie, Annouk, Ano, Anouchka,
+"Anaïs" ;			26/07 ; 0 ; 0
+"Anastase" ;		xx/xx ; 0 ; 1
+"Anastasie" ;		10/03 ; 0 ; 1
+"Anatole" ;			03/02 ; 0 ; 0
+"Anatolie" ;		xx/xx ; 0 ; 1
+"Anatoline" ;		xx/xx ; 0 ; 1
+"Ancelin" ;			xx/xx ; 0 ; 1
+"Anceline" ;		xx/xx ; 0 ; 1
+"Andéol" ;			xx/xx ; 0 ; 1
+"Andoche" ;			xx/xx ; 0 ; 1
+"André" ;			30/11 ; 1 ; 0
+"Andrée" ;			30/11 ; 0 ; 0
+"Andrew" ;			30/11 ; 0 ; 0
+"Anémone" ;			05/10 ; 0 ; 1
+"Ange" ;			05/05 ; 0 ; 0
+"Angèle" ;			27/01 ; 1 ; 0
+"Angela" ;			27/01 ; 0 ; 0
+"Angelin" ;			xx/xx ; 0 ; 1
+"Angélina" ;		27/01 ; 0 ; 0
+"Angeline" ;		27/01 ; 0 ; 1
+"Angéline" ;		27/01 ; 0 ; 0
+"Angélique" ;		27/01 ; 0 ; 0
+"Anicée" ;			xx/xx ; 0 ; 1
+"Anicet" ;			17/04 ; 1 ; 0
+"Anicette" ;		xx/xx ; 0 ; 1
+"Anna" ;			26/07 ; 0 ; 0
+"Annabelle" ;		26/07 ; 0 ; 0
+"Annaëlle" ;		26/07 ; 0 ; 0
+"Anne" ;			26/07 ; 1 ; 0
+"Annette" ;			26/07 ; 0 ; 0
+"Annibal" ;			xx/xx ; 0 ; 1
+"Annick" ;			26/07 ; 0 ; 1
+"Annie" ;			26/07 ; 0 ; 0
+"Ansbert" ;			xx/xx ; 0 ; 1
+"Anselme" ;			21/04 ; 1 ; 0
+"Anthelme" ;		26/06 ; 1 ; 0
+"Anthelmette" ;		xx/xx ; 0 ; 1
+"Anthelmine" ;		xx/xx ; 0 ; 1
+"Anthime" ;			xx/xx ; 0 ; 1
+"Anthony" ;			13/01 ; 0 ; 0 ; ou 17/01 ?
+"Antide" ;			xx/xx ; 0 ; 1
+"Antigone" ;		xx/xx ; 0 ; 1
+"Antoine" ;			05/07 ; 1 ; 0
+"Antoinette" ;		28/02 ; 0 ; 0
+"Antonin" ;			02/05 ; 0 ; 0
+"Antonine" ;		xx/xx ; 0 ; 1
+"Antony" ;			13/01 ; 0 ; 0 ; ou 17/01 ?
+"Aphélie" ;			xx/xx ; 0 ; 1
+"Aphrodite" ;		xx/xx ; 0 ; 1
+"Apollinaire" ;		12/09 ; 1 ; 0
+"Apolline" ;		09/02 ; 1 ; 0
+"Apollon" ;			xx/xx ; 0 ; 1
+"Apollonie" ;		xx/xx ; 0 ; 1
+"Arabelle" ;		xx/xx ; 0 ; 1
+"Arcade" ;			xx/xx ; 0 ; 1
+"Arcadie" ;			xx/xx ; 0 ; 1
+"Archambaud" ;		xx/xx ; 0 ; 1
+"Archange" ;		xx/xx ; 0 ; 1
+"Archibald" ;		01/11 ; 0 ; 1
+"Argine" ;			xx/xx ; 0 ; 1
+"Arian" ;			xx/xx ; 0 ; 1
+"Ariane" ;			18/09 ; 0 ; 0
+"Aricie" ;			xx/xx ; 0 ; 1
+"Ariel" ;			01/10 ; 0 ; 1
+"Arielle" ;			01/10 ; 0 ; 0
+"Ariste" ;			xx/xx ; 0 ; 1
+"Aristide" ;		31/08 ; 1 ; 0
+"Arlette" ;			17/07 ; 0 ; 0
+"Armance" ;			xx/xx ; 0 ; 1 ; 08/06 ?
+"Armand" ;			23/12 ; 1 ; 0
+"Armande" ;			23/12 ; 0 ; 0 ; ou le 08/06 ?
+"Armandine" ;		xx/xx ; 0 ; 0
+"Armel" ;			16/08 ; 1 ; 0
+"Armeline" ;		xx/xx ; 0 ; 1
+"Armide" ;			xx/xx ; 0 ; 1
+"Armelle" ;			16/08 ; 0 ; 0
+"Armin" ;			xx/xx ; 0 ; 1
+"Armine" ;			xx/xx ; 0 ; 1
+"Arnaud" ;			10/02 ; 1 ; 0
+"Arnaude" ;			xx/xx ; 0 ; 1
+"Arnold" ;			14/08 ; 0 ; 0
+"Arnould" ;			18/07 ; 0 ; 1
+"Arsène" ;			19/07 ; 1 ; 0
+"Arsènie" ;			xx/xx ; 0 ; 1
+"Arthaud" ;			xx/xx ; 0 ; 1
+"Arthème" ;			xx/xx ; 0 ; 1
+"Artémis" ;			xx/xx ; 0 ; 1
+"Arthur" ;			15/11 ; 0 ; 0
+"Arthurine" ;		xx/xx ; 0 ; 1
+"Asceline" ;		xx/xx ; 0 ; 1
+"Ashley" ;			xx/xx ; 0 ; 0
+"Astérie" ;			xx/xx ; 0 ; 1
+"Astrée" ;			xx/xx ; 0 ; 1
+"Astrid" ;			27/11 ; 0 ; 0
+"Astride" ;			xx/xx ; 0 ; 0
+"Athalie" ;			xx/xx ; 0 ; 1
+"Athanase" ;		02/05 ; 0 ; 1
+"Athanasie" ;		xx/xx ; 0 ; 1
+"Athénaïs" ;		xx/xx ; 0 ; 0
+"Aubane" ;			xx/xx ; 0 ; 1
+"Aube" ;			xx/xx ; 0 ; 1
+"Aubérie" ;			xx/xx ; 0 ; 1
+"Aubert" ;			10/09 ; 0 ; 1
+"Aubertine" ;		xx/xx ; 0 ; 1
+"Aubin" ;			01/03 ; 1 ; 0
+"Aude" ;			18/11 ; 1 ; 0
+"Audeline" ;		xx/xx ; 0 ; 1
+"Audebert" ;		xx/xx ; 0 ; 1
+"Audette" ;			xx/xx ; 0 ; 1
+"Audouin" ;			xx/xx ; 0 ; 1
+"Audrey" ;			23/06 ; 1 ; 0
+"Audran" ;			xx/xx ; 0 ; 1
+"Audric" ;			xx/xx ; 0 ; 1
+"Auguste" ;			29/02 ; 1 ; 0
+"Augustin" ;		27/05 ; 1 ; 0 ; 2 même prénom car feté 2 fois principalement
+"Augustin" ;		28/08 ; 1 ; 0
+"Augustine" ;		28/08 ; 0 ; 0
+"Aulde" ;			xx/xx ; 0 ; 1
+"Aure" ;			xx/xx ; 0 ; 1
+"Aurèle" ;			15/10 ; 0 ; 1
+"Aurélia" ;			15/10 ; 0 ; 0
+"Aurélie" ;			15/10 ; 0 ; 0
+"Aurélien" ;		16/06 ; 0 ; 0
+"Aurélienne" ;		xx/xx ; 0 ; 1
+"Aurelle" ;			xx/xx ; 0 ; 1
+"Aurian" ;			xx/xx ; 0 ; 1
+"Auriane" ;			04/10 ; 0 ; 0
+"Aurore" ;			04/10 ; 0 ; 0 ; Et aussi le 13/12
+"Automne" ;			xx/xx ; 0 ; 1
+"Auxane" ;			xx/xx ; 0 ; 1
+"Auxence" ;			xx/xx ; 0 ; 1
+"Aveline" ;			xx/xx ; 0 ; 1
+"Avigaelle" ;		xx/xx ; 0 ; 1
+"Avigaïl" ;			xx/xx ; 0 ; 1
+"Avril" ;			xx/xx ; 0 ; 1
+"Axel" ;			21/03 ; 0 ; 0
+"Axeline" ;			xx/xx ; 0 ; 1
+"Axelle" ;			21/03 ; 0 ; 0
+"Aymar" ;			29/05 ; 1 ; 0
+"Aymard" ;			xx/xx ; 0 ; 1
+"Aymeric" ;			04/11 ; 0 ; 0
+"Aymonde" ;			xx/xx ; 0 ; 1
+"Azalée" ;			xx/xx ; 0 ; 1
+"Azel" ;			xx/xx ; 0 ; 1
+"Azelle" ;			xx/xx ; 0 ; 1
+"Azélie" ;			xx/xx ; 0 ; 1
+"Azeline" ;			xx/xx ; 0 ; 1
+"Baptiste" ;		24/06 ; 0 ; 0
+"Barbara" ;			04/12 ; 1 ; 0
+"Barnabé" ;			11/06 ; 1 ; 0
+"Barnard" ;			23/01 ; 1 ; 0
+"Barthélemy" ;		24/08 ; 1 ; 0
+"Barthy" ;			24/08 ; 0 ; 1
+"Basile" ;			02/01 ; 1 ; 0
+"Bastien" ;			20/01 ; 0 ; 0
+"Baudouin" ;		17/10 ; 1 ; 0
+"Béatrice" ;		13/02 ; 1 ; 0
+"Béatrix" ;			29/07 ; 0 ; 1
+"Bénédicte" ;		16/03 ; 1 ; 0
+"Benjamin" ;		31/03 ; 1 ; 0
+"Benjamine" ;		31/03 ; 0 ; 1
+"Benoît" ;			11/07 ; 1 ; 0
+"Béranger" ;		26/05 ; 0 ; 1
+"Bérangère" ;		26/05 ; 0 ; 1
+"Bérénice" ;		04/02 ; 0 ; 1
+"Bérenger" ;		26/05 ; 1 ; 0
+"Bérengère" ;		26/05 ; 0 ; 0
+"Bernadette" ;		18/02 ; 1 ; 0
+"Bernard" ;			20/08 ; 1 ; 0
+"Bernardin" ;		20/05 ; 1 ; 0
+"Berthe" ;			04/07 ; 0 ; 1
+"Bertille" ;		06/11 ; 1 ; 0
+"Bertrand" ;		06/09 ; 1 ; 0
+"Bianca" ;			03/10 ; 0 ; 1
+"Blaise" ;			03/02 ; 1 ; 0
+"Blanche" ;			03/10 ; 0 ; 0
+"Blandine" ;		02/06 ; 1 ; 0
+"Boniface" ;		05/06 ; 0 ; 1
+"Boris" ;			02/05 ; 1 ; 0
+"Brice" ;			13/11 ; 1 ; 0
+"Brigitte" ;		23/07 ; 1 ; 0
+"Bruno" ;			06/10 ; 1 ; 0
+"Calvin" ;			xx/xx ; 0 ; 0
+"Camélia" ;			05/10 ; 0 ; 0
+"Camille" ;			14/07 ; 0 ; 0
+"Candice" ;			14/06 ; 0 ; 1
+"Candy" ;			03/10 ; 0 ; 0
+"Capucine" ;		05/10 ; 0 ; 0
+"Carine" ;			07/11 ; 1 ; 0
+"Carl" ;			04/11 ; 0 ; 0
+"Carle" ;			xx/xx ; 0 ; 1
+"Carlos" ;			04/11 ; 0 ; 0
+"Carmen" ;			16/07 ; 0 ; 1
+"Carole" ;			17/07 ; 0 ; 0
+"Caroline" ;		17/07 ; 0 ; 0
+"Casimir" ;			04/03 ; 1 ; 0
+"Cassandra" ;		xx/xx ; 0 ; 0
+"Cassandre" ;		xx/xx ; 0 ; 0
+"Catalina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Catarina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Cateline" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Caterina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Cathaline" ;		xx/xx ; 0 ; 1
+"Catharine" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Catheline" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Catherine" ;		25/11 ; 0 ; 0
+"Cathie" ;			25/11 ; 0 ; 0 ; ou le 24/03 ?
+"Cathy" ;			25/11 ; 0 ; 0 ; ou le 24/03 ou le 29/04 ?
+"Catriona" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Cécile" ;			22/11 ; 1 ; 0
+"Cécilia" ;			22/11 ; 0 ; 0
+"Cédric" ;			xx/xx ; 0 ; 0 ; 07/01 ?
+"Céleste" ;			14/10 ; 0 ; 0
+"Célestin" ;		19/05 ; 0 ; 0
+"Célestine" ;		19/05 ; 0 ; 0
+"Célia" ;			22/11 ; 0 ; 0
+"Céliane" ;			22/11 ; 0 ; 0
+"Céline" ;			21/10 ; 1 ; 0
+"César" ;			15/04 ; 0 ; 0
+"Chantal" ;			12/12 ; 0 ; 0
+"Charles" ;			04/11 ; 1 ; 0
+"Charline" ;		xx/xx ; 0 ; 0 ; 17/07 ?
+"Charlotte" ;		17/07 ; 1 ; 0
+"Charly" ;			04/11 ; 0 ; 1
+"Chloé" ;			05/10 ; 0 ; 0
+"Chrétien" ;		xx/xx ; 0 ; 1
+"Christel" ;		24/07 ; 0 ; 1
+"Christelle" ;		24/07 ; 0 ; 0
+"Christian" ;		12/11 ; 1 ; 0
+"Christiane" ;		24/07 ; 0 ; 0
+"Christine" ;		24/07 ; 1 ; 0
+"Christophe" ;		21/08 ; 1 ; 0
+"Christopher" ;		21/08 ; 0 ; 1
+"Claire" ;			11/08 ; 1 ; 0
+"Clara" ;			11/08 ; 0 ; 0
+"Clarence" ;		11/08 ; 0 ; 0
+"Clarisse" ;		12/08 ; 1 ; 0
+"Claude" ;			15/02 ; 1 ; 0
+"Claudette" ;		15/02 ; 0 ; 0 ; ou le 06/06 ?
+"Claudia" ;			15/02 ; 0 ; 0 ; ou le 06/06 ?
+"Claudine" ;		03/02 ; 0 ; 0 ; ou le 15/02 ou le 06/06 ?
+"Cléa" ;			xx/xx ; 0 ; 0
+"Clémence" ;		21/03 ; 1 ; 0
+"Clément" ;			23/11 ; 1 ; 0
+"Clémentine" ;		23/11 ; 0 ; 0
+"Cléo" ;			xx/xx ; 0 ; 0
+"Clotaire" ;		07/04 ; 0 ; 1
+"Clotilde" ;		04/06 ; 1 ; 0
+"Clovis" ;			25/08 ; 0 ; 0
+"Colas" ;			xx/xx ; 0 ; 1
+"Colette" ;			06/03 ; 1 ; 0
+"Colin" ;			06/12 ; 0 ; 0
+"Côme" ;			26/09 ; 1 ; 0
+"Constance" ;		xx/xx ; 0 ; 0 ; 23/09 ou 08/04 ?
+"Constant" ;		23/09 ; 0 ; 0
+"Constantin" ;		21/05 ; 1 ; 0
+"Cora" ;			18/05 ; 0 ; 0
+"Coralie" ;			18/05 ; 0 ; 0
+"Coraline" ;		18/05 ; 0 ; 0
+"Corentin" ;		12/12 ; 0 ; 0
+"Corentine" ;		xx/xx ; 0 ; 1
+"Corinne" ;			18/05 ; 0 ; 0
+"Cosette" ;			xx/xx ; 0 ; 1
+"Crépin" ;			25/10 ; 1 ; 0
+"Cyprien" ;			16/09 ; 0 ; 0
+"Cyrille" ;			18/03 ; 1 ; 0
+"Cyrielle" ;		18/03 ; 0 ; 0
+"Daisy" ;			16/11 ; 0 ; 0
+"Damien" ;			26/09 ; 0 ; 0
+"Daniel" ;			11/12 ; 1 ; 0
+"Danielle" ;		11/12 ; 0 ; 0
+"Daphné" ;			10/11 ; 0 ; 0
+"Daphnée" ;			10/11 ; 0 ; 1
+"Darius" ;			xx/xx ; 0 ; 1 ; 25/10
+"David" ;			29/12 ; 1 ; 0
+"Davy" ;			20/09 ; 1 ; 0
+"Déborah" ;			21/09 ; 0 ; 0
+"Delphine" ;		26/11 ; 1 ; 0
+"Denis" ;			09/10 ; 1 ; 0
+"Denise" ;			15/05 ; 1 ; 0
+"Déodat" ;			xx/xx ; 0 ; 1
+"Désiré" ;			08/05 ; 0 ; 0
+"Dévote" ;			xx/xx ; 0 ; 1
+"Diane" ;			09/06 ; 1 ; 0
+"Didier" ;			23/05 ; 1 ; 0
+"Diego" ;			13/11 ; 0 ; 0
+"Dieudonné" ;		xx/xx ; 0 ; 1
+"Dieudonnée" ;		xx/xx ; 0 ; 1
+"Dimitri" ;			26/10 ; 1 ; 0
+"Dolorès" ;			15/09 ; 0 ; 1
+"Dominique" ;		08/08 ; 1 ; 0
+"Domitille" ;		07/05 ; 0 ; 1
+"Donald" ;			15/07 ; 1 ; 0
+"Donatien" ;		24/05 ; 1 ; 0
+"Donovan" ;			15/07 ; 0 ; 0
+"Dorian" ;			09/11 ; 0 ; 0
+"Doriane" ;			xx/xx ; 0 ; 0 ; 25/10
+"Dorine" ;			xx/xx ; 0 ; 0 ; 9/11 ou 11/2 ?
+"Dorothée" ;		06/02 ; 0 ; 0
+"Dylan" ;			xx/xx ; 0 ; 0
+"Edvige" ;			16/10 ; 0 ; 1
+"Edwige" ;			16/10 ; 1 ; 0
+"Edwin" ;			12/10 ; 0 ; 1
+"Edgar" ;			08/07 ; 0 ; 0
+"Edith" ;			16/09 ; 1 ; 0
+"Edmond" ;			20/11 ; 1 ; 0
+"Edouard" ;			05/01 ; 1 ; 0
+"Églantine" ;		05/10 ; 0 ; 0
+"Ekaterina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Éléanor" ;			25/06 ; 0 ; 1
+"Elena" ;			18/08 ; 0 ; 0
+"Éléonore" ;		25/06 ; 0 ; 0
+"Éléonor" ;			25/06 ; 0 ; 1
+"Éléonora" ;		25/06 ; 0 ; 1
+"Élia" ;			20/07 ; 0 ; 1
+"Eliane" ;			xx/xx ; 0 ; 0 ; 04/07
+"Élie" ;			20/07 ; 0 ; 1
+"Eliette" ;			20/07 ; 0 ; 1
+"Eline" ;			18/08 ; 0 ; 1
+"Élinor" ;			25/06 ; 0 ; 1
+"Elisabeth" ;		17/11 ; 1 ; 0
+"Elise" ;			17/11 ; 0 ; 0
+"Elisée" ;			14/06 ; 1 ; 0
+"Ella" ;			01/02 ; 1 ; 0
+"Élodie" ;			22/10 ; 1 ; 0
+"Eloi" ;			01/12 ; 0 ; 0
+"Eloïse" ;			xx/xx ; 0 ; 0 ; 15/03 ?
+"Elora" ;			25/06 ; 0 ; 1
+"Elouan" ;			28/08 ; 0 ; 1
+"Elsa" ;			17/11 ; 0 ; 0
+"Elvire" ;			16/07 ; 0 ; 1
+"Émeline" ;			27/10 ; 1 ; 0
+"Émelyne" ;			27/10 ; 0 ; 1
+"Emeric" ;			04/11 ; 0 ; 1
+"Émeric" ;			04/11 ; 0 ; 0
+"Émile" ;			22/05 ; 1 ; 0
+"Émilie" ;			19/09 ; 1 ; 0
+"Émilien" ;			12/11 ; 0 ; 0
+"Emma" ;			19/04 ; 1 ; 0
+"Emmanuel" ;		25/12 ; 0 ; 0
+"Emmanuelle" ;		25/12 ; 0 ; 0
+"Emmeline" ;		27/10 ; 0 ; 1
+"Enguerrand" ;		xx/xx ; 0 ; 1
+"Enrique" ;			13/07 ; 0 ; 1
+"Enzo" ;			13/07 ; 0 ; 0
+"Eric" ;			18/05 ; 1 ; 0
+"Ermine" ;			09/07 ; 0 ; 1
+"Ernest" ;			07/11 ; 0 ; 1
+"Ernestine" ;		07/11 ; 0 ; 1
+"Erwan" ;			19/05 ; 0 ; 0
+"Esther" ;			01/07 ; 0 ; 0
+"Estelle" ;			11/05 ; 1 ; 0
+"Etienne" ;			26/12 ; 1 ; 0
+"Eudes" ;			19/08 ; 0 ; 1
+"Eugène" ;			13/07 ; 0 ; 0
+"Eugénie" ;			07/02 ; 1 ; 0
+"Eulalie" ;			10/12 ; 0 ; 0
+"Eusèbe" ;			xx/xx ; 0 ; 0
+"Eva" ;				06/09 ; 0 ; 0
+"Evan" ;			27/12 ; 0 ; 0
+"Évangéline" ;		xx/xx ; 0 ; 0
+"Eve" ;				06/09 ; 0 ; 0
+"Évelyne" ;			06/09 ; 0 ; 0
+"Evrard" ;			14/08 ; 1 ; 0
+"Fabien" ;			20/01 ; 0 ; 0
+"Fabienne" ;		20/01 ; 0 ; 0
+"Fabia" ;			27/12 ; 0 ; 1
+"Fabiola" ;			27/12 ; 0 ; 1
+"Fabrice" ;			22/08 ; 1 ; 0
+"Fanchon" ;			09/03 ; 0 ; 1
+"Fannie" ;			09/03 ; 0 ; 0
+"Fanny" ;			26/12 ; 0 ; 0
+"Fantine" ;			xx/xx ; 0 ; 0
+"Faustin" ;			15/02 ; 0 ; 1
+"Faustine" ;		xx/xx ; 0 ; 0 ; 18/01 ?
+"Fédérica" ;		18/07 ; 0 ; 1
+"Fédérico" ;		18/07 ; 0 ; 1
+"Félicie" ;			07/03 ; 0 ; 0
+"Félicien" ;		09/06 ; 0 ; 0
+"Félicité" ;		07/03 ; 1 ; 0
+"Félicitée" ;		07/03 ; 0 ; 1
+"Felicity" ;		07/03 ; 0 ; 1
+"Félix" ;			12/02 ; 1 ; 0
+"Ferdinand" ;		30/05 ; 1 ; 0
+"Fernand" ;			27/06 ; 1 ; 0
+"Fernande" ;		27/06 ; 0 ; 0
+"Fernando" ;		27/06 ; 0 ; 0
+"Ferréol" ;			16/06 ; 0 ; 1
+"Fiacre" ;			30/08 ; 1 ; 0
+"Fidèle" ;			24/04 ; 1 ; 0
+"Fiona" ;			06/10 ; 0 ; 0
+"Firmin" ;			11/10 ; 1 ; 0
+"Flamine" ;			02/05 ; 0 ; 1
+"Flaminie" ;		02/05 ; 0 ; 1
+"Flaminia" ;		02/05 ; 0 ; 1
+"Flavie" ;			07/05 ; 0 ; 0
+"Flavien" ;			18/02 ; 0 ; 0
+"Fleur" ;			05/10 ; 1 ; 0
+"Flora" ;			24/11 ; 1 ; 0
+"Flore" ;			05/10 ; 0 ; 0 ; ou le 24/11 ?
+"Florence" ;		01/12 ; 1 ; 0
+"Florent" ;			04/07 ; 1 ; 0
+"Florentin" ;		24/10 ; 1 ; 0
+"Florian" ;			04/05 ; 0 ; 0
+"Florie" ;			xx/xx ; 0 ; 0
+"Florine" ;			01/05 ; 0 ; 0
+"Fortunat" ;		xx/xx ; 0 ; 1 ; 24/04 ?
+"Foulques" ;		xx/xx ; 0 ; 1
+"France" ;			09/03 ; 0 ; 0
+"Francette" ;		09/03 ; 0 ; 1
+"Francia" ;			xx/xx ; 0 ; 1
+"Francine" ;		09/03 ; 0 ; 0
+"Francis" ;			04/10 ; 0 ; 0
+"Francisque" ;		04/10 ; 0 ; 1
+"Franck" ;			04/10 ; 0 ; 0
+"François" ;		04/10 ; 0 ; 0
+"François Xavier" ;	03/12 ; 1 ; 0
+"Françoise" ;		09/03 ; 1 ; 0
+"Françoise Xavière" ;22/12 ; 1 ; 0
+"Fred," ;			18/07 ; 0 ; 1
+"Freddy" ;			18/07 ; 0 ; 0
+"Frédéric" ;		18/07 ; 1 ; 0
+"Frédérich" ;		18/07 ; 0 ; 1
+"Frédérick" ;		18/07 ; 0 ; 0
+"Frédérica" ;		18/07 ; 0 ; 1
+"Frédérico" ;		18/07 ; 0 ; 1
+"Frédérika" ;		18/07 ; 0 ; 1
+"Frédérique" ;		18/07 ; 0 ; 0
+"Fredie" ;			18/07 ; 0 ; 1
+"Frida" ;			18/07 ; 0 ; 1
+"Frieda" ;			18/07 ; 0 ; 0
+"Friedrich" ;		18/07 ; 0 ; 1
+"Fritz" ;			18/07 ; 0 ; 1
+"Fulbert" ;			10/04 ; 1 ; 0
+"Gabin" ;			19/02 ; 1 ; 0
+"Gabriel" ;			29/09 ; 0 ; 0
+"Gabrielle" ;		29/09 ; 0 ; 0
+"Gaby" ;			29/09 ; 0 ; 1
+"Gaël" ;			17/12 ; 1 ; 0
+"Gaëla" ;			17/12 ; 0 ; 1
+"Gaëlane" ;			17/12 ; 0 ; 1
+"Gaële" ;			17/12 ; 0 ; 1
+"Gaëlic" ;			17/12 ; 0 ; 1
+"Gaëlig" ;			17/12 ; 0 ; 1
+"Gaëll" ;			17/12 ; 0 ; 1
+"Gaëlla" ;			17/12 ; 0 ; 1
+"Gaëllane" ;		17/12 ; 0 ; 1
+"Gaëlle" ;			17/12 ; 0 ; 0
+"Gaétan" ;			07/08 ; 1 ; 0
+"Gaëtan" ;			07/08 ; 0 ; 0
+"Gaétane" ;			07/08 ; 0 ; 1
+"Gall" ;			16/10 ; 0 ; 1
+"Gallien" ;			16/10 ; 0 ; 1
+"Garry" ;			05/12 ; 0 ; 0
+"Gaston" ;			06/02 ; 1 ; 0
+"Gaspard" ;			28/12 ; 0 ; 0
+"Gatien" ;			18/12 ; 1 ; 0
+"Gaud" ;			xx/xx ; 0 ; 1 ; 29/07 ?
+"Gautier" ;			09/04 ; 1 ; 0
+"Gélase" ;			21/11 ; 0 ; 1
+"Gen" ;				03/01 ; 0 ; 1
+"Gena" ;			03/01 ; 0 ; 1
+"Geneviève" ;		03/01 ; 1 ; 0
+"Genia" ;			03/01 ; 0 ; 1
+"Geoffrey" ;		08/11 ; 0 ; 0
+"Geoffroi" ;		08/11 ; 0 ; 1
+"Geoffroy" ;		08/11 ; 1 ; 0
+"George" ;			23/04 ; 0 ; 1
+"Georges" ;			23/04 ; 1 ; 0
+"Georget" ;			23/04 ; 0 ; 1
+"Georgi" ;			23/04 ; 0 ; 1
+"Georgio" ;			23/04 ; 0 ; 1
+"Georgy" ;			23/04 ; 0 ; 1
+"Georgette" ;		23/04 ; 0 ; 1 ; ou 15/02 ?
+"Georgia" ;			15/02 ; 0 ; 1
+"Georgiana" ;		15/02 ; 0 ; 1
+"Georgiane" ;		15/02 ; 0 ; 1
+"Georgie" ;			15/02 ; 0 ; 1
+"Georgina" ;		15/02 ; 0 ; 1
+"Georgine" ;		15/02 ; 0 ; 1
+"Gérald" ;			05/12 ; 1 ; 0
+"Géraldine" ;		29/05 ; 0 ; 0
+"Gérard" ;			03/10 ; 1 ; 0
+"Géraud" ;			13/10 ; 1 ; 0
+"Germain" ;			28/05 ; 1 ; 0
+"Germaine" ;		15/06 ; 1 ; 0
+"Gertrude" ;		16/11 ; 0 ; 0
+"Géry" ;			11/08 ; 0 ; 1
+"Gervais" ;			19/06 ; 0 ; 1
+"Gervaise" ;		19/06 ; 0 ; 1
+"Ghislain" ;		10/10 ; 1 ; 0
+"Ghislaine" ;		10/10 ; 0 ; 0
+"Gianni" ;			24/06 ; 0 ; 0 ; ou le 27/12 ?
+"Gilbert" ;			07/06 ; 1 ; 0
+"Gilberte" ;		11/08 ; 0 ; 1
+"Gildas" ;			29/01 ; 1 ; 0
+"Gilles" ;			01/09 ; 1 ; 0
+"Gin" ;				03/01 ; 0 ; 1
+"Gina" ;			03/01 ; 0 ; 1 ; ou le 21/06 ?
+"Ginette" ;			03/01 ; 0 ; 0
+"Ginia" ;			03/01 ; 0 ; 1
+"Gino" ;			xx/xx ; 0 ; 1 ; 21/06
+"Ginou" ;			03/01 ; 0 ; 1
+"Giorgio" ;			23/04 ; 0 ; 1
+"Giovanni" ;		24/06 ; 0 ; 0 ; ou le 27/12 ?
+"Giraud" ;			xx/xx ; 0 ; 1 ; 20/04 ?
+"Gisèle" ;			07/05 ; 1 ; 0
+"Giulia" ;			08/04 ; 0 ; 0
+"Giuliano" ;		02/08 ; 0 ; 1
+"Giuseppe" ;		19/03 ; 0 ; 0
+"Gladys" ;			29/03 ; 0 ; 0
+"Godefroi" ;		08/11 ; 0 ; 1
+"Godefroid" ;		08/11 ; 0 ; 1
+"Godfrey" ;			08/11 ; 0 ; 1
+"Godefroy" ;		08/11 ; 0 ; 1
+"Gonthier" ;		xx/xx ; 0 ; 1
+"Gontran" ;			28/03 ; 1 ; 0
+"Gonzague" ;		21/06 ; 0 ; 1 ; Et aussi le 10/01
+"Gottfried" ;		08/11 ; 0 ; 1
+"Goulven" ;			xx/xx ; 0 ; 1 ; 01/06 ?
+"Grace" ;			21/08 ; 0 ; 0
+"Gracie" ;			21/08 ; 0 ; 1
+"Graciella" ;		21/08 ; 0 ; 1
+"Gracielle" ;		21/08 ; 0 ; 1
+"Graciète" ;		21/08 ; 0 ; 1
+"Graciette" ;		21/08 ; 0 ; 1
+"Gracieuse" ;		21/08 ; 0 ; 1
+"Graziella" ;		21/08 ; 0 ; 0
+"Grégoire" ;		03/09 ; 1 ; 0
+"Grégory" ;			03/09 ; 0 ; 0
+"Guenia" ;			03/01 ; 0 ; 1
+"Guenièvre" ;		03/01 ; 0 ; 1
+"Guénolé" ;			03/03 ; 1 ; 0
+"Guénolée" ;		03/03 ; 0 ; 1
+"Guewen" ;			18/10 ; 0 ; 1
+"Gui" ;				xx/xx ; 0 ; 1
+"Guilhem" ;			10/01 ; 0 ; 0
+"Guilhemine" ;		10/01 ; 0 ; 1
+"Guillaume" ;		10/01 ; 1 ; 0
+"Guillem" ;			10/01 ; 0 ; 1
+"Guillemette" ;		10/01 ; 0 ; 1
+"Gustave" ;			07/10 ; 0 ; 0
+"Gustavine" ;		xx/xx ; 0 ; 1
+"Guy" ;				12/06 ; 1 ; 0
+"Gwenaël" ;			03/11 ; 0 ; 1
+"Gwenaëlle" ;		03/11 ; 0 ; 0
+"Gwendolen" ;		18/10 ; 0 ; 1
+"Gwendoline" ;		14/10 ; 0 ; 0
+"Gwendolyne" ;		18/10 ; 0 ; 1
+"Gwenn" ;			18/10 ; 0 ; 1
+"Gwennola" ;		18/10 ; 0 ; 1
+"Gwennoline" ;		18/10 ; 0 ; 1
+"Gwénola" ;			03/03 ; 0 ; 0
+"Gwénolé" ;			03/03 ; 0 ; 1
+"Gwénolée" ;		03/03 ; 0 ; 1
+"Gwladys" ;			29/03 ; 1 ; 0
+"Habib" ;			27/03 ; 1 ; 0
+"Hadrien" ;			08/09 ; 0 ; 1
+"Hans" ;			27/12 ; 0 ; 1 ; ou 24/06 ?
+"Harmonie" ;		xx/xx ; 0 ; 0
+"Harry" ;			13/07 ; 0 ; 1
+"Harold" ;			01/11 ; 0 ; 0
+"Hébert" ;			20/03 ; 0 ; 1
+"Hector" ;			xx/xx ; 0 ; 0 ; 21/07 ?
+"Hedwige" ;			16/10 ; 0 ; 1
+"Hélène" ;			18/08 ; 1 ; 0
+"Helena" ;			18/08 ; 0 ; 0
+"Héloïse" ;			xx/xx ; 0 ; 0 ; 15/03 ?
+"Helyette" ;		xx/xx ; 0 ; 1 ; 20/07 ?
+"Henri" ;			13/07 ; 1 ; 0
+"Henriette" ;		13/07 ; 0 ; 0
+"Henry" ;			13/07 ; 0 ; 0
+"Herbert" ;			20/03 ; 0 ; 1
+"Hermann" ;			25/09 ; 1 ; 0
+"Hermance" ;		25/09 ; 0 ; 0
+"Hermes" ;			xx/xx ; 0 ; 1
+"Hermine" ;			09/07 ; 0 ; 1
+"Herminie" ;		09/07 ; 0 ; 1
+"Hermione" ;		xx/xx ; 0 ; 1
+"Hervé" ;			17/06 ; 1 ; 0
+"Hilaire" ;			13/01 ; 0 ; 1
+"Hilda" ;			17/11 ; 0 ; 1
+"Hippolyte" ;		13/08 ; 1 ; 0
+"Honorat" ;			16/01 ; 0 ; 1
+"Honoré" ;			16/05 ; 1 ; 0
+"Honorine" ;		27/02 ; 1 ; 0
+"Hortense" ;		11/01" ;'fete2' => '05/10 ; 0 ; 0
+"Hubert" ;			03/11 ; 1 ; 0
+"Hugo" ;			01/04 ; 0 ; 0
+"Hugues" ;			01/04 ; 1 ; 0
+"Huguette" ;		01/04 ; 0 ; 0
+"Humbert" ;			25/03 ; 1 ; 0
+"Hyacinthe" ;		17/08 ; 1 ; 0
+"Iadine" ;			xx/xx ; 0 ; 1 ; 03/02 ?
+"Ian" ;				24/06 ; 0 ; 1 ; ou le 27/12 ?
+"Ianis" ;			24/06 ; 0 ; 1 ; ou le 27/12 ?
+"Iban" ;			24/06 ; 0 ; 1 ; ou le 27/12 ?
+"Ida" ;				13/04 ; 1 ; 0
+"Igor" ;			05/06 ; 1 ; 0
+"Iléa" ;			18/08 ; 0 ; 1
+"Iléana" ;			18/08 ; 0 ; 1
+"Ilene" ;			18/08 ; 0 ; 1
+"Iliana" ;			18/08 ; 0 ; 0
+"Iliona" ;			18/08 ; 0 ; 1
+"Ilona" ;			18/08 ; 0 ; 0
+"Ilse" ;			xx/xx ; 0 ; 1
+
+// 18/08 : Hélène et ses dérivés : Aélia, Aileen, Aléna, Aleanor, Alene, Eileen, Élaine, Eléana, Eléane, Eleanor, Élen, Elena, Élène, Élicia,Élina, Éline, Élinor, Ella, Elladine, Elle, Ellee, Ellen, Ellenita, Ellia, Ellie, Ellin, Ellina, Elliner, Elna, Elne, Elyna, Elyne, Galina, Halina, Hayley, Héléna, Hélénos, Helenum, Héliane, Héliéna, Helia, Héliane, Hélicia, Héliciane, Hélicie, Hella, Héllene, Hélline, Lana, Leanora, Lena, Lenna, Lénaïc, Lenaïg, Lennie, Leno, Leonora, Leora, Lienor, Yelena;
+// ses variantes : Marie-Hélène, Marilène, Marlaine, Marlène, Marylène, Merlène, Miléna, Milène, Mylène, Neïs, Nelia, Nelie, Nelio, Nelita, Nell, Nella, Nellie, Nelly, Sandylène, etc.
+
+"Imre" ;			xx/xx ; 0 ; 1 ; 04/11 ?
+"Inès" ;			10/09 ; 1 ; 0
+"Ingrid" ;			02/09 ; 1 ; 0
+"Innocent" ;		28/12 ; 1 ; 0
+"Irène" ;			05/04 ; 1 ; 0
+"Irénée" ;			28/06 ; 1 ; 0
+"Irina" ;			05/04 ; 0 ; 0
+"Iris" ;			04/09 ; 0 ; 1
+"Irma" ;			09/07 ; 0 ; 0
+"Isaac" ;			20/12 ; 0 ; 0
+"Isabeau" ;			xx/xx ; 0 ; 1
+"Isabelle" ;		22/02 ; 1 ; 0
+"Isadora" ;			xx/xx ; 0 ; 1
+"Isaïe" ;			09/05 ; 0 ; 1
+"Isaline" ;			xx/xx ; 0 ; 1
+"Iseult" ;			xx/xx ; 0 ; 1
+"Isidore" ;			04/04 ; 1 ; 0
+"Ivan" ;			27/12 ; 0 ; 0
+"Ivana" ;			xx/xx ; 0 ; 1 ; 30/05 ?
+"Jacinthe" ;		30/01 ; 0 ; 1
+"Jack" ;			27/12 ; 0 ; 0
+"Jackie" ;			08/02 ; 0 ; 0
+"Jacob" ;			20/12 ; 0 ; 1
+"Jacobine" ;		20/12 ; 0 ; 1
+"Jacotte" ;			08/02 ; 0 ; 1
+"Jacques" ;			25/07" ;'fete_principale' => true, 'fete2' => '03/05 ; 0 ; 0
+"Jacqueline" ;		08/02 ; 1 ; 0
+"Jacquette" ;		08/02 ; 0 ; 1 ; ou 25/07 ?
+"Jacquine" ;		08/02 ; 0 ; 1 ; ou 25/07 ?
+"Jacquotte" ;		08/02 ; 0 ; 1
+"Jacquy" ;			xx/xx ; 0 ; 1 ; 25/07 ou 03/05 ou 08/02 ?
+"Jaime" ;			25/07 ; 0 ; 1
+"Jakez" ;			25/07 ; 0 ; 1
+"James" ;			25/07 ; 0 ; 1
+"Jan" ;				24/06 ; 0 ; 1 ; ou le 27/12 ?
+"Jane" ;			30/05 ; 0 ; 0
+"Janick" ;			24/06 ; 0 ; 1 ; ou le 27/12 ?
+"Jaouen" ;			02/03 ; 0 ; 1
+"Jaqueline" ;		08/02 ; 0 ; 1
+"Jarod" ;			xx/xx ; 0 ; 0
+"Jasmine" ;			05/10 ; 0 ; 0
+"Jason" ;			12/07 ; 0 ; 0
+"Jaume" ;			25/07 ; 0 ; 1
+"Jean" ;			27/12 ; 1 ; 0
+"Jean-Baptiste" ;	24/06 ; 1 ; 0
+"Jean-Eudes" ;		19/08 ; 1 ; 0
+"Jean-Marie" ;		04/08 ; 0 ; 0
+"Jeanine" ;			xx/xx ; 0 ; 0
+"Jeanne" ;			30/05 ; 0 ; 0
+"Jeannette" ;		30/05 ; 0 ; 0
+"Jeannine" ;		30/05 ; 0 ; 0
+"Jeannot" ;			xx/xx ; 0 ; 1
+"Jeff" ;			08/11 ; 0 ; 1
+"Jefferson" ;		08/11 ; 0 ; 1
+"Jeffery" ;			08/11 ; 0 ; 1
+"Jeffrey" ;			08/11 ; 0 ; 0
+"Jeffry" ;			08/11 ; 0 ; 1
+"Jehan" ;			24/06 ; 0 ; 1 ; ou le 27/12 ?
+"Jelena" ;			18/08 ; 0 ; 1
+"Jennie" ;			03/01 ; 0 ; 1
+"Jennifer" ;		03/01 ; 0 ; 0 ; ou le 30/05 ?
+"Jenny" ;			03/01 ; 0 ; 0 ; ou le 08/05 ?
+"Jeoffrey" ;		08/11 ; 0 ; 1
+"Jeoffroy" ;		08/11 ; 0 ; 1
+"Jérémie" ;			01/05 ; 0 ; 0
+"Jérôme" ;			30/09 ; 1 ; 0
+"Jessica" ;			04/11 ; 0 ; 0
+"Jessy" ;			04/11 ; 0 ; 1
+"Jim" ;				25/07 ; 0 ; 1
+"Jimmy" ;			25/07 ; 0 ; 0
+"Joachim" ;			26/07 ; 0 ; 0
+"Joanny" ;			27/12 ; 0 ; 1
+"Joào" ;			27/12 ; 0 ; 0
+"Job" ;				xx/xx ; 0 ; 1
+"Jocelyn" ;			13/12 ; 0 ; 0
+"Jocelyne" ;		13/12 ; 0 ; 0
+"Joël" ;			13/07 ; 0 ; 0
+"Joëlle" ;			13/07 ; 0 ; 0
+"Joéva" ;			02/03 ; 0 ; 1
+"Joévin" ;			02/03 ; 0 ; 1
+"Joffrey" ;			08/11 ; 0 ; 1 ; ou le 13/01 ?
+"Joffroy" ;			08/11 ; 0 ; 1
+"Joffray" ;			08/11 ; 0 ; 1
+"Johan" ;			27/12 ; 0 ; 0
+
+// 23/04 : Jerzy, Jo, Jordi, Jordy, Jorg, Jorge, Joris, Jory, Jorys, Jürgen, Yuri
+
+// 27/12 : Juan-Antonio, Juan-Carlos, Juan-Francisco, Juan-Jose, Juan-Manuel, Juan-Miguel, Juan-Pablo, Juan-Pedro, Juany, Juhans, Juwan, Nans, Sean, Shawn, Shun,Vania, , etc.
+
+"Johanne" ;			30/05 ; 0 ; 0
+"Johannes" ;		27/12 ; 0 ; 1
+"John" ;			27/12 ; 0 ; 0
+"Johnatan" ;		xx/xx ; 0 ; 1
+"Johnny" ;			27/12 ; 0 ; 0
+"Jonas" ;			21/09 ; 0 ; 0
+"Jonathan" ;		01/03 ; 0 ; 0
+"Jordan" ;			13/02 ; 0 ; 0
+"Jordana" ;			13/02 ; 0 ; 1
+"Jordane" ;			13/02 ; 0 ; 0
+"Jordann" ;			13/02 ; 0 ; 1
+"Jordanna" ;		13/02 ; 0 ; 1
+"Jordanne" ;		13/02 ; 0 ; 1
+"Jordany" ;			13/02 ; 0 ; 1
+"Joris" ;			26/07 ; 0 ; 0
+"José" ;			19/03 ; 0 ; 0
+"Joseph" ;			19/03 ; 1 ; 0
+"Joséphine" ;		19/03 ; 0 ; 0
+"Josette" ;			19/03 ; 0 ; 0
+"Josiane" ;			19/03 ; 0 ; 0
+"Josse" ;			13/12 ; 0 ; 1
+"Josselin" ;		13/12 ; 0 ; 0
+"Josseline" ;		13/12 ; 0 ; 0
+"Josué" ;			01/09 ; 0 ; 1
+"Jouan" ;			02/03 ; 0 ; 1
+"Jourdain" ;		13/02 ; 0 ; 1
+"Jourdan" ;			13/02 ; 0 ; 1
+"Jovan" ;			02/03 ; 0 ; 1
+"Jovana" ;			02/03 ; 0 ; 1
+"Jovanni" ;			27/12 ; 0 ; 1
+"Jovany" ;			02/03 ; 0 ; 1
+"Joyce" ;			13/12 ; 0 ; 1
+"Juan" ;			24/06 ; 0 ; 0
+"Juana" ;			24/06 ; 0 ; 1
+"Juanita" ;			24/06 ; 0 ; 1 ; ou 08/05 ?
+"Juanito" ;			24/06 ; 0 ; 1
+"Jude" ;			28/10 ; 1 ; 0
+"Judicaël" ;		17/12 ; 0 ; 1
+"Judicaële" ;		17/12 ; 0 ; 1
+"Judicaëlle" ;		17/12 ; 0 ; 1
+"Judith" ;			05/05 ; 1 ; 0
+"Jules" ;			12/04 ; 1 ; 0
+"Julia" ;			08/04 ; 0 ; 0
+"Julian" ;			02/08 ; 0 ; 0
+"Julianne" ;		02/08 ; 0 ; 1
+"Julie" ;			08/04 ; 1 ; 0
+"Julien" ;			02/08 ; 0 ; 0
+"Julienne" ;		16/02 ; 1 ; 0
+"Juliette" ;		30/07 ; 1 ; 0
+"Juline" ;			08/04 ; 0 ; 0
+"Julio" ;			02/08 ; 0 ; 1
+"Juluan" ;			02/08 ; 0 ; 1
+"Juste" ;			14/10 ; 1 ; 0
+"Justin" ;			01/06 ; 1 ; 0
+"Justine" ;			12/03 ; 1 ; 0
+"Juvénal" ;			03/05 ; 0 ; 1
+"Karelle" ;			07/11 ; 0 ; 1
+"Karen" ;			07/11 ; 0 ; 1
+"Karina" ;			07/11 ; 0 ; 1
+"Karine" ;			07/11 ; 0 ; 1
+"Kassandra" ;		xx/xx ; 0 ; 0
+"Katarina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katel" ;			25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katell" ;			25/11 ; 0 ; 0 ; ou le 24/03 ?
+"Katelle" ;			25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katerina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katharina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katharine" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katherina" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katherine" ;		25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Kathryn" ;			25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Kathy" ;			25/11 ; 0 ; 0 ; ou le 24/03 ?
+"Katia" ;			25/11 ; 0 ; 0 ; ou le 24/03 ?
+"Katie" ;			25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katrine" ;			25/11 ; 0 ; 1 ; ou le 24/03 ?
+"Katy" ;			25/11 ; 0 ; 0 ; ou le 24/03 ?
+"Kelly" ;			08/07 ; 0 ; 0
+"Ketty" ;			25/11 ; 0 ; 0 ; 24/03 ou 25/11 ?
+"Kévin" ;			03/06 ; 1 ; 0
+"Kilian" ;			08/07 ; 0 ; 0
+"Killian" ;			08/07 ; 0 ; 0
+"Kurt" ;			26/11 ; 0 ; 0
+"Læticia" ;			18/08 ; 0 ; 0
+"Lætitia" ;			18/08 ; 0 ; 0
+"Lambert" ;			17/09 ; 0 ; 0
+"Landry" ;			10/06 ; 1 ; 0
+"Lara" ;			26/03 ; 0 ; 0
+"Larissa" ;			26/03 ; 1 ; 0
+"Laura" ;			10/08 ; 0 ; 0
+"Lauranne" ;		10/08 ; 0 ; 1
+"Laure" ;			10/08 ; 0 ; 0
+"Laureline" ;		10/08 ; 0 ; 1
+"Laurence" ;		10/08 ; 0 ; 0
+"Lauren" ;			xx/xx ; 0 ; 0 ; 10/08 ?
+"Laurent" ;			10/08 ; 1 ; 0
+"Laurentine" ;		10/08 ; 0 ; 1
+"Laurette" ;		10/08 ; 0 ; 1
+"Lauriane" ;		10/08 ; 0 ; 0
+"Laurie" ;			10/08 ; 0 ; 0
+"Laurine" ;			10/08 ; 0 ; 0
+"Layla" ;			xx/xx ; 0 ; 1
+"Lazare" ;			23/02 ; 1 ; 0
+"Léa" ;				22/03 ; 1 ; 0
+"Léane" ;			10/11 ; 0 ; 0
+"Léger" ;			02/10 ; 1 ; 0
+"Leila" ;			xx/xx ; 0 ; 0 ; 22/03 ?
+"Lélia" ;			22/03 ; 0 ; 0
+"Lena" ;			18/08 ; 0 ; 0
+"Lénaïc" ;			18/08 ; 0 ; 1
+"Lénora" ;			25/06 ; 0 ; 1
+"Léo" ;				10/11 ; 0 ; 0
+"Léon" ;			10/11 ; 1 ; 0
+"Léonard" ;			06/11 ; 0 ; 0
+"Léonce" ;			18/06 ; 1 ; 0
+"Léone" ;			10/11 ; 0 ; 1
+"Léonel" ;			10/11 ; 0 ; 1
+"Léonella" ;		10/11 ; 0 ; 1
+"Léonelle" ;		10/11 ; 0 ; 1
+"Léonette" ;		10/11 ; 0 ; 1
+"Léonie" ;			10/11 ; 0 ; 1
+"Léonine" ;			10/11 ; 0 ; 1
+"Léonilde" ;		10/11 ; 0 ; 1
+"Léonne" ;			10/11 ; 0 ; 1
+"Léonor" ;			25/06 ; 0 ; 1
+"Léonora" ;			25/06 ; 0 ; 1
+"Léonore" ;			25/06 ; 0 ; 0
+"Léontine" ;		10/11 ; 0 ; 1
+"Léopold" ;			15/11 ; 0 ; 0
+"Léopoldine" ;		15/11 ; 0 ; 1
+"Leu" ;				29/07 ; 0 ; 1
+"Leslie" ;			17/11 ; 0 ; 0
+"Lexane" ;			xx/xx ; 0 ; 1
+"Lia" ;				22/03 ; 0 ; 0
+"Lidia" ;			03/08 ; 0 ; 1
+"Lidie" ;			03/08 ; 0 ; 1
+"Lidija" ;			03/08 ; 0 ; 1
+"Lidivine" ;		14/04 ; 0 ; 1
+"Lidvine" ;			14/04 ; 0 ; 1
+"Lidwina" ;			14/04 ; 0 ; 1
+"Lidwine" ;			14/04 ; 0 ; 0
+"Lila" ;			22/03 ; 0 ; 0
+"Lilian" ;			27/07 ; 0 ; 0
+"Liliane" ;			27/07 ; 0 ; 0
+"Lily" ;			17/11 ; 0 ; 0
+"Linda" ;			28/08 ; 0 ; 0
+"Line" ;			xx/xx ; 0 ; 0 ; 27/01 ou 20/10 ou 24/12 ?
+"Lionel" ;			10/11 ; 0 ; 0
+"Lionele" ;			10/11 ; 0 ; 1
+"Lionelle" ;		10/11 ; 0 ; 1
+"Lionnel" ;			10/11 ; 0 ; 1
+"Lionnelle" ;		10/11 ; 0 ; 1
+"Lisa" ;			17/11 ; 0 ; 0
+"Lisbeth" ;			17/11 ; 0 ; 1
+"Lise" ;			17/11 ; 0 ; 0
+"Lisette" ;			17/11 ; 0 ; 1
+"Lison" ;			xx/xx ; 0 ; 0 ; 17/11 ?
+"Lizzie" ;			17/11 ; 0 ; 1
+"Logan" ;			28/08 ; 0 ; 0
+"Loïc" ;			25/08 ; 0 ; 0
+"Loïs" ;			25/08 ; 0 ; 1 ; Masculin
+"Loïs" ;			15/08 ; 0 ; 1 ; Féminin
+"Lola" ;			15/09 ; 0 ; 0
+"Lolita" ;			15/09 ; 0 ; 0
+"Lore" ;			xx/xx ; 0 ; 1 ; 25/06 ?
+"Loreline" ;		xx/xx ; 0 ; 1
+"Lorrain" ;			xx/xx ; 0 ; 1
+"Lorraine" ;		xx/xx ; 0 ; 0 ; 30/05 ?
+"Lothaire" ;		xx/xx ; 0 ; 1
+"Louis" ;			25/08 ; 1 ; 0
+"Louis-Marie" ;		28/04 ; 0 ; 1
+"Louise" ;			15/03 ; 1 ; 0
+"Loup" ;			29/07 ; 0 ; 1
+"Louve" ;			29/07 ; 0 ; 1
+"Luana" ;			xx/xx ; 0 ; 1
+"Luc" ;				18/10 ; 1 ; 0
+"Luca" ;			18/10 ; 0 ; 1
+"Lucas" ;			18/10 ; 0 ; 0
+"Luce" ;			13/12 ; 0 ; 1
+"Lucette" ;			13/12 ; 0 ; 0
+"Lucie" ;			13/12 ; 1 ; 0
+"Lucien" ;			08/01 ; 1 ; 0
+"Lucienne" ;		08/01 ; 0 ; 0
+"Lucile" ;			16/02 ; 0 ; 0
+"Lucille" ;			16/02 ; 0 ; 0
+"Lucrèce" ;			15/03 ; 0 ; 1
+"Ludivina" ;		14/04 ; 0 ; 1
+"Ludivine" ;		14/04 ; 0 ; 0
+"Ludivyne" ;		14/04 ; 0 ; 1
+"Ludiwine" ;		14/04 ; 0 ; 1
+"Ludmila" ;			16/09 ; 0 ; 1
+"Ludmilla" ;		16/09 ; 0 ; 1
+"Ludovic" ;			25/08 ; 0 ; 0
+"Ludwig" ;			25/08 ; 0 ; 1
+"Ludwin" ;			14/04 ; 0 ; 1
+"Ludwine" ;			14/04 ; 0 ; 1
+"Ludyvine" ;		14/04 ; 0 ; 1
+"Luna" ;			xx/xx ; 0 ; 0
+"Lyda" ;			03/08 ; 0 ; 1
+"Lydia" ;			03/08 ; 0 ; 0
+"Lydian" ;			03/08 ; 0 ; 1
+"Lydiane" ;			03/08 ; 0 ; 1
+"Lydie" ;			03/08 ; 1 ; 0
+"Lynda" ;			28/08 ; 0 ; 0
+"Lyonel" ;			10/11 ; 0 ; 1
+"Lyonnel" ;			10/11 ; 0 ; 1
+"Madeleine" ;		22/07 ; 0 ; 0
+"Maddy" ;			22/07 ; 0 ; 1
+"Macrine" ;			xx/xx ; 0 ; 1 ; 06/07 ?
+"Maé" ;				24/05 ; 0 ; 0
+"Maël" ;			24/05 ; 0 ; 0
+"Maëlle" ;			24/05 ; 0 ; 0
+"Maéva" ;			30/10 ; 0 ; 0
+"Magali" ;			20/07 ; 0 ; 0
+"Magalie" ;			16/11 ; 0 ; 0
+"Magaly" ;			xx/xx ; 0 ; 1 ; 16/11 ou 20/07  ou 22/07 ?
+"Maggy" ;			16/11 ; 0 ; 1
+"Magloire" ;		24/10 ; 0 ; 1
+"Maguelone" ;		xx/xx ; 0 ; 1
+"Mahault" ;			xx/xx ; 0 ; 1
+"Mahaut" ;			xx/xx ; 0 ; 1
+"Maïté" ;			15/08 ; 0 ; 1 ; ou 07/06 ?
+"Malo" ;			15/11 ; 0 ; 1
+"Manuel" ;			25/12 ; 0 ; 0
+"Marc" ;			25/04 ; 1 ; 0
+"Marceau" ;			16/01 ; 0 ; 0
+"Marcel" ;			16/01 ; 1 ; 0
+"Marcelin" ;		xx/xx ; 0 ; 1
+"Marceline" ;		17/07 ; 0 ; 1
+"Marcelline" ;		17/07 ; 0 ; 1
+"Marcelle" ;		31/01 ; 1 ; 0
+"Marcellin" ;		06/04 ; 1 ; 0
+"Marcien" ;			02/11 ; 0 ; 1
+"Margaux" ;			16/11 ; 0 ; 1
+"Marge" ;			16/11 ; 0 ; 1
+"Margot" ;			16/11 ; 0 ; 0
+"Marguerite" ;		16/11 ; 1 ; 0 ; Et aussi le 20/07
+"Marthe" ;			29/07 ; 1 ; 0
+"Matéo" ;			21/09 ; 0 ; 0
+"Manoel" ;			xx/xx ; 0 ; 1 ; 25/12 ?
+"Manon" ;			15/08 ; 0 ; 0
+"Maria" ;			15/08 ; 0 ; 0
+"Mariam" ;			15/08 ; 0 ; 0
+"Marianne" ;		xx/xx ; 0 ; 1
+"Marie" ;			15/08 ; 0 ; 0
+"Marie-Eve" ;		xx/xx ; 0 ; 1 ; 15/08 ?
+"Marie-Dominique" ;	15/08 ; 0 ; 1
+"Marie-France" ;	09/03 ; 0 ; 0
+"Marie-Françoise" ;	06/10 ; 0 ; 0
+"Marie-Hermine" ;	09/07 ; 0 ; 1
+"Marie-Jeanne" ;	01/02 ; 0 ; 0 ; 01/02 ??
+"Marie-Josée" ;		15/08 ; 0 ; 1
+"Marie-Laure" ;		15/08 ; 0 ; 0
+"Marie-Line" ;		15/08 ; 0 ; 0
+"Marie-Pierre" ;	15/08 ; 0 ; 0
+"Marie-Rose" ;		06/10 ; 0 ; 0
+"Marie-Thérèse" ;	07/06 ; 0 ; 0
+"Marielle" ;		15/08 ; 0 ; 1
+"Marien" ;			xx/xx ; 0 ; 1 ; 30/04 ?
+"Mariette" ;		06/07 ; 1 ; 0
+"Marika" ;			xx/xx ; 0 ; 1
+"Marilyne" ;		xx/xx ; 0 ; 0
+"Marin" ;			03/03 ; 0 ; 0
+"Marissa" ;			xx/xx ; 0 ; 1
+"Mary" ;			15/08 ; 0 ; 1
+"Marjolaine" ;		15/08 ; 0 ; 0
+"Marjorie" ;		20/07 ; 0 ; 0
+"Marlène" ;			22/07 ; 0 ; 0 ; Et aussi le 15/08
+"Marina" ;			20/07 ; 1 ; 0
+"Marine" ;			20/07 ; 0 ; 0
+"Marinette" ;		20/07 ; 0 ; 1
+"Mario" ;			19/01 ; 0 ; 0
+"Marion" ;			15/08 ; 0 ; 0
+"Marius" ;			19/01 ; 1 ; 0
+"Martial" ;			30/06 ; 1 ; 0
+"Martin" ;			11/11 ; 0 ; 0
+"Martine" ;			30/01 ; 1 ; 0
+"Martinien" ;		02/07 ; 1 ; 0
+"Maryan" ;			xx/xx ; 0 ; 1
+"Maryline" ;		15/08 ; 0 ; 0
+"Maryse" ;			15/08 ; 0 ; 1
+"Maryvonne" ;		15/08 ; 0 ; 0
+"Materne" ;			14/09 ; 0 ; 1
+"Mathilde" ;		14/03 ; 1 ; 0
+"Mathurin" ;		xx/xx ; 0 ; 0 ; 01/11 ou 14/03 ?
+"Matthias" ;		14/05 ; 1 ; 0
+"Matthieu" ;		21/09 ; 1 ; 0
+"Mathis" ;			21/09 ; 0 ; 0
+"Maud" ;			14/03 ; 0 ; 0
+"Maude" ;			14/03 ; 0 ; 0
+"Maurice" ;			22/09 ; 1 ; 0
+"Mauricet" ;		xx/xx ; 0 ; 1
+"Mauricette" ;		22/09 ; 0 ; 0
+"Max" ;				xx/xx ; 0 ; 0 ; 14/04 ou 12/03 ?
+"Maxence" ;			26/06 ; 0 ; 0
+"Maxime" ;			14/04 ; 1 ; 0
+"Maximilien" ;		12/03 ; 0 ; 0
+"Maximin" ;			29/05 ; 0 ; 0
+"Mayeul" ;			11/05 ; 0 ; 0
+"Maylis" ;			15/08 ; 0 ; 0
+"Médard" ;			08/06 ; 1 ; 0
+"Médéric" ;			29/08 ; 0 ; 1
+"Megan" ;			16/11 ; 0 ; 0
+"Mégane" ;			16/11 ; 0 ; 0
+"Mélaine" ;			06/01 ; 1 ; 0
+"Mélanie" ;			26/01 ; 0 ; 0
+"Mélina" ;			xx/xx ; 0 ; 0
+"Mélinda" ;			26/01 ; 0 ; 0
+"Méline" ;			xx/xx ; 0 ; 0
+"Mélinée" ;			26/01 ; 0 ; 1
+"Mélissa" ;			12/02 ; 0 ; 0
+"Mélissandre" ;		xx/xx ; 0 ; 1
+"Mélisande" ;		xx/xx ; 0 ; 1
+"Mélodie" ;			xx/xx ; 0 ; 0
+"Melvin" ;			xx/xx ; 0 ; 0 ; 15/11 ?
+"Melyna" ;			xx/xx ; 0 ; 0
+"Meredith" ;		xx/xx ; 0 ; 1
+"Meriadec" ;		07/06 ; 0 ; 1
+"Meriem" ;			15/08 ; 0 ; 1
+"Meryem" ;			15/08 ; 0 ; 1
+"Meryl" ;			15/08 ; 0 ; 1
+"Michaël" ;			29/09 ; 0 ; 0
+"Michel" ;			29/09 ; 1 ; 0
+"Michèle" ;			29/09 ; 0 ; 1
+"Micheline" ;		19/06 ; 0 ; 0
+"Michelle" ;		29/09 ; 0 ; 0
+"Mickaël" ;			29/09 ; 0 ; 0
+"Miguel" ;			29/09 ; 0 ; 1
+"Mikael" ;			29/09 ; 0 ; 1
+"Mike" ;			29/09 ; 0 ; 1
+"Mildred" ;			13/07 ; 0 ; 1
+"Milène" ;			xx/xx ; 0 ; 1
+"Milo" ;			xx/xx ; 0 ; 0 ; 22/05 ?
+"Miloud" ;			xx/xx ; 0 ; 1 ; 22/05 ?
+"Mireille" ;		15/08 ; 0 ; 0
+"Miriam" ;			xx/xx ; 0 ; 1 ; 15/08 ?
+"Modeste" ;			24/02 ; 1 ; 0
+"Moïse" ;			04/09 ; 0 ; 1
+"Moïsette" ;		xx/xx ; 0 ; 1
+"Monica" ;			27/08 ; 0 ; 1
+"Monique" ;			27/08 ; 1 ; 0
+"Morgan" ;			08/10 ; 0 ; 1
+"Morgane" ;			08/10 ; 0 ; 0
+"Moshe" ;			04/09 ; 0 ; 1
+"Muguette" ;		xx/xx ; 0 ; 1
+"Mylène" ;			xx/xx ; 0 ; 0 ; 15/08 ?
+"Muriel" ;			15/08 ; 0 ; 1
+"Murielle" ;		15/08 ; 0 ; 0
+"Myriam" ;			15/08 ; 0 ; 0
+"Nadège" ;			18/09 ; 1 ; 0
+"Nadette" ;			xx/xx ; 0 ; 1 ; 18/02 ?
+"Nadia" ;			18/09 ; 0 ; 0
+"Nadine" ;			18/09 ; 0 ; 0
+"Naël" ;			xx/xx ; 0 ; 0
+"Nahum" ;			xx/xx ; 0 ; 1 ; 01/12 ?
+"Nancy" ;			26/07 ; 0 ; 1
+"Naomi" ;			21/08 ; 0 ; 1
+"Narcisse" ;		29/10 ; 1 ; 0
+"Natacha" ;			26/08 ; 1 ; 0
+"Natalya" ;			xx/xx ; 0 ; 1
+"Nathalie" ;		27/07 ; 1 ; 0
+"Nathan" ;			24/08 ; 0 ; 0
+"Nathanaël" ;		24/08 ; 0 ; 0
+"Nathanaëlle" ;		24/08 ; 0 ; 1
+"Neil" ;			xx/xx ; 0 ; 1
+"Nello" ;			xx/xx ; 0 ; 1 ; 25/12 ?
+"Nelly" ;			18/08 ; 0 ; 0
+"Nelson" ;			03/02 ; 0 ; 0
+"Nestor" ;			26/02 ; 1 ; 0
+"Nicolas" ;			06/12 ; 1 ; 0
+"Nicole" ;			06/03 ; 0 ; 0
+"Nicoletta" ;		xx/xx ; 0 ; 1 ; 06/03 ?
+"Nicolette" ;		xx/xx ; 0 ; 1
+"Nikita" ;			xx/xx ; 0 ; 1 ; 31/01 ?
+"Nina" ;			14/01 ; 1 ; 0
+"Ninon" ;			15/12 ; 1 ; 0 ; ou 06/12 ?
+"Noah" ;			10/11 ; 0 ; 1
+"Noé" ;				10/11 ; 0 ; 0
+"Noël" ;			25/12 ; 0 ; 0
+"Noéline" ;			25/12 ; 0 ; 0
+"Noëlle" ;			25/12 ; 0 ; 0
+"Noémie" ;			21/08 ; 0 ; 0
+"Nolwenn" ;			06/07 ; 0 ; 0
+"Nora" ;			25/06 ; 0 ; 0
+"Norbert" ;			06/06 ; 1 ; 0
+"Océan" ;			xx/xx ; 0 ; 1
+"Océane" ;			18/09 ; 0 ; 0 ; Ou le 09/11 ou 26/07 ?
+"Octave" ;			20/11 ; 0 ; 0
+"Octavie" ;			20/11 ; 0 ; 0
+"Octavien" ;		06/08 ; 0 ; 1
+"Odette" ;			20/04 ; 1 ; 0
+"Odile" ;			14/12 ; 1 ; 0
+"Odilon" ;			04/01 ; 1 ; 0
+"Oger" ;			xx/xx ; 0 ; 1
+"Olga" ;			11/07 ; 0 ; 1
+"Olive" ;			05/03 ; 1 ; 0
+"Olivier" ;			12/07 ; 1 ; 0
+"Olivia" ;			05/03 ; 0 ; 0
+"Olympe" ;			xx/xx ; 0 ; 0 ; 17/07 ?
+"Ombeline" ;		21/08 ; 0 ; 1
+"Omer" ;			09/09 ; 0 ; 0
+"Ophélie" ;			xx/xx ; 0 ; 0 ; 03/05 ?
+"Oriane" ;			04/10 ; 0 ; 0
+"Orianne" ;			04/10 ; 0 ; 1
+"Orlane" ;			xx/xx ; 0 ; 0 ; 13/05 ?
+"Oscar" ;			03/02 ; 0 ; 0
+"Oswald" ;			05/08 ; 0 ; 1
+"Othon" ;			xx/xx ; 0 ; 1
+"Otmar" ;			16/11 ; 0 ; 1
+"Owen" ;			xx/xx ; 0 ; 0
+"Ozanne" ;			xx/xx ; 0 ; 1
+"Pablo" ;			29/06 ; 0 ; 1
+"Paco" ;			04/10 ; 0 ; 0 ; ou le 24/01 ?
+"Pacôme" ;			09/05 ; 1 ; 0
+"Pamela" ;			16/02 ; 0 ; 0
+"Pamphile" ;		16/02 ; 0 ; 1
+"Paola" ;			26/01 ; 0 ; 0
+"Paquita" ;			xx/xx ; 0 ; 1 ; 12/12 ?
+"Parfait" ;			18/04 ; 1 ; 0
+"Pascal" ;			17/05 ; 1 ; 0
+"Pascale" ;			17/05 ; 0 ; 0
+"Pascaline" ;		17/05 ; 0 ; 0
+"Paterne" ;			15/04 ; 1 ; 0
+"Patrice" ;			17/03 ; 1 ; 0
+"Patricia" ;		17/03 ; 0 ; 0
+"Patrick" ;			17/03 ; 0 ; 0
+"Paul" ;			29/06 ; 0 ; 0
+"Paula" ;			26/01 ; 1 ; 0
+"Paule" ;			26/01 ; 0 ; 0
+"Paulette" ;		26/01 ; 0 ; 0
+"Paulin" ;			11/01 ; 1 ; 0
+"Pauline" ;			26/01 ; 0 ; 0
+"Peggy" ;			08/01 ; 0 ; 0
+"Pélagie" ;			08/10 ; 1 ; 0
+"Pénélope" ;		xx/xx ; 0 ; 0 ; 18/08 ?
+"Perceval" ;		xx/xx ; 0 ; 1
+"Perlette" ;		xx/xx ; 0 ; 1
+"Pernelle" ;		31/05 ; 0 ; 1
+"Péroline" ;		xx/xx ; 0 ; 1 ; 31/05 ?
+"Perpétue" ;		07/03 ; 0 ; 1
+"Perrette" ;		29/06 ; 0 ; 1
+"Perrine" ;			31/05 ; 0 ; 1
+"Peter" ;			29/06 ; 0 ; 0
+"Petra" ;			29/06 ; 0 ; 1
+"Pétronille" ;		31/05 ; 0 ; 1
+"Philémon" ;		xx/xx ; 0 ; 1
+"Philibert" ;		20/08 ; 0 ; 0
+"Philiberte" ;		20/08 ; 0 ; 1
+"Philippe" ;		03/05 ; 1 ; 0
+"Philippine" ;		18/11 ; 0 ; 0
+"Philomène" ;		10/08 ; 0 ; 0
+"Pierre" ;			29/06 ; 1 ; 0
+"Pierre-Damien" ;	21/02 ; 1 ; 0
+"Pierre-Julien" ;	02/08 ; 0 ; 1
+"Pierrette" ;		29/06 ; 0 ; 0
+"Pierrick" ;		29/06 ; 0 ; 0
+"Pierrot" ;			29/06 ; 0 ; 1
+"Pietro" ;			29/06 ; 0 ; 1
+"Pol" ;				12/03 ; 0 ; 1
+"Pollyanna" ;		xx/xx ; 0 ; 1
+"Polycarpe" ;		23/02 ; 0 ; 1
+"Primaël" ;			15/05 ; 0 ; 1
+"Prisca" ;			18/01 ; 1 ; 0
+"Priscillia" ;		xx/xx ; 0 ; 0 ; 16/01 ou 13/07 ?
+"Priscille" ;		16/01 ; 0 ; 0
+"Primerose" ;		xx/xx ; 0 ; 1
+"Prosper" ;			25/06 ; 1 ; 0
+"Prudence" ;		06/05 ; 1 ; 0
+"Prune" ;			05/10 ; 0 ; 1
+"Pulchérie" ;		xx/xx ; 0 ; 1
+"Quentin" ;			31/10 ; 1 ; 0
+"Quitterie" ;		22/05 ; 0 ; 1
+"Rachel" ;			15/01 ; 0 ; 0
+"Radegonde" ;		13/08 ; 0 ; 1
+"Rainier" ;			17/06 ; 0 ; 1
+"Raïssa" ;			05/09 ; 1 ; 0
+"Ralph" ;			07/07 ; 0 ; 0
+"Raoul" ;			07/07 ; 1 ; 0
+"Raphaël" ;			29/09 ; 0 ; 0
+"Raphaëlle" ;		29/09 ; 0 ; 0
+"Raymond" ;			07/01 ; 1 ; 0
+"Raymonde" ;		07/01 ; 0 ; 0
+"Rébecca" ;			23/03 ; 0 ; 0
+"Réginald" ;		17/09 ; 0 ; 1
+"Régine" ;			07/09 ; 0 ; 0
+"Régis" ;			16/06 ; 0 ; 0
+"Reine" ;			07/09 ; 1 ; 0
+"Réjane" ;			07/09 ; 0 ; 1
+"Rémi" ;			15/01 ; 1 ; 0
+"Renald" ;			17/09 ; 0 ; 1
+"Renaud" ;			17/09 ; 1 ; 0
+"René" ;			19/10 ; 1 ; 0
+"Renée" ;			19/10 ; 0 ; 0
+"Richard" ;			03/04 ; 1 ; 0
+"Rita" ;			22/05 ; 0 ; 1
+"Robert" ;			30/04 ; 1 ; 0
+"Roberte" ;			30/04 ; 0 ; 0
+"Robin" ;			30/04 ; 0 ; 0
+"Roch" ;			16/08 ; 0 ; 1
+"Rodolphe" ;		21/06 ; 0 ; 0
+"Rodrigue" ;		13/03 ; 1 ; 0
+"Rogatien" ;		24/05 ; 0 ; 1
+"Roger" ;			30/12 ; 1 ; 0
+"Roland" ;			15/09 ; 1 ; 0
+"Rolande" ;			13/05 ; 1 ; 0
+"Romain" ;			28/02 ; 1 ; 0
+"Roman" ;			xx/xx ; 0 ; 0 ; 28/02 ?
+"Romaric" ;			10/12 ; 1 ; 0
+"Romuald" ;			19/06 ; 1 ; 0
+"Roméo" ;			25/02 ; 1 ; 0
+"Ronald" ;			17/09 ; 0 ; 1
+"Ronan" ;			01/06 ; 0 ; 1
+"Rosa" ;			23/08 ; 0 ; 0
+"Rosalie" ;			04/09 ; 1 ; 0
+"Rosana" ;			xx/xx ; 0 ; 1 ; 23/08 ?
+"Rosanna" ;			23/08 ; 0 ; 1
+"Rose" ;			23/08 ; 0 ; 0
+"Roselin" ;			xx/xx ; 0 ; 1
+"Roseline" ;		17/01 ; 1 ; 0
+"Roselyne" ;		17/01 ; 0 ; 0
+"Rosemonde" ;		xx/xx ; 0 ; 1 ; 30/04 ?
+"Rosette" ;			23/08 ; 0 ; 0
+"Rosine" ;			11/03 ; 1 ; 0
+"Rosita" ;			23/08 ; 0 ; 1
+"Rosy" ;			23/08 ; 0 ; 1
+"Roxanne" ;			xx/xx ; 0 ; 0
+"Rozenn" ;			23/08 ; 0 ; 1
+"Rudy" ;			21/06 ; 0 ; 0
+"Ruffin" ;			xx/xx ; 0 ; 1 ; 14/06 ?
+"Ryan" ;			08/03 ; 0 ; 0
+"Sabine" ;			29/08 ; 1 ; 0
+"Sabrina" ;			29/08 ; 0 ; 0
+"Sacha" ;			24/04 ; 0 ; 0 ; ou 22/04 ou 30/08 ?
+"Salomon" ;			25/06 ; 0 ; 0
+"Salomé" ;			22/10 ; 0 ; 0
+"Salvator" ;		18/03 ; 0 ; 1
+"Salvatore" ;		xx/xx ; 0 ; 0 ; 18/03 ?
+"Samson" ;			28/07 ; 1 ; 0
+"Sami" ;			20/08 ; 0 ; 1
+"Samuel" ;			20/08 ; 0 ; 0
+"Samy" ;			20/08 ; 0 ; 0
+"Sandie" ;			02/04 ; 0 ; 0
+"Sandra" ;			xx/xx ; 0 ; 0 ; 20/03 ou 02/04 ?
+"Sandrine" ;		02/04 ; 1 ; 0
+"Sandy" ;			02/04 ; 0 ; 0
+"Santiago" ;		25/07 ; 0 ; 1
+"Sara" ;			09/10 ; 0 ; 0
+"Sarah" ;			09/10 ; 0 ; 0
+"Saturnin" ;		29/11 ; 1 ; 0
+"Sébastien" ;		20/01 ; 1 ; 0
+"Ségolène" ;		24/07 ; 0 ; 0
+"Selma" ;			21/04 ; 0 ; 1
+"Séraphin" ;		12/10 ; 0 ; 1
+"Serge" ;			07/10 ; 1 ; 0
+"Servan" ;			01/07 ; 0 ; 1
+"Servane" ;			01/07 ; 0 ; 1
+"Servanne" ;		01/07 ; 0 ; 1
+"Séverin" ;			27/11 ; 1 ; 0
+"Séverine" ;		27/11 ; 0 ; 0
+"Sheila" ;			22/11 ; 0 ; 1
+"Sibylle" ;			09/10 ; 0 ; 1
+"Sidoine" ;			14/11 ; 1 ; 0
+"Sidonie" ;			14/11 ; 0 ; 1
+"Siegfrid" ;		22/08 ; 0 ; 1
+"Siegfried" ;		22/08 ; 0 ; 1
+"Sigfrid" ;			22/08 ; 0 ; 1
+"Sigismond" ;		xx/xx ; 0 ; 1
+"Sigolene" ;		xx/xx ; 0 ; 1
+"Silvère" ;			20/06 ; 1 ; 0
+"Siméon" ;			xx/xx ; 0 ; 0 ; 18/02 ?
+"Simon" ;			28/10 ; 0 ; 0
+"Simone" ;			28/10 ; 0 ; 0
+"Sixtine" ;			xx/xx ; 0 ; 0
+"Sofia" ;			25/05 ; 0 ; 0
+"Soizic" ;			xx/xx ; 0 ; 1 ; 24/01
+"Solal" ;			xx/xx ; 0 ; 0
+"Solange" ;			10/05 ; 1 ; 0
+"Soledad" ;			11/10 ; 0 ; 0
+"Solène" ;			17/10 ; 0 ; 0
+"Solenne" ;			17/10 ; 0 ; 0
+"Soline" ;			17/10 ; 0 ; 1
+"Sonia" ;			25/05 ; 0 ; 0
+"Sophie" ;			25/05 ; 1 ; 0
+"Sophien" ;			xx/xx ; 0 ; 1
+"Stanislas" ;		11/04 ; 1 ; 0
+"Stéhane" ;			26/12 ; 0 ; 1
+"Stella" ;			11/05 ; 0 ; 0
+"Stéphane" ;		26/12 ; 0 ; 0
+"Stéphanie" ;		26/12 ; 0 ; 0
+"Steve" ;			26/12 ; 0 ; 0
+"Suzanne" ;			11/08 ; 0 ; 0
+"Suzel" ;			11/08 ; 0 ; 1
+"Suzette" ;			11/08 ; 0 ; 1
+"Suzon" ;			11/08 ; 0 ; 1
+"Suzy" ;			11/08 ; 0 ; 1
+"Svetlana" ;		xx/xx ; 0 ; 1 ; 20/03 ?
+"Sybil" ;			xx/xx ; 0 ; 1 ; 09/11 ?
+"Sylvain" ;			04/05 ; 1 ; 0
+"Sylvaine" ;		04/05 ; 0 ; 0
+"Sylvestre" ;		31/12 ; 1 ; 0
+"Sylvette" ;		05/11 ; 0 ; 1
+"Sylvia" ;			05/11 ; 0 ; 1
+"Sylviane" ;		05/11 ; 0 ; 0
+"Sylvianne" ;		05/11 ; 0 ; 1
+"Sylvie" ;			05/11 ; 1 ; 0
+"Symphorien" ;		22/08 ; 0 ; 1
+"Syrine" ;			xx/xx ; 0 ; 0
+"Tabatha" ;			xx/xx ; 0 ; 1
+"Tamara" ;			01/05 ; 0 ; 0
+"Tancrède" ;		xx/xx ; 0 ; 1
+"Tanguy" ;			19/11 ; 1 ; 0
+"Tania" ;			12/01 ; 0 ; 0
+"Tara" ;			xx/xx ; 0 ; 0
+"Tatiana" ;			12/01 ; 1 ; 0
+"Teddy" ;			09/11 ; 0 ; 0
+"Térence" ;			xx/xx ; 0 ; 1
+"Teresa" ;			15/10 ; 0 ; 1
+"Tessa" ;			17/12 ; 0 ; 0
+"Thaddee" ;			28/10 ; 0 ; 1
+"Thaïs" ;			08/10 ; 0 ; 0
+"Thècle" ;			24/09 ; 1 ; 0
+"Théo" ;			09/11 ; 0 ; 0
+"Théodore" ;		09/11 ; 1 ; 0
+"Théodora" ;		xx/xx ; 0 ; 1
+"Theophane" ;		02/02 ; 0 ; 1
+"Théophile" ;		20/12 ; 1 ; 0
+"Theotime" ;		xx/xx ; 0 ; 1
+"Thérèse" ;			15/10 ; 0 ; 0
+"Thibaud" ;			08/07 ; 0 ; 0
+"Thibault" ;		08/07 ; 1 ; 0
+"Thibaut" ;			08/07 ; 0 ; 0
+"Thibert" ;			xx/xx ; 0 ; 1
+"Thiébaud" ;		08/07 ; 0 ; 1
+"Thierry" ;			01/07 ; 1 ; 0
+"Thomas" ;			03/07 ; 1 ; 0
+"Timothée" ;		26/01 ; 0 ; 0
+"Tino" ;			21/05 ; 0 ; 0
+"Tiphaine" ;		06/01 ; 0 ; 0
+"Titien" ;			xx/xx ; 0 ; 1
+"Titouan" ;			13/06 ; 0 ; 0
+"Tristan" ;			12/11 ; 0 ; 0
+"Tudal" ;			xx/xx ; 0 ; 1 ; 01/12 ?
+"Tudi" ;			xx/xx ; 0 ; 1 ; 09/05 ?
+"Ugo" ;				01/04 ; 0 ; 0
+"Ulrich" ;			10/07 ; 1 ; 0
+"Ulysse" ;			xx/xx ; 0 ; 0
+"Urbain" ;			19/12 ; 1 ; 0
+"Ursula" ;			21/10 ; 0 ; 1
+"Ursule" ;			21/10 ; 0 ; 0
+"Valentin" ;		14/02 ; 1 ; 0
+"Valentine" ;		25/07 ; 0 ; 0
+"Valère" ;			14/06 ; 0 ; 1
+"Valérie" ;			28/04 ; 0 ; 0
+"Valéry" ;			01/04 ; 0 ; 1
+"Vanessa" ;			04/02 ; 0 ; 0
+"Vanina" ;			04/02 ; 0 ; 1
+"Venceslas" ;		28/09 ; 1 ; 0
+"Veni" ;			03/01 ; 0 ; 1
+"Véra" ;			xx/xx ; 0 ; 1 ; 18/09 ?
+"Vérane" ;			11/11 ; 0 ; 1
+"Véronique" ;		04/02 ; 1 ; 0
+"Vianney" ;			04/08 ; 0 ; 1
+"Vickie" ;			xx/xx ; 0 ; 1
+"Victoire" ;		15/11 ; 0 ; 0
+"Victor" ;			21/07 ; 1 ; 0
+"Victorine" ;		xx/xx ; 0 ; 0
+"Victoria" ;		15/11 ; 0 ; 0
+"Victorien" ;		23/03 ; 1 ; 0
+"Vincent" ;			22/01 ; 1 ; 0
+"Vinciane" ;		xx/xx ; 0 ; 1 ; 11/09
+"Violaine" ;		05/10 ; 0 ; 1
+"Violette" ;		05/10 ; 0 ; 0
+"Viridiana" ;		01/02 ; 0 ; 1
+"Virgile" ;			10/10 ; 0 ; 0
+"Virginie" ;		07/01 ; 0 ; 0
+"Vital" ;			04/11 ; 0 ; 1
+"Viviane" ;			02/12 ; 1 ; 0
+"Vivien" ;			10/03 ; 1 ; 0
+"Vladimir" ;		15/07 ; 0 ; 1
+"Walter" ;			09/04 ; 0 ; 1
+"Weena" ;			xx/xx ; 0 ; 1
+"Wendy" ;			xx/xx ; 0 ; 0
+"Werner" ;			19/04 ; 0 ; 1
+"Wesley" ;			xx/xx ; 0 ; 0
+"Wilfried" ;		12/10 ; 1 ; 0
+"Wilfrid" ;			xx/xx ; 0 ; 0
+"William" ;			10/01 ; 0 ; 0
+"Willy" ;			10/01 ; 0 ; 0
+"Winnoc" ;			06/11 ; 0 ; 1
+"Wladimir" ;		15/07 ; 0 ; 1
+"Wolfgang" ;		31/10 ; 0 ; 1
+"Wulfran" ;			20/03 ; 0 ; 1
+"Xavier" ;			03/12 ; 0 ; 0
+"Xavière" ;			22/12 ; 0 ; 0
+"Yann" ;			27/12 ; 0 ; 0
+"Yannick" ;			27/12 ; 0 ; 0
+"Yannis" ;			27/12 ; 0 ; 0
+"Yasmine" ;			05/10 ; 0 ; 0
+"Yoann" ;			27/12 ; 0 ; 0
+"Yohan" ;			27/12 ; 0 ; 0
+"Yohanân" ;			27/12 ; 0 ; 1
+"Yohann" ;			27/12 ; 0 ; 0
+"Yolaine" ;			xx/xx ; 0 ; 1
+"Yolande" ;			xx/xx ; 0 ; 0 ; 11/06 ou 11/07 ?
+"Youri" ;			23/04 ; 0 ; 1
+"Youssef" ;			xx/xx ; 0 ; 0
+"Ysaline" ;			xx/xx ; 0 ; 1
+"Yseult" ;			xx/xx ; 0 ; 1
+"Yse" ;				xx/xx ; 0 ; 1
+"Ysé" ;				xx/xx ; 0 ; 1
+"Yvan" ;			27/12 ; 0 ; 0
+"Yves" ;			19/05 ; 1 ; 0
+"Yvon" ;			19/05 ; 0 ; 0
+"Yvette" ;			13/01 ; 1 ; 0
+"Yvonne" ;			19/05 ; 0 ; 0
+"Zacharie" ;		05/11 ; 0 ; 0
+"Zélie" ;			17/10 ; 0 ; 1
+"Zéphir" ;			xx/xx ; 0 ; 1
+"Zéphirin" ;		20/12 ; 0 ; 1
+"Zian" ;			27/12 ; 0 ; 1
+"Zita" ;			27/04 ; 1 ; 0
+"Zoé" ;				02/05 ; 0 ; 0

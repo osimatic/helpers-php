@@ -205,9 +205,9 @@ class URL
 	{
 		$path = self::getPath($url, true);
 		if (strrpos($path, '/') !== false) {
-			$nomFichier = substr($path, strrpos($path, '/')+1);
+			$fileName = substr($path, strrpos($path, '/')+1);
 		}
-		return $nomFichier;
+		return $fileName ?? '';
 	}
 
 

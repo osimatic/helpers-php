@@ -111,7 +111,7 @@ class File
 	 * @param string $filename A file name or full path, does not need to exist as a file
 	 * @return string
 	 */
-	public static function getMimeTypesForFile($filename): string
+	public static function getMimeTypesForFile(string $filename): string
 	{
 		// In case the path is a Bitly, strip any query string before getting extension
 		$qpos = strpos($filename, '?');
@@ -238,7 +238,7 @@ class File
 	 * Works similarly to the one in PHP >= 5.2.0
 	 * @link http://www.php.net/manual/en/function.pathinfo.php#107461
 	 * @param string $path A filename or path, does not need to exist as a file
-	 * @param integer $options Either a PATHINFO_* constant
+	 * @param int|null $options Either a PATHINFO_* constant
 	 * @return string|array
 	 */
 	public static function mb_pathinfo(string $path, ?int $options = null)
