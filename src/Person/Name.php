@@ -123,11 +123,12 @@ class Name
 	 * @param int|null $month month of name day (default current month)
 	 * @param int|null $day day of month of name day (default current day of month)
 	 * @param string $country
+	 * @param bool $rare
 	 * @return string|null
 	 */
-	public static function getNameDay(?int $month=null, ?int $day=null, string $country='FR'): ?string
+	public static function getNameDay(?int $month=null, ?int $day=null, string $country='FR', bool $rare=false): ?string
 	{
-		return self::getNameDays($month, $day, $country)[0] ?? null;
+		return self::getNameDays($month, $day, $country, $rare)[0] ?? null;
 	}
 
 	/**
@@ -135,11 +136,14 @@ class Name
 	 * @param int|null $month month of name day (default current month)
 	 * @param int|null $day day of month of name day (default current day of month)
 	 * @param string $country
+	 * @param bool $rare
 	 * @return array
 	 */
-	public static function getNameDays(?int $month=null, ?int $day=null, string $country='FR'): array
+	public static function getNameDays(?int $month=null, ?int $day=null, string $country='FR', bool $rare=false): array
 	{
-		return self::getNameDaysList($country)[sprintf("%02d", $day).'/'.sprintf("%02d", $month)] ?? [];
+		$month ??= date('m');
+		$day ??= date('d');
+		return self::getNameDaysList($country, $rare)[sprintf("%02d", $day).'/'.sprintf("%02d", $month)] ?? [];
 	}
 
 	private static array $nameDays = [];
@@ -170,18 +174,24 @@ class Name
 					continue;
 				}
 
-				if (!$special && !(bool)trim($firstNameData[4] ?? 0)) { // si fête particulière (exemple : Jour de l'an, fêtes chrétiennes...), on l'ignore
+				if (!$special && trim($firstNameData[4] ?? 1) === '0') { // si fête particulière (exemple : Jour de l'an, fêtes chrétiennes...), on l'ignore
 					continue;
 				}
 
+				$keyDate = trim($firstNameData[1]);
+				$firstName = trim($firstNameData[0]);
 				if ((bool)trim($firstNameData[2])) { // si prénom "principal"
-					$mainNameDays[trim($firstNameData[1])][] = trim($firstNameData[0]);
+					$mainNameDays[$keyDate] = $firstName;
+					continue;
 				}
-				self::$nameDays[$country][trim($firstNameData[1])][] = trim($firstNameData[0]);
+				self::$nameDays[$country][$keyDate][] = $firstName;
 			}
 
 			// ajout des prénoms "principal" en début de chaque tableau quotidien
 			foreach ($mainNameDays as $key => $firstName) {
+				if (!isset(self::$nameDays[$country][$key])) {
+					self::$nameDays[$country][$key] = [];
+				}
 				array_unshift(self::$nameDays[$country][$key], $firstName);
 			}
 

@@ -775,7 +775,7 @@ prenom , date , fete_principale , rare
 "Honorat" ;			16/01 ; 0 ; 1
 "Honoré" ;			16/05 ; 1 ; 0
 "Honorine" ;		27/02 ; 1 ; 0
-"Hortense" ;		11/01" ;'fete2' => '05/10 ; 0 ; 0
+"Hortense" ;		11/01 ; 0 ; 0 ; aussi le 05/10 ?
 "Hubert" ;			03/11 ; 1 ; 0
 "Hugo" ;			01/04 ; 0 ; 0
 "Hugues" ;			01/04 ; 1 ; 0
@@ -824,7 +824,7 @@ prenom , date , fete_principale , rare
 "Jacob" ;			20/12 ; 0 ; 1
 "Jacobine" ;		20/12 ; 0 ; 1
 "Jacotte" ;			08/02 ; 0 ; 1
-"Jacques" ;			25/07" ;'fete_principale' => true, 'fete2' => '03/05 ; 0 ; 0
+"Jacques" ;			25/07 ; 1 ; 0 ; aussi le 03/05 ?
 "Jacqueline" ;		08/02 ; 1 ; 0
 "Jacquette" ;		08/02 ; 0 ; 1 ; ou 25/07 ?
 "Jacquine" ;		08/02 ; 0 ; 1 ; ou 25/07 ?
@@ -1108,6 +1108,7 @@ prenom , date , fete_principale , rare
 "Maguelone" ;		xx/xx ; 0 ; 1
 "Mahault" ;			xx/xx ; 0 ; 1
 "Mahaut" ;			xx/xx ; 0 ; 1
+"Mahé" ;			21/09 ; 0 ; 0
 "Maïté" ;			15/08 ; 0 ; 1 ; ou 07/06 ?
 "Malo" ;			15/11 ; 0 ; 1
 "Manuel" ;			25/12 ; 0 ; 0
