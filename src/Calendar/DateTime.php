@@ -620,6 +620,12 @@ class DateTime
 
 	// ========== Jours fériés ==========
 
+	public static function getEasterDateTime(int $year): \DateTime {
+		$base = new \DateTime("$year-03-21");
+		$days = easter_days($year);
+		return $base->add(new \DateInterval("P{$days}D"));
+	}
+
 	/**
 	 * @param \DateTime $dateTime
 	 * @param string $country
@@ -639,7 +645,7 @@ class DateTime
 				continue;
 			}
 
-			if ($publicHoliday['date'] === $dateTime->format('Y-m-d')) {
+			if (date('Y-m-d', $publicHoliday['timestamp']) === $dateTime->format('Y-m-d')) {
 				return true;
 			}
 		}
@@ -668,13 +674,16 @@ class DateTime
 				$publicHolidayData['month'] = (int) $publicHolidayData['month'];
 
 				if (($publicHolidayData['calendar'] ?? null) === 'islamic') {
-					$publicHolidayData['date'] = null;
+					$publicHolidayData['timestamp'] = null;
 				}
 				else {
-					$publicHolidayData['date'] = $year.'-'.sprintf('%02d', $publicHolidayData['month']).'-'.sprintf('%02d', $publicHolidayData['day']);
+					//$publicHolidayData['date'] = $year.'-'.sprintf('%02d', $publicHolidayData['month']).'-'.sprintf('%02d', $publicHolidayData['day']); // ce champ est deprecated (remplacé par timestamp)
+					if (!isset($publicHolidayData['timestamp'])) {
+						$publicHolidayData['timestamp'] = mktime(0, 0, 0, $publicHolidayData['month'], $publicHolidayData['day'], $year);
+					}
 				}
 
-				$publicHolidayData['key'] ??= $publicHolidayData['date'];
+				$publicHolidayData['key'] ??= date('Y-m-d', $publicHolidayData['timestamp']);
 
 				// ajout jour de l'année dans le label
 				if (preg_match('/[1-2][0-9][0-9][0-9]-((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $publicHolidayData['key']) !== 0) {
@@ -691,13 +700,14 @@ class DateTime
 			return $listOfPublicHolidays;
 		};
 
-		$timePaques = easter_date($year);
+		//$easterDateTime = (new \DateTime('@'.easter_date($year)))->setTimezone(new \DateTimeZone($timeZone));
+		$easterDateTime = self::getEasterDateTime($year);
 
-		$timeLundiPentecote = $timePaques+(50*24*3600);
-		$timePentecote = $timePaques+(49*24*3600);
-		$timeJeudiAscension = $timePaques+(39*24*3600);
-		$timeVendrediSaint = $timePaques-(2*24*3600);
-		$timeLundiPaques = $timePaques+(1*24*3600);
+		$lundiPentecoteDateTime = (clone $easterDateTime)->modify('+50 days');
+		$pentecoteDateTime = (clone $easterDateTime)->modify('+49 days');
+		$jeudiAscensionDateTime = (clone $easterDateTime)->modify('+39 days');
+		$vendrediSaintDateTime = (clone $easterDateTime)->modify('-2 days');
+		$lundiPaquesDateTime = (clone $easterDateTime)->modify('+1 days');
 
 		// ---------- BELGIQUE ----------
 		if ($country === 'BE') {
@@ -722,19 +732,19 @@ class DateTime
 				// --- BELGIQUE - Fêtes religieuses ---
 
 				// Pâques
-				['key' => 'paques', 'day' => date('d', $timePaques), 'month' => date('m', $timePaques), 'label' => 'Pâques'],
+				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
 
 				// Lundi de Pâques (1 jour après Pâques)
-				['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'],
+				['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'],
 
 				// Jeudi de l’Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
+				['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
 
 				// Pentecôte (49 jours après Pâques)
-				['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'],
+				['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'],
 
 				// Lundi de Pentecôte (50 jours après Pâques)
-				['key' => 'lundi_pentecote', 'day' => date('d', $timeLundiPentecote), 'month' => date('m', $timeLundiPentecote), 'label' => 'Lundi de Pentecôte'],
+				['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'],
 
 				// 15 août - Assomption
 				['day' => 15, 'month' => 8, 'label' => 'Assomption'],
@@ -764,19 +774,19 @@ class DateTime
 				// --- LUXEMBOURG - Fêtes religieuses ---
 
 				// Pâques
-				['key' => 'paques', 'day' => date('d', $timePaques), 'month' => date('m', $timePaques), 'label' => 'Pâques'],
+				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
 
 				// Lundi de Pâques (1 jour après Pâques)
-				['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'],
+				['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'],
 
 				// Jeudi de l’Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
+				['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
 
 				// Pentecôte (49 jours après Pâques)
-				['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'],
+				['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'],
 
 				// Lundi de Pentecôte (50 jours après Pâques)
-				['key' => 'lundi_pentecote', 'day' => date('d', $timeLundiPentecote), 'month' => date('m', $timeLundiPentecote), 'label' => 'Lundi de Pentecôte'],
+				['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'],
 
 				// 15 août - Assomption
 				['day' => 15, 'month' => 8, 'label' => 'Assomption'],
@@ -792,7 +802,7 @@ class DateTime
 		// ---------- SUISSE ----------
 		// https://fr.wikipedia.org/wiki/Jours_f%C3%A9ri%C3%A9s_en_Suisse
 		if ($country === 'CH') {
-			$timestampFeteDieu = $timePaques+(60*24*3600);
+			$feteDieuDateTime = (clone $easterDateTime)->modify('+60 days');
 			$timestampJeuneGenevois = strtotime('sunday', mktime(0, 0, 0, 9, 1, $year))+(4*24*3600);
 			$timestampLundiJeuneFederal = strtotime('sunday', mktime(0, 0, 0, 9, 1, $year))+(15*24*3600);
 
@@ -838,25 +848,25 @@ class DateTime
 				// ['day' => 19, 'month' => 3, 'label' => 'Fahrtsfest'], // todo
 
 				// Vendredi saint (2 jours avant Pâques)
-				['key' => 'paques', 'day' => date('d', $timeVendrediSaint), 'month' => date('m', $timeVendrediSaint), 'label' => 'Vendredi saint'],
+				['key' => 'paques', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'],
 
 				// Pâques
-				['key' => 'paques', 'day' => date('d', $timePaques), 'month' => date('m', $timePaques), 'label' => 'Pâques'],
+				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
 
 				// Lundi de Pâques (1 jour après Pâques)
-				['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'],
+				['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'],
 
 				// Jeudi de l’Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
+				['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
 
 				// Pentecôte (49 jours après Pâques)
-				['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'],
+				['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'],
 
 				// Lundi de Pentecôte (50 jours après Pâques)
-				['key' => 'lundi_pentecote', 'day' => date('d', $timeLundiPentecote), 'month' => date('m', $timeLundiPentecote), 'label' => 'Lundi de Pentecôte'],
+				['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'],
 
 				// Fête-Dieu (60 jours après Pâques)
-				['key' => 'fete_dieu', 'day' => date('d', $timestampFeteDieu), 'month' => date('m', $timestampFeteDieu), 'label' => 'Fête-Dieu'],
+				['key' => 'fete_dieu', 'day' => $feteDieuDateTime->format('d'), 'month' => $feteDieuDateTime->format('m'), 'timestamp' => $feteDieuDateTime->getTimestamp(), 'label' => 'Fête-Dieu'],
 
 				// 29 juin - Saint-Pierre et Paul
 				['day' => 29, 'month' => 6, 'label' => 'Saint-Pierre et Paul'],
@@ -953,28 +963,23 @@ class DateTime
 
 			// Vendredi saint (vendredi précédent Pâques)
 			if (!empty($options['alsace']) && $options['alsace']) {
-				$timeVendrediSaint = $timePaques+(-2*24*3600);
-				$listOfPublicHolidays[] = ['key' => 'vendredi_saint', 'day' => date('d', $timeVendrediSaint), 'month' => date('m', $timeVendrediSaint), 'label' => 'Vendredi saint'];
+				$listOfPublicHolidays[] = ['key' => 'vendredi_saint', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'];
 			}
 
 			// Pâques
-			$listOfPublicHolidays[] = ['key' => 'paques', 'day' => date('d', $timePaques), 'month' => date('m', $timePaques), 'label' => 'Pâques'];
+			$listOfPublicHolidays[] = ['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'];
 
 			// Lundi de Pâques (1 jour après Pâques)
-			$timeLundiPaques = $timePaques+(1*24*3600);
-			$listOfPublicHolidays[] = ['key' => 'lundi_paques', 'day' => date('d', $timeLundiPaques), 'month' => date('m', $timeLundiPaques), 'label' => 'Lundi de Pâques'];
+			$listOfPublicHolidays[] = ['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'];
 
 			// Jeudi de l’Ascension (39 jours après Pâques)
-			$timeJeudiAscension = $timePaques+(39*24*3600);
-			$listOfPublicHolidays[] = ['key' => 'ascension', 'day' => date('d', $timeJeudiAscension), 'month' => date('m', $timeJeudiAscension), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'];
+			$listOfPublicHolidays[] = ['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'];
 
 			// Pentecôte (49 jours après Pâques)
-			$timePentecote = $timePaques+(49*24*3600);
-			$listOfPublicHolidays[] = ['key' => 'pentecote', 'day' => date('d', $timePentecote), 'month' => date('m', $timePentecote), 'label' => 'Pentecôte'];
+			$listOfPublicHolidays[] = ['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'];
 
 			// Lundi de Pentecôte (50 jours après Pâques)
-			$timeLundiPentecote = $timePaques+(50*24*3600);
-			$listOfPublicHolidays[] = ['key' => 'lundi_pentecote', 'day' => date('d', $timeLundiPentecote), 'month' => date('m', $timeLundiPentecote), 'label' => 'Lundi de Pentecôte'];
+			$listOfPublicHolidays[] = ['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'];
 
 			// 15 août - Assomption
 			$listOfPublicHolidays[] = ['day' => 15, 'month' => 8, 'label' => 'Assomption'];
