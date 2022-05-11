@@ -5,6 +5,21 @@ namespace Osimatic\Helpers\FileSystem;
 class File
 {
 	/**
+	 * @param string $data
+	 * @return string
+	 */
+	public static function getDataFromBase64Data(string $data): ?string
+	{
+		if (strstr($data, 'base64,') !== false) {
+			$data = explode('base64,', $data)[1] ?? '';
+		}
+		if (false === ($data = base64_decode($data)) || empty($data)) {
+			return null;
+		}
+		return $data;
+	}
+
+	/**
 	 * @param string $realPath
 	 * @param string $clientOriginalName
 	 * @param array $extensionsAllowed
