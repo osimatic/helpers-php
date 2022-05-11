@@ -25,9 +25,11 @@ class InputFile
 	 * @param array|null $uploadedFileInfos
 	 * @param string|null $data
 	 */
-	public function __construct(?array $uploadedFileInfos, ?string $data)
+	public function __construct(?array $uploadedFileInfos=null, ?string $data=null)
 	{
-		$this->setUploadedFileInfos($uploadedFileInfos);
+		if (null !== $uploadedFileInfos) {
+			$this->setUploadedFileInfos($uploadedFileInfos);
+		}
 		$this->data = $data;
 	}
 
