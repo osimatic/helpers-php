@@ -4,6 +4,13 @@ namespace Osimatic\Helpers\Bank;
 
 class BankCard
 {
+	public const CARD_TYPE_AMERICAN_EXPRESS = 'AMERICAN_EXPRESS';
+	public const CARD_TYPE_VISA = 'VISA';
+	public const CARD_TYPE_DINNER_CLUB = 'DINNER_CLUB';
+	public const CARD_TYPE_DISCOVER_NETWORK = 'DISCOVER_NETWORK';
+	public const CARD_TYPE_MASTER_CARD = 'MASTER_CARD';
+	public const CARD_TYPE_GOOGLE_WALLET = 'GOOGLE_WALLET';
+	public const CARD_TYPE_SKRILL = 'SKRILL';
 
 	/**
 	 * @param string $cardNumber
@@ -41,6 +48,30 @@ class BankCard
 			$cardNumber = str_replace('*', 'X', $cardNumber);
 		}
 		return $cardNumber;
+	}
+
+	/**
+	 * @param string $cardNumber
+	 * @return string|null
+	 */
+	public static function getCardType(string $cardNumber): ?string
+	{
+		if (((int)substr($cardNumber, 0, 1)) === 4) {
+			return self::CARD_TYPE_VISA;
+		}
+		if (((int)substr($cardNumber, 0, 1)) === 5) {
+			return self::CARD_TYPE_MASTER_CARD;
+		}
+		if (((int)substr($cardNumber, 0, 1)) === 6) {
+			return self::CARD_TYPE_DISCOVER_NETWORK;
+		}
+		if (((int)substr($cardNumber, 0, 2)) === 37) {
+			return self::CARD_TYPE_AMERICAN_EXPRESS;
+		}
+		if (((int)substr($cardNumber, 0, 2)) === 38) {
+			return self::CARD_TYPE_DINNER_CLUB;
+		}
+		return null;
 	}
 
 }
