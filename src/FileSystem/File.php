@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\FileSystem;
 
+use Psr\Log\LoggerInterface;
+
 class File
 {
 	/**
@@ -17,6 +19,43 @@ class File
 			return null;
 		}
 		return $data;
+	}
+
+	/**
+	 * @param InputFile $uploadedFile
+	 * @param string $filePath
+	 * @param LoggerInterface|null $logger
+	 * @return bool
+	 */
+	public static function moveUploadedFile(InputFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
+	{
+		\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($filePath);
+
+		if (file_exists($filePath)) {
+			unlink($filePath);
+		}
+
+		if (!empty($uploadedFile->getOriginalFileName())) {
+			if (false === move_uploaded_file($uploadedFile->getUploadedFilePath(), $filePath)) {
+				if (null !== $logger) {
+					$logger->error('Erreur lors du téléchargement du fichier "'.$filePath.'"');
+				}
+				return false;
+			}
+			return true;
+		}
+
+		if (!empty($uploadedFile->getData())) {
+			if (false === file_put_contents($filePath, $uploadedFile->getData())) {
+				if (null !== $logger) {
+					$logger->error('Erreur lors de l\'écriture du fichier "'.$filePath.'" (taille données : '.strlen($uploadedFile->getData()).')');
+				}
+				return false;
+			}
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
