@@ -2,11 +2,11 @@
 
 namespace Osimatic\Helpers\Bank;
 
+use GuzzleHttp\Exception\GuzzleException;
+use Osimatic\Helpers\Network\HTTPRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\Http\Message\ResponseInterface;
-use Osimatic\Helpers\Bank\ShoppingCartInterface;
-use Osimatic\Helpers\Bank\BillingAddressInterface;
 
 /**
  * Cette classe permet d'effectuer un paiement par CB via la plateforme PayBox
@@ -14,45 +14,45 @@ use Osimatic\Helpers\Bank\BillingAddressInterface;
  */
 class PayBox
 {
-	const URL_PAIEMENT_TEST = 'https://preprod-ppps.paybox.com/PPPS.php';
-	const URL_PAIEMENT = 'https://ppps.paybox.com/PPPS.php';
-	const URL_PAIEMENT_SECOURS = 'https://ppps1.paybox.com/PPPS.php';
+	public const URL_PAIEMENT_TEST = 'https://preprod-ppps.paybox.com/PPPS.php';
+	public const URL_PAIEMENT = 'https://ppps.paybox.com/PPPS.php';
+	public const URL_PAIEMENT_SECOURS = 'https://ppps1.paybox.com/PPPS.php';
 
-	const URL_FORM_TEST = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-	const URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-	const URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	public const URL_FORM_TEST = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	public const URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	public const URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
 
-	const VERSION_PAYBOX_DIRECT = '00103';
-	const VERSION_PAYBOX_DIRECT_PLUS = '00104';
+	public const VERSION_PAYBOX_DIRECT = '00103';
+	public const VERSION_PAYBOX_DIRECT_PLUS = '00104';
 
-	const CALL_ORIGIN_NOT_SPECIFIED = '020';
-	const CALL_ORIGIN_TELEPHONE_ORDER = '021';
-	const CALL_ORIGIN_MAIL_ORDER = '022';
-	const CALL_ORIGIN_MINITEL = '023';
-	const CALL_ORIGIN_INTERNET_PAYMENT = '024';
-	const CALL_ORIGIN_RECURRING_PAYMENT = '027';
+	public const CALL_ORIGIN_NOT_SPECIFIED = '020';
+	public const CALL_ORIGIN_TELEPHONE_ORDER = '021';
+	public const CALL_ORIGIN_MAIL_ORDER = '022';
+	public const CALL_ORIGIN_MINITEL = '023';
+	public const CALL_ORIGIN_INTERNET_PAYMENT = '024';
+	public const CALL_ORIGIN_RECURRING_PAYMENT = '027';
 
-	const DEFAULT_FORM_TIMEOUT = 1800;
+	public const DEFAULT_FORM_TIMEOUT = 1800;
 
 	/**
 	 * Ces constantes sont internes, ne pas utiliser de l'extérieur
 	 */
-	const TYPE_OPERATION_AUTORISATION_SEULE = '00001';
-	const TYPE_OPERATION_DEBIT = '00002';
-	const TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
-	const TYPE_OPERATION_CREDIT = '00004';
-	const TYPE_OPERATION_ANNULATION = '00005';
-	const TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
-	const TYPE_OPERATION_DEBIT_ABONNE = '00052';
-	const TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
-	const TYPE_OPERATION_CREDIT_ABONNE = '00054';
-	const TYPE_OPERATION_ANNULATION_ABONNE = '00055';
-	const TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
-	const TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
+	public const TYPE_OPERATION_AUTORISATION_SEULE = '00001';
+	public const TYPE_OPERATION_DEBIT = '00002';
+	public const TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
+	public const TYPE_OPERATION_CREDIT = '00004';
+	public const TYPE_OPERATION_ANNULATION = '00005';
+	public const TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
+	public const TYPE_OPERATION_DEBIT_ABONNE = '00052';
+	public const TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
+	public const TYPE_OPERATION_CREDIT_ABONNE = '00054';
+	public const TYPE_OPERATION_ANNULATION_ABONNE = '00055';
+	public const TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
+	public const TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
 
 
 	/**
-	 * @var LoggerInterface
+	 * @var LoggerInterface|null
 	 */
 	private $logger;
 
@@ -282,10 +282,10 @@ class PayBox
 	 * Paybox system form's expiration in seconds
 	 * @var int
 	 */
-	private $formTimeout = self::DEFAULT_FORM_TIMEOUT;
+	private int $formTimeout = self::DEFAULT_FORM_TIMEOUT;
 
 
-	private static $visaResponseCodes = [
+	private static array $visaResponseCodes = [
 		'00100' => 'Transaction approuvée ou traitée avec succès',
 		'00101' => 'Contacter l’émetteur de carte',
 		'00102' => 'Contacter l’émetteur de carte',
@@ -1035,13 +1035,13 @@ class PayBox
 
 
 	/**
-	 * @return PayBoxResponse|bool|string
+	 * @return PayBoxResponse|bool|string|null
 	 */
-	private function doRequest()
+	private function doRequest(): PayBoxResponse|bool|string|null
 	{
 		$this->version = (empty($this->version) ? self::VERSION_PAYBOX_DIRECT_PLUS : $this->version);
 		if (!in_array($this->version, [self::VERSION_PAYBOX_DIRECT, self::VERSION_PAYBOX_DIRECT_PLUS], true)) {
-			$this->logger ? $this->logger->error('Version invalide : ' . $this->version) : null;
+			$this->logger?->error('Version invalide : ' . $this->version);
 			return false;
 		}
 
@@ -1055,29 +1055,29 @@ class PayBox
 		}
 
 		if (empty($this->numSite) || strlen($this->numSite) !== 7) {
-			$this->logger ? $this->logger->error('Numéro de TPE invalide : ' . $this->numSite) : null;
+			$this->logger?->error('Numéro de TPE invalide : ' . $this->numSite);
 			return false;
 		}
 
 		if (empty($this->rang) || strlen($this->rang) < 2 || strlen($this->rang) > 3) {
-			$this->logger ? $this->logger->error('Numéro de rang invalide : ' . $this->rang) : null;
+			$this->logger?->error('Numéro de rang invalide : ' . $this->rang);
 			return false;
 		}
 
 		if ($this->useForm) {
 			if (!$this->_checkIdentifier()) {
-				$this->logger ? $this->logger->error('Identifiant PayBox invalide : ' . $this->identifier) : null;
+				$this->logger?->error('Identifiant PayBox invalide : ' . $this->identifier);
 				return false;
 			}
 
 			if (!$this->_checkSecretKey()) {
-				$this->logger ? $this->logger->error('Clé secrete invalide : ' . $this->secretKey) : null;
+				$this->logger?->error('Clé secrete invalide : ' . $this->secretKey);
 				return false;
 			}
 		}
 		else {
 			if (!$this->_checkHttpPassword()) {
-				$this->logger ? $this->logger->error('Mot de passe PayBox invalide : ' . $this->httpPassword) : null;
+				$this->logger?->error('Mot de passe PayBox invalide : ' . $this->httpPassword);
 				return false;
 			}
 		}
@@ -1086,31 +1086,31 @@ class PayBox
 
 		$this->numQuestion = (empty($this->numQuestion) ? date('His') . mt_rand(1, 999) : $this->numQuestion);
 		if (!is_numeric($this->numQuestion)) {
-			$this->logger ? $this->logger->error('Num question invalide : ' . $this->numQuestion) : null;
+			$this->logger?->error('Num question invalide : ' . $this->numQuestion);
 			return false;
 		}
 
 		if ($this->typeQuestion !== self::TYPE_OPERATION_SUPPRESSION_ABONNE) {
 			if (empty($this->montant)) {
-				$this->logger ? $this->logger->error('Montant invalide : ' . $this->montant) : null;
+				$this->logger?->error('Montant invalide : ' . $this->montant);
 				return false;
 			}
 
 			if (empty($this->reference) || strlen($this->reference) > 250) {
-				$this->logger ? $this->logger->error('Référence invalide.') : null;
+				$this->logger?->error('Référence invalide.');
 				return false;
 			}
 		}
 
 		if ($this->typeQuestion === self::TYPE_OPERATION_SUPPRESSION_ABONNE) {
 			if (empty($this->subscriberRef)) {
-				$this->logger ? $this->logger->error('Référence abonné vide.') : null;
+				$this->logger?->error('Référence abonné vide.');
 				return false;
 			}
 		}
 
 		if (!empty($this->subscriberRef) && strlen($this->subscriberRef) > 250) {
-			$this->logger ? $this->logger->error('Référence abonné invalide.') : null;
+			$this->logger?->error('Référence abonné invalide.');
 			return false;
 		}
 
@@ -1119,7 +1119,7 @@ class PayBox
 		if ($this->useForm) {
 			// Utilisation Paybox System (formulaire de paiement sur la plateforme Paybox)
 			if (empty($this->porteurEmail) || strlen($this->porteurEmail) < 6 || strlen($this->porteurEmail) > 120 || !filter_var($this->porteurEmail, FILTER_VALIDATE_EMAIL)) {
-				$this->logger ? $this->logger->error('Email porteur invalide.') : null;
+				$this->logger?->error('Email porteur invalide.');
 				return false;
 			}
 		} else {
@@ -1129,25 +1129,25 @@ class PayBox
 				// Utilisation système abonné (via le token de la carte)
 
 				if (empty($this->porteur)) {
-					$this->logger ? $this->logger->error('Token porteur vide.') : null;
+					$this->logger?->error('Token porteur vide.');
 					return false;
 				}
 			} else {
 				// Utilisation système classique (saisie de la carte)
 
 				if (!empty($this->porteur) && strlen($this->porteur) > 19) {
-					$this->logger ? $this->logger->error('Numéro carte invalide.') : null;
+					$this->logger?->error('Numéro carte invalide.');
 					return false;
 				}
 
 				if (!empty($this->cvv) && (strlen($this->cvv) < 3 || strlen($this->cvv) > 4)) {
-					$this->logger ? $this->logger->error('Cryptogramme visuel invalide.') : null;
+					$this->logger?->error('Cryptogramme visuel invalide.');
 					return false;
 				}
 			}
 
 			if (empty($this->getExpirationDateFormatted())) {
-				$this->logger ? $this->logger->error('Date validité invalide.') : null;
+				$this->logger?->error('Date validité invalide.');
 				return false;
 			}
 		}
@@ -1155,13 +1155,13 @@ class PayBox
 		if (!$this->useForm && $isCaptureAfterAuthorization) {
 			// if (empty($this->numAppel) || strlen($this->numAppel) != 10) {
 			if (empty($this->numAppel)) {
-				$this->logger ? $this->logger->error('Numéro appel invalide.') : null;
+				$this->logger?->error('Numéro appel invalide.');
 				return false;
 			}
 
 			// if (empty($this->numTransaction) || strlen($this->numTransaction) != 10) {
 			if (empty($this->numTransaction)) {
-				$this->logger ? $this->logger->error('Numéro appel invalide.') : null;
+				$this->logger?->error('Numéro appel invalide.');
 				return false;
 			}
 
@@ -1226,20 +1226,20 @@ class PayBox
 		$queryString = http_build_query($postData);
 
 		// Log
-		$this->logger ? $this->logger->info('URL Paiement Paybox : ' . $urlPaiement) : null;
-		$this->logger ? $this->logger->info('QueryString envoyée : ' . $queryString) : null;
-		$this->logger ? $this->logger->info('Référence achat : ' . $postData['REFERENCE']) : null;
+		$this->logger?->info('URL Paiement Paybox : ' . $urlPaiement);
+		$this->logger?->info('QueryString envoyée : ' . $queryString);
+		$this->logger?->info('Référence achat : ' . $postData['REFERENCE']);
 
 		// Appel de l'URL Paybox avec les arguments POST
-		$res = self::post($urlPaiement, $postData);
+		$res = HTTPRequest::post($urlPaiement, $postData, $this->logger);
 
-		if (false === $res) {
-			$this->logger ? $this->logger->info('Appel Paybox échoué') : null;
+		if (null === $res) {
+			$this->logger?->info('Appel Paybox échoué');
 			return null;
 		}
 
-		$res = (string)$res->getBody();
-		$this->logger ? $this->logger->info('Résultat appel Paybox : ' . $res) : null;
+		$res = (string) $res->getBody();
+		$this->logger?->info('Résultat appel Paybox : ' . $res);
 
 		// Récupération des arguments retour
 		parse_str($res, $tabArg);
@@ -1253,8 +1253,8 @@ class PayBox
 		}
 
 		// Log réponse
-		$this->logger ? $this->logger->info('Code réponse : ' . $this->codeReponse) : null;
-		$this->logger ? $this->logger->info('Libellé réponse : ' . $this->libelleReponse) : null;
+		$this->logger?->info('Code réponse : ' . $this->codeReponse);
+		$this->logger?->info('Libellé réponse : ' . $this->libelleReponse);
 
 		$paiementOk = ($this->codeReponse === '00000');
 
@@ -1449,31 +1449,6 @@ class PayBox
 			return substr($this->dateValidite, 0, 2) . substr($this->dateValidite, -2);
 		}
 		return null;
-	}
-
-	/**
-	 * @param string $url
-	 * @param array $queryData
-	 * @return bool|ResponseInterface
-	 */
-	private static function post(string $url, array $queryData = [])
-	{
-		//var_dump($this->countryService->getCountryByHost());
-		//var_dump(\App\Service\Helper\CountryHelper::getLocaleByCountryCode($this->countryService->getCountryByHost()));
-		$client = new \GuzzleHttp\Client();
-		try {
-			$options = [
-				'http_errors' => false,
-			];
-			$options['form_params'] = $queryData;
-			$res = $client->request('POST', $url, $options);
-		}
-		//catch (\GuzzleHttp\Exception\GuzzleException $e) {
-		catch (\Exception $e) {
-			//var_dump($e->getMessage());
-			return false;
-		}
-		return $res;
 	}
 
 }

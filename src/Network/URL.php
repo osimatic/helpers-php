@@ -34,7 +34,7 @@ class URL
 		if (!$withProtocole) {
 			$url = substr($url, strpos($url, '://')+3);
 		}
-		if (substr($url, -1) == '/') { // todo : tester si contient path (dans ce cas ne pas retirer le dernier slash)
+		if (str_ends_with($url, '/')) { // todo : tester si contient path (dans ce cas ne pas retirer le dernier slash)
 			$url = substr($url, 0, -1);
 		}
 		return self::toLowerCase($url);
@@ -151,10 +151,10 @@ class URL
 	{
 		$tabInfosUrl = parse_url($url);
 		$host = $tabInfosUrl['host'] ?? '';
-		if ($addSlashAtEnd && substr($host, -1) != '/') {
+		if ($addSlashAtEnd && !str_ends_with($host, '/')) {
 			$host .= '/';
 		}
-		if ($deleteSlashAtEnd && substr($host, -1) == '/') {
+		if ($deleteSlashAtEnd && str_ends_with($host, '/')) {
 			$host = substr($host, 0, -1);
 		}
 		return $host;
@@ -187,10 +187,10 @@ class URL
 		$tabInfosUrl = parse_url($url);
 		$path = $tabInfosUrl['path'] ?? '';
 
-		if ($addSlashAtBeginning && substr($path, 0, 1) != '/') {
+		if ($addSlashAtBeginning && !str_starts_with($path, '/')) {
 			$path = '/'.$path;
 		}
-		if ($deleteSlashAtBeginning && substr($path, 0, 1) == '/') {
+		if ($deleteSlashAtBeginning && str_starts_with($path, '/')) {
 			$path = substr($path, 1);
 		}
 		return $path;

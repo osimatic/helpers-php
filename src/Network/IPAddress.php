@@ -44,7 +44,7 @@ class IPAddress
 	 */
 	public static function checkRange(string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
-		if (strpos($ipAddressRange, $rangeSeparator) === false) {
+		if (!str_contains($ipAddressRange, $rangeSeparator)) {
 			return false;
 		}
 
@@ -60,7 +60,7 @@ class IPAddress
 	 */
 	public static function checkRangeOfIpV6(string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
-		if (strpos($ipAddressRange, $rangeSeparator) === false) {
+		if (!str_contains($ipAddressRange, $rangeSeparator)) {
 			return false;
 		}
 
@@ -78,7 +78,7 @@ class IPAddress
 	 */
 	public static function isInRangeOfIpAddressRange(string $ipAddress, string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
-		if (strpos($ipAddressRange, $rangeSeparator) === false) {
+		if (!str_contains($ipAddressRange, $rangeSeparator)) {
 			return false;
 		}
 		[$rangeStartIp, $rangeEndIp] = explode($rangeSeparator, $ipAddressRange);
@@ -110,9 +110,9 @@ class IPAddress
 			return true;
 		}
 
-		if (substr($ipAddressCompare, -1) === '%') {
+		if (str_ends_with($ipAddressCompare, '%')) {
 			$debutAdresseIp = substr($ipAddressCompare, 0, -1);
-			if (substr($ipAddress, 0, strlen($debutAdresseIp)) == $debutAdresseIp) {
+			if (str_starts_with($ipAddress, $debutAdresseIp)) {
 				return true;
 			}
 		}

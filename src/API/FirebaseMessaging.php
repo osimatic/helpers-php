@@ -10,22 +10,22 @@ class FirebaseMessaging
 	/**
 	 * @var LoggerInterface
 	 */
-	private $logger;
+	private LoggerInterface $logger;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $projectId;
+	private ?string $projectId = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $serviceKeyFile;
+	private ?string $serviceKeyFile = null;
 
 	/**
 	 * @var array|null
 	 */
-	private $result;
+	private ?array $result;
 
 	public function __construct()
 	{
@@ -88,19 +88,19 @@ class FirebaseMessaging
 	public function send(string $deviceId, string $title, string $message, ?array $data=null, ?string $collapseKey=null, ?int $timeToLive=null): bool
 	{
 		if (empty($this->projectId)) {
-			$this->logger->info('Project ID not set');
+			$this->logger->error('Project ID not set');
 			return false;
 		}
 
 		$url = 'https://fcm.googleapis.com/v1/projects/'.$this->projectId.'/messages:send';
 
 		if (empty($deviceId)) {
-			$this->logger->info('No device set');
+			$this->logger->error('No device set');
 			return false;
 		}
 
 		if (empty($this->serviceKeyFile)) {
-			$this->logger->info('Server key file not set');
+			$this->logger->error('Server key file not set');
 			return false;
 		}
 
@@ -142,11 +142,17 @@ class FirebaseMessaging
 				'body' => json_encode($fields)
 			]);
 		} catch (\GuzzleHttp\Exception\GuzzleException $e) {
-			$this->logger->info($e->getMessage());
+			$this->logger->error($e->getMessage());
 			return false;
 		}
 
-		$jsonResult = \GuzzleHttp\json_decode((string) $result->getBody(), true);
+		try {
+			$jsonResult = \GuzzleHttp\Utils::jsonDecode((string) $result->getBody(), true);
+		} catch (\Exception $e) {
+			$this->logger->error($e->getMessage());
+			return false;
+		}
+
 		$this->logger->info((string) $result->getBody());
 
 		$this->result = $jsonResult;

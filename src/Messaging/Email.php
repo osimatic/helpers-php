@@ -306,7 +306,7 @@ class Email
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function getSender(): ?string
 	{

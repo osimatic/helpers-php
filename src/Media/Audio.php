@@ -9,29 +9,36 @@ use getid3_exception;
 
 class Audio
 {
-	const MP3_EXTENSION 		= '.mp3';
-	const MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
-	const MP3_MIME_TYPES 		= ['audio/mpeg',];
+	public const MP3_EXTENSION 			= '.mp3';
+	public const MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
+	public const MP3_MIME_TYPES 		= ['audio/mpeg',];
 
-	const WAV_EXTENSION 		= '.wav';
-	const WAV_MIME_TYPES 		= ['audio/x-wav',];
+	public const WAV_EXTENSION 			= '.wav';
+	public const WAV_MIME_TYPES 		= ['audio/x-wav',];
 
-	const OGG_EXTENSION 		= '.ogg';
-	const OGG_EXTENSIONS 		= ['.ogg', '.oga', '.spx'];
-	const OGG_MIME_TYPES 		= ['audio/ogg',];
+	public const OGG_EXTENSION 			= '.ogg';
+	public const OGG_EXTENSIONS 		= ['.ogg', '.oga', '.spx'];
+	public const OGG_MIME_TYPES 		= ['audio/ogg',];
 
-	const AAC_EXTENSION 		= '.aac';
-	const AAC_MIME_TYPES 		= ['audio/x-aac',];
+	public const AAC_EXTENSION 			= '.aac';
+	public const AAC_MIME_TYPES 		= ['audio/x-aac',];
 
-	const AIFF_EXTENSION 		= '.aiff';
-	const AIFF_EXTENSIONS 		= ['.aif', '.aiff', '.aifc'];
-	const AIFF_MIME_TYPES 		= ['audio/x-aiff',];
+	public const AIFF_EXTENSION 		= '.aiff';
+	public const AIFF_EXTENSIONS 		= ['.aif', '.aiff', '.aifc'];
+	public const AIFF_MIME_TYPES 		= ['audio/x-aiff',];
 
-	const WMA_EXTENSION 		= '.wma';
-	const WMA_MIME_TYPES 		= ['audio/x-ms-wma',];
+	public const WMA_EXTENSION 			= '.wma';
+	public const WMA_MIME_TYPES 		= ['audio/x-ms-wma',];
 
-	private $logger;
-	private $soxBinaryPath;
+	/**
+	 * @var LoggerInterface
+	 */
+	private LoggerInterface $logger;
+
+	/**
+	 * @var string|null
+	 */
+	private ?string $soxBinaryPath = null;
 
 	public function __construct()
 	{

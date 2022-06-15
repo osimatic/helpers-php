@@ -361,7 +361,7 @@ class Country
 
 	/**
 	 * @param string|null $countryIsoCode
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getFlagCountryIsoCode(?string $countryIsoCode): ?string
 	{

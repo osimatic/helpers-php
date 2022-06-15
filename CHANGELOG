@@ -1,0 +1,4 @@
+
+Version 15/06/2022 :
+- Bank\Accounting::generateExport() -> Bank\Accounting::generateFile() (tableau de AccountTransaction à la place de tableau de tableau)
+- Media\Image::getTimePhoto() -> Media\Image::getPhotoTimestamp()

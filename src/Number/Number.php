@@ -7,12 +7,12 @@ class Number
 	// ========== Affichage ==========
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @param int $nbDigitMin
 	 * @param string|null $thousandsSeparator
 	 * @return string
 	 */
-	public static function addLeadingZero($number, int $nbDigitMin, ?string $thousandsSeparator=null): string
+	public static function addLeadingZero(float|int $number, int $nbDigitMin, ?string $thousandsSeparator=null): string
 	{
 		$tmp = str_replace($thousandsSeparator ?? '.', '', $number);
 		$nbLeadingZero = $nbDigitMin - strlen((string) (int) $tmp);
@@ -20,11 +20,11 @@ class Number
 	}
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @param int $decimals
 	 * @return string
 	 */
-	public static function format($number, int $decimals=2): string
+	public static function format(float|int $number, int $decimals=2): string
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
@@ -32,30 +32,30 @@ class Number
 	}
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @return string
 	 */
-	public static function formatInt($number): string
+	public static function formatInt(float|int $number): string
 	{
 		return self::format($number, 0);
 	}
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @return string
 	 */
-	public static function formatOrdinal($number): string
+	public static function formatOrdinal(float|int $number): string
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::ORDINAL);
 		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number));
 	}
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @param int $decimals
 	 * @return string
 	 */
-	public static function formatScientific($number, int $decimals=2): string
+	public static function formatScientific(float|int $number, int $decimals=2): string
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::SCIENTIFIC);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
@@ -63,11 +63,11 @@ class Number
 	}
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @param int $decimals
 	 * @return string
 	 */
-	public static function formatSpellOut($number, int $decimals=2): string
+	public static function formatSpellOut(float|int $number, int $decimals=2): string
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::SPELLOUT);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);

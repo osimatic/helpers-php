@@ -2,7 +2,10 @@
 
 namespace Osimatic\Helpers\API;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class SendinBlue
@@ -10,7 +13,15 @@ use Psr\Http\Message\ResponseInterface;
  */
 class SendinBlue
 {
-	private $apiKey;
+	/**
+	 * @var LoggerInterface
+	 */
+	private LoggerInterface $logger;
+
+	/**
+	 * @var string|null
+	 */
+	private ?string $apiKey = null;
 
 	/**
 	 * SendinBlue constructor.
@@ -18,6 +29,7 @@ class SendinBlue
 	 */
 	public function __construct(?string $apiKey=null)
 	{
+		$this->logger = new NullLogger();
 		$this->apiKey = $apiKey;
 	}
 
@@ -28,6 +40,17 @@ class SendinBlue
 	public function setApiKey(string $apiKey): self
 	{
 		$this->apiKey = $apiKey;
+
+		return $this;
+	}
+
+	/**
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
+	{
+		$this->logger = $logger;
 
 		return $this;
 	}
@@ -67,7 +90,7 @@ class SendinBlue
 	 * @param array $queryData
 	 * @return null|ResponseInterface
 	 */
-	private function post($url, array $queryData=[]): ?ResponseInterface
+	private function post(string $url, array $queryData=[]): ?ResponseInterface
 	{
 		$httpClient = new \GuzzleHttp\Client();
 		try {
@@ -78,9 +101,8 @@ class SendinBlue
 			$options[\GuzzleHttp\RequestOptions::JSON] = $queryData;
 			$res = $httpClient->request('POST', $url, $options);
 		}
-		//catch (\GuzzleHttp\Exception\GuzzleException $e) {
-		catch (\Exception $e) {
-			//var_dump($e->getMessage());
+		catch (\Exception | GuzzleException $e) {
+			$this->logger->error($e->getMessage());
 			return null;
 		}
 		return $res;

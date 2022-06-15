@@ -96,7 +96,7 @@ class Name
 
 	/**
 	 * @param Name $name
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatFromTwig(Name $name): ?string
 	{
@@ -104,7 +104,7 @@ class Name
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
 	public function format(): ?string
 	{

@@ -2,6 +2,10 @@
 
 namespace Osimatic\Helpers\API;
 
+use Osimatic\Helpers\Network\HTTPRequest;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 /**
  * Class Ekomi
  * @package Osimatic\Helpers\API
@@ -11,8 +15,20 @@ class Ekomi
 	public const URL = 'http://api.ekomi.de/v3/';
 	public const SCRIPT_VERSION = '1.0.0';
 
-	private $interfaceId;
-	private $interfacePassword;
+	/**
+	 * @var LoggerInterface
+	 */
+	private LoggerInterface $logger;
+
+	/**
+	 * @var string|null
+	 */
+	private ?string $interfaceId;
+
+	/**
+	 * @var string|null
+	 */
+	private ?string $interfacePassword;
 
 	/**
 	 * Ekomi constructor.
@@ -23,6 +39,18 @@ class Ekomi
 	{
 		$this->interfaceId = $interfaceId;
 		$this->interfacePassword = $interfacePassword;
+		$this->logger = new NullLogger();
+	}
+
+	/**
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
+	{
+		$this->logger = $logger;
+
+		return $this;
 	}
 
 	/**
@@ -107,22 +135,12 @@ class Ekomi
 
 		$url .= '&auth='.$auth.'&version='.$version.'&type=json';
 
-		//$result = file_get_contents($url);
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		$result = curl_exec($curl);
-		curl_close($curl);
-
-		if (false === $result) {
+		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
+			$this->logger->error('Erreur pendant la requete vers l\'API Ekomi.');
 			return null;
 		}
 
-		//if ($result == 'Access denied') {
-		// return null;
-		// }
-
-		return json_decode($result, true);
+		return $json;
 	}
 
 }

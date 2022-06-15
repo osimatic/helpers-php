@@ -4,15 +4,15 @@ namespace Osimatic\Helpers\Media;
 
 class Image
 {
-	const JPG_EXTENSION 		= '.jpg';
-	const JPG_EXTENSIONS 		= ['.jpeg', '.jpg', '.jpe'];
-	const JPG_MIME_TYPES 		= ['image/jpeg',];
+	public const JPG_EXTENSION 			= '.jpg';
+	public const JPG_EXTENSIONS 		= ['.jpeg', '.jpg', '.jpe'];
+	public const JPG_MIME_TYPES 		= ['image/jpeg',];
 
-	const PNG_EXTENSION 		= '.png';
-	const PNG_MIME_TYPES 		= ['image/png',];
+	public const PNG_EXTENSION 			= '.png';
+	public const PNG_MIME_TYPES 		= ['image/png',];
 
-	const GIF_EXTENSION 		= '.gif';
-	const GIF_MIME_TYPES 		= ['image/gif',];
+	public const GIF_EXTENSION 			= '.gif';
+	public const GIF_MIME_TYPES 		= ['image/gif',];
 
 	// ========== Vérification ==========
 
@@ -86,45 +86,48 @@ class Image
 
 	/**
 	 * @param string $imgPath
-	 * @return bool|mixed
+	 * @return string|null
 	 */
-	public static function getMimeType(string $imgPath)
+	public static function getMimeType(string $imgPath): ?string
 	{
 		if (($size = getimagesize($imgPath)) === false) {
-			return false;
+			return null;
 		}
 		return $size['mime'];
 	}
 
 	/**
 	 * @param string $imgPath
-	 * @return bool|string
+	 * @return string|null
 	 */
-	public static function getEtag(string $imgPath)
+	public static function getEtag(string $imgPath): ?string
 	{
 		if (($data = file_get_contents($imgPath)) === false) {
-			return false;
+			return null;
 		}
 		return md5($data);
 	}
 
 	/**
 	 * @param string $imgPath
-	 * @return bool|string
+	 * @return string|null
 	 */
-	public static function getLastModifiedString(string $imgPath)
+	public static function getLastModifiedString(string $imgPath): ?string
 	{
-		if (($timeLastModif = filemtime($imgPath)) === false) {
-			return false;
+		if (false === ($lastModifTimestamp = filemtime($imgPath))) {
+			return null;
 		}
-		return gmdate('D, d M Y H:i:s', $timeLastModif) . ' GMT';
+		if (!($lastModifFormattedDateTime = gmdate('D, d M Y H:i:s', $lastModifTimestamp))) {
+			return null;
+		}
+		return $lastModifFormattedDateTime . ' GMT';
 	}
 
 	/**
 	 * @param string $photoPath
 	 * @return int|null
 	 */
-	public static function getTimePhoto(string $photoPath): ?int
+	public static function getPhotoTimestamp(string $photoPath): ?int
 	{
 		if (($exifDataPhoto = self::readExifData($photoPath)) !== false) {
 			if (isset($exifDataPhoto['EXIF']['DateTimeOriginal'])) {

@@ -2,6 +2,11 @@
 
 namespace Osimatic\Helpers\Network;
 
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 /**
  * Class HTTPRequest
  * @package Osimatic\Helpers\Network
@@ -129,6 +134,77 @@ class HTTPRequest
 			return $data;
 		}
 		return true;
+	}
+
+	/**
+	 * @param string $url
+	 * @param array $queryData
+	 * @param LoggerInterface|null $logger
+	 * @return ResponseInterface|null
+	 */
+	public static function get(string $url, array $queryData = [], ?LoggerInterface $logger = null): ?ResponseInterface
+	{
+		$logger ??= new NullLogger();
+		$client = new \GuzzleHttp\Client();
+		try {
+			$options = [
+				'http_errors' => false,
+			];
+			if (!empty($queryData)) {
+				$url .= (!str_contains($url, '?') ? '?' : '').http_build_query($queryData);
+			}
+			return $client->request('GET', $url, $options);
+		}
+		catch (\Exception | GuzzleException $e) {
+			$logger->error('Erreur pendant la requête GET vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
+		}
+		return null;
+	}
+
+	/**
+	 * @param string $url
+	 * @param array $queryData
+	 * @param LoggerInterface|null $logger
+	 * @return mixed|null
+	 */
+	public static function getAndDecodeJson(string $url, array $queryData = [], ?LoggerInterface $logger = null): mixed
+	{
+		$logger ??= new NullLogger();
+
+		if (null === ($res = self::get($url, [], $logger))) {
+			return null;
+		}
+
+		try {
+			return \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
+		}
+		catch (\Exception $e) {
+			$logger->error('Erreur pendant le décodage du résultat. Erreur : '.$e->getMessage());
+		}
+		return null;
+	}
+
+	/**
+	 * @param string $url
+	 * @param array $queryData
+	 * @param LoggerInterface|null $logger
+	 * @return ResponseInterface|null
+	 */
+	public static function post(string $url, array $queryData = [], ?LoggerInterface $logger = null): ?ResponseInterface
+	{
+		$logger ??= new NullLogger();
+		$client = new \GuzzleHttp\Client();
+		try {
+			$options = [
+				'http_errors' => false,
+			];
+			$options['form_params'] = $queryData;
+			return $client->request('POST', $url, $options);
+		}
+		catch (\Exception | GuzzleException $e) {
+			$logger->error('Erreur pendant la requête POST vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
+		}
+		return null;
 	}
 
 	/**

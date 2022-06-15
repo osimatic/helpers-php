@@ -215,11 +215,11 @@ class Str
 	 * This function will strip tags from a string, split it at its max_length and ellipsize
 	 * @param string $str string to ellipsize
 	 * @param int $nbCharInFinalString max length of string
-	 * @param mixed $whereEllipsisShouldAppear int (1|0) or float, .5, .2, etc for position to split
+	 * @param int|float $whereEllipsisShouldAppear int (1|0) or float, .5, .2, etc for position to split
 	 * @param string $ellipsis ellipsis ; Default '...'
 	 * @return string ellipsized string
 	 */
-	public static function ellipsize(string $str, int $nbCharInFinalString, $whereEllipsisShouldAppear=1, string $ellipsis = '&hellip;'): string
+	public static function ellipsize(string $str, int $nbCharInFinalString, int|float $whereEllipsisShouldAppear=1, string $ellipsis = '&hellip;'): string
 	{
 		// Strip tags
 		$str = trim(strip_tags($str));
@@ -389,13 +389,13 @@ class Str
 	/**
 	 * retourne le nombre de caractère présent dans le tableau/string $listChar dans la chaine $str
 	 * @param string $str
-	 * @param $listChar
+	 * @param array|string $listChar
 	 * @return int
 	 */
-	public static function getNumberOccurrencesOfListChar(string $str, $listChar): int
+	public static function getNumberOccurrencesOfListChar(string $str, array|string $listChar): int
 	{
 		if (!is_array($listChar)) {
-			$stringListeChar = (string) $listChar;
+			$stringListeChar = $listChar;
 			$listChar = array();
 			$strlen = strlen($stringListeChar);
 			for ($numChar=0; $numChar<$strlen; $numChar++) {

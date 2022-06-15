@@ -8,7 +8,7 @@ class File
 {
 	/**
 	 * @param string $data
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getDataFromBase64Data(string $data): ?string
 	{

@@ -3,8 +3,8 @@
 namespace Osimatic\Helpers\API;
 
 use Osimatic\Helpers\Location\GeographicCoordinates;
-use Osimatic\Helpers\Location\PostalAddress;
 use Osimatic\Helpers\Location\PostalAddressInterface;
+use Osimatic\Helpers\Network\HTTPRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -13,7 +13,7 @@ class GoogleMaps
 	/**
 	 * @var LoggerInterface
 	 */
-	private $logger;
+	private LoggerInterface $logger;
 
 	/**
 	 * @var string
@@ -60,7 +60,7 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param $address
+	 * @param string $address
 	 * @return null|array
 	 */
 	public function geocoding(string $address): ?array
@@ -69,11 +69,11 @@ class GoogleMaps
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
 
-		if (null === ($results = $this->request($url))) {
+		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
 			return null;
 		}
 
-		return $this->getResults($results);
+		return $this->getResults($json);
 	}
 
 	/**
@@ -95,11 +95,11 @@ class GoogleMaps
 	{
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($latitude, $longitude).'&key='.$this->apiKey;
 
-		if (null === ($results = $this->request($url))) {
+		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
 			return null;
 		}
 
-		return $this->getResults($results);
+		return $this->getResults($json);
 	}
 
 	/**
@@ -267,15 +267,15 @@ class GoogleMaps
 
 		$url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'.http_build_query($params).'&key='.$this->apiKey;
 
-		if (null === ($results = $this->request($url))) {
+		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
 			return null;
 		}
 
-		if (empty($results['status']) || $results['status'] !== 'OK') {
+		if (empty($json['status']) || $json['status'] !== 'OK') {
 			return null;
 		}
 
-		$element = $results['rows'][0]['elements'][0];
+		$element = $json['rows'][0]['elements'][0];
 
 		if (empty($element['status']) || $element['status'] !== 'OK') {
 			return null;
@@ -408,41 +408,6 @@ class GoogleMaps
 	}
 
 	// private
-
-	/**
-	 * @param string $url
-	 * @return null|mixed
-	 */
-	private function request(string $url)
-	{
-		/*
-		if (($json = file_get_contents($url)) === false) {
-			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
-			return null;
-		}
-		return $json;
-		*/
-
-		$client = new \GuzzleHttp\Client();
-		try {
-			$options = [
-				'http_errors' => false,
-			];
-			$res = $client->request('GET', $url, $options);
-		}
-		catch (\Exception $e) {
-			$this->logger->error('Erreur pendant la requete vers l\'API Google.');
-			return null;
-		}
-
-		try {
-			return \GuzzleHttp\json_decode((string) $res->getBody(), true);
-		}
-		catch (\Exception $e) {
-			$this->logger->error('Erreur pendant le décodage du résultat.');
-		}
-		return null;
-	}
 
 	/**
 	 * @param array $result

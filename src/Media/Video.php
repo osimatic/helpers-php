@@ -4,22 +4,22 @@ namespace Osimatic\Helpers\Media;
 
 class Video
 {
-	const MP4_EXTENSION 		= '.mp4';
-	const MP4_EXTENSIONS 		= ['.mp4', '.mp4v', '.mpg4'];
-	const MP4_MIME_TYPES 		= ['video/mp4',];
+	public const MP4_EXTENSION 			= '.mp4';
+	public const MP4_EXTENSIONS 		= ['.mp4', '.mp4v', '.mpg4'];
+	public const MP4_MIME_TYPES 		= ['video/mp4',];
 
-	const MPG_EXTENSION 		= '.mpg';
-	const MPG_EXTENSIONS 		= ['.mpeg', '.mpg', '.mpe', '.m1v', '.m2v'];
-	const MPG_MIME_TYPES 		= ['video/mpeg',];
+	public const MPG_EXTENSION 			= '.mpg';
+	public const MPG_EXTENSIONS 		= ['.mpeg', '.mpg', '.mpe', '.m1v', '.m2v'];
+	public const MPG_MIME_TYPES 		= ['video/mpeg',];
 
-	const AVI_EXTENSION 		= '.avi';
-	const AVI_MIME_TYPES 		= ['video/x-msvideo',];
+	public const AVI_EXTENSION 			= '.avi';
+	public const AVI_MIME_TYPES 		= ['video/x-msvideo',];
 
-	const WMV_EXTENSION 		= '.wmv';
-	const WMV_MIME_TYPES 		= ['video/x-ms-wmv',];
+	public const WMV_EXTENSION 			= '.wmv';
+	public const WMV_MIME_TYPES 		= ['video/x-ms-wmv',];
 
-	const FLV_EXTENSION 		= '.flv';
-	const FLV_MIME_TYPES 		= ['video/x-flv',];
+	public const FLV_EXTENSION 			= '.flv';
+	public const FLV_MIME_TYPES 		= ['video/x-flv',];
 
 
 	// ========== Vérification ==========

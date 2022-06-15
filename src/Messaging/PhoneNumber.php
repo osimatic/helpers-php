@@ -12,7 +12,7 @@ class PhoneNumber
 	/**
 	 * @param string|null $phoneNumber
 	 * @param string $defaultCountry
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatNational(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
@@ -22,7 +22,7 @@ class PhoneNumber
 	/**
 	 * @param string|null $phoneNumber
 	 * @param string $defaultCountry
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatInternational(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
@@ -33,10 +33,14 @@ class PhoneNumber
 	 * @param string|null $phoneNumber
 	 * @param int $numberFormat
 	 * @param string $defaultCountry
-	 * @return string
+	 * @return string|null
 	 */
 	public static function format(?string $phoneNumber, int $numberFormat, string $defaultCountry='FR'): ?string
 	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
 				return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat);
@@ -49,10 +53,14 @@ class PhoneNumber
 	/**
 	 * @param string|null $phoneNumber
 	 * @param string $defaultCountry
-	 * @return string
+	 * @return string|null
 	 */
 	public static function parse(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
 				return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::E164);
@@ -85,6 +93,10 @@ class PhoneNumber
 	 */
 	public static function isPossible(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
+		if (null === $phoneNumber) {
+			return false;
+		}
+
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
 				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
@@ -102,6 +114,10 @@ class PhoneNumber
 	 */
 	public static function isValid(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
+		if (null === $phoneNumber) {
+			return false;
+		}
+
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
 				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
@@ -119,6 +135,10 @@ class PhoneNumber
 	 */
 	public static function getType(?string $phoneNumber, string $defaultCountry='FR'): ?int
 	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
 				return \libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj);
@@ -165,6 +185,10 @@ class PhoneNumber
 	 */
 	public static function getCountryIsoCode(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
 				//if ($phoneNumberObj->getCountryCode() == 44) {
@@ -183,6 +207,10 @@ class PhoneNumber
 	 */
 	public static function formatFromIvr(?string $phoneNumber): ?string
 	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
 		if (substr($phoneNumber, 0, 3) !== '+33' && substr($phoneNumber, 0, 1) !== '0') {
 			if (strlen($phoneNumber) > 9) {
 				return '00'.$phoneNumber;
@@ -220,6 +248,10 @@ class PhoneNumber
 	 */
 	public static function formatForIvr(?string $phoneNumber, bool $withTrunkCode=true): ?string
 	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
 		// code provisoire car le svi ne sait pas appeler des numéros commencant par 0033
 		if (substr($phoneNumber, 0, 1) === '+') {
 			$phoneNumber = '00'.substr($phoneNumber, 1);

@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\API;
 
+use Osimatic\Helpers\Network\HTTPRequest;
+
 /**
  * Class Bitly
  * @package Osimatic\Helpers\API
@@ -53,16 +55,16 @@ class Bitly
 	{
 		$version = '2.0.1';
 
-		$apiUrl = 'http://api.bit.ly/shorten?version='.$version.'&longUrl='.urlencode($url).'&login='.$this->login.'&apiKey='.$this->key.'&format=json';
+		$url = 'http://api.bit.ly/shorten?version='.$version.'&longUrl='.urlencode($url).'&login='.$this->login.'&apiKey='.$this->key.'&format=json';
 
-		$response = file_get_contents($apiUrl);
-
-		if ($response === false) {
+		if (null === ($res = HTTPRequest::get($url))) {
 			return null;
 		}
 
-		$json = @json_decode($response, true);
-		if (null === $json) {
+		try {
+			$json = \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
+		}
+		catch (\Exception $e) {
 			return null;
 		}
 

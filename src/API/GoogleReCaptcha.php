@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\API;
 
+use Osimatic\Helpers\Network\HTTPRequest;
+
 /**
  * Class GoogleReCaptcha
  * @package Osimatic\Helpers\API
@@ -54,11 +56,13 @@ class GoogleReCaptcha
 			return false;
 		}
 
+		$url = 'https://www.google.com/recaptcha/api/siteverify?secret='.$this->secret.'&response='.$recaptchaResponse;
 		// '&remoteip='.($_SERVER['REMOTE_ADDR'] ?? null);
-		$response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$this->secret.'&response='.$recaptchaResponse);
-		$response = json_decode($response, true);
+		if (null === ($json = HTTPRequest::getAndDecodeJson($url))) {
+			return false;
+		}
 
-		return null !== $response && isset($response['success']) && $response['success'] == true;
+		return isset($json['success']) && $json['success'] == true;
 	}
 
 	/**

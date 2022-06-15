@@ -10,10 +10,10 @@ use Osimatic\Helpers\Messaging\PhoneNumber;
  */
 class OutgoingCall
 {
-	const CALL_RESULT_OK = 'OK';
-	const CALL_RESULT_BUSY = 'BUSY';
-	const CALL_RESULT_NO_RESPONSE = 'NO_RESPONSE';
-	const CALL_RESULT_FAILED = 'FAILED';
+	public const CALL_RESULT_OK = 'OK';
+	public const CALL_RESULT_BUSY = 'BUSY';
+	public const CALL_RESULT_NO_RESPONSE = 'NO_RESPONSE';
+	public const CALL_RESULT_FAILED = 'FAILED';
 
 	/**
 	 * The identifier property represents any kind of identifier.

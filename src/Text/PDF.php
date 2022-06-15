@@ -7,8 +7,8 @@ use Psr\Log\NullLogger;
 
 class PDF
 {
-	const FILE_EXTENSION = '.pdf';
-	const MIME_TYPES = [
+	public const FILE_EXTENSION = '.pdf';
+	public const MIME_TYPES = [
 		'application/pdf',
 		'application/x-pdf',
 		'application/vnd.cups-pdf',

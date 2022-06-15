@@ -30,7 +30,7 @@ class EmailAddress
 	public static function getHost(string $email): ?string
 	{
 		// preg_replace('!^[a-z0-9._-]+@(.+)$!', '$1', $email)
-		if (strstr($email, '@') === false) {
+		if (!str_contains($email, '@')) {
 			return null;
 		}
 		return substr($email, (strpos($email, '@')+1));

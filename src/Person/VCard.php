@@ -11,8 +11,8 @@ namespace Osimatic\Helpers\Person;
  */
 class VCard
 {
-	const FILE_EXTENSION = '.vcf';
-	const LN = "\r\n";
+	public const FILE_EXTENSION = '.vcf';
+	public const LN = "\r\n";
 
 	/**
 	 * Properties
@@ -646,7 +646,7 @@ class VCard
 						}
 						break;
 					case 'BDAY':
-						$cardData['birthday'] = $this->parseBirthday($value);
+						$cardData['birthday'] = $this->parseBirthday($value) ?? null;
 						break;
 					case 'ADR':
 						if (!isset($cardData['address'])) {
@@ -853,10 +853,10 @@ class VCard
 	}
 
 	/**
-	 * @param $value
+	 * @param string $value
 	 * @return object
 	 */
-	private function parseName($value)
+	private function parseName(string $value): object
 	{
 		[
 			$lastname,
@@ -874,7 +874,7 @@ class VCard
 		];
 	}
 
-	private function parseBirthday($value): \DateTime
+	private function parseBirthday($value): ?\DateTime
 	{
 		try {
 			return new \DateTime($value);
@@ -884,10 +884,10 @@ class VCard
 	}
 
 	/**
-	 * @param $value
+	 * @param string $value
 	 * @return object
 	 */
-	private function parseAddress($value)
+	private function parseAddress(string $value): object
 	{
 		[
 			$name,
