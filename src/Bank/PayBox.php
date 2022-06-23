@@ -1263,14 +1263,14 @@ class PayBox
 		}
 
 		$payBoxResponse = new PayBoxResponse();
-		$payBoxResponse->setReference(urldecode($tabArg['REFERENCE'] ?? null));
-		$payBoxResponse->setResponseCode(urldecode($tabArg['CODEREPONSE'] ?? null));
-		$payBoxResponse->setAuthorizationNumber(urldecode($tabArg['AUTORISATION'] ?? null));
-		$payBoxResponse->setCallNumber(urldecode($tabArg['NUMAPPEL'] ?? null));
-		$payBoxResponse->setTransactionNumber(urldecode($tabArg['NUMTRANS'] ?? null));
-		$payBoxResponse->setCardNumber(urldecode($tabArg['PORTEUR'] ?? null));
-		$payBoxResponse->setCardHash(urldecode($tabArg['REFABONNE'] ?? null));
-		$payBoxResponse->setCardType(urldecode($tabArg['TYPECARTE'] ?? null));
+		$payBoxResponse->setReference(!empty($tabArg['REFERENCE']) ? urldecode($tabArg['REFERENCE']) : null);
+		$payBoxResponse->setResponseCode(!empty($tabArg['CODEREPONSE']) ? urldecode($tabArg['CODEREPONSE']) : null);
+		$payBoxResponse->setAuthorizationNumber(!empty($tabArg['AUTORISATION']) ? urldecode($tabArg['AUTORISATION']) : null);
+		$payBoxResponse->setCallNumber(!empty($tabArg['NUMAPPEL']) ? urldecode($tabArg['NUMAPPEL']) : null);
+		$payBoxResponse->setTransactionNumber(!empty($tabArg['NUMTRANS']) ? urldecode($tabArg['NUMTRANS']) : null);
+		$payBoxResponse->setCardNumber(!empty($tabArg['PORTEUR']) ? urldecode($tabArg['PORTEUR']) : null);
+		$payBoxResponse->setCardHash(!empty($tabArg['REFABONNE']) ? urldecode($tabArg['REFABONNE']) : null);
+		$payBoxResponse->setCardType(!empty($tabArg['TYPECARTE']) ? urldecode($tabArg['TYPECARTE']) : null);
 		// var non utilisé : $tabArg['NUMQUESTION'] ; $tabArg['SHA-1']
 
 		return $payBoxResponse;
