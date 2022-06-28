@@ -285,13 +285,13 @@ class Audio
 	/**
 	 * @param string $srcAudioFilePath
 	 * @param string|null $destAudioFilePath
-	 * @return bool|string
+	 * @return bool
 	 */
 	public function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath=null): bool
 	{
 		// Vérification que le fichier soit un fichier wav ou mp3
-		$wavFileInfos = self::getInfos($srcAudioFilePath);
-		if (empty($wavFileInfos['audio']['dataformat']) || !in_array($wavFileInfos['audio']['dataformat'], ['mp3', 'wav'])) {
+		$fileInfos = self::getInfos($srcAudioFilePath);
+		if (empty($fileInfos['audio']['dataformat']) || !in_array($fileInfos['audio']['dataformat'], ['mp3', 'wav'])) {
 			$this->logger->error('Message audio pas au format mp3 ou WAV');
 			return false;
 		}
@@ -300,11 +300,11 @@ class Audio
 		if (empty($destAudioFilePath)) {
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted'.substr($srcAudioFilePath, strrpos($srcAudioFilePath, '.'));
 		}
-		if ($wavFileInfos['audio']['dataformat'] !== 'wav') {
+		if ($fileInfos['audio']['dataformat'] !== 'wav') {
 			$destAudioFilePath = substr($destAudioFilePath, 0, strrpos($destAudioFilePath, '.')+1).'wav';
 		}
 
-		$params = ($wavFileInfos['audio']['dataformat'] === 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
+		$params = ($fileInfos['audio']['dataformat'] === 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
 		$commandLine = $this->soxBinaryPath.' '.$params;
 
 		// Envoi de la commande
@@ -320,13 +320,13 @@ class Audio
 	 * Exemple de commande : sox -t wav -r 8000 -c 1 file.wav -t mp3 file.mp3
 	 * @param string $srcAudioFilePath
 	 * @param string|null $destAudioFilePath
-	 * @return bool|string
+	 * @return bool
 	 */
 	public function convertWavToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
 	{
 		// Vérification que le fichier soit un fichier wav
-		$wavFileInfos = self::getInfos($srcAudioFilePath);
-		if (empty($wavFileInfos['audio']['dataformat']) || $wavFileInfos['audio']['dataformat'] !== 'wav') {
+		$fileInfos = self::getInfos($srcAudioFilePath);
+		if (empty($fileInfos['audio']['dataformat']) || $fileInfos['audio']['dataformat'] !== 'wav') {
 			$this->logger->error('Message audio pas au format WAV');
 			return false;
 		}
@@ -336,8 +336,41 @@ class Audio
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
 		}
 
-		$params = '-t wav -r 8000 -c 1 "'.$srcAudioFilePath.'" -t mp3 "'.$destAudioFilePath.'"';
-		$commandLine = $this->soxBinaryPath.' '.$params;
+		$commandLine = $this->soxBinaryPath.' -t wav -r 8000 -c 1 "'.$srcAudioFilePath.'" -t mp3 "'.$destAudioFilePath.'"';
+
+		// Envoi de la commande
+		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		$lastLine = system($commandLine);
+		//$lastLine = exec($commandLine, $output, $returnVar);
+		//var_dump($output, $lastLine);
+
+		return true;
+	}
+
+	/**
+	 * @param string $srcAudioFilePath
+	 * @param string|null $destAudioFilePath
+	 * @return bool
+	 */
+	public function convertWebAToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
+	{
+		// Vérification que le fichier soit un fichier WebA
+		$fileInfos = self::getInfos($srcAudioFilePath);
+		if (empty($fileInfos['audio']['dataformat']) || mb_strtoupper($fileInfos['audio']['dataformat']) !== 'A_OPUS') {
+			$this->logger->error('Message audio pas au format WAV');
+			return false;
+		}
+
+		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
+		if (empty($destAudioFilePath)) {
+			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
+		}
+
+		if (file_exists($destAudioFilePath)) {
+			unlink($destAudioFilePath);
+		}
+
+		$commandLine = 'ffmpeg -i "'.$srcAudioFilePath.'" -ab 160k -ar 44100 "'.$destAudioFilePath.'"';
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
