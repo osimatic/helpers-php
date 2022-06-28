@@ -5,14 +5,43 @@ namespace Osimatic\Helpers\Media;
 class Image
 {
 	public const JPG_EXTENSION 			= '.jpg';
-	public const JPG_EXTENSIONS 		= ['.jpeg', '.jpg', '.jpe'];
-	public const JPG_MIME_TYPES 		= ['image/jpeg',];
+	public const JPG_EXTENSIONS 		= [self::JPG_EXTENSION, '.jpeg', '.jpe'];
+	public const JPG_MIME_TYPES 		= ['image/jpeg'];
 
 	public const PNG_EXTENSION 			= '.png';
-	public const PNG_MIME_TYPES 		= ['image/png',];
+	public const PNG_MIME_TYPES 		= ['image/png'];
 
 	public const GIF_EXTENSION 			= '.gif';
-	public const GIF_MIME_TYPES 		= ['image/gif',];
+	public const GIF_MIME_TYPES 		= ['image/gif'];
+
+	public const SVG_EXTENSION 			= '.svg';
+	public const SVG_MIME_TYPES 		= ['image/svg+xml'];
+
+	public const BMP_EXTENSION 			= '.bmp';
+	public const BMP_MIME_TYPES 		= ['image/bmp'];
+
+	public const WEBP_EXTENSION 		= '.webp';
+	public const WEBP_MIME_TYPES 		= ['image/webp'];
+
+	public const TIFF_EXTENSION 		= '.tiff';
+	public const TIFF_EXTENSIONS 		= [self::TIFF_EXTENSION, '.tif'];
+	public const TIFF_MIME_TYPES 		= ['image/tiff'];
+
+	/**
+	 * @return array
+	 */
+	public static function getExtensionsAndMimeTypes(): array
+	{
+		return [
+			'jpg' => [self::JPG_EXTENSIONS, self::JPG_MIME_TYPES],
+			'png' => [[self::PNG_EXTENSION], self::PNG_MIME_TYPES],
+			'gif' => [[self::GIF_EXTENSION], self::GIF_MIME_TYPES],
+			'svg' => [[self::SVG_EXTENSION], self::SVG_MIME_TYPES],
+			'bmp' => [[self::BMP_EXTENSION], self::BMP_MIME_TYPES],
+			'webp' => [[self::WEBP_EXTENSION], self::WEBP_MIME_TYPES],
+			'tiff' => [self::TIFF_EXTENSIONS, self::TIFF_MIME_TYPES],
+		];
+	}
 
 	// ========== Vérification ==========
 
@@ -54,6 +83,24 @@ class Image
 	public static function checkGifFile(string $filePath, string $clientOriginalName): bool
 	{
 		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::GIF_EXTENSION], self::GIF_MIME_TYPES);
+	}
+
+	/**
+	 * @param string $extension
+	 * @return string|null
+	 */
+	public static function getMimeTypeFromExtension(string $extension): ?string
+	{
+		return \Osimatic\Helpers\FileSystem\File::getMimeTypeFromExtension($extension, self::getExtensionsAndMimeTypes());
+	}
+
+	/**
+	 * @param string $mimeType
+	 * @return string|null
+	 */
+	public static function getExtensionFromMimeType(string $mimeType): ?string
+	{
+		return \Osimatic\Helpers\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
 	}
 
 	// ========== Récupération d'information ==========

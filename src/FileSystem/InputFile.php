@@ -22,15 +22,23 @@ class InputFile
 	private ?string $data;
 
 	/**
+	 * Mime Type of the file (if data sent directly instead of uploaded file)
+	 * @var string|null
+	 */
+	private ?string $mimeType;
+
+	/**
 	 * @param array|null $uploadedFileInfos
 	 * @param string|null $data
+	 * @param string|null $mimeType
 	 */
-	public function __construct(?array $uploadedFileInfos=null, ?string $data=null)
+	public function __construct(?array $uploadedFileInfos=null, ?string $data=null, ?string $mimeType=null)
 	{
 		if (null !== $uploadedFileInfos) {
 			$this->setUploadedFileInfos($uploadedFileInfos);
 		}
 		$this->data = $data;
+		$this->mimeType = $mimeType;
 	}
 
 
@@ -42,6 +50,23 @@ class InputFile
 		$this->uploadedFilePath = $file['tmp_name'] ?? null;
 		$this->originalFileName = $file['name'] ?? null;
 	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getExtension(): ?string
+	{
+		if (!empty($this->getOriginalFileName())) {
+			return \Osimatic\Helpers\FileSystem\File::getExtension($this->getOriginalFileName());
+		}
+		if (!empty($this->getMimeType()) && null !== ($extension = \Osimatic\Helpers\FileSystem\File::getExtensionFromMimeType($this->getMimeType()))) {
+			return $extension;
+		}
+		return null;
+	}
+
+
+
 
 
 
@@ -91,6 +116,22 @@ class InputFile
 	public function setData(?string $data): void
 	{
 		$this->data = $data;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getMimeType(): ?string
+	{
+		return $this->mimeType;
+	}
+
+	/**
+	 * @param string|null $mimeType
+	 */
+	public function setMimeType(?string $mimeType): void
+	{
+		$this->mimeType = $mimeType;
 	}
 
 }

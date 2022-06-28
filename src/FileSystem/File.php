@@ -22,6 +22,24 @@ class File
 	}
 
 	/**
+	 * @param string $data
+	 * @return string|null
+	 */
+	public static function getMimeTypeFromBase64Data(string $data): ?string
+	{
+		if (strstr($data, 'base64,') === false) {
+			return null;
+		}
+		if (empty($fileInfos = explode('base64,', $data)[0] ?? '')) {
+			return null;
+		}
+		if (str_starts_with($fileInfos, 'data:') && str_ends_with($fileInfos, ';')) {
+			return substr($fileInfos, 5, -1);
+		}
+		return null;
+	}
+
+	/**
 	 * @param InputFile $uploadedFile
 	 * @param string $filePath
 	 * @param LoggerInterface|null $logger
@@ -160,6 +178,152 @@ class File
 	}
 
 	/**
+	 * @param string $extension
+	 * @param array|null $extensionsAndMimeTypes
+	 * @return string|null
+	 */
+	public static function getMimeTypeFromExtension(string $extension, ?array $extensionsAndMimeTypes=null): ?string
+	{
+		$extension = mb_strtolower(!str_starts_with($extension, '.') ? '.'.$extension : $extension);
+
+		$extensionsAndMimeTypes = (null !== $extensionsAndMimeTypes) ? self::formatExtensionsAndMimeTypes($extensionsAndMimeTypes) : self::getExtensionsAndMimeTypes();
+		foreach ($extensionsAndMimeTypes as [$extensions, $mimeTypes]) {
+			if (in_array($extension, $extensions, true)) {
+				return $mimeTypes[0];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param string $mimeType
+	 * @param array|null $extensionsAndMimeTypes
+	 * @return string|null
+	 */
+	public static function getExtensionFromMimeType(string $mimeType, ?array $extensionsAndMimeTypes=null): ?string
+	{
+		$mimeType = mb_strtolower($mimeType);
+
+		$extensionsAndMimeTypes = (null !== $extensionsAndMimeTypes) ? self::formatExtensionsAndMimeTypes($extensionsAndMimeTypes) : self::getExtensionsAndMimeTypes();
+		foreach ($extensionsAndMimeTypes as [$extensions, $mimeTypes]) {
+			if (in_array($mimeType, $mimeTypes, true)) {
+				return $extensions[0];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param array $extensionsAndMimeTypes
+	 * @return array
+	 */
+	private static function formatExtensionsAndMimeTypes(array $extensionsAndMimeTypes): array
+	{
+		return array_values(array_map(fn($extensionsAndMimeTypesOfFormat) => [array_map(fn($extension) => str_starts_with($extension, '.') ? substr($extension, 1) : $extension, $extensionsAndMimeTypesOfFormat[0]), $extensionsAndMimeTypesOfFormat[1]], $extensionsAndMimeTypes));
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function getExtensionsAndMimeTypes(): array
+	{
+		return array_merge(
+			self::formatExtensionsAndMimeTypes(\Osimatic\Helpers\Media\Image::getExtensionsAndMimeTypes()),
+			self::formatExtensionsAndMimeTypes(\Osimatic\Helpers\Media\Audio::getExtensionsAndMimeTypes()),
+			self::formatExtensionsAndMimeTypes(\Osimatic\Helpers\Media\Video::getExtensionsAndMimeTypes()),
+			[
+				[['xl'], ['application/excel']],
+				[['js'], ['application/javascript']],
+				[['hqx'], ['application/mac-binhex40']],
+				[['cpt'], ['application/mac-compactpro']],
+				[['bin'], ['application/macbinary']],
+				[['doc', 'word'], ['application/msword']],
+				[['xlsx'], ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']],
+				[['xltx'], ['application/vnd.openxmlformats-officedocument.spreadsheetml.template']],
+				[['potx'], ['application/vnd.openxmlformats-officedocument.presentationml.template']],
+				[['ppsx'], ['application/vnd.openxmlformats-officedocument.presentationml.slideshow']],
+				[['pptx'], ['application/vnd.openxmlformats-officedocument.presentationml.presentation']],
+				[['sldx'], ['application/vnd.openxmlformats-officedocument.presentationml.slide']],
+				[['docx'], ['application/vnd.openxmlformats-officedocument.wordprocessingml.document']],
+				[['dotx'], ['application/vnd.openxmlformats-officedocument.wordprocessingml.template']],
+				[['xlam'], ['application/vnd.ms-excel.addin.macroEnabled.12']],
+				[['xlsb'], ['application/vnd.ms-excel.sheet.binary.macroEnabled.12']],
+				[['eot'], ['application/vnd.ms-fontobject']],
+				[['class'], ['application/octet-stream']],
+				[['dll'], ['application/octet-stream']],
+				[['dms'], ['application/octet-stream']],
+				[['exe'], ['application/octet-stream']],
+				[['lha'], ['application/octet-stream']],
+				[['lzh'], ['application/octet-stream']],
+				[['psd'], ['application/octet-stream']],
+				[['sea'], ['application/octet-stream']],
+				[['so'], ['application/octet-stream']],
+				[['oda'], ['application/oda']],
+				[['pdf'], ['application/pdf']],
+				[['ai', 'eps', 'ps'], ['application/postscript']],
+				[['smi', 'smil'], ['application/smil']],
+				[['mif'], ['application/vnd.mif']],
+				[['xls'], ['application/vnd.ms-excel']],
+				[['ppt'], ['application/vnd.ms-powerpoint']],
+				[['wbxml'],['application/vnd.wap.wbxml']],
+				[['wmlc'], ['application/vnd.wap.wmlc']],
+				[['dcr', 'dir', 'dxr'], ['application/x-director']],
+				[['dvi'], ['application/x-dvi']],
+				[['gtar'], ['application/x-gtar']],
+				[['php', 'php3', 'php4', 'phtml'], ['application/x-httpd-php']],
+				[['phps'], ['application/x-httpd-php-source']],
+				[['swf'], ['application/x-shockwave-flash']],
+				[['sit'], ['application/x-stuffit']],
+				[['tar', 'tgz'], ['application/x-tar']],
+				[['xhtml', 'xht'],['application/xhtml+xml']],
+				[['zip'], ['application/zip']],
+				[['bz'], ['application/x-bzip']],
+				[['bz2'], ['application/x-bzip2']],
+				[['mid', 'midi'], ['audio/midi']],
+				[['ram', 'rm'], ['audio/x-pn-realaudio']],
+				[['rpm'], ['audio/x-pn-realaudio-plugin']],
+				[['ra'], ['audio/x-realaudio']],
+				[['eml'], ['message/rfc822']],
+				[['css'], ['text/css']],
+				[['html', 'htm', 'shtml'], ['text/html']],
+				[['txt', 'text', 'log'], ['text/plain']],
+				[['rtx'], ['text/richtext']],
+				[['rtf'], ['text/rtf']],
+				[['vcf', 'vcard'], ['text/vcard']],
+				[['xml', 'xsl'], ['text/xml']],
+				[['csh'], ['application/x-csh']],
+				[['csv'], ['text/csv']],
+				[['ico'], ['image/x-icon']],
+				[['ics'], ['text/calendar']],
+				[['jar'], ['application/java-archive']],
+				[['json'], ['application/json']],
+				[['mpkg'], ['application/vnd.apple.installer+xml']],
+				[['odp'], ['application/vnd.oasis.opendocument.presentation']],
+				[['ods'], ['application/vnd.oasis.opendocument.spreadsheet']],
+				[['odt'], ['application/vnd.oasis.opendocument.text']],
+				[['ogx'], ['application/ogg']],
+				[['otf'], ['font/otf']],
+				[['ttf'], ['font/ttf']],
+				[['woff'], ['font/woff']],
+				[['woff2'], ['font/woff2']],
+				[['rar'], ['application/x-rar-compressed']],
+				[['sh'], ['application/x-sh']],
+				[['ts'], ['application/typescript']],
+				[['vsd'], ['application/vnd.visio']],
+				[['xul'], ['application/vnd.mozilla.xul+xml']],
+				[['3gp'], ['video/3gpp', 'audio/3gpp']],
+				[['3g2'], ['video/3gpp2', 'audio/3gpp2']],
+				[['7z'], ['application/x-7z-compressed']],
+				[['azw'], ['application/vnd.amazon.ebook']],
+				[['rv'], ['video/vnd.rn-realvideo']],
+				[['movie'], ['video/x-sgi-movie']],
+			]
+		);
+	}
+
+	/**
 	 * Map a file name to a MIME type.
 	 * Defaults to 'application/octet-stream', i.e.. arbitrary binary data.
 	 * @param string $filename A file name or full path, does not need to exist as a file
@@ -173,117 +337,7 @@ class File
 			$filename = substr($filename, 0, $qpos);
 		}
 
-		return self::getMimeTypesForFileExtension(self::mb_pathinfo($filename, PATHINFO_EXTENSION));
-	}
-
-	/**
-	 * Get the MIME type for a file extension.
-	 * @param string $ext File extension
-	 * @return string MIME type of file.
-	 */
-	public static function getMimeTypesForFileExtension(string $ext = ''): string
-	{
-		$mimes = [
-			'xl' 	=> 'application/excel',
-			'js' 	=> 'application/javascript',
-			'hqx' 	=> 'application/mac-binhex40',
-			'cpt' 	=> 'application/mac-compactpro',
-			'bin' 	=> 'application/macbinary',
-			'doc' 	=> 'application/msword',
-			'word' 	=> 'application/msword',
-			'xlsx' 	=> 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-			'xltx' 	=> 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
-			'potx' 	=> 'application/vnd.openxmlformats-officedocument.presentationml.template',
-			'ppsx' 	=> 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
-			'pptx' 	=> 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-			'sldx' 	=> 'application/vnd.openxmlformats-officedocument.presentationml.slide',
-			'docx' 	=> 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-			'dotx' 	=> 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-			'xlam' 	=> 'application/vnd.ms-excel.addin.macroEnabled.12',
-			'xlsb' 	=> 'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
-			'class' => 'application/octet-stream',
-			'dll' 	=> 'application/octet-stream',
-			'dms' 	=> 'application/octet-stream',
-			'exe' 	=> 'application/octet-stream',
-			'lha' 	=> 'application/octet-stream',
-			'lzh' 	=> 'application/octet-stream',
-			'psd' 	=> 'application/octet-stream',
-			'sea' 	=> 'application/octet-stream',
-			'so' 	=> 'application/octet-stream',
-			'oda' 	=> 'application/oda',
-			'pdf' 	=> 'application/pdf',
-			'ai' 	=> 'application/postscript',
-			'eps' 	=> 'application/postscript',
-			'ps' 	=> 'application/postscript',
-			'smi' 	=> 'application/smil',
-			'smil' 	=> 'application/smil',
-			'mif' 	=> 'application/vnd.mif',
-			'xls' 	=> 'application/vnd.ms-excel',
-			'ppt' 	=> 'application/vnd.ms-powerpoint',
-			'wbxml' => 'application/vnd.wap.wbxml',
-			'wmlc' 	=> 'application/vnd.wap.wmlc',
-			'dcr' 	=> 'application/x-director',
-			'dir' 	=> 'application/x-director',
-			'dxr' 	=> 'application/x-director',
-			'dvi' 	=> 'application/x-dvi',
-			'gtar' 	=> 'application/x-gtar',
-			'php3' 	=> 'application/x-httpd-php',
-			'php4' 	=> 'application/x-httpd-php',
-			'php' 	=> 'application/x-httpd-php',
-			'phtml' => 'application/x-httpd-php',
-			'phps' 	=> 'application/x-httpd-php-source',
-			'swf' 	=> 'application/x-shockwave-flash',
-			'sit' 	=> 'application/x-stuffit',
-			'tar' 	=> 'application/x-tar',
-			'tgz' 	=> 'application/x-tar',
-			'xht' 	=> 'application/xhtml+xml',
-			'xhtml' => 'application/xhtml+xml',
-			'zip' 	=> 'application/zip',
-			'mid' 	=> 'audio/midi',
-			'midi' 	=> 'audio/midi',
-			'mp2' 	=> 'audio/mpeg',
-			'mp3' 	=> 'audio/mpeg',
-			'mpga' 	=> 'audio/mpeg',
-			'aif' 	=> 'audio/x-aiff',
-			'aifc' 	=> 'audio/x-aiff',
-			'aiff' 	=> 'audio/x-aiff',
-			'ram' 	=> 'audio/x-pn-realaudio',
-			'rm' 	=> 'audio/x-pn-realaudio',
-			'rpm' 	=> 'audio/x-pn-realaudio-plugin',
-			'ra' 	=> 'audio/x-realaudio',
-			'wav' 	=> 'audio/x-wav',
-			'bmp' 	=> 'image/bmp',
-			'gif' 	=> 'image/gif',
-			'jpeg' 	=> 'image/jpeg',
-			'jpe' 	=> 'image/jpeg',
-			'jpg' 	=> 'image/jpeg',
-			'png' 	=> 'image/png',
-			'tiff' 	=> 'image/tiff',
-			'tif' 	=> 'image/tiff',
-			'eml' 	=> 'message/rfc822',
-			'css' 	=> 'text/css',
-			'html' 	=> 'text/html',
-			'htm' 	=> 'text/html',
-			'shtml' => 'text/html',
-			'log' 	=> 'text/plain',
-			'text' 	=> 'text/plain',
-			'txt' 	=> 'text/plain',
-			'rtx' 	=> 'text/richtext',
-			'rtf' 	=> 'text/rtf',
-			'vcf' 	=> 'text/vcard',
-			'vcard' => 'text/vcard',
-			'xml' 	=> 'text/xml',
-			'xsl' 	=> 'text/xml',
-			'mpeg' 	=> 'video/mpeg',
-			'mpe' 	=> 'video/mpeg',
-			'mpg' 	=> 'video/mpeg',
-			'mov' 	=> 'video/quicktime',
-			'qt' 	=> 'video/quicktime',
-			'rv' 	=> 'video/vnd.rn-realvideo',
-			'avi' 	=> 'video/x-msvideo',
-			'movie' => 'video/x-sgi-movie'
-		];
-		return $mimes[strtolower($ext)] ?? 'application/octet-stream';
+		return self::getMimeTypeFromExtension(self::mb_pathinfo($filename, PATHINFO_EXTENSION)) ?? 'application/octet-stream';
 	}
 
 	/**
@@ -326,5 +380,16 @@ class File
 				return $ret;
 		}
 	}
+
+
+
+	/**
+	 * @deprecated
+	 */
+	public static function getMimeTypesForFileExtension(string $ext = ''): string
+	{
+		return self::getMimeTypeFromExtension($ext) ?? 'application/octet-stream';
+	}
+
 
 }

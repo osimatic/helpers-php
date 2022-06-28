@@ -11,24 +11,43 @@ class Audio
 {
 	public const MP3_EXTENSION 			= '.mp3';
 	public const MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
-	public const MP3_MIME_TYPES 		= ['audio/mpeg',];
+	public const MP3_MIME_TYPES 		= ['audio/mpeg'];
 
 	public const WAV_EXTENSION 			= '.wav';
-	public const WAV_MIME_TYPES 		= ['audio/x-wav',];
+	public const WAV_MIME_TYPES 		= ['audio/x-wav'];
 
 	public const OGG_EXTENSION 			= '.ogg';
 	public const OGG_EXTENSIONS 		= ['.ogg', '.oga', '.spx'];
-	public const OGG_MIME_TYPES 		= ['audio/ogg',];
+	public const OGG_MIME_TYPES 		= ['audio/ogg'];
 
 	public const AAC_EXTENSION 			= '.aac';
-	public const AAC_MIME_TYPES 		= ['audio/x-aac',];
+	public const AAC_MIME_TYPES 		= ['audio/x-aac', 'audio/aac'];
 
 	public const AIFF_EXTENSION 		= '.aiff';
 	public const AIFF_EXTENSIONS 		= ['.aif', '.aiff', '.aifc'];
-	public const AIFF_MIME_TYPES 		= ['audio/x-aiff',];
+	public const AIFF_MIME_TYPES 		= ['audio/x-aiff'];
 
 	public const WMA_EXTENSION 			= '.wma';
-	public const WMA_MIME_TYPES 		= ['audio/x-ms-wma',];
+	public const WMA_MIME_TYPES 		= ['audio/x-ms-wma'];
+
+	public const WEBM_EXTENSION 		= '.weba';
+	public const WEBM_MIME_TYPES 		= ['audio/webm'];
+
+	/**
+	 * @return array
+	 */
+	public static function getExtensionsAndMimeTypes(): array
+	{
+		return [
+			'mp3' => [self::MP3_EXTENSIONS, self::MP3_MIME_TYPES],
+			'wav' => [[self::WAV_EXTENSION], self::WAV_MIME_TYPES],
+			'ogg' => [self::OGG_EXTENSIONS, self::OGG_MIME_TYPES],
+			'aac' => [[self::AAC_EXTENSION], self::AAC_MIME_TYPES],
+			'aiff' => [self::AIFF_EXTENSIONS, self::AIFF_MIME_TYPES],
+			'wma' => [[self::WMA_EXTENSION], self::WMA_MIME_TYPES],
+			'weba' => [[self::WEBM_EXTENSION], self::WEBM_MIME_TYPES],
+		];
+	}
 
 	/**
 	 * @var LoggerInterface
@@ -145,6 +164,24 @@ class Audio
 	}
 
 	/**
+	 * @param string $extension
+	 * @return string|null
+	 */
+	public static function getMimeTypeFromExtension(string $extension): ?string
+	{
+		return \Osimatic\Helpers\FileSystem\File::getMimeTypeFromExtension($extension, self::getExtensionsAndMimeTypes());
+	}
+
+	/**
+	 * @param string $mimeType
+	 * @return string|null
+	 */
+	public static function getExtensionFromMimeType(string $mimeType): ?string
+	{
+		return \Osimatic\Helpers\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
+	}
+
+	/**
 	 * Envoi au navigateur du client un fichier audio.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath le chemin complet vers le fichier audio
@@ -152,14 +189,9 @@ class Audio
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		$extension = self::getExtension($filePath);
-		$mimeType = 'audio/'.$extension;
-		if ('wav' === $extension) {
-			$mimeType = 'audio/x-wav';
-		}
-		// todo : mime-type pour mp3 et ogg
-
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, $mimeType);
+		//$mimeType = self::getMimeTypeFromExtension(self::getExtension($filePath));
+		//\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, $mimeType);
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
 	}
 
 	/**
@@ -169,7 +201,7 @@ class Audio
 	private static function getExtension(string $audioFilePath): string
 	{
 		$infosFile = new \SplFileInfo($audioFilePath);
-		return strtolower($infosFile->getExtension());
+		return mb_strtolower($infosFile->getExtension());
 	}
 
 	/**
@@ -188,11 +220,11 @@ class Audio
 		}
 
 		$extension = self::getExtension($audioFilePath);
-		if (in_array($extension, array('mp3', 'wav'))) {
-			header('Content-Type: audio/' . $extension);
+		if (null !== ($mimeType = self::getMimeTypeFromExtension($extension))) {
+			header('Content-Type: ' . $mimeType);
 		}
-		if (in_array($extension, array('avi', 'mp4'))) {
-			header('Content-Type: vidéo/' . $extension);
+		if (null !== ($mimeType = Video::getMimeTypeFromExtension($extension))) {
+			header('Content-Type: ' . $mimeType);
 		}
 
 		header('Content-Disposition: filename='.basename($audioFilePath));
@@ -227,11 +259,11 @@ class Audio
 		$end 	= $size - 1;					// End byte
 
 		$extension = self::getExtension($audioFilePath);
-		if (in_array($extension, array('mp3', 'wav'))) {
-			header('Content-Type: audio/' . $extension);
+		if (null !== ($mimeType = self::getMimeTypeFromExtension($extension))) {
+			header('Content-Type: ' . $mimeType);
 		}
-		if (in_array($extension, array('avi', 'mp4'))) {
-			header('Content-Type: vidéo/' . $extension);
+		if (null !== ($mimeType = Video::getMimeTypeFromExtension($extension))) {
+			header('Content-Type: ' . $mimeType);
 		}
 
 		header('Accept-Ranges: bytes');
@@ -356,8 +388,8 @@ class Audio
 	{
 		// Vérification que le fichier soit un fichier WebA
 		$fileInfos = self::getInfos($srcAudioFilePath);
-		if (empty($fileInfos['audio']['dataformat']) || mb_strtoupper($fileInfos['audio']['dataformat']) !== 'A_OPUS') {
-			$this->logger->error('Message audio pas au format WAV');
+		if (empty($fileInfos['fileformat']) || mb_strtolower($fileInfos['fileformat']) !== 'webm') {
+			$this->logger->error('Message audio pas au format WebM');
 			return false;
 		}
 
@@ -388,5 +420,6 @@ class Audio
 	{
 		$this->soxBinaryPath = $soxBinaryPath;
 	}
+
 
 }
