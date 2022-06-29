@@ -90,9 +90,9 @@ class Audio
 
 	/**
 	 * @param string $audioFilePath
-	 * @return int
+	 * @return float
 	 */
-	public static function getDuration(string $audioFilePath): int
+	public static function getDuration(string $audioFilePath): float
 	{
 		$infos = self::getInfos($audioFilePath);
 		return $infos['playtime_seconds'] ?? 0;
