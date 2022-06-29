@@ -9,27 +9,34 @@ use getid3_exception;
 
 class Audio
 {
+	public const MP3_FORMAT 			= 'mp3';
 	public const MP3_EXTENSION 			= '.mp3';
 	public const MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
 	public const MP3_MIME_TYPES 		= ['audio/mpeg'];
 
+	public const WAV_FORMAT 			= 'wav';
 	public const WAV_EXTENSION 			= '.wav';
 	public const WAV_MIME_TYPES 		= ['audio/x-wav'];
 
+	public const OGG_FORMAT 			= 'ogg';
 	public const OGG_EXTENSION 			= '.ogg';
 	public const OGG_EXTENSIONS 		= ['.ogg', '.oga', '.spx'];
 	public const OGG_MIME_TYPES 		= ['audio/ogg'];
 
+	public const AAC_FORMAT 			= 'aac';
 	public const AAC_EXTENSION 			= '.aac';
 	public const AAC_MIME_TYPES 		= ['audio/x-aac', 'audio/aac'];
 
+	public const AIFF_FORMAT 			= 'aiff';
 	public const AIFF_EXTENSION 		= '.aiff';
 	public const AIFF_EXTENSIONS 		= ['.aif', '.aiff', '.aifc'];
 	public const AIFF_MIME_TYPES 		= ['audio/x-aiff'];
 
+	public const WMA_FORMAT 			= 'wma';
 	public const WMA_EXTENSION 			= '.wma';
 	public const WMA_MIME_TYPES 		= ['audio/x-ms-wma'];
 
+	public const WEBM_FORMAT 			= 'webm';
 	public const WEBM_EXTENSION 		= '.weba';
 	public const WEBM_MIME_TYPES 		= ['audio/webm'];
 
@@ -90,6 +97,31 @@ class Audio
 
 	/**
 	 * @param string $audioFilePath
+	 * @return string|null
+	 */
+	public static function getFormat(string $audioFilePath): ?string
+	{
+		$fileInfos = self::getInfos($audioFilePath);
+
+		if (!empty($fileInfos['audio']['dataformat']) && mb_strtolower($fileInfos['audio']['dataformat']) === 'wav') {
+			return self::WAV_FORMAT;
+		}
+
+		if (!empty($fileInfos['audio']['dataformat']) && mb_strtolower($fileInfos['audio']['dataformat']) === 'mp3') {
+			return self::MP3_FORMAT;
+		}
+
+		if (!empty($fileInfos['fileformat']) && mb_strtolower($fileInfos['fileformat']) === 'webm') {
+			return self::WEBM_FORMAT;
+		}
+
+		// todo : autres format
+
+		return null;
+	}
+
+	/**
+	 * @param string $audioFilePath
 	 * @return float
 	 */
 	public static function getDuration(string $audioFilePath): float
@@ -105,7 +137,7 @@ class Audio
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return self::checkFileByType($filePath, $clientOriginalName, array_merge(self::MP3_EXTENSIONS, [self::WAV_EXTENSION]), null, ['mp3', 'wav']);
+		return self::checkFileByType($filePath, $clientOriginalName, array_merge(self::MP3_EXTENSIONS, [self::WAV_EXTENSION]), null, [self::MP3_FORMAT, self::WAV_FORMAT]);
 	}
 
 	/**
@@ -115,7 +147,7 @@ class Audio
 	 */
 	public static function checkMp3File(string $filePath, string $clientOriginalName): bool
 	{
-		return self::checkFileByType($filePath, $clientOriginalName, self::MP3_EXTENSIONS, null, ['mp3']);
+		return self::checkFileByType($filePath, $clientOriginalName, self::MP3_EXTENSIONS, null, [self::MP3_FORMAT]);
 	}
 
 	/**
@@ -125,7 +157,7 @@ class Audio
 	 */
 	public static function checkWavFile(string $filePath, string $clientOriginalName): bool
 	{
-		return self::checkFileByType($filePath, $clientOriginalName, [self::WAV_EXTENSION], null, ['wav']);
+		return self::checkFileByType($filePath, $clientOriginalName, [self::WAV_EXTENSION], null, [self::WAV_FORMAT]);
 	}
 
 	/**
@@ -142,11 +174,8 @@ class Audio
 			return false;
 		}
 
-		if (!empty($formatsAllowed)) {
-			$fileInfos = self::getInfos($filePath);
-			if (!in_array($fileInfos['audio']['dataformat'] ?? null, $formatsAllowed, true)) {
-				return false;
-			}
+		if (!empty($formatsAllowed) && !in_array(self::getFormat($filePath), $formatsAllowed, true)) {
+			return false;
 		}
 
 		return true;
@@ -322,8 +351,8 @@ class Audio
 	public function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath=null): bool
 	{
 		// Vérification que le fichier soit un fichier wav ou mp3
-		$fileInfos = self::getInfos($srcAudioFilePath);
-		if (empty($fileInfos['audio']['dataformat']) || !in_array($fileInfos['audio']['dataformat'], ['mp3', 'wav'])) {
+		$fileFormat = self::getFormat($srcAudioFilePath);
+		if (!in_array($fileFormat, [self::MP3_FORMAT, self::WAV_FORMAT], true)) {
 			$this->logger->error('Message audio pas au format mp3 ou WAV');
 			return false;
 		}
@@ -332,11 +361,11 @@ class Audio
 		if (empty($destAudioFilePath)) {
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted'.substr($srcAudioFilePath, strrpos($srcAudioFilePath, '.'));
 		}
-		if ($fileInfos['audio']['dataformat'] !== 'wav') {
+		if ($fileFormat !== self::WAV_FORMAT) {
 			$destAudioFilePath = substr($destAudioFilePath, 0, strrpos($destAudioFilePath, '.')+1).'wav';
 		}
 
-		$params = ($fileInfos['audio']['dataformat'] === 'mp3'?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
+		$params = ($fileFormat === self::MP3_FORMAT?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
 		$commandLine = $this->soxBinaryPath.' '.$params;
 
 		// Envoi de la commande
@@ -357,8 +386,7 @@ class Audio
 	public function convertWavToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
 	{
 		// Vérification que le fichier soit un fichier wav
-		$fileInfos = self::getInfos($srcAudioFilePath);
-		if (empty($fileInfos['audio']['dataformat']) || $fileInfos['audio']['dataformat'] !== 'wav') {
+		if (self::getFormat($srcAudioFilePath) !== self::WAV_FORMAT) {
 			$this->logger->error('Message audio pas au format WAV');
 			return false;
 		}
@@ -384,11 +412,10 @@ class Audio
 	 * @param string|null $destAudioFilePath
 	 * @return bool
 	 */
-	public function convertWebAToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
+	public function convertWebMToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
 	{
-		// Vérification que le fichier soit un fichier WebA
-		$fileInfos = self::getInfos($srcAudioFilePath);
-		if (empty($fileInfos['fileformat']) || mb_strtolower($fileInfos['fileformat']) !== 'webm') {
+		// Vérification que le fichier soit au format WebM
+		if (self::getFormat($srcAudioFilePath) !== self::WEBM_FORMAT) {
 			$this->logger->error('Message audio pas au format WebM');
 			return false;
 		}
