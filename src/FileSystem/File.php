@@ -184,7 +184,7 @@ class File
 	 */
 	public static function getMimeTypeFromExtension(string $extension, ?array $extensionsAndMimeTypes=null): ?string
 	{
-		$extension = mb_strtolower(!str_starts_with($extension, '.') ? '.'.$extension : $extension);
+		$extension = mb_strtolower(str_starts_with($extension, '.') ? substr($extension, 1) : $extension);
 
 		$extensionsAndMimeTypes = (null !== $extensionsAndMimeTypes) ? self::formatExtensionsAndMimeTypes($extensionsAndMimeTypes) : self::getExtensionsAndMimeTypes();
 		foreach ($extensionsAndMimeTypes as [$extensions, $mimeTypes]) {
