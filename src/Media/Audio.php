@@ -273,7 +273,10 @@ class Audio
 			return;
 		}
 
-		$fp = @fopen($audioFilePath, 'rb');
+		if (false === ($fp = @fopen($audioFilePath, 'rb'))) {
+			return;
+		}
+
 		$size 	= filesize($audioFilePath); 	// File size
 		$length = $size;						// Content length
 		$start 	= 0;							// Start byte
@@ -294,12 +297,12 @@ class Audio
 			$c_start = $start;
 			$c_end = $end;
 			[, $range] = explode('=', $_SERVER['HTTP_RANGE'], 2);
-			if (strpos($range, ',') !== false) {
+			if (str_contains($range, ',')) {
 				header('HTTP/1.1 416 Requested Range Not Satisfiable');
 				header('Content-Range: bytes '.$start.'-'.$end.'/'.$size);
 				exit;
 			}
-			if ($range == '-') {
+			if ($range === '-') {
 				$c_start = $size - substr($range, 1);
 			}
 			else {
@@ -335,77 +338,6 @@ class Audio
 		fclose($fp);
 		exit();
 	}
-
-	/*
-	public static function zcast_stream($file, $content_type = 'application/octet-stream') {
-		if (!($stream = fopen($file, 'rb'))) {
-			die('Could not open stream for reading');
-		}
-
-		ob_get_clean();
-		header("Content-Type: ".$content_type);
-		header("Cache-Control: max-age=2592000, public");
-		header("Expires: ".gmdate('D, d M Y H:i:s', time()+2592000) . ' GMT');
-		header("Last-Modified: ".gmdate('D, d M Y H:i:s', @filemtime($file)) . ' GMT' );
-		$start = 0;
-		$size  = filesize($file);
-		$length = $size;
-		$end   = $size - 1;
-		header("Accept-Ranges: 0-".$end);
-
-		if (isset($_SERVER['HTTP_RANGE'])) {
-			$c_start = $start;
-			$c_end = $end;
-
-			list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
-			if (strpos($range, ',') !== false) {
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				header("Content-Range: bytes $start-$end/$size");
-				exit;
-			}
-			if ($range == '-') {
-				$c_start = $size - substr($range, 1);
-			}
-			else{
-				$range = explode('-', $range);
-				$c_start = $range[0];
-
-				$c_end = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $c_end;
-			}
-			$c_end = ($c_end > $end) ? $end : $c_end;
-			if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				header("Content-Range: bytes $start-$end/$size");
-				exit;
-			}
-			$start = $c_start;
-			$end = $c_end;
-			$length = $end - $start + 1;
-			fseek($stream, $start);
-			header('HTTP/1.1 206 Partial Content');
-			header("Content-Range: bytes $start-$end/".$size);
-		}
-
-		header("Content-Length: ".$length);
-
-		$buffer = 102400;
-
-		$i = $start;
-		set_time_limit(0);
-		while(!feof($stream) && $i <= $end) {
-			$bytesToRead = $buffer;
-			if(($i+$bytesToRead) > $end) {
-				$bytesToRead = $end - $i + 1;
-			}
-			echo fread($stream, $bytesToRead);
-			flush();
-			$i += $bytesToRead;
-		}
-
-		fclose($stream);
-		exit;
-	}
-	*/
 
 	/**
 	 * @param string $srcAudioFilePath
