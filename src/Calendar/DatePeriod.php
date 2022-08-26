@@ -193,6 +193,17 @@ class DatePeriod
 		}
 	}
 
+	// ========== Année ==========
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return bool
+	 */
+	public static function isFullYear(\DateTime $periodStart, \DateTime $periodEnd): bool
+	{
+		return ((int) $periodStart->format('m')) === 1 && ((int) $periodStart->format('d')) === 1 && ((int) $periodEnd->format('m')) === 12 && ((int) $periodEnd->format('d')) === 31 && ((int) $periodStart->format('Y')) === ((int) $periodEnd->format('Y'));
+	}
+
 
 	// ========== Interval ==========
 
