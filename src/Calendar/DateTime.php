@@ -940,7 +940,7 @@ class DateTime
 		}
 
 		// ---------- FRANCE ----------
-		if ($country === 'FR') {
+		if ($country === 'FR' || $country === 'MQ' || $country === 'GP') {
 			// --- FRANCE - Fêtes civiles ---
 			$listOfPublicHolidays = [
 				// 1er janvier - Jour de l’an
@@ -995,9 +995,24 @@ class DateTime
 				$listOfPublicHolidays[] = ['day' => 26, 'month' => 12, 'label' => 'Saint Étienne'];
 			}
 
-			// --- FRANCE - Jours fériés des DOM-TOM ---
-			if ($options['dom_tom'] ?? false) {
-				// todo
+			// --- MARTINIQUE ---
+
+			if ($country === 'MQ') {
+				// Abolition de l’esclavage
+				$listOfPublicHolidays[] = ['day' => 22, 'month' => 5, 'label' => 'Abolition de l’esclavage'];
+
+				// Fête Victor Schœlcher
+				$listOfPublicHolidays[] = ['day' => 21, 'month' => 7, 'label' => 'Fête Victor Schœlcher'];
+			}
+
+			// --- GUADELOUPE ---
+
+			if ($country === 'GP') {
+				// Abolition de l’esclavage
+				$listOfPublicHolidays[] = ['day' => 27, 'month' => 5, 'label' => 'Abolition de l’esclavage'];
+
+				// Fête Victor Schœlcher
+				$listOfPublicHolidays[] = ['day' => 21, 'month' => 7, 'label' => 'Fête Victor Schœlcher'];
 			}
 
 			// --- FRANCE - Jours non fériés mais qui correspondent à des fêtes civiles ---
