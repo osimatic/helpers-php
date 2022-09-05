@@ -124,6 +124,7 @@ class DatePeriod
 	/**
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
+	 * @param string $dateFormat
 	 * @return string[]
 	 */
 	public static function getListOfWeeks(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-W'): array
@@ -143,6 +144,16 @@ class DatePeriod
 		catch (\Exception $e) {
 			return [];
 		}
+	}
+
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return bool
+	 */
+	public static function isFullWeek(\DateTime $periodStart, \DateTime $periodEnd): bool
+	{
+		return self::getNbDaysBetweenDatesAndTimes($periodStart, $periodEnd) === 7 && ((int) $periodStart->format('N')) === 1 && ((int) $periodEnd->format('N')) === 7;
 	}
 
 	// ========== Mois ==========
@@ -193,7 +204,18 @@ class DatePeriod
 		}
 	}
 
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return bool
+	 */
+	public static function isFullMonth(\DateTime $periodStart, \DateTime $periodEnd): bool
+	{
+		return $periodStart->format('Ym') === $periodEnd->format('Ym') && ((int) $periodStart->format('d')) === 1 && null !== ($lastDayOfMonth = \Osimatic\Helpers\Calendar\DateTime::getLastDayOfMonth($periodEnd->format('Y'), $periodEnd->format('m'))) && $lastDayOfMonth->format('d') === $periodEnd->format('d');
+	}
+
 	// ========== Année ==========
+
 	/**
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
