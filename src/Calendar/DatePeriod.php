@@ -153,7 +153,7 @@ class DatePeriod
 	 */
 	public static function isFullWeek(\DateTime $periodStart, \DateTime $periodEnd): bool
 	{
-		return self::getNbDaysBetweenDatesAndTimes($periodStart, $periodEnd) === 7 && ((int) $periodStart->format('N')) === 1 && ((int) $periodEnd->format('N')) === 7;
+		return self::getNbDaysBetweenDatesAndTimes($periodStart, $periodEnd) === 6 && ((int) $periodStart->format('N')) === 1 && ((int) $periodEnd->format('N')) === 7;
 	}
 
 	// ========== Mois ==========
