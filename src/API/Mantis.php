@@ -85,8 +85,10 @@ class Mantis
 		}
 
 		$soapIssueAdd->mc_issue_add($this->userName, $this->userPassword, [
-			'summary' 		=> iconv('windows-1252', 'UTF-8', $title),
-			'description' 	=> iconv('windows-1252', 'UTF-8', $desc),
+			//'summary' 		=> iconv('windows-1252', 'UTF-8', $title),
+			//'description' 	=> iconv('windows-1252', 'UTF-8', $desc),
+			'summary' 		=> $title,
+			'description' 	=> $desc,
 			'handler' 		=> ['id'=> $this->userId, 'name' => $this->userName],
 			'project' 		=> ['id' => $projectId, 'name' => $projectName ?? ''],
 			'severity' 		=> ['id' => $serverity],
