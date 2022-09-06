@@ -79,11 +79,11 @@ class PayBoxResponse
 
 	public static function getFromRequest(array $request): PayBoxResponse {
 		$payBoxResponse = new PayBoxResponse();
-		$payBoxResponse->setReference(urldecode($request['ref'] ?? null));
-		$payBoxResponse->setResponseCode(urldecode($request['response_code'] ?? null));
-		$payBoxResponse->setCallNumber(urldecode($request['call_nb'] ?? null));
-		$payBoxResponse->setTransactionNumber(urldecode($request['transact_nb'] ?? null));
-		$payBoxResponse->setAuthorizationNumber(urldecode($request['authorizt_nb'] ?? null));
+		$payBoxResponse->setReference(!empty($request['ref']) ? urldecode($request['ref']) : null);
+		$payBoxResponse->setResponseCode(!empty($request['response_code']) ? urldecode($request['response_code']) : null);
+		$payBoxResponse->setCallNumber(!empty($request['call_nb']) ? urldecode($request['call_nb']) : null);
+		$payBoxResponse->setTransactionNumber(!empty($request['transact_nb']) ? urldecode($request['transact_nb']) : null);
+		$payBoxResponse->setAuthorizationNumber(!empty($request['authorizt_nb']) ? urldecode($request['authorizt_nb']) : null);
 
 		if (!empty($request['card_ref'])) {
 			// card_ref contient la chaine suivante : "abc123abc12  2206  ---" (la premiere partie correspond au token de la carte, à utiliser pour débiter la carte ultérieurement)
