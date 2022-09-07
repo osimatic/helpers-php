@@ -229,4 +229,56 @@ class Duration
 		return round($duration / 60, 2);
 	}
 
+	// ========== Arrondissement ==========
+
+	/**
+	 * @param int $duration
+	 * @param int $precision
+	 * @param string|null $mode
+	 * @return int
+	 */
+	public static function round(int $duration, int $precision, ?string $mode=null): int
+	{
+		if ($precision <= 0) {
+			// pas d'arrondissement
+			return $duration;
+		}
+
+		$mode = mb_strtolower(!empty($mode)?$mode:'close');
+
+		$hours = (int) floor($duration / 3600);
+		$duration -= $hours * 3600;
+		$minutes = (int) floor($duration / 60);
+		$duration -= $minutes * 60;
+		$seconds = $duration % 60;
+
+		$minutesRemaining = $minutes % $precision;
+		$minutesRemainingAndSecondsAsCentieme = $minutesRemaining + $seconds/60;
+		if ($minutesRemainingAndSecondsAsCentieme === 0) {
+			// pas d'arrondissement
+			return $duration;
+		}
+
+		$halfRoundPrecision = $precision / 2;
+		$hoursRounded = $hours;
+		$secondsRounded = 0;
+		if ($mode === 'up' || ($mode === 'close' && $minutesRemainingAndSecondsAsCentieme > $halfRoundPrecision)) {
+			// Arrondissement au dessus
+			if ($minutes > (60-$precision)) {
+				$minutesRounded = 0;
+				$hoursRounded++;
+			}
+			else {
+				$minutesRounded = ($minutes-$minutesRemaining)+$precision;
+			}
+		}
+		else {
+			// Arrondissement au dessous
+			$minutesRounded = ($minutes-$minutesRemaining);
+		}
+		
+		return $hoursRounded * 3600 + $minutesRounded * 60 + $secondsRounded;
+	}
+
+
 }
