@@ -285,6 +285,8 @@ class SMS
 	 */
 	public function setText($text): self
 	{
+		$text = str_replace("’", "'", $text);
+		
 		// $text = addslashes($text);
 		if ($this->isTruncatedText() && strlen($text) > self::MESSAGE_NB_CHAR_MAX) {
 			$this->text = substr($text, 0, self::MESSAGE_NB_CHAR_MAX);
