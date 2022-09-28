@@ -25,7 +25,8 @@
 		"symfony/property-access": "*",
 		"symfony/validator": "*",
 		"league/iso3166": "^4",
-		"mustache/mustache": "^2"
+		"mustache/mustache": "^2",
+		"whichbrowser/parser": "^2.1"
 	},
 	"license": "mit",
 	"authors": [
