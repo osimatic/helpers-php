@@ -461,14 +461,13 @@ class Str
 
 	/**
 	 * Gère les singuliers/pluriels dans une chaîne de caractères en fonction d'un nombre
-	 * @param float $nb le nombre d'élément qui permet de savoir si la chaîne doit être au singulier ou au pluriel (1 par défaut)
+	 * @param int|float $nb le nombre d'éléments qui permet de savoir si la chaîne doit être au singulier ou au pluriel (1 par défaut)
 	 * @param string $string la chaîne de caractères à mettre au singulier ou au pluriel
-	 * @param array $values ??? (array() par défaut)
 	 * @return string la chaîne de caractères mise au singulier ou au pluriel
 	 * @author Jay Salvat (blog.jaysalvat.com)
 	 * @link http://blog.jaysalvat.com/articles/gerer-facilement-les-singuliers-pluriels-en-php.php
 	 */
-	public static function pluralize(float $nb, string $string, array $values = []): string
+	public static function pluralize(int|float $nb, string $string): string
 	{
 		// remplace {#} par le chiffre
 		$string = str_replace('{#}', $nb, $string);
@@ -483,17 +482,18 @@ class Str
 			}
 			// si singulier
 			else if ($nb === 1) {
-				$mod = (count($part) === 1) ? '' : ((count($part) == 2) ? $part[0] : $part[1]);
+				$mod = (count($part) === 1) ? '' : ((count($part) === 2) ? $part[0] : $part[1]);
 			}
 			// sinon pluriel
 			else {
-				$mod = (count($part) === 1) ? $part[0] : ((count($part) == 2) ? $part[1] : $part[2]);
+				$mod = (count($part) === 1) ? $part[0] : ((count($part) === 2) ? $part[1] : $part[2]);
 			}
 			// remplace les occurences trouvées par le bon résultat.
 			$string = str_replace($matches[0][$k], $mod , $string);
 		}
+		return $string;
 		// retourne le résultat en y incluant éventuellement les valeurs passées
-		return vsprintf($string, $values);
+		//return vsprintf($string, $values);
 	}
 
 	/**

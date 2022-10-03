@@ -2,7 +2,7 @@
 
 namespace Osimatic\Helpers\Network;
 
-class UserAgent
+class UserAgent implements \JsonSerializable
 {
 	public const DEVICE_TYPE_DESKTOP 			= 'desktop';
 	public const DEVICE_TYPE_MOBILE 			= 'mobile';
@@ -74,5 +74,26 @@ class UserAgent
 	public static function parse(string $userAgent): UserAgent
 	{
 		return new UserAgent($userAgent);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function jsonSerialize(): array
+	{
+		return [
+			'user_agent_desc' => $this->readableRepresentation,
+			'browser_name' => $this->browserName,
+			'os_name' => $this->osName,
+			'device_type' => $this->deviceType,
+			'device_is_mobile' => $this->deviceIsMobile,
+			'device_manufacturer' => $this->deviceManufacturer,
+			'device_model' => $this->deviceModel,
+		];
+	}
+
+	public function __toString(): string
+	{
+		return $this->readableRepresentation;
 	}
 }
