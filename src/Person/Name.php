@@ -174,7 +174,7 @@ class Name
 					continue;
 				}
 
-				if (!$special && trim($firstNameData[4] ?? 1) === '0') { // si fête particulière (exemple : Jour de l'an, fêtes chrétiennes...), on l'ignore
+				if (!$special && trim($firstNameData[4] ?? 1) === '0') { // si fête particulière (exemple : Jour de l'an, fêtes chrétiennes…), on l'ignore
 					continue;
 				}
 

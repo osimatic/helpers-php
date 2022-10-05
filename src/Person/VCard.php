@@ -833,7 +833,7 @@ class VCard
 	/**
 	 * Set property
 	 *
-	 * @param  string $element The element name you want to set, f.e.: name, email, phoneNumber, ...
+	 * @param  string $element The element name you want to set, f.e.: name, email, phoneNumber,…
 	 * @param  string $key
 	 * @param  string $value
 	 * @return void

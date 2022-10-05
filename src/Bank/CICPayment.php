@@ -53,7 +53,7 @@ class CICPayment
 	private $reference;
 
 	/**
-	 * Zone de texte libre. Taille : 3200 caractères maximum. Exemples : une référence longue, des contextes de session pour le retour,...
+	 * Zone de texte libre. Taille : 3200 caractères maximum. Exemples : une référence longue, des contextes de session pour le retour,…
 	 * @var string
 	 */
 	private $texteLibre;

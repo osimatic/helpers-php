@@ -139,10 +139,10 @@ class Str
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (le début étant coupé)
 	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
-	 * @param string $strAddingAtBeginning la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("..." par défaut)
+	 * @param string $strAddingAtBeginning la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("…" par défaut)
 	 * @return string la chaîne coupée
 	 */
-	public static function truncateTextAtBeginning(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtBeginning = '...'): string
+	public static function truncateTextAtBeginning(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtBeginning = '…'): string
 	{
 		$space = ' ';
 		$stringTruncate = $string;
@@ -168,10 +168,10 @@ class Str
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (la fin étant coupé)
 	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
-	 * @param string $strAddingAtEnd la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("..." par défaut)
+	 * @param string $strAddingAtEnd la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("…" par défaut)
 	 * @return string la chaîne coupée
 	 */
-	public static function truncateTextAtEnd(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtEnd = '...'): string
+	public static function truncateTextAtEnd(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtEnd = '…'): string
 	{
 		$space = ' ';
 		$stringTruncate = $string;
@@ -199,7 +199,7 @@ class Str
 	 * @param string $strAddingInMiddle
 	 * @return string
 	 */
-	public static function truncateTextInMiddle(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingInMiddle = '[...]'): string
+	public static function truncateTextInMiddle(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingInMiddle = '[…]'): string
 	{
 		$stringTruncate = $string;
 
@@ -216,7 +216,7 @@ class Str
 	 * @param string $str string to ellipsize
 	 * @param int $nbCharInFinalString max length of string
 	 * @param int|float $whereEllipsisShouldAppear int (1|0) or float, .5, .2, etc for position to split
-	 * @param string $ellipsis ellipsis ; Default '...'
+	 * @param string $ellipsis ellipsis ; Default '…'
 	 * @return string ellipsized string
 	 */
 	public static function ellipsize(string $str, int $nbCharInFinalString, int|float $whereEllipsisShouldAppear=1, string $ellipsis = '&hellip;'): string

@@ -133,8 +133,9 @@ class PDF
 	/**
 	 * @param string $filePath
 	 * @param array $options
+	 * @return bool
 	 */
-	public function generateFile(string $filePath, array $options=[]): void
+	public function generateFile(string $filePath, array $options=[]): bool
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
@@ -154,7 +155,10 @@ class PDF
 		}
 		catch (\Exception $e) {
 			$this->logger->error('Exception lors de la génération du fichier PDF : '.$e->getMessage());
+			return false;
 		}
+
+		return true;
 	}
 
 
