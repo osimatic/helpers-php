@@ -1009,6 +1009,12 @@ class Email
 
 	// ========== Subject and text ==========
 
+	private static function formatText(string $str): string
+	{
+		$str = str_replace("’", "'", $str);
+		return $str;
+	}
+
 	/**
 	 * Return the subject of the message.
 	 * @return string
@@ -1029,7 +1035,8 @@ class Email
 		if ($encode && strtolower($this->charSet) === 'utf-8') {
 			$subject = utf8_encode($subject);
 		}
-		$this->subject = $subject;
+
+		$this->subject = self::formatText($subject);
 
 		return $this;
 	}
@@ -1135,7 +1142,7 @@ class Email
 		if ($encode && strtolower($this->charSet) === 'utf-8') {
 			$text = utf8_encode($text);
 		}
-		$this->text = $text;
+		$this->text = self::formatText($text);
 
 		return $this;
 	}
