@@ -161,4 +161,17 @@ class FirebaseMessaging
 		return true;
 	}
 
+	public function isTokenInvalid(): bool
+	{
+		if (null === $this->result) {
+			return true;
+		}
+
+		if (!empty($this->result['error']) && !empty($errorCode = $this->result['error']['code'] ?? null) && in_array($errorCode, [400, 404], true)) {
+			return true;
+		}
+
+		return false;
+	}
+
 }
