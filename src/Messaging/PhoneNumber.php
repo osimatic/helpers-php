@@ -8,6 +8,11 @@ namespace Osimatic\Helpers\Messaging;
  */
 class PhoneNumber
 {
+	public const TYPE_MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE;
+	public const TYPE_FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE;
+	public const TYPE_PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+	public const TYPE_TOLL_FREE 	= \libphonenumber\PhoneNumberType::TOLL_FREE;
+	public const TYPE_SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST;
 
 	/**
 	 * @param string|null $phoneNumber
