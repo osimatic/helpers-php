@@ -186,6 +186,16 @@ class PhoneNumber
 	/**
 	 * @param string|null $phoneNumber
 	 * @param string $defaultCountry
+	 * @return bool
+	 */
+	public static function isTollFree(?string $phoneNumber, string $defaultCountry='FR'): bool
+	{
+		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::TOLL_FREE;
+	}
+
+	/**
+	 * @param string|null $phoneNumber
+	 * @param string $defaultCountry
 	 * @return string|null
 	 */
 	public static function getCountryIsoCode(?string $phoneNumber, string $defaultCountry='FR'): ?string
