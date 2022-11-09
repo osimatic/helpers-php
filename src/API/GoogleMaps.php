@@ -16,13 +16,14 @@ class GoogleMaps
 	private LoggerInterface $logger;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $apiKey;
+	private ?string $apiKey;
 
-	public function __construct()
+	public function __construct(?string $apiKey=null, LoggerInterface $logger=new NullLogger())
 	{
-		$this->logger = new NullLogger();
+		$this->apiKey = $apiKey;
+		$this->logger = $logger;
 	}
 
 	/**
