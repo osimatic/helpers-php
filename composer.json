@@ -26,7 +26,8 @@
 		"symfony/validator": "*",
 		"league/iso3166": "^4",
 		"mustache/mustache": "^2",
-		"whichbrowser/parser": "^2.1"
+		"whichbrowser/parser": "^2.1",
+		"symfony/http-foundation": "^6.1"
 	},
 	"license": "mit",
 	"authors": [

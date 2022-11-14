@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use getID3;
 use getid3_exception;
+use Symfony\Component\HttpFoundation\Response;
 
 class Audio
 {
@@ -211,6 +212,16 @@ class Audio
 	}
 
 	/**
+	 * @param string $audioFilePath
+	 * @return string
+	 */
+	private static function getExtension(string $audioFilePath): string
+	{
+		$infosFile = new \SplFileInfo($audioFilePath);
+		return mb_strtolower($infosFile->getExtension());
+	}
+
+	/**
 	 * Envoi au navigateur du client un fichier audio.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath le chemin complet vers le fichier audio
@@ -225,43 +236,11 @@ class Audio
 
 	/**
 	 * @param string $audioFilePath
-	 * @return string
-	 */
-	private static function getExtension(string $audioFilePath): string
-	{
-		$infosFile = new \SplFileInfo($audioFilePath);
-		return mb_strtolower($infosFile->getExtension());
-	}
-
-	/**
-	 * @param string $audioFilePath
 	 * @param bool $asStream
 	 */
 	public static function play(string $audioFilePath, bool $asStream=false): void
 	{
-		if ($asStream) {
-			self::playStream($audioFilePath);
-			return;
-		}
-
-		if (!file_exists($audioFilePath)) {
-			return;
-		}
-
-		$extension = self::getExtension($audioFilePath);
-		if (null !== ($mimeType = self::getMimeTypeFromExtension($extension))) {
-			header('Content-Type: ' . $mimeType);
-		}
-		if (null !== ($mimeType = Video::getMimeTypeFromExtension($extension))) {
-			header('Content-Type: ' . $mimeType);
-		}
-
-		header('Content-Disposition: filename='.basename($audioFilePath));
-		header('Content-length: '.filesize($audioFilePath));
-		header('X-Pad: avoid browser bug');
-		header('Cache-Control: no-cache');
-		readfile($audioFilePath);
-		exit();
+		self::_play($audioFilePath, $asStream, true);
 	}
 
 	/**
@@ -269,14 +248,79 @@ class Audio
 	 */
 	public static function playStream(string $audioFilePath): void
 	{
+		self::_playStream($audioFilePath, true);
+	}
+
+	/**
+	 * @param string $audioFilePath
+	 * @param bool $asStream
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $audioFilePath, bool $asStream=false): Response
+	{
+		return self::_play($audioFilePath, $asStream, false);
+	}
+
+	/**
+	 * @param string $audioFilePath
+	 * @param bool $asStream
+	 * @param bool $sendResponse
+	 * @return Response|null
+	 */
+	private static function _play(string $audioFilePath, bool $asStream=false, bool $sendResponse=true): ?Response
+	{
+		if ($asStream) {
+			return self::_playStream($audioFilePath, $sendResponse);
+		}
+
 		if (!file_exists($audioFilePath)) {
-			return;
+			if (!$sendResponse) {
+				return new Response('file_not_found', Response::HTTP_BAD_REQUEST);
+			}
+			return null;
 		}
 
-		if (false === ($fp = @fopen($audioFilePath, 'rb'))) {
-			return;
+		$headers = [
+			'Content-Disposition' => 'filename='.basename($audioFilePath),
+			'Content-Length' => filesize($audioFilePath),
+			'X-Pad' => 'avoid browser bug',
+			'Cache-Control' => 'no-cache',
+		];
+
+		$extension = self::getExtension($audioFilePath);
+		if (null !== ($mimeType = self::getMimeTypeFromExtension($extension))) {
+			$headers['Content-Type'] = $mimeType;
+		}
+		if (null !== ($mimeType = Video::getMimeTypeFromExtension($extension))) {
+			$headers['Content-Type'] = $mimeType;
 		}
 
+		if (!$sendResponse) {
+			return new Response(file_get_contents($audioFilePath), Response::HTTP_OK, $headers);
+		}
+
+		foreach ($headers as $key => $value) {
+			header($key.': '.$value);
+		}
+		readfile($audioFilePath);
+		exit();
+	}
+
+	/**
+	 * @param string $audioFilePath
+	 * @param bool $sendResponse
+	 * @return Response|null
+	 */
+	private static function _playStream(string $audioFilePath, bool $sendResponse=true): ?Response
+	{
+		if (!file_exists($audioFilePath) || false === ($fp = @fopen($audioFilePath, 'rb'))) {
+			if (!$sendResponse) {
+				return new Response('file_not_found', Response::HTTP_BAD_REQUEST);
+			}
+			return null;
+		}
+
+		$headers = [];
 		$size 	= filesize($audioFilePath); 	// File size
 		$length = $size;						// Content length
 		$start 	= 0;							// Start byte
@@ -284,23 +328,32 @@ class Audio
 
 		$extension = self::getExtension($audioFilePath);
 		if (null !== ($mimeType = self::getMimeTypeFromExtension($extension))) {
-			header('Content-Type: ' . $mimeType);
+			$headers['Content-Type'] = $mimeType;
 		}
 		else if (null !== ($mimeType = Video::getMimeTypeFromExtension($extension))) {
-			header('Content-Type: ' . $mimeType);
+			$headers['Content-Type'] = $mimeType;
 		}
 
 		//header('Accept-Ranges: bytes');
-		header('Accept-Ranges: 0-'.$length);
+		$headers['Accept-Ranges'] = '0-'.$length;
 
-		if (isset($_SERVER['HTTP_RANGE'])) {
+		$isPartialContent = isset($_SERVER['HTTP_RANGE']);
+		if ($isPartialContent) {
 			$c_start = $start;
 			$c_end = $end;
 			[, $range] = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			if (str_contains($range, ',')) {
+				$headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
+
+				if (!$sendResponse) {
+					return new Response(null, Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, $headers);
+				}
+
+				foreach ($headers as $key => $value) {
+					header($key.': '.$value);
+				}
 				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				header('Content-Range: bytes '.$start.'-'.$end.'/'.$size);
-				exit;
+				exit();
 			}
 			if ($range === '-') {
 				$c_start = $size - substr($range, 1);
@@ -312,30 +365,58 @@ class Audio
 			}
 			$c_end = ($c_end > $end) ? $end : $c_end;
 			if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
+				$headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
+
+				if (!$sendResponse) {
+					return new Response(null, Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, $headers);
+				}
+
+				foreach ($headers as $key => $value) {
+					header($key.': '.$value);
+				}
 				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				header('Content-Range: bytes '.$start.'-'.$end.'/'.$size);
-				exit;
+				exit();
 			}
 			$start = $c_start;
 			$end = $c_end;
 			$length = $end - $start + 1;
 			fseek($fp, $start);
-			header('HTTP/1.1 206 Partial Content');
-			header('Content-Range: bytes '.$start.'-'.$end.'/'.$size);
+			$headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
 		}
 
-		header('Content-Length: '.$length);
+		$headers['Content-Length'] = $length;
 
+		if ($sendResponse) {
+			foreach ($headers as $key => $value) {
+				header($key.': '.$value);
+			}
+			if ($isPartialContent) {
+				header('HTTP/1.1 206 Partial Content');
+			}
+		}
+
+		$data = '';
 		$buffer = 1024 * 8;
 		while(!feof($fp) && ($p = ftell($fp)) <= $end) {
 			if ($p + $buffer > $end) {
 				$buffer = $end - $p + 1;
 			}
 			set_time_limit(0);
+
+			if (!$sendResponse) {
+				$data .= fread($fp, $buffer);
+				continue;
+			}
+
 			echo fread($fp, $buffer);
 			flush();
 		}
 		fclose($fp);
+
+		if (!$sendResponse) {
+			return new Response($data, $isPartialContent ? Response::HTTP_PARTIAL_CONTENT : Response::HTTP_OK, $headers);
+		}
+
 		exit();
 	}
 

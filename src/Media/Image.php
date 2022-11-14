@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\Media;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class Image
 {
 	public const JPG_EXTENSION 			= '.jpg';
@@ -237,19 +239,43 @@ class Image
 	 */
 	public static function output(string $file, bool $withCache=true): void
 	{
-		$data = file_get_contents($file);
+		self::_output($file, $withCache, true);
+	}
 
-		if ($data === false) {
+	/**
+	 * @param string $file
+	 * @param bool $withCache
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $file, bool $withCache=true): Response
+	{
+		return self::_output($file, $withCache, false);
+	}
+
+	/**
+	 * @param string $file
+	 * @param bool $withCache
+	 * @param bool $sendResponse
+	 * @return Response|null
+	 */
+	private static function _output(string $file, bool $withCache=true, bool $sendResponse=true): ?Response
+	{
+		if (($data = file_get_contents($file)) === false) {
 			//trace("Erreur : L'image n'existe pas.");
-			return;
+			if (!$sendResponse) {
+				return new Response('file_not_found', Response::HTTP_BAD_REQUEST);
+			}
+			return null;
 		}
 
 		$lastModifiedString = self::getLastModifiedString($file);
 		$mime 				= self::getMimeType($file);
 		$etag 				= self::getEtag($file);
 
-		header('Last-Modified: '.$lastModifiedString);
-		header('ETag: "'.$etag.'"');
+		$headers = [
+			'Last-Modified' => $lastModifiedString,
+			'ETag' => '"'.$etag.'"'
+		];
 
 		$outputImage = true;
 
@@ -283,13 +309,26 @@ class Image
 
 		if (!$outputImage) {
 			// Nothing has changed since their last request - serve a 304 and exit
+			if (!$sendResponse) {
+				return new Response(null, Response::HTTP_NOT_MODIFIED);
+			}
+
 			header('HTTP/1.1 304 Not Modified');
+			exit();
 		}
-		else {
-			header('Content-type: '.$mime);
-			header('Content-Length: ' . strlen($data));
-			echo $data;
+
+		$headers['Content-Type'] = $mime;
+		$headers['Content-Length'] = strlen($data);
+
+		if (!$sendResponse) {
+			return new Response($data, Response::HTTP_OK, $headers);
 		}
+
+		foreach ($headers as $key => $value) {
+			header($key.': '.$value);
+		}
+		echo $data;
+		exit();
 	}
 
 	// ========== Modification de taille d'image ==========
