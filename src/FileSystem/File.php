@@ -12,7 +12,7 @@ class File
 	 */
 	public static function getDataFromBase64Data(string $data): ?string
 	{
-		if (strstr($data, 'base64,') !== false) {
+		if (str_contains($data, 'base64,')) {
 			$data = explode('base64,', $data)[1] ?? '';
 		}
 		if (false === ($data = base64_decode($data)) || empty($data)) {
@@ -27,7 +27,7 @@ class File
 	 */
 	public static function getMimeTypeFromBase64Data(string $data): ?string
 	{
-		if (strstr($data, 'base64,') === false) {
+		if (!str_contains($data, 'base64,')) {
 			return null;
 		}
 		if (empty($fileInfos = explode('base64,', $data)[0] ?? '')) {
@@ -367,18 +367,13 @@ class File
 				$ret['filename'] = $pathinfo[3];
 			}
 		}
-		switch ($options) {
-			case PATHINFO_DIRNAME:
-				return $ret['dirname'];
-			case PATHINFO_BASENAME:
-				return $ret['basename'];
-			case PATHINFO_EXTENSION:
-				return $ret['extension'];
-			case PATHINFO_FILENAME:
-				return $ret['filename'];
-			default:
-				return $ret;
-		}
+		return match ($options) {
+			PATHINFO_DIRNAME => $ret['dirname'],
+			PATHINFO_BASENAME => $ret['basename'],
+			PATHINFO_EXTENSION => $ret['extension'],
+			PATHINFO_FILENAME => $ret['filename'],
+			default => $ret,
+		};
 	}
 
 

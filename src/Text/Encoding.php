@@ -12,7 +12,8 @@ class Encoding
 	 * @param mixed $input
 	 * @return mixed
 	 */
-	public static function utf8Encode($input) {
+	public static function utf8Encode($input)
+	{
 		if (is_string($input)) {
 			// if (mb_detect_encoding($input) != "UTF-8") {
 			$input = utf8_encode($input);
@@ -36,7 +37,8 @@ class Encoding
 	 * @param mixed $input
 	 * @return mixed
 	 */
-	public static function utf8Decode($input) {
+	public static function utf8Decode($input)
+	{
 		if (is_string($input)) {
 			// if (mb_detect_encoding($input) == "UTF-8") {
 			$input = utf8_decode($input);

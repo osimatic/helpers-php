@@ -10,7 +10,7 @@ class Str
 	// ========== Remplacement de caractères ==========
 
 	/**
-	 * Remplace une série de caractère par un autre caractère dans une chaîne.
+	 * Remplace une série de caractères par un autre caractère dans une chaîne.
 	 * @param string $str la chaîne sur laquelle remplacer des caractères
 	 * @param array $replacements liste des caractères à remplacer (sensible à la casse) : en clé, le caractère à remplacer ; en valeur, le caractère de remplacement.
 	 * @param boolean $replaceUppercaseChar true pour remplacer également les caractères en majuscule, false sinon (false par défaut)
@@ -36,7 +36,7 @@ class Str
 	}
 
 	/**
-	 * Supprime une série de caractère dans une chaîne.
+	 * Supprime une série de caractères dans une chaîne.
 	 * @param string $str la chaîne sur laquelle supprimer des caractères
 	 * @param array $charactersToRemove liste des caractères à supprimer (sensible à la casse).
 	 * @param boolean $replaceUppercaseChar true pour supprimer également les caractères en majuscule, false sinon (false par défaut)
@@ -164,7 +164,7 @@ class Str
 	}
 
 	/**
-	 * Coupe une chaîne de caractères après un certains nombre de caractères, la fin de la chaîne étant tronquée, et ajoute éventuellement une chaîne après la coupure
+	 * Coupe une chaîne de caractères après un certain nombre de caractères, la fin de la chaîne étant tronquée, et ajoute éventuellement une chaîne après la coupure
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (la fin étant coupé)
 	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
@@ -376,7 +376,7 @@ class Str
 	}
 
 	/**
-	 * retourne le nombre de caractère $char dans la chaine $str
+	 * Retourne le nombre de caractères $char dans la chaine $str
 	 * @param string $str
 	 * @param string $char
 	 * @return int
@@ -387,7 +387,7 @@ class Str
 	}
 
 	/**
-	 * retourne le nombre de caractère présent dans le tableau/string $listChar dans la chaine $str
+	 * Retourne le nombre de caractères présent dans le tableau/string $listChar dans la chaine $str
 	 * @param string $str
 	 * @param array|string $listChar
 	 * @return int
@@ -412,7 +412,7 @@ class Str
 
 	/**
 	 * Teste si la chaîne de caractère ne contient que le même caractère (un seul caractère utilisé)
-	 * @param string str la chaîne de caractère à tester
+	 * @param string $str la chaîne de caractère à tester
 	 * @return bool true si la chaîne ne contient que le même caractère, false si la chaîne contient au moins 2 caractères différents
 	 */
 	public static function containsOnlySameChar(string $str): bool
@@ -422,7 +422,7 @@ class Str
 
 	/**
 	 * Teste si la chaîne de caractère ne contient que des caractères différents (pas de caractère en double)
-	 * @param string str la chaîne de caractère à tester
+	 * @param string $str la chaîne de caractère à tester
 	 * @return bool true si la chaîne ne contient que des caractères différents, false si elle contient au moins un même caractère présent au moins 2 fois
 	 */
 	public static function containsOnlyDifferentChar(string $str): bool
@@ -436,7 +436,7 @@ class Str
 	}
 
 	/**
-	 * retourne true si $str contient au minimum $min caractères différents
+	 * Retourne true si $str contient au minimum $min caractères différents
 	 * @param string $str
 	 * @param int $min
 	 * @return bool
@@ -447,7 +447,7 @@ class Str
 	}
 
 	/**
-	 * retourne true si $str contient au maximum $max caractères différents
+	 * Retourne true si $str contient au maximum $max caractères différents
 	 * @param string $str
 	 * @param int $max
 	 * @return bool
@@ -674,8 +674,8 @@ class Str
 
 	/**
 	 * Wraps text at the specified character.  Maintains the integrity of words. Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor will URLs.
-	 * @param string the text string
-	 * @param int the number of characters to wrap at
+	 * @param string $str the text string
+	 * @param int $charlim the number of characters to wrap at
 	 * @return string
 	 */
 	public static function wrapWord(string $str, int $charlim): string
@@ -689,13 +689,13 @@ class Str
 		$str = preg_replace('/ +/', ' ', $str);
 
 		// Standardize newlines
-		if (strpos($str, "\r") !== false) {
-			$str = str_replace(array("\r\n", "\r"), "\n", $str);
+		if (str_contains($str, "\r")) {
+			$str = str_replace(["\r\n", "\r"], "\n", $str);
 		}
 
 		// If the current word is surrounded by {unwrap} tags we'll
 		// strip the entire chunk and replace it with a marker.
-		$unwrap = array();
+		$unwrap = [];
 		if (preg_match_all("|(\{unwrap\}.+?\{/unwrap\})|s", $str, $matches)) {
 			$nb = count($matches['0']);
 			for ($i = 0; $i < $nb; $i++) {
@@ -749,7 +749,7 @@ class Str
 		}
 
 		// Remove the unwrap tags
-		$output = str_replace(array('{unwrap}', '{/unwrap}'), '', $output);
+		$output = str_replace(['{unwrap}', '{/unwrap}'], '', $output);
 
 		return $output;
 	}
@@ -767,7 +767,7 @@ class Str
 
 		// $string = strtr($string, "ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËèéêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ", "aaaaaaaaaaaaooooooooooooeeeeeeeecciiiiiiiiuuuuuuuuynn");
 
-		$chars = [
+		return strtr($string, [
 			// Decompositions for Latin-1 Supplement
 			'ª' => 'a', 'º' => 'o',
 			'À' => 'A', 'Á' => 'A',
@@ -941,11 +941,7 @@ class Str
 			'Ǚ' => 'U', 'ǚ' => 'u',
 			// grave accent
 			'Ǜ' => 'U', 'ǜ' => 'u',
-		];
-
-		$string = strtr($string, $chars);
-
-		return $string;
+		]);
 	}
 
 	/**
@@ -974,7 +970,7 @@ class Str
 
 	/**
 	 * Mulit-byte ucfirst
-	 * @param string
+	 * @param string $string
 	 * @return string
 	 */
 	public static function mb_ucfirst(string $string): string
@@ -991,7 +987,7 @@ class Str
 
 	/**
 	 * Génère une chaîne de caractères prononcable (c'est-à-dire alternant les consonnes et les voyelles)
-	 * @param int $nbChar le nombre de caractères de la chaîne a générer
+	 * @param int $nbChar le nombre de caractères de la chaîne à générer
 	 * @param string|null $listeConsonnes la liste des consonnes possibles pour la génération de la chaîne, ou null prendre toutes les consonnes de l'alphabet (null par défaut)
 	 * @param string|null $listeVoyelles la liste des voyelles possibles pour la génération de la chaîne, ou null prendre toutes les voyelles de l'alphabet (null par défaut)
 	 * @param bool $premiereLettreConsonneAleatoire true pour choisir aléatoirement de commencer par une consonne ou une voyelle, false sinon (false par défaut)
@@ -1001,7 +997,7 @@ class Str
 	public static function getRandomPronounceableWord(int $nbChar, ?string $listeConsonnes=null, ?string $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
 	{
 		if ($premiereLettreConsonneAleatoire) {
-			$pair = (rand(0, 1) === 0);
+			$pair = (mt_rand(0, 1) === 0);
 		}
 		else {
 			$pair = ($premiereLettreConsonne);
@@ -1033,7 +1029,7 @@ class Str
 
 	/**
 	 * Génère une chaîne de caractères
-	 * @param int $nbChar le nombre de caractères de la chaîne a générer
+	 * @param int $nbChar le nombre de caractères de la chaîne à générer
 	 * @param string $listeChar la liste des caractères possibles pour la génération de la chaîne
 	 * @return string la chaîne générée
 	 */
@@ -1050,7 +1046,7 @@ class Str
 
 	/**
 	 * Génère une chaîne de caractères alphabétiques
-	 * @param int $nbChar le nombre de caractères de la chaîne a générer
+	 * @param int $nbChar le nombre de caractères de la chaîne à générer
 	 * @param bool $uppercaseEnabled true pour générer des caractères alphabétiques majuscules, false sinon (false par défaut)
 	 * @param bool $lowercaseEnabled true pour générer des caractères alphabétiques minuscules, false sinon (true par défaut)
 	 * @return string la chaîne générée
@@ -1069,7 +1065,7 @@ class Str
 			$caractereAlphabetique = $listeLettres[mt_rand(0, $nbLettres-1)];
 
 			if ($lowercaseEnabled && $uppercaseEnabled) {
-				if (rand(0, 1) === 1) {
+				if (mt_rand(0, 1) === 1) {
 					$caractereAlphabetique = strtoupper($caractereAlphabetique);
 				}
 			}
@@ -1084,8 +1080,8 @@ class Str
 	}
 
 	/**
-	 * Génère une chaîne de caractères avec un certains nombre de chiffres.
-	 * @param int $nbChar le nombre de caractères de la chaîne a générer
+	 * Génère une chaîne de caractères avec un certain nombre de chiffres.
+	 * @param int $nbChar le nombre de caractères de la chaîne à générer
 	 * @param bool $startWith0 true pour que la chaîne ne commence pas par le chiffre 0, false pour commencer par n'importe quel chiffre (false par défaut)
 	 * @return string la chaîne générée
 	 */
@@ -1111,7 +1107,7 @@ class Str
 
 	/**
 	 * Génère une chaîne de caractères alphabétiques et numériques ()
-	 * @param int $nbChar le nombre de caractères de la chaîne a générer
+	 * @param int $nbChar le nombre de caractères de la chaîne à générer
 	 * @param bool $uppercaseEnabled true pour générer des caractères alphabétiques majuscules, false sinon (false par défaut)
 	 * @param bool $lowercaseEnabled true pour générer des caractères alphabétiques minuscules, false sinon (true par défaut)
 	 * @return string la chaîne générée
@@ -1135,7 +1131,7 @@ class Str
 				}
 
 				$caractereAlphanumerique = null;
-				$typeCaractere = rand(1, $nbTypeCaractere);
+				$typeCaractere = mt_rand(1, $nbTypeCaractere);
 				switch ($typeCaractere) {
 					case 1 :
 						$caractereAlphanumerique = self::getRandomNumericString(1);
@@ -1156,7 +1152,7 @@ class Str
 				$suiteCaractereAlphanumerique .= $caractereAlphanumerique;
 			}
 		}
-		// Tant que la chaîne générée ne contient que des lettres ou que des chiffres, on recommence, car on doit retourner une chaîne comprenant à la fois des lettres et des chiffres
+		// Tant que la chaîne générée ne contient que des lettres ou que des chiffres, on recommence, car on doit retourner une chaîne comprenant à la fois des lettres et des chiffres.
 		while ($nbTypeCaractere > 1 && (ctype_digit($suiteCaractereAlphanumerique) || strpbrk($suiteCaractereAlphanumerique, self::CHIFFRES) === false));
 
 		return $suiteCaractereAlphanumerique;

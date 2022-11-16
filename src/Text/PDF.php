@@ -199,7 +199,7 @@ class PDF
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($newPdfPath);
 
 		// Vérification que tous les fichiers existent bien
-		if ($profondeur == 0) {
+		if ($profondeur === 0) {
 			foreach ($listPdfPath as $pdfPath) {
 				if (!file_exists($pdfPath)) {
 					$this->logger->error('Le fichier PDF "'.$pdfPath.'" à intégrer n\'existe pas.');

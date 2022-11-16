@@ -82,7 +82,7 @@ class Name
 	 * @param int|null $civility
 	 * @param string|null $firstName
 	 * @param string|null $lastName
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getFormattedName(?int $civility, ?string $firstName, ?string $lastName): ?string
 	{

@@ -341,9 +341,9 @@ class Image
 	 * @param string $cheminImage Le chemin vers l'image à redimensionner
 	 * @param int $maxWidth maximum width of final image in pixels, 0 pour la même largeur que l'original (false par défaut)
 	 * @param int $maxHeight maximum height of final image in pixels, 0 pour la même hauteur que l'original (false par défaut)
-	 * @param string $color background hex color for filling transparent PNGs, without # (default null)
-	 * @param int $quality quality of output image, between 0 to 100 (default null)
-	 * @param string $ratio ratio of width to height to crop final image (e.g. 1:1 or 3:2), false pour ne pas faire de recadrage (false par défaut)
+	 * @param string|null $color background hex color for filling transparent PNGs, without # (default null)
+	 * @param int|null $quality quality of output image, between 0 to 100 (default null)
+	 * @param string|null $ratio ratio of width to height to crop final image (e.g. 1:1 or 3:2), false pour ne pas faire de recadrage (false par défaut)
 	 * @return bool
 	 */
 	public static function resize(string $cheminImage, int $maxWidth=0, int $maxHeight=0, ?int $quality=null, ?string $color=null, ?string $ratio=null): bool
@@ -360,7 +360,7 @@ class Image
 
 		$mime = self::getMimeType($cheminImage);
 
-		if (substr($mime, 0, 6) != 'image/') {
+		if (!str_starts_with($mime, 'image/')) {
 			//trace("Erreur : Ce format d'image n'est pas pris en charge.");
 			return false;
 		}
@@ -393,8 +393,8 @@ class Image
 		$offsetX	= 0;
 		$offsetY	= 0;
 
-		if ($ratio != false) {
-			$cropRatio = explode(':', (string) $ratio);
+		if ($ratio !== null) {
+			$cropRatio = explode(':', $ratio);
 			if (count($cropRatio) != 2) {
 				//trace("Erreur : Ratio incorrect.");
 				return false;
@@ -473,7 +473,7 @@ class Image
 		// Read in the original image
 		$src = $creationFunction($cheminImage);
 
-		if (in_array($size['mime'], array('image/gif', 'image/png'))) {
+		if (in_array($size['mime'], ['image/gif', 'image/png'])) {
 			if (!$color) {
 				// If this is a GIF or a PNG, we need to set up transparency
 				imagealphablending($dst, false);
@@ -481,7 +481,7 @@ class Image
 			}
 			else {
 				// Fill the background with the specified color for matting purposes
-				if ($color[0] == '#') {
+				if ($color[0] === '#') {
 					$color = substr($color, 1);
 				}
 

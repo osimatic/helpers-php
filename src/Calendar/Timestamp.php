@@ -43,7 +43,7 @@ class Timestamp
 	public static function getTimestampNextDayOfWeekByYearMonthDay(int $dayOfWeekInNumeric, int $year, int $month, int $day): int
 	{
 		$timestampCurrent = mktime(0, 0, 0, $month, $day, $year);
-		while (date('N', $timestampCurrent) != $dayOfWeekInNumeric) {
+		while (((int) date('N', $timestampCurrent)) !== $dayOfWeekInNumeric) {
 			$timestampCurrent += 86400;
 		}
 		return $timestampCurrent;
@@ -59,7 +59,7 @@ class Timestamp
 	public static function getTimestampPreviousDayOfWeekByYearMonthDay(int $dayOfWeekInNumeric, int $year, int $month, int $day): int
 	{
 		$timestampCurrent = mktime(0, 0, 0, $month, $day, $year);
-		while (date('N', $timestampCurrent) != $dayOfWeekInNumeric) {
+		while (((int) date('N', $timestampCurrent)) !== $dayOfWeekInNumeric) {
 			$timestampCurrent -= 86400;
 		}
 		return $timestampCurrent;

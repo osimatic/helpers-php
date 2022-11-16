@@ -58,7 +58,7 @@ class Color
 	 */
 	public static function hexColorToRgb(string $hex): ?array
 	{
-		if (substr($hex, 0, 1) === '#') {
+		if (str_starts_with($hex, '#')) {
 			$hex = substr($hex, 1);
 		}
 

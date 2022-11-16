@@ -159,7 +159,7 @@ class Number
 			return false;
 		}
 
-		if (strpos($str, '.') !== false) {
+		if (str_contains($str, '.')) {
 			return false;
 		}
 
@@ -175,17 +175,17 @@ class Number
 	private static function check($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		// négatif interdit
-		if (false === $negativeAllowed && strpos($str, '-') !== false) {
+		if (false === $negativeAllowed && str_contains($str, '-')) {
 			return false;
 		}
 
 		// positif interdit
-		if (false === $positiveAllowed && strpos($str, '-') === false) {
+		if (false === $positiveAllowed && !str_contains($str, '-')) {
 			return false;
 		}
 
 		$str = str_replace('.', '', $str);
-		if (substr($str, 0, 1) === '-') {
+		if (str_starts_with($str, '-')) {
 			$str = substr($str, 1);
 		}
 
@@ -204,7 +204,7 @@ class Number
 		}
 
 		$str = trim($str);
-		if (substr($str, 0, 1) === '+') {
+		if (str_starts_with($str, '+')) {
 			$str = substr($str, 1);
 		}
 		$str = str_replace(' ', '', $str);

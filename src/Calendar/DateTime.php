@@ -68,11 +68,11 @@ class DateTime
 
 
 	/**
-	 * @param \DateTime $dateTime
+	 * @param \DateTime|null $dateTime
 	 * @param string $dateFormatter
 	 * @param string $timeFormatter
 	 * @param string|null $locale
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter='short', string $timeFormatter='short', ?string $locale=null): ?string
 	{
@@ -84,10 +84,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
+	 * @param \DateTime|null $dateTime
 	 * @param string $dateFormatter
 	 * @param string|null $locale
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatDateFromTwig(?\DateTime $dateTime, string $dateFormatter='short', ?string $locale=null): ?string
 	{
@@ -99,10 +99,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
+	 * @param \DateTime|null $dateTime
 	 * @param string $timeFormatter
 	 * @param string|null $locale
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatTimeFromTwig(?\DateTime $dateTime, string $timeFormatter='short', ?string $locale=null): ?string
 	{
@@ -119,13 +119,13 @@ class DateTime
 	 */
 	private static function getDateTimeFormatterFromTwig(string $formatter): int
 	{
-		switch ($formatter) {
-			case 'none': return \IntlDateFormatter::NONE;
-			case 'full': return \IntlDateFormatter::FULL;
-			case 'long': return \IntlDateFormatter::LONG;
-			case 'medium': return \IntlDateFormatter::MEDIUM;
-		}
-		return \IntlDateFormatter::SHORT;
+		return match ($formatter) {
+			'none' => \IntlDateFormatter::NONE,
+			'full' => \IntlDateFormatter::FULL,
+			'long' => \IntlDateFormatter::LONG,
+			'medium' => \IntlDateFormatter::MEDIUM,
+			default => \IntlDateFormatter::SHORT,
+		};
 	}
 
 

@@ -31,7 +31,7 @@ class NameFormatter
 	 */
 	public function formatFirstName(?string $firstName, bool $ucName=true): string
 	{
-		if ($firstName != null) {
+		if ($firstName !== null) {
 			$firstName = trim($firstName);
 			if ($ucName) {
 				$firstName = self::ucname($firstName);
@@ -48,7 +48,7 @@ class NameFormatter
 	 */
 	public function formatLastName(?string $lastName, bool $upperCase=true): string
 	{
-		if ($lastName != null) {
+		if ($lastName !== null) {
 			$lastName = trim($lastName);
 			if ($upperCase) {
 				$lastName = mb_strtoupper($lastName);
@@ -81,7 +81,7 @@ class NameFormatter
 		$string = ucwords(mb_strtolower($string));
 		//$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
 		foreach (['-', '\''] as $delimiter) {
-			if (strpos($string, $delimiter) !== false) {
+			if (str_contains($string, $delimiter)) {
 				$string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
 				//$string = implode($delimiter, array_map(function($value) {
 				//	return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');

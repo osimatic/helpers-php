@@ -16,7 +16,7 @@ class FileSystem
 		// Retire les './' inutiles
 		$filePath = preg_replace('#\/\.\/#', DIRECTORY_SEPARATOR, $filePath);
 
-		$isUnc = (substr($filePath, 0, 2) === '\\\\');
+		$isUnc = (str_starts_with($filePath, '\\\\'));
 		if ($isUnc) {
 			$filePath = substr($filePath, 2);
 		}

@@ -4,7 +4,7 @@ namespace Osimatic\Helpers\Person;
 
 /**
  * Class VCard
- * Cette classes contient des fonctions relatives au fichier VCard.
+ * Cette classe contient des fonctions relatives au fichier VCard.
  * @package Osimatic\Helpers\Person
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  * @link https://en.wikipedia.org/wiki/VCard
@@ -86,11 +86,11 @@ class VCard
 
 	/**
 	 * Add name
-	 * @param string [optional] $lastName
-	 * @param string [optional] $firstName
-	 * @param string [optional] $additional
-	 * @param string [optional] $prefix
-	 * @param string [optional] $suffix
+	 * @param string $lastName [optional]
+	 * @param string $firstName [optional]
+	 * @param string $additional [optional]
+	 * @param string $prefix [optional]
+	 * @param string $suffix [optional]
 	 * @return self
 	 */
 	public function addName(
@@ -156,14 +156,14 @@ class VCard
 
 	/**
 	 * Add address
-	 * @param string [optional] $name
-	 * @param string [optional] $extended
-	 * @param string [optional] $street
-	 * @param string [optional] $city
-	 * @param string [optional] $region
-	 * @param string [optional] $zip
-	 * @param string [optional] $country
-	 * @param string [optional] $type $type may be DOM | INTL | POSTAL | PARCEL | HOME | WORK or any combination of these: e.g. "WORK,PARCEL,POSTAL"
+	 * @param string $name [optional]
+	 * @param string $extended [optional]
+	 * @param string $street [optional]
+	 * @param string $city [optional]
+	 * @param string $region [optional]
+	 * @param string $zip [optional]
+	 * @param string $country [optional]
+	 * @param string $type $type may be DOM | INTL | POSTAL | PARCEL | HOME | WORK or any combination of these: e.g. "WORK,PARCEL,POSTAL" [optional]
 	 * @return self
 	 */
 	public function addAddress(
@@ -206,7 +206,7 @@ class VCard
 	/**
 	 * Add email
 	 * @param string $email The e-mail address
-	 * @param string [optional] $type The type of the email address. $type may be PREF | WORK | HOME | INTERNET or any combination of these: e.g. "PREF,WORK"
+	 * @param string $type The type of the email address. $type may be PREF | WORK | HOME | INTERNET or any combination of these: e.g. "PREF,WORK" [optional]
 	 * @return self
 	 */
 	public function addEmail(string $email, string $type = ''): self
@@ -222,7 +222,7 @@ class VCard
 	/**
 	 * Add phone number
 	 * @param string $number
-	 * @param string [optional] $type Type may be PREF | WORK | HOME | VOICE | FAX | MSG | CELL | PAGER | BBS | CAR | MODEM | ISDN | VIDEO or any senseful combination, e.g. "PREF,WORK,VOICE"
+	 * @param string $type Type may be PREF | WORK | HOME | VOICE | FAX | MSG | CELL | PAGER | BBS | CAR | MODEM | ISDN | VIDEO or any senseful combination, e.g. "PREF,WORK,VOICE" [optional]
 	 * @return self
 	 */
 	public function addPhoneNumber(string $number, string $type = ''): self
@@ -238,7 +238,7 @@ class VCard
 	/**
 	 * Add company
 	 * @param string $organizationName
-	 * @param string [optional] $organizationUnits
+	 * @param string $organizationUnits [optional]
 	 * @return self
 	 */
 	public function addCompany(string $organizationName, string $organizationUnits=''): self
@@ -302,7 +302,7 @@ class VCard
 	/**
 	 * Add URL
 	 * @param string $url
-	 * @param string [optional] $type Type may be WORK | HOME
+	 * @param string $type Type may be WORK | HOME [optional]
 	 * @return self
 	 */
 	public function addURL(string $url, string $type = ''): self
@@ -538,7 +538,7 @@ class VCard
 	 * @param  string $separator [optional] Default separator is an underscore '_'
 	 * @return void
 	 */
-	public function setFilename($value, $overwrite = true, $separator = '_'): void
+	public function setFilename($value, bool $overwrite = true, string $separator = '_'): void
 	{
 		// recast to string if $value is array
 		if (is_array($value)) {
@@ -568,7 +568,7 @@ class VCard
 	}
 
 	/**
-	 * @param $filename
+	 * @param string $filename
 	 * @return array|null
 	 */
 	public function parseFromFile(string $filename): ?array

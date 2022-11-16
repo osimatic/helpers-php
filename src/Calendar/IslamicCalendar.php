@@ -25,7 +25,7 @@ class IslamicCalendar
 	 * @return integer Returns the current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
-	public static function getTimestamp(int $hijriYear, int $hijriMonth, int $hijriDay, int $hour = 0, int $minute = 0, int $second = 0)
+	public static function getTimestamp(int $hijriYear, int $hijriMonth, int $hijriDay, int $hour = 0, int $minute = 0, int $second = 0): int
 	{
 		return self::mktime($hour, $minute, $second, $hijriMonth, $hijriDay, $hijriYear, self::getMktimeCorrection($hijriMonth, $hijriYear));
 	}
@@ -198,7 +198,7 @@ class IslamicCalendar
 	 * @return integer Returns the current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
-	private static function mktime(int $hour, int $minute, int $second, int $hj_month, int $hj_day, int $hj_year, int $correction = 0)
+	private static function mktime(int $hour, int $minute, int $second, int $hj_month, int $hj_day, int $hj_year, int $correction = 0): int
 	{
 		[$year, $month, $day] = self::convertIslamicDateToGregorianDate($hj_year, $hj_month, $hj_day);
 

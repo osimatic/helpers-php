@@ -15,7 +15,7 @@ class SqlDate
 			$date = substr($date['date'], 0, 10);
 		}
 
-		if (strpos($date, '/') !== false) {
+		if (str_contains($date, '/')) {
 			$dateArr = explode('/', $date);
 			$date = ($dateArr[2]??null).'-'.($dateArr[1]??null).'-'.($dateArr[0]??null);
 		}
@@ -96,19 +96,19 @@ class SqlDate
 	public static function getFirstDayOfWeek(int $year, int $week): string
 	{
 		$timeStampPremierJanvier = strtotime($year . '-01-01 00:00:00');
-		$jourPremierJanvier = date('w', $timeStampPremierJanvier);
+		$jourPremierJanvier = (int) date('w', $timeStampPremierJanvier);
 
 		// recherche du N° de semaine du 1er janvier
-		$numSemainePremierJanvier = date('W', $timeStampPremierJanvier);
+		$numSemainePremierJanvier = (int) date('W', $timeStampPremierJanvier);
 
 		// nombre à ajouter en fonction du numéro précédent
-		$decallage = ($numSemainePremierJanvier == 1) ? $week - 1 : $week;
+		$decallage = ($numSemainePremierJanvier === 1) ? $week - 1 : $week;
 
 		// timestamp du jour dans la semaine recherchée
 		$timeStampDate = strtotime('+' . $decallage . ' weeks', $timeStampPremierJanvier);
 
 		// recherche du lundi de la semaine en fonction de la ligne précédente
-		return date('Y-m-d', ($jourPremierJanvier == 1) ? $timeStampDate : strtotime('last monday', $timeStampDate));
+		return date('Y-m-d', ($jourPremierJanvier === 1) ? $timeStampDate : strtotime('last monday', $timeStampDate));
 	}
 
 	/**

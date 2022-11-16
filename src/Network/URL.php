@@ -133,7 +133,7 @@ class URL
 			$scheme = 'http';
 		}
 
-		if ($withSchemeSeparator && strstr($scheme, '://') === false) {
+		if ($withSchemeSeparator && !str_contains($scheme, '://')) {
 			$scheme .= '://';
 		}
 		return $scheme;

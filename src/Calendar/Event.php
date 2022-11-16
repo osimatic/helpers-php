@@ -17,85 +17,85 @@ class Event
 	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
-	private $identifier;
+	private ?string $identifier = null;
 
 	/**
 	 * The name of the event.
 	 * @var string|null
 	 */
-	private $name;
+	private ?string $name = null;
 
 	/**
 	 * A description of the event.
 	 * @var string|null
 	 */
-	private $description;
+	private ?string $description = null;
 
 	/**
 	 * An organizer of an Event.
 	 * @var PersonInterface|null
 	 */
-	private $organizer;
+	private ?PersonInterface $organizer = null;
 
 	/**
 	 * An organizer of an Event.
 	 * @var OrganizationInterface|null
 	 */
-	private $organizingOrganization;
+	private ?OrganizationInterface $organizingOrganization = null;
 
 	/**
 	 * The start date and time of the event.
 	 * @var \DateTime|null
 	 */
-	private $startDate;
+	private ?\DateTime $startDate = null;
 
 	/**
 	 * The end date and time of the event.
 	 * @var \DateTime|null
 	 */
-	private $endDate;
+	private ?\DateTime $endDate = null;
 
 	/**
 	 * The location of for example where the event is happening, an organization is located, or where an action takes place.
 	 * @var PlaceInterface|null
 	 */
-	private $location;
+	private ?PlaceInterface $location = null;
 
 	/**
 	 * The location of for example where the event is happening, an organization is located, or where an action takes place.
 	 * @var PostalAddressInterface|null
 	 */
-	private $address;
+	private ?PostalAddressInterface $address = null;
 
 	/**
 	 * The total number of individuals that may attend an event or venue.
 	 * @var int|null
 	 */
-	private $maximumAttendeeCapacity;
+	private ?int $maximumAttendeeCapacity = null;
 
 	/**
 	 * The language of the content or performance or used in an action.
 	 * @var string|null
 	 */
-	private $inLanguage;
+	private ?string $inLanguage = null;
 
 	/**
 	 * URL of the event.
 	 * @var string
 	 */
-	private $url;
+	private string $url = '';
 
 	/**
 	 * An eventStatus of an event represents its status; particularly useful when an event is cancelled or rescheduled.
 	 * @var string|null
 	 */
-	private $eventStatus;
+	private ?string $eventStatus = null;
 
 	/**
 	 * A flag to signal that the item, event, or place is accessible for free.
 	 * @var boolean
 	 */
-	private $isAccessibleForFree=false;
+	private bool $isAccessibleForFree=false;
 
 
 
