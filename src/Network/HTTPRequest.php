@@ -27,7 +27,7 @@ class HTTPRequest
 	 * @link http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 * @return mixed la réponse renvoyée par la requête après son exécution
 	 */
-	public static function execute($url, string $method='GET', array $queryParameters=[], array $headers=[], array $options=[])
+	public static function execute(string $url, string $method='GET', array $queryParameters=[], array $headers=[], array $options=[])
 	{
 		//trace('URL : '.$url);
 
@@ -35,12 +35,12 @@ class HTTPRequest
 
 		// Configuration de l'URL
 		if ($method === 'GET') {
-			$url .= (strstr($url, '?') === false ? '?' : '') . '&' . http_build_query($queryParameters);
+			$url .= (!str_contains($url, '?') ? '?' : '') . '&' . http_build_query($queryParameters);
 		}
 		curl_setopt($ch, CURLOPT_URL, $url);
 
 		// Configuration du protocole
-		$ssl = strpos($url, 'https://') === 0;
+		$ssl = str_starts_with($url, 'https://');
 		if ($ssl) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
@@ -214,7 +214,7 @@ class HTTPRequest
 	 * @param array $options options
 	 * @return boolean
 	 */
-	public static function check($url, array $headers=[], array $options=[]): bool
+	public static function check(string $url, array $headers=[], array $options=[]): bool
 	{
 		//trace('URL : '.$url);
 
@@ -223,7 +223,7 @@ class HTTPRequest
 		curl_setopt($ch, CURLOPT_URL, $url);
 
 		// Configuration du protocole
-		if (strpos($url, 'https://') === 0) {
+		if (str_starts_with($url, 'https://')) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 		}
 
@@ -268,6 +268,41 @@ class HTTPRequest
 			return false;
 		}
 		return in_array($codeHttp, [200, 301, 302], true);
+	}
+
+	public static function parseRaw(array &$data): void
+	{
+		// read incoming data
+		$input = file_get_contents('php://input');
+
+		// grab multipart boundary from content type header
+		preg_match('/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches);
+		$boundary = $matches[1];
+
+		// split content by boundary and get rid of last -- element
+		$a_blocks = preg_split("/-+$boundary/", $input);
+		array_pop($a_blocks);
+
+		// loop data blocks
+		foreach ($a_blocks as $id => $block) {
+			if (empty($block)) {
+				continue;
+			}
+
+			// you'll have to var_dump $block to understand this and maybe replace \n or \r with a visible char
+
+			// parse uploaded files
+			if (strpos($block, 'application/octet-stream') !== false) {
+				// match "name", then everything after "stream" (optional) except for prepending newlines
+				preg_match('/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $block, $matches);
+			}
+			// parse all other fields
+			else {
+				// match "name" and optional value in between newline sequences
+				preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $block, $matches);
+			}
+			$data[$matches[1]] = $matches[2];
+		}
 	}
 
 }
