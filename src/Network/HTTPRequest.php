@@ -270,19 +270,37 @@ class HTTPRequest
 		return in_array($codeHttp, [200, 301, 302], true);
 	}
 
-	public static function parseRaw(array &$data): void
+	/**
+	 * Parse raw HTTP request data
+	 * Pass in $data as an array. This is done by reference to avoid copying the data around too much.
+	 * Any files found in the request will be added by their field name to the $data['files'] array.
+	 * @link http://stackoverflow.com/questions/5483851/manually-parse-raw-http-data-with-php/5488449#5488449
+	 * @link http://www.chlab.ch/blog/archives/webdevelopment/manually-parse-raw-http-data-php
+	 * @param array $data Empty array to fill with data
+	 * @return array Associative array of request data
+	 */
+	public static function parseRawHttpRequestData(array $data = []): array
 	{
 		// read incoming data
 		$input = file_get_contents('php://input');
 
 		// grab multipart boundary from content type header
 		preg_match('/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches);
+
+		// content type is probably regular form-encoded
+		if (!count($matches)) {
+			// we expect regular puts to containt a query string containing data
+			parse_str(urldecode($input), $data);
+			return $data;
+		}
+
 		$boundary = $matches[1];
 
 		// split content by boundary and get rid of last -- element
 		$a_blocks = preg_split("/-+$boundary/", $input);
 		array_pop($a_blocks);
 
+		$keyValueStr = '';
 		// loop data blocks
 		foreach ($a_blocks as $id => $block) {
 			if (empty($block)) {
@@ -292,17 +310,22 @@ class HTTPRequest
 			// you'll have to var_dump $block to understand this and maybe replace \n or \r with a visible char
 
 			// parse uploaded files
-			if (strpos($block, 'application/octet-stream') !== false) {
+			if (str_contains($block, 'application/octet-stream')) {
 				// match "name", then everything after "stream" (optional) except for prepending newlines
 				preg_match('/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s', $block, $matches);
+				$data['files'][$matches[1]] = $matches[2];
 			}
 			// parse all other fields
 			else {
 				// match "name" and optional value in between newline sequences
 				preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $block, $matches);
+				if (count($matches)) {
+					$keyValueStr .= $matches[1]."=".$matches[2]."&";
+				}
 			}
-			$data[$matches[1]] = $matches[2];
 		}
+		$keyValueArr = [];
+		parse_str($keyValueStr, $keyValueArr);
+		return array_merge($data, $keyValueArr);
 	}
-
 }
