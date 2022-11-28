@@ -11,7 +11,7 @@ class Arr
 	// ========== Comptage ==========
 
 	/**
-	 * Additionne le nombre de valeurs de chaque tableaux passés en paramètre
+	 * Additionne le nombre de valeurs de chaque tableau passé en paramètre
 	 * @param array $array1
 	 * @param array $array2 etc.
 	 * @return int
@@ -63,16 +63,11 @@ class Arr
 	 * @param array $array
 	 * @param array $listKeys
 	 * @param mixed $default
-	 * @return mixed depends on what the array contains
+	 * @return array
 	 */
-	public static function getListValuesByListKeys(array $array, array $listKeys, $default=null)
+	public static function getListValuesByListKeys(array $array, array $listKeys, mixed $default=null): array
 	{
-		$return = array();
-
-		if (!is_array($listKeys)) {
-			$listKeys = array($listKeys);
-		}
-
+		$return = [];
 		foreach ($listKeys as $key) {
 			if (isset($array[$key])) {
 				$return[$key] = $array[$key];
@@ -119,12 +114,8 @@ class Arr
 	 * @param array $array
 	 * @return mixed depends on what the array contains
 	 */
-	public static function getRandomValue(array $array)
+	public static function getRandomValue(array $array): mixed
 	{
-		if (!is_array($array)) {
-			return $array;
-		}
-
 		$values = array_values($array);
 		return $values[mt_rand(0, count($values) - 1)];
 		// return $array[array_rand($array)];
@@ -134,12 +125,8 @@ class Arr
 	 * @param array $array
 	 * @return mixed depends on what the array contains
 	 */
-	public static function getRandomKey(array $array)
+	public static function getRandomKey(array $array): mixed
 	{
-		if (!is_array($array)) {
-			return $array;
-		}
-
 		$keys = array_keys($array);
 		return $keys[mt_rand(0, count($keys) - 1)];
 	}
@@ -151,9 +138,9 @@ class Arr
 	 * @param bool $strict Optionnel. S'il vaut TRUE alors in_array() vérifiera aussi que le type du paramètre needle correspond au type de la valeur trouvée dans haystack.
 	 * @return bool Retourne TRUE si needle est trouvé dans le tableau, FALSE sinon.
 	 */
-	public static function in_array_i($needle, array $haystack, bool $strict=false): bool
+	public static function in_array_i(mixed $needle, array $haystack, bool $strict=false): bool
 	{
-		return in_array(strtolower($needle), array_map('strtolower', $haystack), $strict);
+		return in_array(strtolower($needle), array_map('mb_strtolower', $haystack), $strict);
 	}
 
 	/**
@@ -174,7 +161,7 @@ class Arr
 	 * @param int $nbValues
 	 * @return array
 	 */
-	public static function getArrayWithSameValues($value, int $nbValues): array
+	public static function getArrayWithSameValues(mixed $value, int $nbValues): array
 	{
 		$array = [];
 		for ($nb=1; $nb<=$nbValues; $nb++) {
@@ -336,7 +323,7 @@ class Arr
 				$arrayMapped[$key] = self::mapRecursive($subArray, $callable);
 			}
 			else {
-				$arrayMapped[$key] = call_user_func($callable, $subArray);
+				$arrayMapped[$key] = $callable($subArray);
 			}
 		}
 		return $arrayMapped;
@@ -376,7 +363,7 @@ class Arr
 	 * @param bool $caseSensitive
 	 * @return int
 	 */
-	public static function compareValue($val1, $val2, bool $naturalOrder=false, bool $caseSensitive=false): int {
+	public static function compareValue(mixed $val1, mixed $val2, bool $naturalOrder=false, bool $caseSensitive=false): int {
 		if (is_numeric($val1) && is_numeric($val2)) {
 			return $val1 <=> $val2;
 		}
