@@ -76,7 +76,7 @@ class Name
 	{
 		return (new NameFormatter())->format(
 			(new self())
-				->setTitle($gender)
+				->setGender($gender)
 				->setFirstName($firstName)
 				->setLastName($lastName)
 		);
@@ -201,10 +201,13 @@ class Name
 
 	/**
 	 * @param Gender $gender
+	 * @return Name
 	 */
-	public function setGender(Gender $gender): void
+	public function setGender(Gender $gender): self
 	{
 		$this->gender = $gender;
+		
+		return $this;
 	}
 
 	/**
