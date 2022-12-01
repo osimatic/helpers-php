@@ -8,13 +8,6 @@ namespace Osimatic\Helpers\Messaging;
  */
 class PhoneNumber
 {
-	public const TYPE_MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE;
-	public const TYPE_FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE;
-	public const TYPE_PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE;
-	public const TYPE_TOLL_FREE 	= \libphonenumber\PhoneNumberType::TOLL_FREE;
-	public const TYPE_SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST;
-	public const TYPE_UNKNOWN 		= \libphonenumber\PhoneNumberType::UNKNOWN;
-
 	/**
 	 * @param string|null $phoneNumber
 	 * @param string $defaultCountry
@@ -137,9 +130,9 @@ class PhoneNumber
 	 * gets the type of the number based on the number itself; able to distinguish Fixed-line, Mobile, Toll-free, Premium Rate, Shared Cost, VoIP, Personal Numbers, UAN, Pager, and Voicemail (whenever feasible).
 	 * @param string|null $phoneNumber
 	 * @param string $defaultCountry
-	 * @return null|int
+	 * @return PhoneNumberType|null
 	 */
-	public static function getType(?string $phoneNumber, string $defaultCountry='FR'): ?int
+	public static function getType(?string $phoneNumber, string $defaultCountry='FR'): ?PhoneNumberType
 	{
 		if (null === $phoneNumber) {
 			return null;
@@ -147,7 +140,7 @@ class PhoneNumber
 
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj);
+				return PhoneNumberType::tryFrom(\libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj));
 			}
 		}
 		catch (\libphonenumber\NumberParseException $e) { }
@@ -161,7 +154,7 @@ class PhoneNumber
 	 */
 	public static function isMobile(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::MOBILE;
+		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::MOBILE;
 	}
 
 	/**
@@ -171,7 +164,7 @@ class PhoneNumber
 	 */
 	public static function isFixedLine(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::FIXED_LINE;
+		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::FIXED_LINE;
 	}
 
 	/**
@@ -181,7 +174,7 @@ class PhoneNumber
 	 */
 	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::PREMIUM_RATE;
 	}
 
 	/**
@@ -191,7 +184,7 @@ class PhoneNumber
 	 */
 	public static function isTollFree(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
-		return self::getType($phoneNumber, $defaultCountry) === \libphonenumber\PhoneNumberType::TOLL_FREE;
+		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::TOLL_FREE;
 	}
 
 	/**
@@ -281,4 +274,17 @@ class PhoneNumber
 		return $phoneNumber;
 	}
 
+
+	/** @deprecated use enum PhoneNumberType instead */
+	public const TYPE_MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE;
+	/** @deprecated use enum PhoneNumberType instead */
+	public const TYPE_FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE;
+	/** @deprecated use enum PhoneNumberType instead */
+	public const TYPE_PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+	/** @deprecated use enum PhoneNumberType instead */
+	public const TYPE_TOLL_FREE 	= \libphonenumber\PhoneNumberType::TOLL_FREE;
+	/** @deprecated use enum PhoneNumberType instead */
+	public const TYPE_SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST;
+	/** @deprecated use enum PhoneNumberType instead */
+	public const TYPE_UNKNOWN 		= \libphonenumber\PhoneNumberType::UNKNOWN;
 }
