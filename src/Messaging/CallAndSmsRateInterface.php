@@ -2,17 +2,19 @@
 
 namespace Osimatic\Helpers\Messaging;
 
+use Osimatic\Helpers\Location\Continent;
+
 interface CallAndSmsRateInterface
 {
 	/**
-	 * @return int
+	 * @return Continent
 	 */
-	public function getContinent(): int;
+	public function getContinent(): Continent;
 
 	/**
-	 * @param int $continent
+	 * @param Continent $continent
 	 */
-	public function setContinent(int $continent): void;
+	public function setContinent(Continent $continent): void;
 
 	/**
 	 * @return string
