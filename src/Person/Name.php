@@ -76,7 +76,7 @@ class Name
 	{
 		return (new NameFormatter())->format(
 			(new self())
-				->setGender($gender)
+				->setGender($gender ?? Gender::UNKNOWN)
 				->setFirstName($firstName)
 				->setLastName($lastName)
 		);
@@ -206,7 +206,7 @@ class Name
 	public function setGender(Gender $gender): self
 	{
 		$this->gender = $gender;
-		
+
 		return $this;
 	}
 
