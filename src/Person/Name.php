@@ -8,21 +8,9 @@ namespace Osimatic\Helpers\Person;
  */
 class Name
 {
-	/**
-	 * @var int|null
-	 */
-	private $title = 0;
-
-	/**
-	 * @var string|null
-	 */
-	private $firstName;
-
-	/**
-	 * @var string|null
-	 */
-	private $lastName;
-
+	private Gender $gender = Gender::UNKNOWN;
+	private ?string $firstName = null;
+	private ?string $lastName = null;
 
 	// ========== Vérification ==========
 
@@ -79,16 +67,16 @@ class Name
 	// ========== Affichage ==========
 
 	/**
-	 * @param int|null $civility
+	 * @param Gender|null $gender
 	 * @param string|null $firstName
 	 * @param string|null $lastName
 	 * @return string|null
 	 */
-	public static function getFormattedName(?int $civility, ?string $firstName, ?string $lastName): ?string
+	public static function getFormattedName(?Gender $gender, ?string $firstName, ?string $lastName): ?string
 	{
 		return (new NameFormatter())->format(
 			(new self())
-				->setTitle($civility)
+				->setTitle($gender)
 				->setFirstName($firstName)
 				->setLastName($lastName)
 		);
@@ -204,22 +192,19 @@ class Name
 	// ========== Get / Set ==========
 
 	/**
-	 * @return int|null
+	 * @return Gender
 	 */
-	public function getTitle(): ?int
+	public function getGender(): Gender
 	{
-		return $this->title;
+		return $this->gender;
 	}
 
 	/**
-	 * @param int|null $title
-	 * @return Name
+	 * @param Gender $gender
 	 */
-	public function setTitle(?int $title): self
+	public function setGender(Gender $gender): void
 	{
-		$this->title = $title;
-
-		return $this;
+		$this->gender = $gender;
 	}
 
 	/**
@@ -294,6 +279,25 @@ class Name
 	public function setFamilyName(?string $lastName): self
 	{
 		$this->lastName = $lastName;
+
+		return $this;
+	}
+
+	// ---------- deprecated ----------
+
+	/** @deprecated */
+	private $title = 0;
+
+	/** @deprecated */
+	public function getTitle(): ?int
+	{
+		return $this->title;
+	}
+
+	/** @deprecated */
+	public function setTitle(?int $title): self
+	{
+		$this->title = $title;
 
 		return $this;
 	}
