@@ -4,14 +4,6 @@ namespace Osimatic\Helpers\Bank;
 
 class BankCard
 {
-	public const CARD_TYPE_AMERICAN_EXPRESS = 'AMERICAN_EXPRESS';
-	public const CARD_TYPE_VISA = 'VISA';
-	public const CARD_TYPE_DINNER_CLUB = 'DINNER_CLUB';
-	public const CARD_TYPE_DISCOVER_NETWORK = 'DISCOVER_NETWORK';
-	public const CARD_TYPE_MASTER_CARD = 'MASTER_CARD';
-	public const CARD_TYPE_GOOGLE_WALLET = 'GOOGLE_WALLET';
-	public const CARD_TYPE_SKRILL = 'SKRILL';
-
 	/**
 	 * @param string $cardNumber
 	 * @return bool
@@ -51,6 +43,50 @@ class BankCard
 	}
 
 	/**
+	 * @deprecated
+	 * @param string $cardNumber
+	 * @return BankCardType|null
+	 */
+	public static function getType(string $cardNumber): ?BankCardType
+	{
+		if (((int)substr($cardNumber, 0, 1)) === 4) {
+			return BankCardType::VISA;
+		}
+		if (((int)substr($cardNumber, 0, 1)) === 5) {
+			return BankCardType::MASTER_CARD;
+		}
+		if (((int)substr($cardNumber, 0, 1)) === 6) {
+			return BankCardType::DISCOVER_NETWORK;
+		}
+		if (((int)substr($cardNumber, 0, 2)) === 37) {
+			return BankCardType::AMERICAN_EXPRESS;
+		}
+		if (((int)substr($cardNumber, 0, 2)) === 38) {
+			return BankCardType::DINNER_CLUB;
+		}
+		return null;
+	}
+
+
+	// ---------- deprecated ----------
+
+	/** @deprecated */
+	public const CARD_TYPE_AMERICAN_EXPRESS = 'AMERICAN_EXPRESS';
+	/** @deprecated */
+	public const CARD_TYPE_VISA = 'VISA';
+	/** @deprecated */
+	public const CARD_TYPE_DINNER_CLUB = 'DINNER_CLUB';
+	/** @deprecated */
+	public const CARD_TYPE_DISCOVER_NETWORK = 'DISCOVER_NETWORK';
+	/** @deprecated */
+	public const CARD_TYPE_MASTER_CARD = 'MASTER_CARD';
+	/** @deprecated */
+	public const CARD_TYPE_GOOGLE_WALLET = 'GOOGLE_WALLET';
+	/** @deprecated */
+	public const CARD_TYPE_SKRILL = 'SKRILL';
+
+	/**
+	 * @deprecated
 	 * @param string $cardNumber
 	 * @return string|null
 	 */
