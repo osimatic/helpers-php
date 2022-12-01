@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\ArrayList;
 
+use App\Entity\ClockingMode;
+
 /**
  * Class SimpleArray
  * @package Osimatic\Helpers\ArrayList
@@ -153,6 +155,18 @@ class Arr
 	{
 		return count(array_intersect(array_flip($arrayNeedle), $haystack)) > 0;
 	}
+
+	/**
+	 * @param array $values
+	 * @param string $enumClassName
+	 * @return array
+	 */
+	public static function parseEnumList(array $values, string $enumClassName): array
+	{
+		return array_values(array_filter(array_map(static fn(mixed $value) => call_user_func([$enumClassName, 'tryFrom'], $value), $values)));
+	}
+
+
 
 	// ========== Génération de valeur ==========
 
