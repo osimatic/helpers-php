@@ -246,11 +246,12 @@ class Duration
 
 		$mode = mb_strtolower(!empty($mode)?$mode:'close');
 
-		$hours = (int) floor($duration / 3600);
-		$duration -= $hours * 3600;
-		$minutes = (int) floor($duration / 60);
-		$duration -= $minutes * 60;
-		$seconds = $duration % 60;
+		$remainingDuration = $duration;
+		$hours = (int) floor($remainingDuration / 3600);
+		$remainingDuration -= $hours * 3600;
+		$minutes = (int) floor($remainingDuration / 60);
+		$remainingDuration -= $minutes * 60;
+		$seconds = $remainingDuration % 60;
 
 		$minutesRemaining = $minutes % $precision;
 		$minutesRemainingAndSecondsAsCentieme = $minutesRemaining + $seconds/60;
