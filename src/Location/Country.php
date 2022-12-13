@@ -221,6 +221,22 @@ class Country
 	// ========== Country code ==========
 
 	/**
+	 * Retourne code pays ISO ou null si non trouvé
+	 * @param string|null $country
+	 * @return string|null
+	 */
+	public static function parse(?string $country): ?string
+	{
+		if (self::checkCountryCode($country)) {
+			return $country;
+		}
+		if (null !== ($countryCode = self::getCountryCodeFromCountryName($country))) {
+			return $countryCode;
+		}
+		return null;
+	}
+
+	/**
 	 * @param string|null $countryIsoCode
 	 * @return bool
 	 */
