@@ -29,14 +29,14 @@ class Time
 	}
 
 	/**
-	 * @param mixed $enteredTime
+	 * @param string|null $enteredTime
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
 	 * @param int $secondPos
 	 * @return bool
 	 */
-	public static function checkValue($enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
+	public static function checkValue(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
 		return null !== self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos);
 	}
@@ -44,14 +44,14 @@ class Time
 	// ========== Parse ==========
 
 	/**
-	 * @param mixed $enteredTime
+	 * @param string|null $enteredTime
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
 	 * @param int $secondPos
 	 * @return string|null
 	 */
-	public static function parseToSqlTime($enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?string
+	public static function parseToSqlTime(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?string
 	{
 		if (null === ($timeArray = self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos))) {
 			return null;
@@ -61,14 +61,35 @@ class Time
 	}
 
 	/**
-	 * @param mixed $enteredTime
+	 * @param string|null $enteredTime
+	 * @param string $separator
+	 * @param int $hourPos
+	 * @param int $minutePos
+	 * @param int $secondPos
+	 * @return \DateTime|null
+	 */
+	public static function parse(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?\DateTime
+	{
+		if (null === ($sqlTime = self::parseToSqlTime($enteredTime, $separator, $hourPos, $minutePos, $secondPos))) {
+			return null;
+		}
+
+		try {
+			return new \DateTime(date('Y-m-d') . ' ' . $sqlTime);
+		} catch (\Exception $e) {
+		}
+		return null;
+	}
+
+	/**
+	 * @param string|null $enteredTime
 	 * @param string $separator
 	 * @param int $hourPos
 	 * @param int $minutePos
 	 * @param int $secondPos
 	 * @return array|null
 	 */
-	public static function _parse($enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?array
+	public static function _parse(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?array
 	{
 		$timeArray = explode($separator, $enteredTime);
 		--$hourPos;
