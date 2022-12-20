@@ -6,7 +6,7 @@ enum PaymentMethod: string
 {
 	case CREDIT_CARD 	= 'CREDIT_CARD';
 	case TRANSFER 		= 'TRANSFER';
-	case CHEQUE 		= 'CHECK';
+	case CHEQUE 		= 'CHEQUE';
 	case PAYPAL 		= 'PAYPAL';
 	case DIRECT_DEBIT 	= 'DIRECT_DEBIT'; // Prélèvement SEPA
 
