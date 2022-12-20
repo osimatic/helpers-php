@@ -85,9 +85,9 @@ class Invoice implements InvoiceInterface
 	protected ?\DateTime $paymentDate = null;
 
 	/**
-	 * @var string|null
+	 * @var PaymentMethod|null
 	 */
-	protected ?string $paymentMethod = null;
+	protected ?PaymentMethod $paymentMethod = null;
 
 	/**
 	 * @var string|null
@@ -344,17 +344,17 @@ class Invoice implements InvoiceInterface
 	}
 
 	/**
-	 * @return string|null
+	 * @return PaymentMethod|null
 	 */
-	public function getPaymentMethod(): ?string
+	public function getPaymentMethod(): ?PaymentMethod
 	{
 		return $this->paymentMethod;
 	}
 
 	/**
-	 * @param string|null $paymentMethod
+	 * @param PaymentMethod|null $paymentMethod
 	 */
-	public function setPaymentMethod(?string $paymentMethod): void
+	public function setPaymentMethod(?PaymentMethod $paymentMethod): void
 	{
 		$this->paymentMethod = $paymentMethod;
 	}

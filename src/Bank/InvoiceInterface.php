@@ -160,14 +160,14 @@ interface InvoiceInterface
 	public function setPaymentDate(?\DateTime $paymentDate): void;
 
 	/**
-	 * @return string|null
+	 * @return PaymentMethod|null
 	 */
-	public function getPaymentMethod(): ?string;
+	public function getPaymentMethod(): ?PaymentMethod;
 
 	/**
-	 * @param string|null $paymentMethod
+	 * @param PaymentMethod|null $paymentMethod
 	 */
-	public function setPaymentMethod(?string $paymentMethod): void;
+	public function setPaymentMethod(?PaymentMethod $paymentMethod): void;
 
 	/**
 	 * @return string|null
