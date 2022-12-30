@@ -77,7 +77,27 @@ class PayBoxResponse
 	 */
 	private ?int $_3DSecureVersion = null;
 
-	public static function getFromRequest(array $request): PayBoxResponse {
+	public static function getFromHttpRequest(\Symfony\Component\HttpFoundation\Request $request): PayBoxResponse
+	{
+		return self::getFromRequest([
+			'ref' => $request->get('ref'),
+			'response_code' => $request->get('response_code'),
+			'call_nb' => $request->get('call_nb'),
+			'transact_nb' => $request->get('transact_nb'),
+			'authorizt_nb' => $request->get('authorizt_nb'),
+			'card_ref' => $request->get('card_ref'),
+			'bc_type' => $request->get('bc_type'),
+			'bc_ldigit' => $request->get('bc_ldigit'),
+			'bin6' => $request->get('bin6'),
+			'bc_expdate' => $request->get('bc_expdate'),
+			'3ds' => $request->get('3ds'),
+			'3ds_auth' => $request->get('3ds_auth'),
+			'3ds_v' => $request->get('3ds_v'),
+		]);
+	}
+
+	public static function getFromRequest(array $request): PayBoxResponse
+	{
 		$payBoxResponse = new PayBoxResponse();
 		$payBoxResponse->setReference(!empty($request['ref']) ? urldecode($request['ref']) : null);
 		$payBoxResponse->setResponseCode(!empty($request['response_code']) ? urldecode($request['response_code']) : null);
