@@ -281,26 +281,26 @@ class DatePeriod
 	}
 
 	/**
-	 * @param string $groupBy
+	 * @param PeriodType $periodType
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
-	 * @return array
+	 * @return array|null
 	 */
-	public static function getListOfPeriod(string $groupBy, \DateTime $periodStart, \DateTime $periodEnd): ?array
+	public static function getListOfPeriod(PeriodType $periodType, \DateTime $periodStart, \DateTime $periodEnd): ?array
 	{
-		if ($groupBy === 'hour') {
+		if (PeriodType::HOUR === $periodType) {
 			return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
 		}
-		if ($groupBy === 'day_of_month') {
+		if (PeriodType::DAY_OF_MONTH === $periodType) {
 			return self::getListOfDaysOfTheMonth($periodStart, $periodEnd, null, 'Y-m-d');
 		}
-		if ($groupBy === 'week') {
+		if (PeriodType::WEEK === $periodType) {
 			return self::getListOfWeeks($periodStart, $periodEnd, 'Y-W');
 		}
-		if ($groupBy === 'month') {
+		if (PeriodType::MONTH === $periodType) {
 			return self::getListOfMonths($periodStart, $periodEnd, 'Y-n');
 		}
-		if ($groupBy === 'day_of_week') {
+		if (PeriodType::DAY_OF_WEEK === $periodType) {
 			return ['1', '2', '3', '4', '5', '6', '7'];
 		}
 

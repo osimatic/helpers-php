@@ -2,3 +2,9 @@
 Version 15/06/2022 :
 - Bank\Accounting::generateExport() -> Bank\Accounting::generateFile() (tableau de AccountTransaction à la place de tableau de tableau)
 - Media\Image::getTimePhoto() -> Media\Image::getPhotoTimestamp()
+
+Version 15/12/2022 :
+- Bank\InvoiceInterface::getPaymentMethod() -> type Bank\PaymentMethod au lieu de string (idem pour setPaymentMethod())
+
+Version 04/01/2023 :
+- Calendar\DatePeriod::getListOfPeriod() -> 1er param de type Calendar\PeriodType au lieu de string
