@@ -163,7 +163,17 @@ class Arr
 	 */
 	public static function parseEnumList(array $values, string $enumClassName): array
 	{
-		return array_values(array_filter(array_map(static fn(mixed $value) => call_user_func([$enumClassName, 'tryFrom'], $value), $values)));
+		return self::parseEnumListFromCallable($values, [$enumClassName, 'tryFrom']);
+	}
+
+	/**
+	 * @param array $values
+	 * @param callable $parseFunction
+	 * @return array
+	 */
+	public static function parseEnumListFromCallable(array $values, callable $parseFunction): array
+	{
+		return array_values(array_filter(array_map(static fn(mixed $value) => $parseFunction($value), $values)));
 	}
 
 
