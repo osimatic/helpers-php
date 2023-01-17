@@ -158,7 +158,8 @@ class DateTime
 			return $dateTime;
 		}
 
-		if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
+		//if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
+		if (null !== ($sqlDate = SqlDate::parse($str)) && false !== SqlDate::check($sqlDate)) {
 			return self::parseFromSqlDateTime($sqlDate.' 00:00:00');
 		}
 

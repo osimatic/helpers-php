@@ -20,7 +20,8 @@ class SqlDate
 			$date = ($dateArr[2]??null).'-'.($dateArr[1]??null).'-'.($dateArr[0]??null);
 		}
 
-		if (false === ($date = date('Y-m-d', strtotime($date.' 00:00:00')))) {
+		//if (false === ($date = date('Y-m-d', strtotime($date.' 00:00:00')))) {
+		if (false === ($timestamp = strtotime($date.' 00:00:00')) || empty($date = date('Y-m-d', $timestamp))) {
 			return null;
 		}
 		return $date;
