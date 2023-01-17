@@ -285,7 +285,7 @@ class HTTPRequest
 		$input = file_get_contents('php://input');
 
 		// grab multipart boundary from content type header
-		preg_match('/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'], $matches);
+		preg_match('/boundary=(.*)$/', $_SERVER['CONTENT_TYPE'] ?? '', $matches);
 
 		// content type is probably regular form-encoded
 		if (!count($matches)) {
