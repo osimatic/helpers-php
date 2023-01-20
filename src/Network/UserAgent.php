@@ -4,32 +4,6 @@ namespace Osimatic\Helpers\Network;
 
 class UserAgent implements \JsonSerializable
 {
-	public const DEVICE_TYPE_DESKTOP 			= 'desktop';
-	public const DEVICE_TYPE_MOBILE 			= 'mobile';
-	public const DEVICE_TYPE_PDA 				= 'pda';
-	public const DEVICE_TYPE_DECT 				= 'dect';
-	public const DEVICE_TYPE_TABLET 			= 'tablet';
-	public const DEVICE_TYPE_GAMING 			= 'gaming';
-	public const DEVICE_TYPE_EREADER 			= 'ereader';
-	public const DEVICE_TYPE_MEDIA 				= 'media';
-	public const DEVICE_TYPE_HEADSET 			= 'headset';
-	public const DEVICE_TYPE_WATCH 				= 'watch';
-	public const DEVICE_TYPE_EMULATOR 			= 'emulator';
-	public const DEVICE_TYPE_TELEVISION 		= 'television';
-	public const DEVICE_TYPE_MONITOR 			= 'monitor';
-	public const DEVICE_TYPE_CAMERA 			= 'camera';
-	public const DEVICE_TYPE_PRINTER 			= 'printer';
-	public const DEVICE_TYPE_SIGNAGE 			= 'signage';
-	public const DEVICE_TYPE_WHITEBOARD 		= 'whiteboard';
-	public const DEVICE_TYPE_DEVBOARD 			= 'devboard';
-	public const DEVICE_TYPE_INFLIGHT 			= 'inflight';
-	public const DEVICE_TYPE_APPLIANCE 			= 'appliance';
-	public const DEVICE_TYPE_GPS 				= 'gps';
-	public const DEVICE_TYPE_CAR 				= 'car';
-	public const DEVICE_TYPE_POS 				= 'pos';
-	public const DEVICE_TYPE_BOT 				= 'bot';
-	public const DEVICE_TYPE_PROJECTOR 			= 'projector';
-
 	public object $parser;
 
 	public string $readableRepresentation;
@@ -41,7 +15,7 @@ class UserAgent implements \JsonSerializable
 	public ?string $osVersion;
 
 	public bool $deviceIsMobile;
-	public ?string $deviceType;
+	public ?DeviceType $deviceType;
 	public ?string $deviceManufacturer;
 	public ?string $deviceModel;
 
@@ -63,7 +37,7 @@ class UserAgent implements \JsonSerializable
 		$this->osVersion = !empty($this->osVersion) ? $this->osVersion : null;
 
 		$this->deviceIsMobile = $result->isMobile();
-		$this->deviceType = $result->device->type;
+		$this->deviceType = DeviceType::tryFrom($result->device->type);
 		$this->deviceType = !empty($this->deviceType) ? $this->deviceType : null;
 		$this->deviceManufacturer = $result->device->getManufacturer();
 		$this->deviceManufacturer = !empty($this->deviceManufacturer) ? $this->deviceManufacturer : null;
