@@ -148,12 +148,11 @@ class CSV
 
 	/**
 	 * @param string $filePath
-	 * @param bool $utf8encode
 	 * @return bool
 	 */
-	public function save(string $filePath, bool $utf8encode=false): bool
+	public function save(string $filePath): bool
 	{
-		return self::generateFile($filePath, $this->tableHead, $this->tableBody, $this->tableFoot, $this->title, $utf8encode);
+		return self::generateFile($filePath, $this->tableHead, $this->tableBody, $this->tableFoot, $this->title);
 	}
 
 	/**
@@ -162,10 +161,9 @@ class CSV
 	 * @param array $tableBody
 	 * @param array|null $tableFoot
 	 * @param string|null $title
-	 * @param bool $utf8encode
 	 * @return bool
 	 */
-	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot, ?string $title=null, bool $utf8encode=false): bool
+	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot, ?string $title=null): bool
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
@@ -190,13 +188,9 @@ class CSV
 			$table = array_merge([[$title]], $table);
 		}
 
-		if ($utf8encode) {
-			$table = \Osimatic\Helpers\Text\Encoding::utf8Encode($table);
-		}
-
 		$str = $serializer->encode($table, 'csv');
 		$str = substr($str, strpos($str, "\n")+strlen("\n"));
-		$str = utf8_decode($str);
+		$str = chr(0xEF).chr(0xBB).chr(0xBF).$str; // UTF-8 BOM pour forcer l'UTF8 sur Excel
 		file_put_contents($filePath, $str, FILE_APPEND);
 
 		return true;
