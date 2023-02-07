@@ -156,6 +156,15 @@ class CSV
 	}
 
 	/**
+	 * @param string|int|float $value
+	 * @return string
+	 */
+	public static function forceStringForExcel(string|int|float $value): string
+	{
+		return '="'.$value.'"';
+	}
+
+	/**
 	 * @param string $filePath
 	 * @param array|null $tableHead
 	 * @param array $tableBody
@@ -167,7 +176,7 @@ class CSV
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
-		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder([CsvEncoder::DELIMITER_KEY => ';'])]);
+		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder([CsvEncoder::DELIMITER_KEY => ';', CsvEncoder::OUTPUT_UTF8_BOM_KEY => true])]);
 
 		foreach ($tableBody as $key => $line) {
 			$tableBody[$key] = array_values($line);
