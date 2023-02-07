@@ -156,12 +156,12 @@ class CSV
 	}
 
 	/**
-	 * @param string|int|float $value
+	 * @param string|int|float|null $value
 	 * @return string
 	 */
-	public static function forceStringForExcel(string|int|float $value): string
+	public static function forceStringForExcel(string|int|float|null $value): string
 	{
-		return '="'.$value.'"';
+		return null !== $value ? '="'.$value.'"' : '';
 	}
 
 	/**
