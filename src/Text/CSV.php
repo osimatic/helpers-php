@@ -161,7 +161,7 @@ class CSV
 	 */
 	public static function forceStringForExcel(string|int|float|null $value): string
 	{
-		return null !== $value ? '="'.$value.'"' : '';
+		return null !== $value && '' !== $value ? '="'.$value.'"' : '';
 	}
 
 	/**
