@@ -56,19 +56,23 @@ class DirectDebitTransaction
 			$transactionDate = self::getTransactionDateByMonth(date('Y'), date('m'));
 		}
 
+		// si date passée, le prélèvement est effectué le lendemain.
+		if ($transactionDate->format('Y-m-d') < date('Y-m-d')) {
+			$transactionDate = new \DateTime();
+			$transactionDate->modify('+1 day');
+		}
+
 		if (null === $referenceTransactions) {
 			$referenceTransactions = 'SEPA'.date('YmdH:i:s');
 		}
 
-		$nbTransactions = count($listTransactions);
-		foreach ($listTransactions as $key => $transaction) {
+		// On arrondit les montants à 2 chiffres après la virgule.
+		foreach ($listTransactions as $transaction) {
 			$transaction->setAmount(round($transaction->getAmount(), 2));
 		}
 
-		$totalAmount = 0;
-		foreach ($listTransactions as $transaction) {
-			$totalAmount += $transaction->getAmount();
-		}
+		$nbTransactions = count($listTransactions);
+		$totalAmount = array_sum(array_map(fn(DirectDebitTransactionInterface $transaction) => $transaction->getAmount(), $listTransactions));
 
 		$xml = [
 			'CstmrDrctDbtInitn' => [
