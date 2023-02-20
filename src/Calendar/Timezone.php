@@ -78,6 +78,24 @@ class Timezone
 	}
 
 	/**
+	 * @param string $countryCode
+	 * @return array
+	 */
+	public static function getListTimeZonesOfCountry(string $countryCode): array
+	{
+		return \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, $countryCode);
+	}
+
+	/**
+	 * @param string $countryCode
+	 * @return string|null
+	 */
+	public static function getTimeZoneOfCountry(string $countryCode): ?string
+	{
+		return self::getListTimeZonesOfCountry($countryCode)[0] ?? null;
+	}
+
+	/**
 	 * @param bool $withCountry
 	 * @param bool $withCities
 	 * @return string[]
