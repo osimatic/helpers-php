@@ -269,6 +269,9 @@ class Audio
 	 */
 	private static function _play(string $audioFilePath, bool $asStream=false, bool $sendResponse=true): ?Response
 	{
+		//20/02/23 : correction bug Maximum execution time
+		set_time_limit(0);
+		
 		if ($asStream) {
 			return self::_playStream($audioFilePath, $sendResponse);
 		}
