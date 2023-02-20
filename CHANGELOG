@@ -8,3 +8,6 @@ Version 15/12/2022 :
 
 Version 04/01/2023 :
 - Calendar\DatePeriod::getListOfPeriod() -> 1er param de type Calendar\PeriodType au lieu de string
+
+Version 10/02/2023 :
+- Bank\DirectDebitTransaction::getTransactionListXmlFile() -> Bank\DirectDebitTransaction::getTransactionsListXmlFile() (tableau de DirectDebitTransactionInterface à la place de tableau de tableau)

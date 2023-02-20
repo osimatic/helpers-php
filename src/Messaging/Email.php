@@ -1026,16 +1026,11 @@ class Email
 
 	/**
 	 * Sets the subject of the message.
-	 * @param string|null
-	 * @param bool $encode
+	 * @param string|null $subject
 	 * @return self
 	 */
-	public function setSubject(?string $subject, bool $encode=false): self
+	public function setSubject(?string $subject): self
 	{
-		if ($encode && strtolower($this->charSet) === 'utf-8') {
-			$subject = utf8_encode($subject);
-		}
-
 		$this->subject = self::formatText($subject);
 
 		return $this;
@@ -1134,14 +1129,10 @@ class Email
 	/**
 	 * Sets the HTML or plain text message body.
 	 * @param string|null $text
-	 * @param bool $encode
 	 * @return self
 	 */
-	public function setText(?string $text, bool $encode=false): self
+	public function setText(?string $text): self
 	{
-		if ($encode && strtolower($this->charSet) === 'utf-8') {
-			$text = utf8_encode($text);
-		}
 		$this->text = self::formatText($text);
 
 		return $this;
