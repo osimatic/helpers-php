@@ -4,7 +4,7 @@
 	"homepage": "https://github.com/osimatic/helpers-php",
 	"type": "package",
 	"require": {
-		"php": "^8.1",
+		"php": "^8.2",
 		"ext-intl": "*",
 		"ext-mbstring": "*",
 		"ext-fileinfo": "*",
@@ -27,7 +27,7 @@
 		"league/iso3166": "^4",
 		"mustache/mustache": "^2",
 		"whichbrowser/parser": "^2.1",
-		"symfony/http-foundation": "^6.1"
+		"symfony/http-foundation": "^6.2"
 	},
 	"license": "mit",
 	"authors": [
