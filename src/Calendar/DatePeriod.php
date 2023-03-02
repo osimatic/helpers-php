@@ -13,26 +13,34 @@ class DatePeriod
 	/**
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
+	 * @param bool $withTimes
 	 * @return int
 	 */
-	public static function getNbDays(\DateTime $periodStart, \DateTime $periodEnd): int
+	public static function getNbDays(\DateTime $periodStart, \DateTime $periodEnd, bool $withTimes=false): int
 	{
 		try {
-			$startDate = new \DateTime($periodStart->format('Y-m-d').' 00:00:00');
-			$endDate = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
-			return (int) $startDate->diff($endDate)->format('%r%a');
+			if (!$withTimes) {
+				$periodStart = new \DateTime($periodStart->format('Y-m-d').' 00:00:00');
+				$periodEnd = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
+			}
+			return (int) $periodStart->diff($periodEnd)->format('%r%a');
 		} catch (\Exception $e) { }
 		return 0;
 	}
 
 	/**
-	 * @param \DateTime $startDateTime
-	 * @param \DateTime $endDateTime
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
 	 * @return int
 	 */
-	public static function getNbDaysBetweenDatesAndTimes(\DateTime $startDateTime, \DateTime $endDateTime): int
+	public static function getNbRemainingDays(\DateTime $periodStart, \DateTime $periodEnd): int
 	{
-		return (int) $startDateTime->diff($endDateTime)->format('%r%a');
+		try {
+			$periodStart = new \DateTime($periodStart->format('Y-m-d').' 00:00:00');
+			$periodEnd = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
+			return (int) $periodStart->diff($periodEnd)->d;
+		} catch (\Exception $e) { }
+		return 0;
 	}
 
 	/**
@@ -153,7 +161,7 @@ class DatePeriod
 	 */
 	public static function isFullWeek(\DateTime $periodStart, \DateTime $periodEnd): bool
 	{
-		return self::getNbDaysBetweenDatesAndTimes($periodStart, $periodEnd) === 6 && ((int) $periodStart->format('N')) === 1 && ((int) $periodEnd->format('N')) === 7;
+		return self::getNbDays($periodStart, $periodEnd, true) === 6 && ((int) $periodStart->format('N')) === 1 && ((int) $periodEnd->format('N')) === 7;
 	}
 
 	/**
@@ -175,7 +183,12 @@ class DatePeriod
 	 */
 	public static function getNbFullMonths(\DateTime $periodStart, \DateTime $periodEnd): int
 	{
-		// todo
+		try {
+			$startDate = new \DateTime($periodStart->format('Y-m-d').' 00:00:00');
+			$endDate = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
+			$dateInterval = $startDate->diff($endDate);
+			return (($dateInterval->y) * 12) + ($dateInterval->m);
+		} catch (\Exception $e) { }
 		return 0;
 	}
 
@@ -355,6 +368,17 @@ class DatePeriod
 	public static function getListDaysOfMonths(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays=null): array
 	{
 		return self::getListOfDateDaysOfTheMonth($periodStart, $periodEnd, $weekDays);
+	}
+
+	/**
+	 * @deprecated
+	 * @param \DateTime $startDateTime
+	 * @param \DateTime $endDateTime
+	 * @return int
+	 */
+	public static function getNbDaysBetweenDatesAndTimes(\DateTime $startDateTime, \DateTime $endDateTime): int
+	{
+		return self::getNbDays($startDateTime, $endDateTime, true);
 	}
 
 }
