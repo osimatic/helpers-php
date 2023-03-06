@@ -381,6 +381,9 @@ class GoogleMaps
 		// caractère parfois utilisé pour séparer la rue de la ville (exemple pour une adresse de la Tunisie, coordonnées 36.7691557,10.2432981)
 		$formattedAddress = str_replace('،', ',', $formattedAddress);
 
+		// caractère parfois utilisé pour le numéro de rue (exemple pour une adresse en Réunion, coordonnées -21.0506425,55.2241411)
+		$formattedAddress = str_replace('№', 'N°', $formattedAddress);
+
 		return $formattedAddress;
 	}
 
