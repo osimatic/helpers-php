@@ -220,6 +220,10 @@ class PhoneNumber
 			return null;
 		}
 
+		if ('' === $phoneNumber || '0' === $phoneNumber || 'Anonymous' === $phoneNumber) {
+			return '';
+		}
+
 		if (!str_starts_with($phoneNumber, '+33') && !str_starts_with($phoneNumber, '0')) {
 			if (strlen($phoneNumber) > 9) {
 				return '00'.$phoneNumber;
