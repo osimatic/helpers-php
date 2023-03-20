@@ -259,6 +259,17 @@ class DatePeriod
 		return ((int) $periodStart->format('m')) === 1 && ((int) $periodStart->format('d')) === 1 && ((int) $periodEnd->format('m')) === 12 && ((int) $periodEnd->format('d')) === 31 && ((int) $periodStart->format('Y')) === ((int) $periodEnd->format('Y'));
 	}
 
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return int
+	 */
+	public static function getNbYears(\DateTime $periodStart, \DateTime $periodEnd): int
+	{
+		$nbSeconds = $periodStart->setTime(0, 0, 0)->getTimestamp() - $periodEnd->setTime(0, 0, 0)->getTimestamp();
+		return (int) floor($nbSeconds / (3600*24*365.25));
+	}
+
 
 	// ========== Interval ==========
 
