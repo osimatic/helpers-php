@@ -3,6 +3,7 @@
 namespace Osimatic\Helpers\FileSystem;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class File
 {
@@ -40,12 +41,12 @@ class File
 	}
 
 	/**
-	 * @param InputFile $uploadedFile
+	 * @param InputFile|UploadedFile $uploadedFile
 	 * @param string $filePath
 	 * @param LoggerInterface|null $logger
 	 * @return bool
 	 */
-	public static function moveUploadedFile(InputFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
+	public static function moveUploadedFile(InputFile|UploadedFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($filePath);
 
@@ -53,21 +54,18 @@ class File
 			unlink($filePath);
 		}
 
-		if (!empty($uploadedFile->getOriginalFileName())) {
+		$tmpUploadedFileName = is_a($uploadedFile, InputFile::class) ? $uploadedFile->getOriginalFileName() : $uploadedFile->getPathname();
+		if (!empty($tmpUploadedFileName)) {
 			if (false === move_uploaded_file($uploadedFile->getUploadedFilePath(), $filePath)) {
-				if (null !== $logger) {
-					$logger->error('Erreur lors du téléchargement du fichier "'.$filePath.'"');
-				}
+				$logger?->error('Erreur lors du téléchargement du fichier "' . $filePath . '"');
 				return false;
 			}
 			return true;
 		}
 
-		if (!empty($uploadedFile->getData())) {
+		if (is_a($uploadedFile, InputFile::class) && !empty($uploadedFile->getData())) {
 			if (false === file_put_contents($filePath, $uploadedFile->getData())) {
-				if (null !== $logger) {
-					$logger->error('Erreur lors de l\'écriture du fichier "'.$filePath.'" (taille données : '.strlen($uploadedFile->getData()).')');
-				}
+				$logger?->error('Erreur lors de l\'écriture du fichier "' . $filePath . '" (taille données : ' . strlen($uploadedFile->getData()) . ')');
 				return false;
 			}
 			return true;
