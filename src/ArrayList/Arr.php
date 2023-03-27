@@ -178,7 +178,7 @@ class Arr
 	 * @param \UnitEnum[] $values
 	 * @return array
 	 */
-	function enum_array_unique(array $values): array
+	public static function enum_array_unique(array $values): array
 	{
 		$unique = [];
 		foreach ($values as $value) {
