@@ -176,6 +176,20 @@ class Arr
 		return array_values(array_filter(array_map(static fn(mixed $value) => $parseFunction($value), $values)));
 	}
 
+	/**
+	 * @param \UnitEnum[] $values
+	 * @return array
+	 */
+	function enum_array_unique(array $values): array
+	{
+		$unique = [];
+		foreach ($values as $value) {
+			$key = \get_class($value) . ':' . $value->name;
+			$unique[$key] = $value;
+		}
+		return \array_values($unique);
+	}
+
 
 
 	// ========== Génération de valeur ==========
