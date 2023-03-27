@@ -2,8 +2,6 @@
 
 namespace Osimatic\Helpers\ArrayList;
 
-use App\Entity\ClockingMode;
-
 /**
  * Class SimpleArray
  * @package Osimatic\Helpers\ArrayList
