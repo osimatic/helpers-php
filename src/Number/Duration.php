@@ -282,4 +282,26 @@ class Duration
 	}
 
 
+	// ========== Vérification min/max ==========
+
+	/**
+	 * @param int $duration
+	 * @param int $durationMin
+	 * @param int $durationMax
+	 * @return bool
+	 */
+	public static function checkMinAndMax(int $duration, int $durationMin, int $durationMax): bool
+	{
+		if ($durationMin > 0 && $durationMax > 0) {
+			return ($duration >= $durationMin && $duration <= $durationMax);
+		}
+		if ($durationMin > 0) {
+			return ($duration >= $durationMin);
+		}
+		if ($durationMax > 0) {
+			return ($duration <= $durationMax);
+		}
+		return false;
+	}
+
 }
