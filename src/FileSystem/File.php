@@ -4,6 +4,7 @@ namespace Osimatic\Helpers\FileSystem;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Response;
 
 class File
 {
@@ -139,6 +140,38 @@ class File
 			//header("Content-Disposition: attachment; filename=$name");
 			readfile($filePath);
 		}
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @param string|null $transferEncoding
+	 * @return Response|null
+	 */
+	public static function getBinaryFileResponse(string $filePath, ?string $fileName=null, ?string $transferEncoding='binary'): ?Response
+	{
+		if (!file_exists($filePath)) {
+			return null;
+		}
+
+		/*$response = new BinaryFileResponse($filePath);
+		$response->headers->set('Content-Type', 'application/force-download');
+		$response->setContentDisposition(
+			ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+			basename($filePath)
+		);
+		return $response;*/
+
+		return new Response(file_get_contents($filePath), 200, [
+			'Content-Type' => 'application/force-download',
+			'Content-Disposition' => 'attachment; filename="'.($fileName ?? basename($filePath)).'"',
+			'Content-Transfer-Encoding' => $transferEncoding,
+			'Content-Description' => 'File Transfer',
+			'Content-Length' => filesize($filePath),
+			'Pragma' => 'no-cache', //header('Pragma: public');
+			'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0, public',
+			'Expires' => '0',
+		]);
 	}
 
 	/**
