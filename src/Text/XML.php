@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\Text;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class XML
 {
 
@@ -9,13 +11,21 @@ class XML
 
 	/**
 	 * @param string $filePath
+	 * @param string|null $fileName
 	 */
-	public static function output(string $filePath): void
+	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		if (!headers_sent()) {
-			header('Content-Type: text/xml');
-			readfile($filePath);
-		}
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/xml');
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
+	{
+		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/xml');
 	}
 
 	// ========== Fabrication ==========

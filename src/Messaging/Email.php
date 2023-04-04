@@ -856,7 +856,7 @@ class Email
 
 		//If a MIME type is not specified, try to work it out from the file name
 		if (empty($type)) {
-			$type = File::getMimeTypesForFile($path);
+			$type = File::getMimeTypeForFile($path);
 		}
 
 		$filename = basename($path);
@@ -893,7 +893,7 @@ class Email
 	{
 		//If a MIME type is not specified, try to work it out from the file name
 		if (empty($type)) {
-			$type = File::getMimeTypesForFile($filename);
+			$type = File::getMimeTypeForFile($filename);
 		}
 		// Append to $attachment array
 		$this->listAttachments[] = array(
@@ -939,7 +939,7 @@ class Email
 
 		//If a MIME type is not specified, try to work it out from the file name
 		if (empty($type)) {
-			$type = File::getMimeTypesForFile($path);
+			$type = File::getMimeTypeForFile($path);
 		}
 
 		$filename = basename($path);
@@ -979,7 +979,7 @@ class Email
 	{
 		//If a MIME type is not specified, try to work it out from the name
 		if (empty($type)) {
-			$type = File::getMimeTypesForFile($name);
+			$type = File::getMimeTypeForFile($name);
 		}
 
 		// Append to $attachment array

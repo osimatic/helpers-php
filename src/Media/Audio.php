@@ -229,9 +229,8 @@ class Audio
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		//$mimeType = self::getMimeTypeFromExtension(self::getExtension($filePath));
-		//\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, $mimeType);
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
+		//\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
+		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
 	}
 
 	/**

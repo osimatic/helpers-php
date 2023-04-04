@@ -2,6 +2,7 @@
 
 namespace Osimatic\Helpers\Text;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -72,6 +73,16 @@ class CSV
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
 		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/csv');
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
+	{
+		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/csv');
 	}
 
 	// ========== Ecriture ==========

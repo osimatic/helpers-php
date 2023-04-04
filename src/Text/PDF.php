@@ -4,6 +4,7 @@ namespace Osimatic\Helpers\Text;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Response;
 
 class PDF
 {
@@ -61,14 +62,9 @@ class PDF
 	 * @param string $filePath
 	 * @param string|null $fileName
 	 */
-	public static function display(string $filePath, ?string $fileName=null): void
+	public static function download(string $filePath, ?string $fileName=null): void
 	{
-		if (!headers_sent()) {
-			header('Content-Type: application/pdf');
-			header('Content-Disposition: attachment; filename="'.($fileName ?? basename($filePath)).'"');
-			header('Content-Length: '.filesize($filePath));
-			readfile($filePath);
-		}
+		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
 	}
 
 	/**
@@ -79,7 +75,17 @@ class PDF
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'application/pdf');
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
+	{
+		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'application/pdf');
 	}
 
 	// ========== Génération ==========

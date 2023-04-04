@@ -2,6 +2,8 @@
 
 namespace Osimatic\Helpers\FileSystem;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class ZipArchive
 {
 	const FILE_EXTENSION = '.zip';
@@ -32,7 +34,17 @@ class ZipArchive
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
+		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
+	{
+		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, true);
 	}
 
 	/**

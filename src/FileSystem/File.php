@@ -118,60 +118,94 @@ class File
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath
 	 * @param string|null $fileName
+	 * @param string|null $mimeType
+	 */
+	public static function output(string $filePath, ?string $fileName=null, ?string $mimeType=null): void
+	{
+		self::_output($filePath, $fileName, false, $mimeType, null, true);
+	}
+
+	/**
+	 * Envoi un fichier au navigateur du client.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param string $filePath
+	 * @param string|null $fileName
 	 * @param string|null $transferEncoding
 	 */
-	public static function output(string $filePath, ?string $fileName=null, ?string $transferEncoding='binary'): void
+	public static function download(string $filePath, ?string $fileName=null, ?string $transferEncoding=null): void
 	{
-		if (!file_exists($filePath)) {
-			return;
-		}
-
-		if (!headers_sent()) {
-			header('Content-Type: application/force-download');
-			header('Content-Disposition: attachment; filename="'.($fileName ?? basename($filePath)).'"');
-			header('Content-Transfer-Encoding: '.$transferEncoding);
-			header('Content-Description: File Transfer');
-			header('Content-Length: '.filesize($filePath));
-			header('Pragma: no-cache'); //header('Pragma: public');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0, public');
-			header('Expires: 0');
-
-			//header("Content-type: application/force-download");
-			//header("Content-Disposition: attachment; filename=$name");
-			readfile($filePath);
-		}
+		self::_output($filePath, $fileName, true, null, $transferEncoding, true);
 	}
 
 	/**
 	 * @param string $filePath
 	 * @param string|null $fileName
+	 * @param bool $forceDownload
+	 * @param string|null $mimeType
 	 * @param string|null $transferEncoding
 	 * @return Response|null
 	 */
-	public static function getBinaryFileResponse(string $filePath, ?string $fileName=null, ?string $transferEncoding='binary'): ?Response
+	public static function getHttpResponse(string $filePath, ?string $fileName=null, bool $forceDownload=true, ?string $mimeType=null, ?string $transferEncoding=null): ?Response
+	{
+		return self::_output($filePath, $fileName, $forceDownload, $mimeType, $transferEncoding, false);
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @param bool $forceDownload
+	 * @param string|null $mimeType
+	 * @param string|null $transferEncoding
+	 * @param bool $sendResponse
+	 * @return Response|null
+	 */
+	private static function _output(string $filePath, ?string $fileName=null, bool $forceDownload=true, ?string $mimeType=null, ?string $transferEncoding=null, bool $sendResponse=true): ?Response
 	{
 		if (!file_exists($filePath)) {
+			if (!$sendResponse) {
+				return new Response('file_not_found', Response::HTTP_BAD_REQUEST);
+			}
 			return null;
 		}
 
-		/*$response = new BinaryFileResponse($filePath);
-		$response->headers->set('Content-Type', 'application/force-download');
-		$response->setContentDisposition(
-			ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-			basename($filePath)
-		);
-		return $response;*/
-
-		return new Response(file_get_contents($filePath), 200, [
-			'Content-Type' => 'application/force-download',
+		$headers = [
 			'Content-Disposition' => 'attachment; filename="'.($fileName ?? basename($filePath)).'"',
-			'Content-Transfer-Encoding' => $transferEncoding,
-			'Content-Description' => 'File Transfer',
 			'Content-Length' => filesize($filePath),
-			'Pragma' => 'no-cache', //header('Pragma: public');
-			'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0, public',
-			'Expires' => '0',
-		]);
+		];
+
+		if ($forceDownload) {
+			$headers['Content-Type'] = 'application/force-download';
+			$headers['Content-Transfer-Encoding'] = $transferEncoding ?? 'binary';
+			$headers['Content-Description'] = 'File Transfer';
+			$headers['Pragma'] = 'no-cache'; //header('Pragma: public')
+			$headers['Cache-Control'] = 'must-revalidate, post-check=0, pre-check=0, public';
+			$headers['Expires'] = '0';
+		}
+		else {
+			$headers['Content-Type'] = $mimeType ?? self::getMimeTypeForFile($filePath);
+		}
+
+		if (!$sendResponse) {
+			/*$response = new BinaryFileResponse($filePath);
+			$response->headers->set('Content-Type', 'application/force-download');
+			$response->setContentDisposition(
+				ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+				basename($filePath)
+			);
+			return $response;*/
+
+			return new Response(file_get_contents($filePath), 200, $headers);
+		}
+
+		if (headers_sent()) {
+			return null;
+		}
+
+		foreach ($headers as $key => $value) {
+			header($key.': '.$value);
+		}
+		readfile($filePath);
+		exit();
 	}
 
 	/**
@@ -360,7 +394,7 @@ class File
 	 * @param string $filename A file name or full path, does not need to exist as a file
 	 * @return string
 	 */
-	public static function getMimeTypesForFile(string $filename): string
+	public static function getMimeTypeForFile(string $filename): string
 	{
 		// In case the path is a Bitly, strip any query string before getting extension
 		$qpos = strpos($filename, '?');
@@ -408,6 +442,14 @@ class File
 	}
 
 
+
+	/**
+	 * @deprecated
+	 */
+	public static function getMimeTypesForFile(string $filename): string
+	{
+		return self::getMimeTypeForFile($filename);
+	}
 
 	/**
 	 * @deprecated
