@@ -55,9 +55,9 @@ class File
 			unlink($filePath);
 		}
 
-		$tmpUploadedFileName = is_a($uploadedFile, InputFile::class) ? $uploadedFile->getOriginalFileName() : $uploadedFile->getPathname();
+		$tmpUploadedFileName = is_a($uploadedFile, InputFile::class) ? $uploadedFile->getOriginalFileName() : $filePath;
 		if (!empty($tmpUploadedFileName)) {
-			if (false === move_uploaded_file($uploadedFile->getUploadedFilePath(), $filePath)) {
+			if (false === move_uploaded_file((is_a($uploadedFile, InputFile::class) ? $uploadedFile->getUploadedFilePath() : $uploadedFile->getPathname()), $filePath)) {
 				$logger?->error('Erreur lors du téléchargement du fichier "' . $filePath . '"');
 				return false;
 			}
