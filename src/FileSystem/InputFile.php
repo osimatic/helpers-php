@@ -47,8 +47,8 @@ class InputFile
 	 */
 	public function setUploadedFileInfos(array $uploadedFileInfos): void
 	{
-		$this->uploadedFilePath = $file['tmp_name'] ?? null;
-		$this->originalFileName = $file['name'] ?? null;
+		$this->uploadedFilePath = $uploadedFileInfos['tmp_name'] ?? null;
+		$this->originalFileName = $uploadedFileInfos['name'] ?? null;
 	}
 
 	/**
