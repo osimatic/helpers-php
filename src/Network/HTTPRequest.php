@@ -188,17 +188,27 @@ class HTTPRequest
 	 * @param string $url
 	 * @param array $queryData
 	 * @param LoggerInterface|null $logger
+	 * @param array $headers
+	 * @param bool $jsonParams
+	 * 
 	 * @return ResponseInterface|null
 	 */
-	public static function post(string $url, array $queryData = [], ?LoggerInterface $logger = null): ?ResponseInterface
+	public static function post(string $url, array $queryData = [], ?LoggerInterface $logger = null, array $headers = [], bool $jsonBody = false): ?ResponseInterface
 	{
 		$logger ??= new NullLogger();
 		$client = new \GuzzleHttp\Client();
 		try {
 			$options = [
 				'http_errors' => false,
+				'headers' => $headers
 			];
-			$options['form_params'] = $queryData;
+
+			if (true === $jsonBody) {
+				$options['json'] = $queryData;
+			} else {
+				$options['form_params'] = $queryData;
+			}
+
 			return $client->request('POST', $url, $options);
 		}
 		catch (\Exception | GuzzleException $e) {
