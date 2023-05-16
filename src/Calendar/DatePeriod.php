@@ -89,22 +89,7 @@ class DatePeriod
 	 */
 	public static function getListOfDaysOfTheMonth(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays=null, string $dateFormat='Y-m-d'): array
 	{
-		$startIntervalDate = (clone $periodStart)->setTime(0, 0, 0);
-		$endIntervalDate = (clone $periodEnd)->setTime(0, 0, 0)->modify('+1 day');
-
-		try {
-			$list = [];
-			$dateRange = new \DatePeriod($startIntervalDate, new \DateInterval('P1D'), $endIntervalDate);
-			foreach ($dateRange as $date) {
-				if (null === $weekDays || in_array((int) $date->format('N'), $weekDays, true)) {
-					$list[] = $date->format($dateFormat);
-				}
-			}
-			return $list;
-		}
-		catch (\Exception $e) {
-			return [];
-		}
+		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateDaysOfTheMonth($periodStart, $periodEnd, $weekDays));
 	}
 
 	// ========== Semaines ==========
@@ -132,10 +117,9 @@ class DatePeriod
 	/**
 	 * @param \DateTime $periodStart
 	 * @param \DateTime $periodEnd
-	 * @param string $dateFormat
-	 * @return string[]
+	 * @return \DateTime[]
 	 */
-	public static function getListOfWeeks(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-W'): array
+	public static function getListOfDateWeeks(\DateTime $periodStart, \DateTime $periodEnd): array
 	{
 		$startIntervalDate = (clone $periodStart)->modify('Monday this week');
 		$endIntervalDate = (clone $periodEnd)->modify('this Sunday');
@@ -145,13 +129,24 @@ class DatePeriod
 
 			$periodList = [];
 			foreach ($dateRange as $date) {
-				$periodList[] = $date->format($dateFormat);
+				$periodList[] = $date;
 			}
 			return $periodList;
 		}
 		catch (\Exception $e) {
 			return [];
 		}
+	}
+
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @param string $dateFormat
+	 * @return string[]
+	 */
+	public static function getListOfWeeks(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-W'): array
+	{
+		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfWeeks($periodStart, $periodEnd));
 	}
 
 	/**
