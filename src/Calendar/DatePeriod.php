@@ -146,7 +146,7 @@ class DatePeriod
 	 */
 	public static function getListOfWeeks(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-W'): array
 	{
-		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfWeeks($periodStart, $periodEnd));
+		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateWeeks($periodStart, $periodEnd));
 	}
 
 	/**
