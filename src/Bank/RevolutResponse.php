@@ -265,6 +265,14 @@ class RevolutResponse {
 	{
 		return $this->getErrorId() === null;
 	}
+
+    /**
+	 * @return string|null
+	 */
+	public function getTransactionNumber(): ?string
+	{
+		return $this->id ?? null;
+	}
     
     /**
      * @param array $request
