@@ -80,10 +80,16 @@ class Revolut {
         return $this;
     }
 
-    //TODO fusion avec doAuthorizationAndDebit
-    public function doAuthorization(): ?RevolutResponse
+    /**
+     * Authorisation seule (CAPTURE_MODE_MANUAL) OU débit immédiat (CAPTURE_MODE_AUTO)
+     * => dans le premier cas le débit final peut être effectuée via doDebit ci-dessous
+     * @param string $captureMode
+     *
+     * @return RevolutResponse|null
+     */
+    public function doRequestWithSpecifiedCaptureMode(string $captureMode): ?RevolutResponse 
     {
-        $this->captureMode = self::CAPTURE_MODE_MANUAL;
+        $this->captureMode = $captureMode;
         $paymentUrl = $this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT;
         $payload = [
             'amount' => $this->amount,
@@ -95,7 +101,13 @@ class Revolut {
         return $this->doRequest($paymentUrl, $payload);
     }
 
-    public function doDebit(string $orderId)
+    /**
+     * Débit final d'une commande dont la capture est définie sur CAPTURE_MODE_MANUAL (autorisation seule)
+     * @param string $orderId
+     * 
+     * @return RevolutResponse|null
+     */
+    public function doDebit(string $orderId): ?RevolutResponse
     {
         if (null === $orderId) {
             return null;
@@ -106,21 +118,12 @@ class Revolut {
         return $this->doRequest($paymentUrl, ['amount' => $this->amount]);
     }
 
-    //TODO fusion avec doAuthorization
-    public function doAuthorizationAndDebit(): ?RevolutResponse
-    {
-        $this->captureMode = self::CAPTURE_MODE_AUTO;
-        $paymentUrl = $this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT;
-        $payload = [
-            'amount' => $this->amount,
-            'currency' => $this->currency,
-            'capture_mode' => $this->captureMode,
-            'merchant_order_ext_ref' => $this->purchaseReference,
-        ];
-
-        return $this->doRequest($paymentUrl, $payload);
-    }
-
+    /**
+     * @param string $paymentUrl
+     * @param array $payload
+     *
+     * @return RevolutResponse|null
+     */
     private function doRequest(string $paymentUrl, array $payload): ?RevolutResponse
     {
         foreach ($payload as $cleVar => $value) {
