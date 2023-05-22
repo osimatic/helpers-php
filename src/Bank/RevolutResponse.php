@@ -75,9 +75,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $id
+     * @param string|null $id
      */
-    public function setId(string $id):void
+    public function setId(?string $id): void
     {
         $this->id = $id;
     }
@@ -91,9 +91,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $publicId
+     * @param string|null $publicId
      */
-    public function setPublicId(string $publicId)
+    public function setPublicId(?string $publicId)
     {
         $this->publicId = $publicId;
     }
@@ -107,9 +107,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $type
+     * @param string|null $type
      */
-    public function setType(string $type)
+    public function setType(?string $type)
     {
         $this->type = $type;
     }
@@ -123,9 +123,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $state
+     * @param string|null $state
      */
-    public function setState(string $state)
+    public function setState(?string $state)
     {
         $this->state = $state;
     }
@@ -139,9 +139,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param \DateTime $creationDate
+     * @param \DateTime|null $creationDate
      */
-    public function setCreationDate(\DateTime $creationDate)
+    public function setCreationDate(?\DateTime $creationDate)
     {
         $this->creationDate = $creationDate;
     }
@@ -155,9 +155,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param \DateTime $updateDate
+     * @param \DateTime|null $updateDate
      */
-    public function setUpdateDate(\DateTime $updateDate)
+    public function setUpdateDate(?\DateTime $updateDate)
     {
         $this->updateDate = $updateDate;
     }
@@ -171,9 +171,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $captureMode
+     * @param string|null $captureMode
      */
-    public function setCaptureMode(string $captureMode)
+    public function setCaptureMode(?string $captureMode)
     {
         $this->captureMode = $captureMode;
     }
@@ -187,9 +187,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $merchantOrderExtRef
+     * @param string|null $merchantOrderExtRef
      */
-    public function setMerchantOrderExtRef(string $merchantOrderExtRef)
+    public function setMerchantOrderExtRef(?string $merchantOrderExtRef)
     {
         $this->merchantOrderExtRef = $merchantOrderExtRef;
     }
@@ -203,9 +203,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param integer $amount
+     * @param integer|null $amount
      */
-    public function setAmount(int $amount)
+    public function setAmount(?int $amount)
     {
         $this->amount = $amount;
     }
@@ -219,9 +219,9 @@ class RevolutResponse {
     }
 
     /**
-     * @param string $currency
+     * @param string|null $currency
      */
-    public function setCurrency(string $currency)
+    public function setCurrency(?string $currency)
     {
         $this->currency = $currency;
     }
@@ -235,9 +235,9 @@ class RevolutResponse {
     }
     
     /**
-     * @param string $checkoutUrl
+     * @param string|null $checkoutUrl
      */
-    public function setCheckoutUrl(string $checkoutUrl)
+    public function setCheckoutUrl(?string $checkoutUrl)
     {
         $this->checkoutUrl = $checkoutUrl;
     }
