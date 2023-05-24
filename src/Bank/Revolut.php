@@ -12,12 +12,12 @@ class Revolut {
     public const CAPTURE_MODE_MANUAL = 'MANUAL'; //Autorisation seule
     public const CAPTURE_MODE_AUTO = 'AUTOMATIC'; //Autorisation & Débit
 
-    private LoggerInterface $logger;
+    private ?LoggerInterface $logger = null;
 
     private string $publicKey;
     private string $secretKey;
     private bool $isTest = false;
-    private float $amount = 0;
+    private int $amount = 0;
     private string $currency = 'EUR';
     private string $captureMode = Revolut::CAPTURE_MODE_AUTO;
     private ?string $purchaseReference = null;
@@ -57,11 +57,11 @@ class Revolut {
     }
 
     /**
-     * @param bool $amount
+     * @param int $amount
      * 
      * @return self
      */
-    public function setAmount(bool $amount): self
+    public function setAmount(int $amount): self
     {
         $this->amount = $amount;
 
@@ -80,33 +80,16 @@ class Revolut {
         return $this;
     }
 
-    public function doAuthorization(): ?RevolutResponse
+    /**
+     * Authorisation seule (CAPTURE_MODE_MANUAL) OU débit immédiat (CAPTURE_MODE_AUTO)
+     * => dans le premier cas le débit final peut être effectuée via doDebit ci-dessous
+     * @param string $captureMode
+     *
+     * @return RevolutResponse|null
+     */
+    public function doRequestWithSpecifiedCaptureMode(string $captureMode): ?RevolutResponse 
     {
-        $this->captureMode = self::CAPTURE_MODE_MANUAL;
-        if (false === ($result = $this->doRequest())) {
-            return null;
-        }
-
-        return $result;
-    }
-
-    public function doDebit()
-    {
-        //todo
-    }
-
-    public function doAuthorizationAndDebit(): ?RevolutResponse
-    {
-        $this->captureMode = self::CAPTURE_MODE_AUTO;
-        if (false === ($result = $this->doRequest())) {
-            return null;
-        }
-
-        return $result;
-    }
-
-    private function doRequest(): ?RevolutResponse
-    {
+        $this->captureMode = $captureMode;
         $paymentUrl = $this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT;
         $payload = [
             'amount' => $this->amount,
@@ -115,6 +98,34 @@ class Revolut {
             'merchant_order_ext_ref' => $this->purchaseReference,
         ];
 
+        return $this->doRequest($paymentUrl, $payload);
+    }
+
+    /**
+     * Débit final d'une commande dont la capture est définie sur CAPTURE_MODE_MANUAL (autorisation seule)
+     * @param string $orderId
+     * 
+     * @return RevolutResponse|null
+     */
+    public function doDebit(string $orderId): ?RevolutResponse
+    {
+        if (null === $orderId) {
+            return null;
+        }
+
+        $paymentUrl = ($this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT) .'/'. $orderId .'/capture';
+
+        return $this->doRequest($paymentUrl, ['amount' => $this->amount]);
+    }
+
+    /**
+     * @param string $paymentUrl
+     * @param array $payload
+     *
+     * @return RevolutResponse|null
+     */
+    private function doRequest(string $paymentUrl, array $payload): ?RevolutResponse
+    {
         foreach ($payload as $cleVar => $value) {
 			if ($value === null) {
 				$postData[$cleVar] = '';
@@ -128,46 +139,34 @@ class Revolut {
 		// Log
 		$this->logger?->info('URL Paiement Revolut : ' . $paymentUrl);
 		$this->logger?->info('QueryString envoyée : ' . $queryString);
-		$this->logger?->info('Référence achat : ' . $postData['merchant_order_ext_ref']);
 
 		// Appel de l'URL Revolut avec les arguments POST (body JSON)
         $res = HTTPRequest::post($paymentUrl, $payload, $this->logger, ['Authorization' => 'Bearer '.$this->secretKey], true);
-
 		if (null === $res) {
-			$this->logger?->info('Appel Revolut échoué');
+            $this->logger?->info('Appel Revolut échoué');
 			return null;
 		}
 
-        if (401 === $res->getStatusCode()) {
+        $statusCode = $res->getStatusCode();
+
+        if (401 === $statusCode) {
             $this->logger?->info('Appel Revolut échoué : auth token incorrect ou expiré');
             return null;
         }
 
-        if (400 === $res->getStatusCode()) {
-            $this->logger?->info('Appel Revolut échoué : format body incorrect');
+        if (400 !== $statusCode && 201 !== $statusCode) {
+            $this->logger?->info('Appel Revolut échoué : erreur inconnue');
             return null;
+        }
+        
+        if (400 === $statusCode) {
+            $this->logger?->info('Appel Revolut échoué : format body incorrect');
         }
 
 		$res = (string) $res->getBody();
 		$this->logger?->info('Résultat appel Revolut : ' . $res);
 
-        // Récupération des arguments retour
-		$tabArg = json_decode($res, true);
-
-        $revolutResponse = new RevolutResponse();
-        $revolutResponse->setId(!empty($tabArg['id']) ? urldecode($tabArg['id']) : null);
-        $revolutResponse->setPublicId(!empty($tabArg['public_id']) ? urldecode($tabArg['public_id']) : null);
-        $revolutResponse->setType(!empty($tabArg['type']) ? urldecode($tabArg['type']) : null);
-        $revolutResponse->setState(!empty($tabArg['state']) ? urldecode($tabArg['state']) : null);
-        $revolutResponse->setCreationDate(!empty($tabArg['created_at']) ? new \DateTime($tabArg['created_at']) : null);
-        $revolutResponse->setUpdateDate(!empty($tabArg['updated_at']) ? new \DateTime($tabArg['updated_at']) : null);
-        $revolutResponse->setCaptureMode(!empty($tabArg['capture_mode']) ? urldecode($tabArg['capture_mode']) : null);
-        $revolutResponse->setMerchantOrderExtRef(!empty($tabArg['merchant_order_ext_ref']) ? urldecode($tabArg['merchant_order_ext_ref']) : null);
-        $revolutResponse->setAmount(!empty($tabArg['order_amount']) ? urldecode($tabArg['order_amount']['value']) : null);
-        $revolutResponse->setCurrency(!empty($tabArg['order_amount']) ? urldecode($tabArg['order_amount']['currency']) : null);
-        $revolutResponse->setCheckoutUrl(!empty($tabArg['checkout_url']) ? urldecode($tabArg['checkout_url']) : null);
-
-        return $revolutResponse;
+        return RevolutResponse::getFromRequest(json_decode($res, true));
     }
 
 }
