@@ -147,14 +147,14 @@ interface EventInterface
 
 	/**
 	 * URL of the event.
-	 * @return string
+	 * @return string|null
 	 */
-	public function getUrl(): string;
+	public function getUrl(): ?string;
 
 	/**
-	 * @param string $url
+	 * @param string|null $url
 	 */
-	public function setUrl(string $url): void;
+	public function setUrl(?string $url): void;
 
 	/**
 	 * An eventStatus of an event represents its status; particularly useful when an event is cancelled or rescheduled.
