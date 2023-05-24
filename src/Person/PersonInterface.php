@@ -25,7 +25,7 @@ interface PersonInterface
 	public function setIdentifier(?string $identifier): void;
 
 	/**
-	 * Given name, e. g. the first name of a Person. This can be used along with familyName.
+	 * Given name, e.g. the first name of a Person. This can be used along with familyName.
 	 * @return string|null
 	 */
 	public function getGivenName(): ?string;
@@ -36,7 +36,7 @@ interface PersonInterface
 	public function setGivenName(?string $givenName): void;
 
 	/**
-	 * Family name, e. g. the last name of a Person. This can be used along with givenName.
+	 * Family name, e.g. the last name of a Person. This can be used along with givenName.
 	 * @return string|null
 	 */
 	public function getFamilyName(): ?string;

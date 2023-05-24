@@ -2,318 +2,158 @@
 
 namespace Osimatic\Helpers\Calendar;
 
+use Symfony\Component\HttpFoundation\Response;
+
 /**
- * Class ICS
- * Cette classes contient des fonctions relatives au fichier ICS.
+ * Cette classe contient des fonctions relatives au fichier ICS.
  * @package Osimatic\Helpers\Calendar
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  * @link https://en.wikipedia.org/wiki/ICalendar
  */
 class ICS
 {
-	const FILE_EXTENSION = '.ics';
+	public const FILE_EXTENSION = '.ics';
+	public const FILE_EXTENSIONS = ['.ics', '.vcs', '.ical', '.ifb'];
 	const LN = "\r\n";
 
-	/**
-	 * @var string
-	 */
-	private $summary;
+
+	// ---------- check ----------
 
 	/**
-	 * @var string
+	 * @param string $filePath
+	 * @param string $clientOriginalName
+	 * @return bool
 	 */
-	private $description;
-
-	/**
-	 * @var \DateTime
-	 */
-	private $dateStart;
-
-	/**
-	 * @var \DateTime
-	 */
-	private $dateEnd;
-
-	/**
-	 * @var string
-	 */
-	private $organizerName;
-
-	/**
-	 * @var string
-	 */
-	private $organizerEmail;
-
-	/**
-	 * @var string
-	 */
-	private $location;
-
-	/**
-	 * @var string
-	 */
-	private $url;
-
-	/**
-	 * Default Charset
-	 * @var string
-	 */
-	public $charset = 'utf-8';
-
-
-	/**
-	 * @param Event $event
-	 */
-	public function setFromEvent(Event $event): void
+	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		$this->setSummary($event->getName());
-		$this->setDescription($event->getDescription());
-		$this->setDateStart($event->getStartDate());
-		$this->setDateEnd($event->getEndDate());
-		$this->setOrganizerName($event->getOrganizerName());
-		$this->setOrganizerEmail($event->getOrganizerEmail());
-		$this->setLocation($event->getLocationName());
-		$this->setUrl($event->getUrl());
+		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, self::FILE_EXTENSIONS);
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getSummary(): string
-	{
-		return $this->summary;
-	}
-
-	/**
-	 * @param string $summary
-	 */
-	public function setSummary(string $summary): void
-	{
-		$this->summary = $summary;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDescription(): string
-	{
-		return $this->description;
-	}
-
-	/**
-	 * @param string $description
-	 */
-	public function setDescription(string $description): void
-	{
-		$this->description = $description;
-	}
-
-	/**
-	 * @return \DateTime
-	 */
-	public function getDateStart(): \DateTime
-	{
-		return $this->dateStart;
-	}
-
-	/**
-	 * @param \DateTime $dateStart
-	 */
-	public function setDateStart(\DateTime $dateStart): void
-	{
-		$this->dateStart = $dateStart;
-	}
-
-	/**
-	 * @return \DateTime
-	 */
-	public function getDateEnd(): \DateTime
-	{
-		return $this->dateEnd;
-	}
-
-	/**
-	 * @param \DateTime $dateEnd
-	 */
-	public function setDateEnd(\DateTime $dateEnd): void
-	{
-		$this->dateEnd = $dateEnd;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOrganizerName(): string
-	{
-		return $this->organizerName;
-	}
-
-	/**
-	 * @param string $organizerName
-	 */
-	public function setOrganizerName(string $organizerName): void
-	{
-		$this->organizerName = $organizerName;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOrganizerEmail(): string
-	{
-		return $this->organizerEmail;
-	}
-
-	/**
-	 * @param string $organizerEmail
-	 */
-	public function setOrganizerEmail(string $organizerEmail): void
-	{
-		$this->organizerEmail = $organizerEmail;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLocation(): string
-	{
-		return $this->location;
-	}
-
-	/**
-	 * @param string $location
-	 */
-	public function setLocation(string $location): void
-	{
-		$this->location = $location;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUrl(): string
-	{
-		return $this->url;
-	}
-
-	/**
-	 * @param string $url
-	 */
-	public function setUrl(string $url): void
-	{
-		$this->url = $url;
-	}
-
-	/**
-	 * Set charset
-	 * @param string $charset
-	 * @return void
-	 */
-	public function setCharset(string $charset): void
-	{
-		$this->charset = $charset;
-	}
-
-	/**
-	 * Get charset
-	 * @return string
-	 */
-	public function getCharset(): string
-	{
-		return $this->charset;
-	}
-
-	/**
-	 * Save to a file
-	 * @param string $path
-	 */
-	public function build(string $path): void
-	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($path);
-
-		file_put_contents($path, $this->getContent());
-	}
+	// ---------- output ----------
 
 	/**
 	 * Download a ICS file to the browser.
-	 * @param string|null $filename
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param string $filePath
+	 * @param string|null $fileName
 	 */
-	public function download(?string $filename=null): void
+	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		$filename = $filename ?? 'event'.$this->getFileExtension();
-
-		header('Content-type: text/calendar; charset='.$this->getCharset());
-		header('Content-Disposition: attachment; filename='.$filename);
-		header('Content-Length: '.strlen($this->getContent()));
-		header('Connection: close');
-
-		// echo the output and it will be a download
-		echo $this->getContent();
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/calendar');
+		// header('Connection: close'); // sert à qqchose ?
 	}
 
 	/**
+	 * @param string $filePath
+	 * @param string|null $fileName
+	 * @return Response
+	 */
+	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
+	{
+		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/calendar');
+	}
+
+	// ---------- generate ----------
+
+	/**
 	 * Get output as string
+	 * @param EventInterface[] $events
 	 * @return string
 	 */
-	public function getContent(): string
+	public static function getContent(array $events): string
 	{
-		$createdDate = null;
-		try {
-			$createdDate = new \DateTime('now');
-		}
-		catch (\Exception $e) {}
-
 		// Build ICS properties - add header
 		$props = [
 			'BEGIN:VCALENDAR',
 			'VERSION:2.0',
 			'PRODID:-//hacksw/handcal//NONSGML v1.0//EN',
 			'CALSCALE:GREGORIAN',
-			'BEGIN:VEVENT'
 		];
 
 		// Build ICS properties - add values
-		$props[] = 'DESCRIPTION:' . $this->escapeString($this->description);
-		$props[] = 'DTSTART:' . $this->getFormattedDateTime($this->dateStart);
-		$props[] = 'DTEND:' . $this->getFormattedDateTime($this->dateEnd);
-		$props[] = 'DTSTAMP:' . (null !== $createdDate ? $this->getFormattedDateTime($createdDate) : '');
-		$props[] = 'LOCATION:' . $this->escapeString($this->location);
-		$props[] = 'SUMMARY:' . $this->escapeString($this->summary);
-		$props[] = 'ORGANIZER;RSVP=TRUE;CN=' . $this->escapeString($this->organizerName) . ';PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:' . $this->escapeString($this->organizerEmail) . '';
-		$props[] = 'URL;VALUE=URI:' . $this->escapeString($this->url);
-		$props[] = 'UID:' . uniqid('', true);
+		foreach ($events as $event) {
+			$props[] = 'BEGIN:VEVENT';
+			$props[] = 'DESCRIPTION:' . self::escapeString($event->getDescription());
+			$props[] = 'DTSTART:' . self::getFormattedDateTime($event->getStartDate());
+			$props[] = 'DTEND:' . self::getFormattedDateTime($event->getEndDate());
+			$props[] = 'DTSTAMP:' . self::getFormattedDateTime(new \DateTime());
+			$props[] = 'LOCATION:' . self::escapeString(Event::getLocationName($event));
+			$props[] = 'SUMMARY:' . self::escapeString($event->getSummary());
+			$props[] = 'ORGANIZER;RSVP=TRUE;CN=' . self::escapeString(Event::getOrganizerName($event)) . ';PARTSTAT=ACCEPTED;ROLE=CHAIR:mailto:' . self::escapeString(Event::getOrganizerEmail($event)) . '';
+			$props[] = 'URL;VALUE=URI:' . self::escapeString($event->getUrl());
+			$props[] = 'UID:' . uniqid('', true);
+			$props[] = 'END:VEVENT';
+		}
 
 		// Build ICS properties - add footer
-		$props[] = 'END:VEVENT';
 		$props[] = 'END:VCALENDAR';
 
 		return implode(self::LN, $props);
 	}
 
 	/**
-	 * Get file extension
-	 * @return string
+	 * Save to a file
+	 * @param EventInterface[] $events
+	 * @param string $filePath
 	 */
-	public function getFileExtension(): string
+	public function generateFile(array $events, string $filePath): void
 	{
-		return self::FILE_EXTENSION;
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+
+		file_put_contents($filePath, self::getContent($events));
 	}
 
-
-	// ---------- private ----------
-
-	private function escapeString(?string $str): ?string
+	private static function escapeString(?string $str): ?string
 	{
 		return preg_replace('/([\,;])/', '\\\$1', $str);
 	}
 
-	private function getFormattedDateTime(\DateTime $dateTime): string
+	private static function getFormattedDateTime(\DateTime $dateTime): string
 	{
 		// todo : add fuseau horaire
 		//return $dateTime->format('Ymd\THis\Z');
 		return $dateTime->format('Ymd\THis');
 	}
 
+	// ---------- parse ----------
+
+	/**
+	 * @param string $filePath
+	 * @param EventInterface $baseEvent
+	 * @param string $timezone
+	 * @return EventInterface[]
+	 */
+	public static function parseFile(string $filePath, EventInterface $baseEvent, string $timezone='UTC'): array
+	{
+		$eventList = [];
+		try {
+			$ical = new \ICal\ICal($filePath, array(
+				'defaultSpan'                 => 2,     // Default value
+				'defaultTimeZone'             => $timezone,
+				'defaultWeekStart'            => 'MO',  // Default value
+				'disableCharacterReplacement' => false, // Default value
+				'filterDaysAfter'             => null,  // Default value
+				'filterDaysBefore'            => null,  // Default value
+				'httpUserAgent'               => null,  // Default value
+				'skipRecurrence'              => false, // Default value
+			));
+
+			foreach ($ical->events() as $iCalEvent) {
+				/** @var \ICal\Event $iCalEvent */
+				$event = clone $baseEvent;
+				$event->setSummary($iCalEvent->summary);
+				$event->setDescription($iCalEvent->description);
+				$event->setStartDate($ical->iCalDateToDateTime($iCalEvent->dtstart_tz));
+				$event->setEndDate($ical->iCalDateToDateTime($iCalEvent->dtend_tz));
+				$event->getOrganizer()?->setFamilyName($iCalEvent->organizer);
+				$event->setLocation($iCalEvent->location);
+				$eventList[] = $event;
+			}
+		} catch (\Exception $e) {
+			die($e);
+		}
+		return $eventList;
+	}
 }
 
 /*

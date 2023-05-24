@@ -16,3 +16,6 @@ Version 04/04/2023 :
 - File::output ne force plus le téléchargement du document (utiliser File::download pour celà)
 - PDF::output ne force plus le téléchargement du document (utiliser PDF::download pour celà)
 - PDF::display -> PDF::output
+
+Version 24/05/2023 :
+- Refonte total de la classe ICS (utilisation de EventInterface au lieu de l'objet ICS)

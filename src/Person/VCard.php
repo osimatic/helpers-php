@@ -3,7 +3,6 @@
 namespace Osimatic\Helpers\Person;
 
 /**
- * Class VCard
  * Cette classe contient des fonctions relatives au fichier VCard.
  * @package Osimatic\Helpers\Person
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
