@@ -154,7 +154,7 @@ class Revolut {
             return null;
         }
 
-        if (400 !== $statusCode && 201 !== $statusCode) {
+        if (400 !== $statusCode && 201 !== $statusCode && 200 !== $statusCode) {
             $this->logger?->info('Appel Revolut échoué : erreur inconnue');
             return null;
         }
