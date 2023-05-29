@@ -96,7 +96,7 @@ class ICS
 	 * @param EventInterface[] $events
 	 * @param string $filePath
 	 */
-	public function generateFile(array $events, string $filePath): void
+	public static function generateFile(array $events, string $filePath): void
 	{
 		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
 
