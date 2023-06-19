@@ -508,10 +508,10 @@ class CICPayment
 
 	private function getDataResultPaiement(): ?array
 	{
-		if ($_SERVER['REQUEST_METHOD'] === \Osimatic\Helpers\Network\HTTPMethod::GET) {
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 			$bruteVars  = $_GET;
 		}
-		elseif ($_SERVER['REQUEST_METHOD'] === \Osimatic\Helpers\Network\HTTPMethod::POST) {
+		elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$bruteVars  = $_POST;
 		}
 		else {
