@@ -5,7 +5,8 @@ namespace Osimatic\Helpers\Bank;
 use Psr\Log\LoggerInterface;
 use Osimatic\Helpers\Network\HTTPRequest;
 
-class Revolut {
+class Revolut
+{
     public const URL_SANDBOX_PAYMENT = 'https://sandbox-merchant.revolut.com/api/1.0/orders';
     public const URL_PROD_PAYMENT = 'https://merchant.revolut.com/api/1.0/orders';
 
@@ -23,25 +24,27 @@ class Revolut {
     private ?string $purchaseReference = null;
 
     /**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
-	 * @return self
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
+     * Set the logger to use to log debugging data.
+     * @param LoggerInterface $logger
+     * @return self
+     */
+    public function setLogger(LoggerInterface $logger): self
+    {
+        $this->logger = $logger;
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * @param string $secretKey
      * 
-     * @return [type]
+     * @return self
      */
-    public function setSecretKey(string $secretKey)
+    public function setSecretKey(string $secretKey): self
     {
         $this->secretKey = $secretKey;
+
+        return $this;
     }
 
     /**
@@ -87,7 +90,7 @@ class Revolut {
      *
      * @return RevolutResponse|null
      */
-    public function doRequestWithSpecifiedCaptureMode(string $captureMode): ?RevolutResponse 
+    public function newPayment(string $captureMode): ?RevolutResponse
     {
         $this->captureMode = $captureMode;
         $paymentUrl = $this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT;
@@ -98,7 +101,7 @@ class Revolut {
             'merchant_order_ext_ref' => $this->purchaseReference,
         ];
 
-        return $this->doRequest($paymentUrl, $payload);
+        return $this->doRequest($paymentUrl, $payload, \Osimatic\Helpers\Network\HTTPMethod::POST);
     }
 
     /**
@@ -107,45 +110,59 @@ class Revolut {
      * 
      * @return RevolutResponse|null
      */
-    public function doDebit(string $orderId): ?RevolutResponse
+    public function capture(string $orderId): ?RevolutResponse
     {
         if (null === $orderId) {
             return null;
         }
 
-        $paymentUrl = ($this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT) .'/'. $orderId .'/capture';
+        $paymentUrl = ($this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT) . '/' . $orderId . '/capture';
 
-        return $this->doRequest($paymentUrl, ['amount' => $this->amount]);
+        return $this->doRequest($paymentUrl, ['amount' => $this->amount], \Osimatic\Helpers\Network\HTTPMethod::POST);
     }
 
     /**
-     * @param string $paymentUrl
-     * @param array $payload
+     * @param string $orderId
      *
      * @return RevolutResponse|null
      */
-    private function doRequest(string $paymentUrl, array $payload): ?RevolutResponse
+    public function getOrder(string $orderId): ?RevolutResponse
     {
-        foreach ($payload as $cleVar => $value) {
-			if ($value === null) {
-				$postData[$cleVar] = '';
-			} else {
-				$postData[$cleVar] = trim($value);
-			}
-		}
+        if (null === $orderId) {
+            return null;
+        }
 
-		$queryString = http_build_query($postData);
+        $url = ($this->isTest ? self::URL_SANDBOX_PAYMENT : self::URL_PROD_PAYMENT) . '/' . $orderId;
 
-		// Log
-		$this->logger?->info('URL Paiement Revolut : ' . $paymentUrl);
-		$this->logger?->info('QueryString envoyée : ' . $queryString);
+        return $this->doRequest($url, [], \Osimatic\Helpers\Network\HTTPMethod::GET);
+    }
 
-		// Appel de l'URL Revolut avec les arguments POST (body JSON)
-        $res = HTTPRequest::post($paymentUrl, $payload, $this->logger, ['Authorization' => 'Bearer '.$this->secretKey], true);
-		if (null === $res) {
+    /**
+     * @param string $requestUrl
+     * @param array $payload
+     * @param \Osimatic\Helpers\Network\HTTPMethod $httpMethod
+     *
+     * @return RevolutResponse|null
+     */
+    private function doRequest(string $requestUrl, array $payload, \Osimatic\Helpers\Network\HTTPMethod $httpMethod): ?RevolutResponse
+    {
+        // Log
+        $this->logger?->info('URL : ' . $requestUrl);
+        $this->logger?->info('Payload : ' . json_encode($payload));
+        $this->logger?->info('HTTP Method : ' . $httpMethod);
+
+        if (\Osimatic\Helpers\Network\HTTPMethod::GET === $httpMethod) {
+            // Appel de l'URL Revolut via GET (get order)
+            $res = HTTPRequest::get($requestUrl, [], $this->logger, ['Authorization' => 'Bearer ' . $this->secretKey]);
+        } else {
+            // Appel de l'URL Revolut via POST (authorize / pay order)
+            $res = HTTPRequest::post($requestUrl, $payload, $this->logger, ['Authorization' => 'Bearer ' . $this->secretKey], true);
+        }
+
+        if (null === $res) {
             $this->logger?->info('Appel Revolut échoué');
-			return null;
-		}
+            return null;
+        }
 
         $statusCode = $res->getStatusCode();
 
@@ -158,15 +175,14 @@ class Revolut {
             $this->logger?->info('Appel Revolut échoué : erreur inconnue');
             return null;
         }
-        
+
         if (400 === $statusCode) {
-            $this->logger?->info('Appel Revolut échoué : format body incorrect');
+            $this->logger?->info('Appel Revolut échoué : format paramètres incorrect');
         }
 
-		$res = (string) $res->getBody();
-		$this->logger?->info('Résultat appel Revolut : ' . $res);
+        $res = (string) $res->getBody();
+        $this->logger?->info('Résultat appel Revolut : ' . $res);
 
         return RevolutResponse::getFromRequest(json_decode($res, true));
     }
-
 }

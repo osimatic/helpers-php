@@ -1294,7 +1294,7 @@ class PayBox
 			'PBX_TIME' => date('c', $this->getTimestamp()),
 			'PBX_AUTOSEULE' => (in_array($this->typeQuestion, [self::TYPE_OPERATION_AUTORISATION_SEULE, self::TYPE_OPERATION_INSCRIPTION_ABONNE], true) ? 'O' : 'N'),
 			'PBX_REPONDRE_A' => $this->urlIpn,
-			'PBX_RUF1' => 'POST',
+			'PBX_RUF1' => \Osimatic\Helpers\Network\HTTPMethod::POST,
 			'PBX_EFFECTUE' => $this->urlResponseOk,
 			'PBX_REFUSE' => $this->urlResponseRefused,
 			'PBX_ANNULE' => $this->urlResponseCanceled,
@@ -1313,7 +1313,7 @@ class PayBox
 		$hmac = $this->getHmac($pbxVars);
 
 		// Construction HTML
-		$form = ''.'<form method="POST" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
+		$form = ''.'<form method="'.\Osimatic\Helpers\Network\HTTPMethod::POST.'" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
 		
 		foreach ($pbxVars as $index => $value) {
 			$form .= '<input type="hidden" name="'.$index.'" value="' . ($index === 'PBX_SHOPPINGCART' || $index === 'PBX_BILLING' ? htmlspecialchars($value) : $value) . '">';

@@ -27,14 +27,14 @@ class HTTPRequest
 	 * @link http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 * @return mixed la réponse renvoyée par la requête après son exécution
 	 */
-	public static function execute(string $url, string $method='GET', array $queryParameters=[], array $headers=[], array $options=[])
+	public static function execute(string $url, string $method = HTTPMethod::GET, array $queryParameters=[], array $headers=[], array $options=[])
 	{
 		//trace('URL : '.$url);
 
 		$ch = curl_init();
 
 		// Configuration de l'URL
-		if ($method === 'GET') {
+		if ($method === HTTPMethod::GET) {
 			$url .= (!str_contains($url, '?') ? '?' : '') . '&' . http_build_query($queryParameters);
 		}
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -65,7 +65,7 @@ class HTTPRequest
 		}
 
 		// Configuration des variables POST
-		if ($method === 'POST') {
+		if ($method === HTTPMethod::POST) {
 			curl_setopt($ch, CURLOPT_POST, TRUE);
 			if ($ssl) {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($queryParameters));
@@ -142,18 +142,19 @@ class HTTPRequest
 	 * @param LoggerInterface|null $logger
 	 * @return ResponseInterface|null
 	 */
-	public static function get(string $url, array $queryData = [], ?LoggerInterface $logger = null): ?ResponseInterface
+	public static function get(string $url, array $queryData = [], ?LoggerInterface $logger = null, array $headers = []): ?ResponseInterface
 	{
 		$logger ??= new NullLogger();
 		$client = new \GuzzleHttp\Client();
 		try {
 			$options = [
 				'http_errors' => false,
+				'headers' => $headers
 			];
 			if (!empty($queryData)) {
 				$url .= (!str_contains($url, '?') ? '?' : '').http_build_query($queryData);
 			}
-			return $client->request('GET', $url, $options);
+			return $client->request(HTTPMethod::GET, $url, $options);
 		}
 		catch (\Exception | GuzzleException $e) {
 			$logger->error('Erreur pendant la requête GET vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
@@ -209,7 +210,7 @@ class HTTPRequest
 				$options['form_params'] = $queryData;
 			}
 
-			return $client->request('POST', $url, $options);
+			return $client->request(HTTPMethod::POST, $url, $options);
 		}
 		catch (\Exception | GuzzleException $e) {
 			$logger->error('Erreur pendant la requête POST vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
