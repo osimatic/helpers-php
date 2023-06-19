@@ -322,7 +322,7 @@ class RevolutResponse {
     public static function getFromRequest(array $request): RevolutResponse
     {
         $orderAmount = $request['order_amount'];
-        $cardData = $request['payments']['payment_method']['card'];
+        $cardData = !empty($request['payments']) && !empty($request['payments']['payment_method']) ? $request['payments']['payment_method']['card'] : null;
 
         $revolutResponse = new RevolutResponse();
         $revolutResponse->setErrorId(!empty($request['errorId']) ? urldecode($request['errorId']) : null);
@@ -337,8 +337,8 @@ class RevolutResponse {
         $revolutResponse->setAmount(!empty($orderAmount) ? urldecode($orderAmount['value']) : null);
         $revolutResponse->setCurrency(!empty($orderAmount) ? urldecode($orderAmount['currency']) : null);
         $revolutResponse->setCheckoutUrl(!empty($request['checkout_url']) ? urldecode($request['checkout_url']) : null);
-        $revolutResponse->setCardLastDigits(!empty($cardData['card_last_four']) ? urldecode($request['card_last_four']) : null);
-        $revolutResponse->setCardExpiration(!empty($cardData['card_expiry']) ? urldecode($request['card_expiry']) : null);
+        $revolutResponse->setCardLastDigits(!empty($cardData['card_last_four']) ? urldecode($cardData['card_last_four']) : null);
+        $revolutResponse->setCardExpiration(!empty($cardData['card_expiry']) ? urldecode($cardData['card_expiry']) : null);
         
         return $revolutResponse;
     }
