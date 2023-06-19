@@ -149,7 +149,6 @@ class Revolut
         // Log
         $this->logger?->info('URL : ' . $requestUrl);
         $this->logger?->info('Payload : ' . json_encode($payload));
-        $this->logger?->info('HTTP Method : ' . $httpMethod);
 
         if (\Osimatic\Helpers\Network\HTTPMethod::GET === $httpMethod) {
             // Appel de l'URL Revolut via GET (get order)
