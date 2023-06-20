@@ -322,7 +322,7 @@ class RevolutResponse {
     public static function getFromRequest(array $request): RevolutResponse
     {
         $orderAmount = array_key_exists('order_amount', $request) ? $request['order_amount'] : null;
-        $cardData = array_key_exists('payments', $request) && array_key_exists('payment_method', $request) ? $request['payments']['payment_method']['card'] : null;
+        $cardData = array_key_exists('payments', $request) ? $request['payments'][0]['payment_method']['card'] : null;
 
         $revolutResponse = new RevolutResponse();
         $revolutResponse->setErrorId(!empty($request['errorId']) ? urldecode($request['errorId']) : null);
