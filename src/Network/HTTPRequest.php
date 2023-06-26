@@ -140,15 +140,17 @@ class HTTPRequest
 	 * @param string $url
 	 * @param array $queryData
 	 * @param LoggerInterface|null $logger
+	 * @param array $headers
 	 * @return ResponseInterface|null
 	 */
-	public static function get(string $url, array $queryData = [], ?LoggerInterface $logger = null): ?ResponseInterface
+	public static function get(string $url, array $queryData = [], ?LoggerInterface $logger = null, array $headers = []): ?ResponseInterface
 	{
 		$logger ??= new NullLogger();
 		$client = new \GuzzleHttp\Client();
 		try {
 			$options = [
 				'http_errors' => false,
+				'headers' => $headers
 			];
 			if (!empty($queryData)) {
 				$url .= (!str_contains($url, '?') ? '?' : '').http_build_query($queryData);

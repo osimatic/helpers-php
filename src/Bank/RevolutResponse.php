@@ -67,6 +67,17 @@ class RevolutResponse {
 	private ?string $errorId = null;
 
     /**
+     * @var string|null
+     */
+    private ?string $cardLastDigits = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $cardExpiration = null;
+
+
+    /**
      * @return string|null
      */
     public function getId(): ?string
@@ -258,6 +269,35 @@ class RevolutResponse {
 		$this->errorId = $errorId;
 	}
 
+    /**
+     * @return string|null
+     */
+    public function getCardLastDigits(): ?string
+    {
+        return $this->cardLastDigits;
+    }
+
+    public function setCardLastDigits(?string $cardLastDigits): void
+    {
+        $this->cardLastDigits = $cardLastDigits;
+    }
+
+    /**
+     * @return string|null $cardExpiration
+     */
+    public function getCardExpiration(): ?string
+    {
+        return $this->cardExpiration;
+    }
+    
+    /**
+     * @param string|null $cardExpiration
+     */
+    public function setCardExpiration(?string $cardExpiration): void
+    {
+        $this->cardExpiration = $cardExpiration;
+    }
+
 	/**
 	 * @return bool
 	 */
@@ -281,6 +321,9 @@ class RevolutResponse {
      */
     public static function getFromRequest(array $request): RevolutResponse
     {
+        $orderAmount = array_key_exists('order_amount', $request) ? $request['order_amount'] : null;
+        $cardData = array_key_exists('payments', $request) ? $request['payments'][0]['payment_method']['card'] : null;
+
         $revolutResponse = new RevolutResponse();
         $revolutResponse->setErrorId(!empty($request['errorId']) ? urldecode($request['errorId']) : null);
         $revolutResponse->setId(!empty($request['id']) ? urldecode($request['id']) : null);
@@ -291,10 +334,12 @@ class RevolutResponse {
         $revolutResponse->setUpdateDate(!empty($request['updated_at']) ? new \DateTime($request['updated_at']) : null);
         $revolutResponse->setCaptureMode(!empty($request['capture_mode']) ? urldecode($request['capture_mode']) : null);
         $revolutResponse->setMerchantOrderExtRef(!empty($request['merchant_order_ext_ref']) ? urldecode($request['merchant_order_ext_ref']) : null);
-        $revolutResponse->setAmount(!empty($request['order_amount']) ? urldecode($request['order_amount']['value']) : null);
-        $revolutResponse->setCurrency(!empty($request['order_amount']) ? urldecode($request['order_amount']['currency']) : null);
+        $revolutResponse->setAmount(!empty($orderAmount) ? urldecode($orderAmount['value']) : null);
+        $revolutResponse->setCurrency(!empty($orderAmount) ? urldecode($orderAmount['currency']) : null);
         $revolutResponse->setCheckoutUrl(!empty($request['checkout_url']) ? urldecode($request['checkout_url']) : null);
-
+        $revolutResponse->setCardLastDigits(!empty($cardData['card_last_four']) ? urldecode($cardData['card_last_four']) : null);
+        $revolutResponse->setCardExpiration(!empty($cardData['card_expiry']) ? urldecode($cardData['card_expiry']) : null);
+        
         return $revolutResponse;
     }
 
