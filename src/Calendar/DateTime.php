@@ -114,6 +114,33 @@ class DateTime
 	}
 
 	/**
+	 * @param \DateTime|null $dateTime
+	 * @return string|null
+	 */
+	public static function getUTCSqlDate(?\DateTime $dateTime): ?string
+	{
+		return (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d');
+	}
+
+	/**
+	 * @param \DateTime|null $dateTime
+	 * @return string|null
+	 */
+	public static function getUTCSqlTime(?\DateTime $dateTime): ?string
+	{
+		return (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s');
+	}
+
+	/**
+	 * @param \DateTime|null $dateTime
+	 * @return string|null
+	 */
+	public static function getUTCSqlDateTime(?\DateTime $dateTime): ?string
+	{
+		return (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+	}
+
+	/**
 	 * @param string $formatter
 	 * @return int
 	 */
