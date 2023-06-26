@@ -119,7 +119,7 @@ class DateTime
 	 */
 	public static function getUTCSqlDate(?\DateTime $dateTime): ?string
 	{
-		return (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d');
+		return null !== $dateTime ? (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d') : null;
 	}
 
 	/**
@@ -128,7 +128,7 @@ class DateTime
 	 */
 	public static function getUTCSqlTime(?\DateTime $dateTime): ?string
 	{
-		return (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s');
+		return null !== $dateTime ? (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s') : null;
 	}
 
 	/**
@@ -137,7 +137,7 @@ class DateTime
 	 */
 	public static function getUTCSqlDateTime(?\DateTime $dateTime): ?string
 	{
-		return (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+		return null !== $dateTime ? (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s') : null;
 	}
 
 	/**
