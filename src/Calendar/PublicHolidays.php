@@ -88,11 +88,11 @@ class PublicHolidays
 		//$easterDateTime = (new \DateTime('@'.easter_date($year)))->setTimezone(new \DateTimeZone($timeZone));
 		$easterDateTime = self::getEasterDateTime($year);
 
-		$lundiPentecoteDateTime = (clone $easterDateTime)->modify('+50 days');
-		$pentecoteDateTime = (clone $easterDateTime)->modify('+49 days');
-		$jeudiAscensionDateTime = (clone $easterDateTime)->modify('+39 days');
 		$vendrediSaintDateTime = (clone $easterDateTime)->modify('-2 days');
 		$lundiPaquesDateTime = (clone $easterDateTime)->modify('+1 days');
+		$jeudiAscensionDateTime = (clone $easterDateTime)->modify('+39 days');
+		$pentecoteDateTime = (clone $easterDateTime)->modify('+49 days');
+		$lundiPentecoteDateTime = (clone $easterDateTime)->modify('+50 days');
 
 		// ---------- BELGIQUE ----------
 		if ('BE' === $country) {
@@ -233,7 +233,7 @@ class PublicHolidays
 				// ['day' => 19, 'month' => 3, 'label' => 'Fahrtsfest'], // todo
 
 				// Vendredi saint (2 jours avant Pâques)
-				['key' => 'paques', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'],
+				['key' => 'vendredi_saint', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'],
 
 				// Pâques
 				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
@@ -380,24 +380,37 @@ class PublicHolidays
 				$listOfPublicHolidays[] = ['day' => 26, 'month' => 12, 'label' => 'Saint Étienne'];
 			}
 
-			// --- MARTINIQUE ---
+			// --- MARTINIQUE / GUADELOUPE ---
 
-			if ('MQ' === $country) {
+			if ('MQ' === $country || 'GP' === $country) {
 				// Abolition de l’esclavage
-				$listOfPublicHolidays[] = ['day' => 22, 'month' => 5, 'label' => 'Abolition de l’esclavage'];
+				if ('MQ' === $country) {
+					$listOfPublicHolidays[] = ['day' => 22, 'month' => 5, 'label' => 'Abolition de l’esclavage']; // Martinique
+				}
+				else {
+					$listOfPublicHolidays[] = ['day' => 27, 'month' => 5, 'label' => 'Abolition de l’esclavage']; // Guadeloupe
+				}
 
 				// Fête Victor Schœlcher
 				$listOfPublicHolidays[] = ['day' => 21, 'month' => 7, 'label' => 'Fête Victor Schœlcher'];
-			}
 
-			// --- GUADELOUPE ---
+				// Défunts
+				$listOfPublicHolidays[] = ['day' => 2, 'month' => 11, 'label' => 'Défunts'];
 
-			if ('GP' === $country) {
-				// Abolition de l’esclavage
-				$listOfPublicHolidays[] = ['day' => 27, 'month' => 5, 'label' => 'Abolition de l’esclavage'];
+				// Mardi gras (47 jours avant Pâques)
+				$mardiGrasDateTime = (clone $easterDateTime)->modify('-47 days');
+				$listOfPublicHolidays[] = ['key' => 'mardi_gras', 'day' => $mardiGrasDateTime->format('d'), 'month' => $mardiGrasDateTime->format('m'), 'timestamp' => $mardiGrasDateTime->getTimestamp(), 'label' => 'Mardi gras'];
 
-				// Fête Victor Schœlcher
-				$listOfPublicHolidays[] = ['day' => 21, 'month' => 7, 'label' => 'Fête Victor Schœlcher'];
+				// Mercredi des Cendres (1er jour du Carême) (46 jours avant Pâques)
+				$mercrediDesCendresDateTime = (clone $easterDateTime)->modify('-46 days');
+				$listOfPublicHolidays[] = ['key' => 'mercredi_des_cendres', 'day' => $mercrediDesCendresDateTime->format('d'), 'month' => $mercrediDesCendresDateTime->format('m'), 'timestamp' => $mercrediDesCendresDateTime->getTimestamp(), 'label' => 'Mercredi des Cendres'];
+
+				// Mi-carême (24 jours avant Pâques)
+				$miCaremeDateTime = (clone $easterDateTime)->modify('-24 days');
+				$listOfPublicHolidays[] = ['key' => 'mi_careme', 'day' => $miCaremeDateTime->format('d'), 'month' => $miCaremeDateTime->format('m'), 'timestamp' => $miCaremeDateTime->getTimestamp(), 'label' => 'Mi-carême'];
+
+				// Vendredi saint (2 jours avant Pâques)
+				$listOfPublicHolidays[] = ['key' => 'vendredi_saint', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'];
 			}
 
 			// --- REUNION ---
