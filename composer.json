@@ -28,7 +28,7 @@
 		"mustache/mustache": "^2",
 		"whichbrowser/parser": "^2.1",
 		"johngrogg/ics-parser": "^3",
-		"symfony/http-foundation": "^6.2"
+		"symfony/http-foundation": "^6.3"
 	},
 	"license": "mit",
 	"authors": [
