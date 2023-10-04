@@ -67,7 +67,7 @@ class PostalAddress
 	 * @param PostalAddressInterface $postalAddress
 	 * @param bool $withAttention
 	 * @param string|null $separator
-	 * @return string
+	 * @return string|null
 	 */
 	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=null): ?string
 	{
@@ -78,7 +78,7 @@ class PostalAddress
 	 * @param PostalAddressInterface $postalAddress
 	 * @param bool $withAttention
 	 * @param string|null $separator
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', '): ?string
 	{
@@ -89,7 +89,7 @@ class PostalAddress
 	 * @param PostalAddressInterface $postalAddress
 	 * @param bool $withAttention
 	 * @param string|null $separator
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatFromTwig(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
 	{
@@ -98,6 +98,30 @@ class PostalAddress
 
 
 
+
+	// ========== Formatage ==========
+
+	/**
+	 * @param string|null $value
+	 * @return string|null
+	 */
+	public static function replaceSpecialChar(?string $value): ?string
+	{
+		if (null === $value) {
+			return null;
+		}
+
+		// caractère parfois utilisé pour séparer la rue de la ville (exemple pour une adresse de la Tunisie retourné par Google Maps, coordonnées 36.7691557,10.2432981)
+		$value = str_replace('،', ',', $value);
+
+		// caractère parfois utilisé pour l'apostrophe
+		$value = str_replace('́', '’', $value);
+
+		// caractère parfois utilisé pour le numéro de rue (exemple pour une adresse en Réunion retourné par Google Maps, coordonnées -21.0506425,55.2241411)
+		$value = str_replace('№', 'N°', $value);
+
+		return $value;
+	}
 
 
 

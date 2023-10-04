@@ -3,6 +3,7 @@
 namespace Osimatic\Helpers\API;
 
 use Osimatic\Helpers\Location\GeographicCoordinates;
+use Osimatic\Helpers\Location\PostalAddress;
 use Osimatic\Helpers\Location\PostalAddressInterface;
 use Osimatic\Helpers\Network\HTTPRequest;
 use Psr\Log\LoggerInterface;
@@ -66,7 +67,7 @@ class GoogleMaps
 	 */
 	public function geocoding(string $address): ?array
 	{
-		$address = str_replace(['’', '+', ' '], ["'", '%2B', '+'], $address);
+		$address = str_replace(['’', '́', '+', ' '], ["'", "'", '%2B', '+'], $address);
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
 
@@ -287,7 +288,7 @@ class GoogleMaps
 
 	/**
 	 * @param array|null $result
-	 * @return array
+	 * @return array|null
 	 */
 	public static function getAddressComponentsFromResult(?array $result): ?array
 	{
@@ -378,13 +379,7 @@ class GoogleMaps
 			return null;
 		}
 
-		// caractère parfois utilisé pour séparer la rue de la ville (exemple pour une adresse de la Tunisie, coordonnées 36.7691557,10.2432981)
-		$formattedAddress = str_replace('،', ',', $formattedAddress);
-
-		// caractère parfois utilisé pour le numéro de rue (exemple pour une adresse en Réunion, coordonnées -21.0506425,55.2241411)
-		$formattedAddress = str_replace('№', 'N°', $formattedAddress);
-
-		return $formattedAddress;
+		return PostalAddress::replaceSpecialChar($formattedAddress);
 	}
 
 	/**
