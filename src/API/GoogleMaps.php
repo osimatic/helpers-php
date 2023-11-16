@@ -11,21 +11,10 @@ use Psr\Log\NullLogger;
 
 class GoogleMaps
 {
-	/**
-	 * @var LoggerInterface
-	 */
-	private LoggerInterface $logger;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $apiKey;
-
-	public function __construct(?string $apiKey=null, LoggerInterface $logger=new NullLogger())
-	{
-		$this->apiKey = $apiKey;
-		$this->logger = $logger;
-	}
+	public function __construct(
+		private ?string $apiKey=null,
+		private LoggerInterface $logger=new NullLogger()
+	) {}
 
 	/**
 	 * @param string $apiKey
