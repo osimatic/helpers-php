@@ -6,6 +6,10 @@ use Osimatic\Helpers\Network\HTTPRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * @see https://github.com/NikolaiT/IP-Address-API
+ * @see https://incolumitas.com/pages/IP-API/
+ */
 class Incolumitas
 {
 	public function __construct(private LoggerInterface $logger=new NullLogger()) {}
