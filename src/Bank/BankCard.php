@@ -43,7 +43,6 @@ class BankCard
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $cardNumber
 	 * @return BankCardType|null
 	 */
