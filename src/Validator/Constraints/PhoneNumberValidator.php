@@ -26,7 +26,7 @@ class PhoneNumberValidator extends ConstraintValidator
 		// vérification syntaxe numéro téléphone saisi
 		if (false === \Osimatic\Helpers\Messaging\PhoneNumber::isValid($phoneNumber)) {
 			$this->context->buildViolation($constraint->message)
-				->setParameter('{{string}}', $value)
+				->setParameter('{{value}}', $value)
 				->addViolation();
 		}
 
@@ -47,7 +47,7 @@ class PhoneNumberValidator extends ConstraintValidator
 
 		// type numéro saisi non conforme.
 		$this->context->buildViolation($constraint->message)
-			->setParameter('{{string}}', $value)
+			->setParameter('{{value}}', $value)
 			->addViolation();
 	}
 }

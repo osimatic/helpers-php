@@ -22,7 +22,7 @@ class EmailValidator extends ConstraintValidator
 		/** @var Email $constraint */
 		if (!filter_var($value,FILTER_VALIDATE_EMAIL)) {
 			$this->context->buildViolation($constraint->message)
-				->setParameter('{{string}}', $value)
+				->setParameter('{{value}}', $value)
 				->addViolation();
 		}
 	}

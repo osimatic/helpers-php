@@ -22,7 +22,7 @@ class ZipCodeValidator extends ConstraintValidator
 		/** @var ZipCode $constraint */
 		if (!\Osimatic\Helpers\Location\PostalAddress::checkZipCode($value)) {
 			$this->context->buildViolation($constraint->message)
-				->setParameter('{{string}}', $value)
+				->setParameter('{{value}}', $value)
 				->addViolation();
 		}
 	}

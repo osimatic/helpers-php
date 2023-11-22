@@ -21,7 +21,7 @@ class FirstNameValidator extends ConstraintValidator
 		/** @var FirstName $constraint */
 		if (!\Osimatic\Helpers\Person\Name::checkFirstName($value)) {
 			$this->context->buildViolation($constraint->message)
-				->setParameter('{{string}}', $value)
+				->setParameter('{{value}}', $value)
 				->addViolation();
 		}
 	}

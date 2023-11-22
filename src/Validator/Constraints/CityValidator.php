@@ -22,7 +22,7 @@ class CityValidator extends ConstraintValidator
 		/** @var City $constraint */
 		if (!\Osimatic\Helpers\Location\PostalAddress::checkCity($value)) {
 			$this->context->buildViolation($constraint->message)
-				->setParameter('{{string}}', $value)
+				->setParameter('{{value}}', $value)
 				->addViolation();
 		}
 	}

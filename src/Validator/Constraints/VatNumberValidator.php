@@ -22,7 +22,7 @@ class VatNumberValidator extends ConstraintValidator
 		/** @var VatNumber $constraint */
 		if (!\Osimatic\Helpers\Organization\VatNumber::check($value)) {
 			$this->context->buildViolation($constraint->message)
-				->setParameter('{{string}}', $value)
+				->setParameter('{{value}}', $value)
 				->addViolation();
 		}
 	}
