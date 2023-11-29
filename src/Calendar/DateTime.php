@@ -643,34 +643,4 @@ class DateTime
 		$to = new \DateTime();
 		return (int) $from->diff($to)->y;
 	}
-
-
-
-	// ========== Jours fériés (deprecated, use class PublicHolidays) ==========
-
-	/**
-	 * @deprecated use PublicHolidays::getEasterDateTime()
-	 */
-	public static function getEasterDateTime(int $year): \DateTime
-	{
-		$base = new \DateTime("$year-03-21");
-		$days = easter_days($year);
-		return $base->add(new \DateInterval("P{$days}D"));
-	}
-
-	/**
-	 * @deprecated use PublicHolidays::isPublicHoliday()
-	 */
-	public static function isPublicHoliday(\DateTime $dateTime, string $country='FR', array $options=[]): bool
-	{
-		return PublicHolidays::isPublicHoliday($dateTime, $country, $options);
-	}
-
-	/**
-	 * @deprecated use PublicHolidays::getList()
-	 */
-	public static function getListOfPublicHolidays(string $country, int $year, array $options=[]): array
-	{
-		return PublicHolidays::getList($country, $year, $options);
-	}
 }

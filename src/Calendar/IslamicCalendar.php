@@ -66,6 +66,16 @@ class IslamicCalendar
 		return [$year, $month, $day];
 	}
 
+	/**
+	 * Convert given timestamp into Hijri date
+	 * @param integer $timestamp
+	 * @return array Hijri date [int Year, int Month, int Day](Islamic calendar)
+	 */
+	public static function convertTimestampToIslamicDate(int $timestamp): array
+	{
+		return self::convertGregorianDateToIslamicDate(date('Y', $timestamp), date('m', $timestamp), date('d', $timestamp));
+	}
+
 	// ========== Mois ==========
 
 	/**

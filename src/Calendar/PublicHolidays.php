@@ -4,6 +4,10 @@ namespace Osimatic\Helpers\Calendar;
 
 class PublicHolidays
 {
+	/**
+	 * @param int $year
+	 * @return \DateTime
+	 */
 	public static function getEasterDateTime(int $year): \DateTime
 	{
 		$base = new \DateTime("$year-03-21");
@@ -21,16 +25,15 @@ class PublicHolidays
 	{
 		$listOfPublicHolidays = self::getList($country, $dateTime->format('Y'), $options);
 		foreach ($listOfPublicHolidays as $publicHoliday) {
-			if (($publicHoliday['calendar'] ?? null) === 'islamic') {
+			if ($publicHoliday->getCalendar() === PublicHolidayCalendar::HIJRI) {
 				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertGregorianDateToIslamicDate($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('d'));
-				if ($publicHoliday['month'] === $hijriMonth && $publicHoliday['day'] === $hijriDay) {
-					//if (IslamicCalendar::isGregorianDateTimeEqualToIslamicDay($dateTime, $publicHoliday['month'], $publicHoliday['day'])) {
+				if ($publicHoliday->getMonth() === $hijriMonth && $publicHoliday->getDay() === $hijriDay) {
 					return true;
 				}
 				continue;
 			}
 
-			if (date('Y-m-d', $publicHoliday['timestamp']) === $dateTime->format('Y-m-d')) {
+			if (date('Y-m-d', $publicHoliday->getTimestamp()) === $dateTime->format('Y-m-d')) {
 				return true;
 			}
 		}
@@ -47,43 +50,11 @@ class PublicHolidays
 	 * 	- 'fetes_civiles' = true pour ajouter les jours non fériés mais qui correspondent à des fêtes civiles
 	 * 	- 'fetes_catholiques' = true pour ajouter les jours non fériés mais qui correspondent à des fêtes catholiques
 	 * 	- 'fetes_protestantes' = true pour ajouter les jours non fériés mais qui correspondent à des fêtes protestantes
-	 * @return array
+	 * @return PublicHoliday[]
 	 */
 	public static function getList(string $country, int $year, array $options=[]): array
 	{
 		$country = mb_strtoupper($country);
-
-		$fillData = static function(array $listOfPublicHolidays) use ($year): array {
-			foreach ($listOfPublicHolidays as $key => $publicHolidayData) {
-				$publicHolidayData['day'] = (int) $publicHolidayData['day'];
-				$publicHolidayData['month'] = (int) $publicHolidayData['month'];
-
-				if (($publicHolidayData['calendar'] ?? null) === 'islamic') {
-					$publicHolidayData['timestamp'] = null;
-				}
-				else {
-					//$publicHolidayData['date'] = $year.'-'.sprintf('%02d', $publicHolidayData['month']).'-'.sprintf('%02d', $publicHolidayData['day']); // ce champ est deprecated (remplacé par timestamp)
-					if (!isset($publicHolidayData['timestamp'])) {
-						$publicHolidayData['timestamp'] = mktime(0, 0, 0, $publicHolidayData['month'], $publicHolidayData['day'], $year);
-					}
-				}
-
-				$publicHolidayData['key'] ??= date('Y-m-d', $publicHolidayData['timestamp']);
-
-				// ajout jour de l'année dans le label
-				if (preg_match('/[1-2][0-9][0-9][0-9]-((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $publicHolidayData['key']) !== 0) {
-					if (($publicHolidayData['calendar'] ?? null) === 'islamic') {
-						$publicHolidayData['label'] .= ' ('.$publicHolidayData['day'].($publicHolidayData['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\IslamicCalendar::getMonthName($publicHolidayData['month']).')';
-					}
-					else {
-						$publicHolidayData['label'] .= ' ('.$publicHolidayData['day'].($publicHolidayData['day']===1?'er':'').' '.\Osimatic\Helpers\Calendar\Date::getMonthName($publicHolidayData['month']).')';
-					}
-				}
-
-				$listOfPublicHolidays[$key] = $publicHolidayData;
-			}
-			return $listOfPublicHolidays;
-		};
 
 		//$easterDateTime = (new \DateTime('@'.easter_date($year)))->setTimezone(new \DateTimeZone($timeZone));
 		$easterDateTime = self::getEasterDateTime($year);
@@ -96,92 +67,92 @@ class PublicHolidays
 
 		// ---------- BELGIQUE ----------
 		if ('BE' === $country) {
-			return $fillData([
+			return [
 				// --- BELGIQUE - Fêtes civiles ---
 
 				// 1er janvier - Jour de l’an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)),
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
+				new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)),
 
 				// 21 juillet - Fête nationale (Belgique)
-				['day' => 21, 'month' => 7, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale belge'],
+				new PublicHoliday('Fête nationale', mktime(0, 0, 0, 7, 21, $year), fullName: 'Fête nationale belge'),
 
 				// 27 septembre - Fête de la communauté française
-				['day' => 27, 'month' => 9, 'label' => 'Fête de la communauté française', 'nom_complet' => 'Fête de la communauté française'],
+				new PublicHoliday('Fête de la communauté française', mktime(0, 0, 0, 9, 27, $year), fullName: 'Fête de la communauté française'),
 
 				// 11 novembre - Armistice de la Première Guerre mondiale (11 novembre 1918)
-				['day' => 11, 'month' => 11, 'label' => 'Armistice 1918', 'nom_complet' => 'Armistice de la Première Guerre mondiale (11 novembre 1918)'],
+				new PublicHoliday('Armistice 1918', mktime(0, 0, 0, 11, 11, $year), fullName: 'Armistice de la Première Guerre mondiale (11 novembre 1918)'),
 
 				// --- BELGIQUE - Fêtes religieuses ---
 
 				// Pâques
-				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
+				new PublicHoliday('Pâques', $easterDateTime->getTimestamp(), key: 'paques'),
 
 				// Lundi de Pâques (1 jour après Pâques)
-				['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'],
+				new PublicHoliday('Lundi de Pâques', $lundiPaquesDateTime->getTimestamp(), key: 'lundi_paques'),
 
 				// Jeudi de l’Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
+				new PublicHoliday('Ascension', $jeudiAscensionDateTime->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'),
 
 				// Pentecôte (49 jours après Pâques)
-				['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'],
+				new PublicHoliday('Pentecôte', $pentecoteDateTime->getTimestamp(), key: 'pentecote'),
 
 				// Lundi de Pentecôte (50 jours après Pâques)
-				['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'],
+				new PublicHoliday('Lundi de Pentecôte', $lundiPentecoteDateTime->getTimestamp(), key: 'lundi_pentecote'),
 
 				// 15 août - Assomption
-				['day' => 15, 'month' => 8, 'label' => 'Assomption'],
+				new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)),
 
 				// 1er novembre - Toussaint
-				['day' => 1, 'month' => 11, 'label' => 'Toussaint', 'nom_complet' => 'Toussaint'],
+				new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)),
 
 				// 25 décembre - Noël
-				['day' => 25, 'month' => 12, 'label' => 'Noël'],
-			]);
+				new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)),
+			];
 		}
 
 		// ---------- LUXEMBOURG ----------
 		if ('LU' === $country) {
-			return $fillData([
+			return [
 				// --- LUXEMBOURG - Fêtes civiles ---
 
 				// 1er janvier - Jour de l’an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)),
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
+				new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)),
 
 				// 23 juin - Fête nationale (Luxembourg) (célébration de l’anniversaire de SAR le Grand-Duc)
-				['day' => 23, 'month' => 6, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale luxembourgeoise'],
+				new PublicHoliday('Fête nationale', mktime(0, 0, 0, 6, 23, $year), fullName: 'Fête nationale luxembourgeoise'),
 
 				// --- LUXEMBOURG - Fêtes religieuses ---
 
 				// Pâques
-				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
+				new PublicHoliday('Pâques', $easterDateTime->getTimestamp(), key: 'paques'),
 
 				// Lundi de Pâques (1 jour après Pâques)
-				['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'],
+				new PublicHoliday('Lundi de Pâques', $lundiPaquesDateTime->getTimestamp(), key: 'lundi_paques'),
 
 				// Jeudi de l’Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
+				new PublicHoliday('Ascension', $jeudiAscensionDateTime->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'),
 
 				// Pentecôte (49 jours après Pâques)
-				['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'],
+				new PublicHoliday('Pentecôte', $pentecoteDateTime->getTimestamp(), key: 'pentecote'),
 
 				// Lundi de Pentecôte (50 jours après Pâques)
-				['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'],
+				new PublicHoliday('Lundi de Pentecôte', $lundiPentecoteDateTime->getTimestamp(), key: 'lundi_pentecote'),
 
 				// 15 août - Assomption
-				['day' => 15, 'month' => 8, 'label' => 'Assomption'],
+				new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)),
 
 				// 1er novembre - Toussaint
-				['day' => 1, 'month' => 11, 'label' => 'Toussaint', 'nom_complet' => 'Toussaint'],
+				new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)),
 
 				// 25 décembre - Noël
-				['day' => 25, 'month' => 12, 'label' => 'Noël'],
-			]);
+				new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)),
+			];
 		}
 
 		// ---------- SUISSE ----------
@@ -191,137 +162,137 @@ class PublicHolidays
 			$timestampJeuneGenevois = strtotime('sunday', mktime(0, 0, 0, 9, 1, $year))+(4*24*3600);
 			$timestampLundiJeuneFederal = strtotime('sunday', mktime(0, 0, 0, 9, 1, $year))+(15*24*3600);
 
-			return $fillData([
+			return [
 				// --- SUISSE - Fêtes civiles ---
 
 				// 1er janvier - Jour de l’an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)),
 
 				// 1er mars - Instauration de la République
-				['day' => 1, 'month' => 3, 'label' => 'Instauration de la République'],
+				new PublicHoliday('Instauration de la République', mktime(0, 0, 0, 3, 1, $year)),
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
+				new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)),
 
 				// 23 juin - Commémoration du plébiscite
-				['day' => 23, 'month' => 6, 'label' => 'Commémoration du plébiscite'],
+				new PublicHoliday('Commémoration du plébiscite', mktime(0, 0, 0, 6, 23, $year)),
 
 				// 1er août - Fête nationale (Suisse)
-				['day' => 1, 'month' => 8, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale suisse'],
+				new PublicHoliday('Fête nationale', mktime(0, 0, 0, 8, 1, $year), fullName: 'Fête nationale suisse'),
 
 				// Jeûne genevois (jeudi suivant le 1er dimanche de septembre)
-				['key' => 'jeune_genevois', 'day' => date('d', $timestampJeuneGenevois), 'month' => date('m', $timestampJeuneGenevois), 'label' => 'Jeûne genevois'],
+				new PublicHoliday('Jeûne genevois', $timestampJeuneGenevois, key: 'jeune_genevois'),
 
 				// Lundi du Jeûne fédéral (lundi suivant le 3e dimanche de septembre)
-				['key' => 'jeune_federal', 'day' => date('d', $timestampLundiJeuneFederal), 'month' => date('m', $timestampLundiJeuneFederal), 'label' => 'Lundi du Jeûne fédéral'],
+				new PublicHoliday('Lundi du Jeûne fédéral', $timestampLundiJeuneFederal, key: 'jeune_federal'),
 
 				// 31 décembre - Restauration de la République
-				['day' => 31, 'month' => 12, 'label' => 'Restauration de la République'],
+				new PublicHoliday('Restauration de la République', mktime(0, 0, 0, 12, 31, $year)),
 
 				// --- SUISSE - Fêtes religieuses ---
 
 				// 2 janvier - Saint-Berchtold
-				['day' => 2, 'month' => 1, 'label' => 'Saint-Berchtold'],
+				new PublicHoliday('Saint-Berchtold', mktime(0, 0, 0, 1, 2, $year)),
 
 				// 6 janvier - Épiphanie
-				['day' => 6, 'month' => 1, 'label' => 'Épiphanie'],
+				new PublicHoliday('Épiphanie', mktime(0, 0, 0, 1, 6, $year)),
 
 				// 19 mars - Saint-Joseph
-				['day' => 19, 'month' => 3, 'label' => 'Saint-Joseph'],
+				new PublicHoliday('Saint-Joseph', mktime(0, 0, 0, 3, 19, $year)),
 
 				// 1er jeudi d'avril - Fahrtsfest
-				// ['day' => 19, 'month' => 3, 'label' => 'Fahrtsfest'], // todo
+				//new PublicHoliday('Fahrtsfest', ), // todo
 
 				// Vendredi saint (2 jours avant Pâques)
-				['key' => 'vendredi_saint', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'],
+				new PublicHoliday('Vendredi saint', $vendrediSaintDateTime->getTimestamp(), key: 'vendredi_saint'),
 
 				// Pâques
-				['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'],
+				new PublicHoliday('Pâques', $easterDateTime->getTimestamp(), key: 'paques'),
 
 				// Lundi de Pâques (1 jour après Pâques)
-				['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'],
+				new PublicHoliday('Lundi de Pâques', $lundiPaquesDateTime->getTimestamp(), key: 'lundi_paques'),
 
 				// Jeudi de l’Ascension (39 jours après Pâques)
-				['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'],
+				new PublicHoliday('Ascension', $jeudiAscensionDateTime->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'),
 
 				// Pentecôte (49 jours après Pâques)
-				['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'],
+				new PublicHoliday('Pentecôte', $pentecoteDateTime->getTimestamp(), key: 'pentecote'),
 
 				// Lundi de Pentecôte (50 jours après Pâques)
-				['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'],
+				new PublicHoliday('Lundi de Pentecôte', $lundiPentecoteDateTime->getTimestamp(), key: 'lundi_pentecote'),
 
 				// Fête-Dieu (60 jours après Pâques)
-				['key' => 'fete_dieu', 'day' => $feteDieuDateTime->format('d'), 'month' => $feteDieuDateTime->format('m'), 'timestamp' => $feteDieuDateTime->getTimestamp(), 'label' => 'Fête-Dieu'],
+				new PublicHoliday('Fête-Dieu', $feteDieuDateTime->getTimestamp(), key: 'fete_dieu'),
 
 				// 29 juin - Saint-Pierre et Paul
-				['day' => 29, 'month' => 6, 'label' => 'Saint-Pierre et Paul'],
+				new PublicHoliday('Saint-Pierre et Paul', mktime(0, 0, 0, 6, 29, $year)),
 
 				// 15 août - Assomption
-				['day' => 15, 'month' => 8, 'label' => 'Assomption'],
+				new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)),
 
 				// 25 septembre - Fête de Saint-Nicolas-de-Flüe
-				['day' => 25, 'month' => 9, 'label' => 'Fête de Saint-Nicolas-de-Flüe'],
+				new PublicHoliday('Fête de Saint-Nicolas-de-Flüe', mktime(0, 0, 0, 9, 25, $year)),
 
 				// 1er novembre - Toussaint
-				['day' => 1, 'month' => 11, 'label' => 'Toussaint'],
+				new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)),
 
 				// 8 décembre - Immaculée Conception
-				['day' => 8, 'month' => 12, 'label' => 'Immaculée Conception'],
+				new PublicHoliday('Immaculée Conception', mktime(0, 0, 0, 12, 9, $year)),
 
 				// 25 décembre - Noël
-				['day' => 25, 'month' => 12, 'label' => 'Noël'],
+				new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)),
 
 				// 26 décembre - Saint-Étienne
-				['day' => 26, 'month' => 12, 'label' => 'Saint-Étienne'],
-			]);
+				new PublicHoliday('Saint-Étienne', mktime(0, 0, 0, 12, 26, $year)),
+			];
 		}
 
 		// ---------- MAROC ----------
 		if ('MA' === $country) {
-			return $fillData([
+			return [
 				// --- MAROC - Fêtes civiles ---
 
 				// 1er janvier - Jour de l’an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)),
 
 				// 11 janvier - Manifeste de l’Indépendance du Maroc
-				['day' => 11, 'month' => 1, 'label' => 'Manifeste de l’Indépendance'],
+				new PublicHoliday('Manifeste de l’Indépendance', mktime(0, 0, 0, 1, 11, $year)),
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
+				new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)),
 
 				// 30 juillet - Fête du Trône
-				['day' => 30, 'month' => 7, 'label' => 'Fête du Trône'],
+				new PublicHoliday('Fête du Trône', mktime(0, 0, 0, 7, 30, $year)),
 
 				// 14 août - Commémoration de l’allégeance de l’oued Eddahab
-				['day' => 14, 'month' => 8, 'label' => 'Allégeance Oued Eddahab'],
+				new PublicHoliday('Allégeance Oued Eddahab', mktime(0, 0, 0, 8, 14, $year)),
 
 				// 20 août - Révolution du roi et du peuple
-				['day' => 20, 'month' => 8, 'label' => 'Révolution du roi et du peuple'],
+				new PublicHoliday('Révolution du roi et du peuple', mktime(0, 0, 0, 8, 20, $year)),
 
 				// 21 août - Fête de la Jeunesse
-				['day' => 21, 'month' => 8, 'label' => 'Fête de la Jeunesse'],
+				new PublicHoliday('Fête de la Jeunesse', mktime(0, 0, 0, 8, 21, $year)),
 
 				// 6 novembre - La marche verte
-				['day' => 6, 'month' => 11, 'label' => 'La marche verte'],
+				new PublicHoliday('La marche verte', mktime(0, 0, 0, 11, 6, $year)),
 
 				// 18 novembre - Fête de l’indépendance
-				['day' => 18, 'month' => 11, 'label' => 'Fête de l’indépendance'],
+				new PublicHoliday('Fête de l’indépendance', mktime(0, 0, 0, 11, 18, $year)),
 
 				// --- MAROC - Fêtes religieuses ---
 
 				// 1er chawal - Aïd el-Fitr
-				['day' => 1, 'month' => 10, 'calendar' => 'islamic', 'key' => 'aid_el_fitr', 'label' => 'Aïd el-Fitr'],
+				new PublicHoliday('Aïd el-Fitr', IslamicCalendar::getTimestamp($year, 10, 1), key: 'aid_el_fitr', calendar: PublicHolidayCalendar::HIJRI),
 
 				// 10 dhou al-hijja - Aïd al-Adha
-				['day' => 10, 'month' => 12, 'calendar' => 'islamic', 'key' => 'aid_al_adha', 'label' => 'Aïd al-Adha'],
+				new PublicHoliday('Aïd al-Adha', IslamicCalendar::getTimestamp($year, 12, 10), key: 'aid_al_adha', calendar: PublicHolidayCalendar::HIJRI),
 
 				// 12 rabia al awal - Al-Mawlid
-				['day' => 12, 'month' => 3, 'calendar' => 'islamic', 'key' => 'al_mawlid', 'label' => 'Al-Mawlid'],
+				new PublicHoliday('Al-Mawlid', IslamicCalendar::getTimestamp($year, 3, 12), key: 'al_mawlid', calendar: PublicHolidayCalendar::HIJRI),
 
 				// 1er Mouharram - Jour de l’an hégire
-				['day' => 1, 'month' => 1, 'calendar' => 'islamic', 'key' => 'jour_an_hegire', 'label' => 'Jour de l’an hégire'],
-			]);
+				new PublicHoliday('Jour de l’an hégire', IslamicCalendar::getTimestamp($year, 1, 1), key: 'jour_an_hegire', calendar: PublicHolidayCalendar::HIJRI),
+			];
 		}
 
 		// ---------- FRANCE ----------
@@ -329,55 +300,55 @@ class PublicHolidays
 			// --- FRANCE - Fêtes civiles ---
 			$listOfPublicHolidays = [
 				// 1er janvier - Jour de l’an
-				['day' => 1, 'month' => 1, 'label' => 'Jour de l’an'],
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)),
 
 				// 1er mai - Fête du Travail
-				['day' => 1, 'month' => 5, 'label' => 'Fête du Travail'],
+				new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)),
 
 				// 8 mai - Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)
-				['day' => 8, 'month' => 5, 'label' => 'Victoire des Alliés', 'nom_complet' => 'Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)'],
+				new PublicHoliday('Victoire des Alliés', mktime(0, 0, 0, 5, 8, $year), fullName: 'Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)'),
 
 				// 14 juillet - Fête nationale (France) (Fête de la Fédération 14 juillet 1790)
-				['day' => 14, 'month' => 7, 'label' => 'Fête nationale', 'nom_complet' => 'Fête nationale française (Fête de la Fédération 14 juillet 1790)'],
+				new PublicHoliday('Fête nationale', mktime(0, 0, 0, 7, 14, $year), fullName: 'Fête nationale française (Fête de la Fédération 14 juillet 1790)'),
 
 				// 11 novembre - Armistice de la Première Guerre mondiale (11 novembre 1918)
-				['day' => 11, 'month' => 11, 'label' => 'Armistice', 'nom_complet' => 'Armistice de la Première Guerre mondiale (11 novembre 1918)'],
+				new PublicHoliday('Armistice', mktime(0, 0, 0, 11, 11, $year), fullName: 'Armistice de la Première Guerre mondiale (11 novembre 1918)'),
 			];
 
 			// --- FRANCE - Fêtes religieuses ---
 
 			// Vendredi saint (vendredi précédent Pâques)
 			if (!empty($options['alsace']) && $options['alsace']) {
-				$listOfPublicHolidays[] = ['key' => 'vendredi_saint', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'];
+				$listOfPublicHolidays[] = new PublicHoliday('Vendredi saint', $vendrediSaintDateTime->getTimestamp(), key: 'vendredi_saint');
 			}
 
 			// Pâques
-			$listOfPublicHolidays[] = ['key' => 'paques', 'day' => $easterDateTime->format('d'), 'month' => $easterDateTime->format('m'), 'timestamp' => $easterDateTime->getTimestamp(), 'label' => 'Pâques'];
+			$listOfPublicHolidays[] = new PublicHoliday('Pâques', $easterDateTime->getTimestamp(), key: 'paques');
 
 			// Lundi de Pâques (1 jour après Pâques)
-			$listOfPublicHolidays[] = ['key' => 'lundi_paques', 'day' => $lundiPaquesDateTime->format('d'), 'month' => $lundiPaquesDateTime->format('m'), 'timestamp' => $lundiPaquesDateTime->getTimestamp(), 'label' => 'Lundi de Pâques'];
+			$listOfPublicHolidays[] = new PublicHoliday('Lundi de Pâques', $lundiPaquesDateTime->getTimestamp(), key: 'lundi_paques');
 
 			// Jeudi de l’Ascension (39 jours après Pâques)
-			$listOfPublicHolidays[] = ['key' => 'ascension', 'day' => $jeudiAscensionDateTime->format('d'), 'month' => $jeudiAscensionDateTime->format('m'), 'timestamp' => $jeudiAscensionDateTime->getTimestamp(), 'label' => 'Ascension', 'nom_complet' => 'Jeudi de l’Ascension'];
+			$listOfPublicHolidays[] = new PublicHoliday('Ascension', $jeudiAscensionDateTime->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension');
 
 			// Pentecôte (49 jours après Pâques)
-			$listOfPublicHolidays[] = ['key' => 'pentecote', 'day' => $pentecoteDateTime->format('d'), 'month' => $pentecoteDateTime->format('m'), 'timestamp' => $pentecoteDateTime->getTimestamp(), 'label' => 'Pentecôte'];
+			$listOfPublicHolidays[] = new PublicHoliday('Pentecôte', $pentecoteDateTime->getTimestamp(), key: 'pentecote');
 
 			// Lundi de Pentecôte (50 jours après Pâques)
-			$listOfPublicHolidays[] = ['key' => 'lundi_pentecote', 'day' => $lundiPentecoteDateTime->format('d'), 'month' => $lundiPentecoteDateTime->format('m'), 'timestamp' => $lundiPentecoteDateTime->getTimestamp(), 'label' => 'Lundi de Pentecôte'];
+			$listOfPublicHolidays[] = new PublicHoliday('Lundi de Pentecôte', $lundiPentecoteDateTime->getTimestamp(), key: 'lundi_pentecote');
 
 			// 15 août - Assomption
-			$listOfPublicHolidays[] = ['day' => 15, 'month' => 8, 'label' => 'Assomption'];
+			$listOfPublicHolidays[] = new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year));
 
 			// 1er novembre - La Toussaint
-			$listOfPublicHolidays[] = ['day' => 1, 'month' => 11, 'label' => 'La Toussaint'];
+			$listOfPublicHolidays[] = new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year));
 
 			// 25 décembre - Noël
-			$listOfPublicHolidays[] = ['day' => 25, 'month' => 12, 'label' => 'Noël'];
+			$listOfPublicHolidays[] = new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year));
 
 			// 26 décembre - Saint-Étienne
 			if ($options['alsace'] ?? false) {
-				$listOfPublicHolidays[] = ['day' => 26, 'month' => 12, 'label' => 'Saint Étienne'];
+				$listOfPublicHolidays[] = new PublicHoliday('Saint Étienne', mktime(0, 0, 0, 12, 26, $year));
 			}
 
 			// --- MARTINIQUE / GUADELOUPE ---
@@ -385,39 +356,39 @@ class PublicHolidays
 			if ('MQ' === $country || 'GP' === $country) {
 				// Abolition de l’esclavage
 				if ('MQ' === $country) {
-					$listOfPublicHolidays[] = ['day' => 22, 'month' => 5, 'label' => 'Abolition de l’esclavage']; // Martinique
+					$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 5, 22, $year)); // Martinique
 				}
 				else {
-					$listOfPublicHolidays[] = ['day' => 27, 'month' => 5, 'label' => 'Abolition de l’esclavage']; // Guadeloupe
+					$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 5, 27, $year)); // Guadeloupe
 				}
 
 				// Fête Victor Schœlcher
-				$listOfPublicHolidays[] = ['day' => 21, 'month' => 7, 'label' => 'Fête Victor Schœlcher'];
+				$listOfPublicHolidays[] = new PublicHoliday('Fête Victor Schœlcher', mktime(0, 0, 0, 7, 21, $year));
 
 				// Défunts
-				$listOfPublicHolidays[] = ['day' => 2, 'month' => 11, 'label' => 'Défunts'];
+				$listOfPublicHolidays[] = new PublicHoliday('Défunts', mktime(0, 0, 0, 11, 2, $year));
 
 				// Mardi gras (47 jours avant Pâques)
 				$mardiGrasDateTime = (clone $easterDateTime)->modify('-47 days');
-				$listOfPublicHolidays[] = ['key' => 'mardi_gras', 'day' => $mardiGrasDateTime->format('d'), 'month' => $mardiGrasDateTime->format('m'), 'timestamp' => $mardiGrasDateTime->getTimestamp(), 'label' => 'Mardi gras'];
+				$listOfPublicHolidays[] = new PublicHoliday('Mardi gras', $mardiGrasDateTime->getTimestamp(), key: 'mardi_gras');
 
 				// Mercredi des Cendres (1er jour du Carême) (46 jours avant Pâques)
 				$mercrediDesCendresDateTime = (clone $easterDateTime)->modify('-46 days');
-				$listOfPublicHolidays[] = ['key' => 'mercredi_des_cendres', 'day' => $mercrediDesCendresDateTime->format('d'), 'month' => $mercrediDesCendresDateTime->format('m'), 'timestamp' => $mercrediDesCendresDateTime->getTimestamp(), 'label' => 'Mercredi des Cendres'];
+				$listOfPublicHolidays[] = new PublicHoliday('Mercredi des Cendres', $mercrediDesCendresDateTime->getTimestamp(), key: 'mercredi_des_cendres');
 
 				// Mi-carême (24 jours avant Pâques)
 				$miCaremeDateTime = (clone $easterDateTime)->modify('-24 days');
-				$listOfPublicHolidays[] = ['key' => 'mi_careme', 'day' => $miCaremeDateTime->format('d'), 'month' => $miCaremeDateTime->format('m'), 'timestamp' => $miCaremeDateTime->getTimestamp(), 'label' => 'Mi-carême'];
+				$listOfPublicHolidays[] = new PublicHoliday('Mi-carême', $miCaremeDateTime->getTimestamp(), key: 'mi_careme');
 
 				// Vendredi saint (2 jours avant Pâques)
-				$listOfPublicHolidays[] = ['key' => 'vendredi_saint', 'day' => $vendrediSaintDateTime->format('d'), 'month' => $vendrediSaintDateTime->format('m'), 'timestamp' => $vendrediSaintDateTime->getTimestamp(), 'label' => 'Vendredi saint'];
+				$listOfPublicHolidays[] = new PublicHoliday('Vendredi saint', $vendrediSaintDateTime->getTimestamp(), key: 'vendredi_saint');
 			}
 
 			// --- REUNION ---
 
 			if ('RE' === $country) {
 				// Abolition de l’esclavage
-				$listOfPublicHolidays[] = ['day' => 20, 'month' => 12, 'label' => 'Abolition de l’esclavage'];
+				$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 12, 20, $year));
 
 			}
 
@@ -436,7 +407,7 @@ class PublicHolidays
 				// todo
 			}
 
-			return $fillData($listOfPublicHolidays);
+			return $listOfPublicHolidays;
 		}
 
 		return [];
