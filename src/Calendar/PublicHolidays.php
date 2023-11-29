@@ -25,17 +25,30 @@ class PublicHolidays
 	{
 		$listOfPublicHolidays = self::getList($country, $dateTime->format('Y'), $options);
 		foreach ($listOfPublicHolidays as $publicHoliday) {
-			if ($publicHoliday->getCalendar() === PublicHolidayCalendar::HIJRI) {
-				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertGregorianDateToIslamicDate($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('d'));
-				if ($publicHoliday->getMonth() === $hijriMonth && $publicHoliday->getDay() === $hijriDay) {
-					return true;
-				}
-				continue;
-			}
-
-			if (date('Y-m-d', $publicHoliday->getTimestamp()) === $dateTime->format('Y-m-d')) {
+			if (self::isDateCorrespondingToPublicHoliday($publicHoliday, $dateTime)) {
 				return true;
 			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param PublicHoliday $publicHoliday
+	 * @param \DateTime $dateTime
+	 * @return bool
+	 */
+	public static function isDateCorrespondingToPublicHoliday(PublicHoliday $publicHoliday, \DateTime $dateTime): bool
+	{
+		if ($publicHoliday->getCalendar() === PublicHolidayCalendar::HIJRI) {
+			[, $hijriMonth, $hijriDay] = IslamicCalendar::convertGregorianDateToIslamicDate($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('d'));
+			if ($publicHoliday->getMonth() === $hijriMonth && $publicHoliday->getDay() === $hijriDay) {
+				return true;
+			}
+			return false;
+		}
+
+		if (date('Y-m-d', $publicHoliday->getTimestamp()) === $dateTime->format('Y-m-d')) {
+			return true;
 		}
 		return false;
 	}
