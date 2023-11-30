@@ -28,7 +28,8 @@
 		"mustache/mustache": "^2",
 		"whichbrowser/parser": "^2.1",
 		"johngrogg/ics-parser": "^3",
-		"symfony/http-foundation": "^6.3"
+		"symfony/http-foundation": "^6.3",
+		"phpmailer/phpmailer": "^6.9"
 	},
 	"license": "mit",
 	"authors": [

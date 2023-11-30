@@ -29,26 +29,26 @@ class Email
 	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
-	private $identifier;
+	private ?string $identifier = null;
 
 	/**
 	 * The From email address for the message.
-	 * @var string
+	 * @var string|null
 	 */
-	private $fromEmailAddress;
+	private ?string $fromEmailAddress = null;
 
 	/**
 	 * The From name of the message.
-	 * @var string
+	 * @var string|null
 	 */
-	private $fromName;
+	private ?string $fromName = null;
 
 	/**
 	 * The envelope sender of the message.
 	 * This will usually be turned into a Return-Path header by the receiver, and is the address that bounces will be sent to.
-	 * @type string
+	 * @type string|null
 	 */
-	protected $sender;
+	protected ?string $sender = null;
 
 	/**
 	 * The array of reply-to names and addresses.
@@ -57,7 +57,7 @@ class Email
 	 * [1] => name (optional)
 	 * @var array
 	 */
-	private $replyTo = [];
+	private array $replyTo = [];
 
 	/**
 	 * The array of 'to' names and addresses.
@@ -66,7 +66,7 @@ class Email
 	 * [1] => name (optional)
 	 * @var array
 	 */
-	private $listTo = [];
+	private array $listTo = [];
 
 	/**
 	 * The array of 'cc' names and addresses.
@@ -75,7 +75,7 @@ class Email
 	 * [1] => name (optional)
 	 * @var array
 	 */
-	private $listCc = [];
+	private array $listCc = [];
 
 	/**
 	 * The array of 'bcc' names and addresses.
@@ -84,13 +84,13 @@ class Email
 	 * [1] => name (optional)
 	 * @var array
 	 */
-	private $listBcc = [];
+	private array $listBcc = [];
 
 	/**
 	 * The email address that a reading confirmation should be sent to, also known as read receipt.
-	 * @var string
+	 * @var string|null
 	 */
-	private $confirmReadingTo;
+	private ?string $confirmReadingTo = null;
 
 	/**
 	 * The array of attachments.
@@ -107,19 +107,19 @@ class Email
 	 * [7] => Content ID of the attachment. Use this to reference the content when using an embedded image in HTML.
 	 * @var array
 	 */
-	private $listAttachments = [];
+	private array $listAttachments = [];
 
 	/**
 	 * The Subject of the message.
 	 * @var string
 	 */
-	private $subject;
+	private string $subject = '';
 
 	/**
 	 * An HTML or plain text message body.
 	 * @var string
 	 */
-	private $text;
+	private string $text = '';
 
 	/**
 	 * The plain-text message body.
@@ -127,51 +127,51 @@ class Email
 	 * Clients that can read HTML will view the normal Body.
 	 * @var string
 	 */
-	private $altText = '';
+	private string $altText = '';
 
 	/**
 	 * Email priority.
 	 * Options: null (default), 1 = High, 3 = Normal, 5 = low.
 	 * @var int|null
 	 */
-	private $priority;
+	private ?int $priority;
 
 	/**
 	 * The character set of the message.
 	 * @var string
 	 */
-	private $charSet = 'utf-8';
+	private string $charSet = 'utf-8';
 
 	/**
 	 * The MIME Content-type of the message.
 	 * @var string
 	 */
-	private $contentType = 'text/html';
+	private string $contentType = 'text/html';
 
 	/**
 	 * The message encoding.
 	 * Options: "8bit", "7bit", "binary", "base64", and "quoted-printable".
 	 * @var string
 	 */
-	private $encoding = self::ENCODING_8BIT;
+	private string $encoding = self::ENCODING_8BIT;
 
 	/**
 	 * The complete compiled MIME message body.
 	 * @var string
 	 */
-	private $MIMEBody = '';
+	private string $MIMEBody = '';
 
 	/**
 	 * The complete compiled MIME message headers.
 	 * @var string
 	 */
-	private $MIMEHeader = '';
+	private string $MIMEHeader = '';
 
 	/**
 	 * The hostname to use in the Message-ID header and as default HELO string.
 	 * @var string
 	 */
-	private $hostname = '';
+	private string $hostname = '';
 
 	/**
 	 * An ID to be used in the Message-ID header.
@@ -180,20 +180,20 @@ class Email
 	 * @see https://tools.ietf.org/html/rfc5322#section-3.6.4
 	 * @var string
 	 */
-	private $messageID = '';
+	private string $messageID = '';
 
 	/**
 	 * The message date to be used in the Date header and the sending date of the message
 	 * If empty, the current date will be added.
-	 * @var \DateTime
+	 * @var \DateTime|null
 	 */
-	private $sendingDateTime;
+	private ?\DateTime $sendingDateTime = null;
 
 	/**
 	 * private usage
 	 * @var array
 	 */
-	private $allAdresses = [];
+	private array $allAdresses = [];
 
 
 	/**
@@ -228,11 +228,11 @@ class Email
 
 	/**
 	 * Return the From email address for the message.
-	 * @return string
+	 * @return string|null
 	 */
-	public function getFromEmailAddress(): string
+	public function getFromEmailAddress(): ?string
 	{
-		return $this->fromEmailAddress ?? '';
+		return $this->fromEmailAddress;
 	}
 
 	/**
@@ -242,6 +242,11 @@ class Email
 	 */
 	public function setFromEmailAddress(?string $emailAddress): self
 	{
+		if (null === $emailAddress) {
+			$this->fromEmailAddress = null;
+			return $this;
+		}
+
 		$emailAddress = trim($emailAddress);
 		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
 			//trace('Invalid address : '.$emailAddress);
@@ -255,11 +260,11 @@ class Email
 
 	/**
 	 * Return the From name of the message.
-	 * @return string
+	 * @return string|null
 	 */
-	public function getFromName(): string
+	public function getFromName(): ?string
 	{
-		return $this->fromName ?? '';
+		return $this->fromName;
 	}
 
 	/**
@@ -269,6 +274,11 @@ class Email
 	 */
 	public function setFromName(?string $name): self
 	{
+		if (null === $name) {
+			$this->fromName = null;
+			return $this;
+		}
+
 		$name = trim(preg_replace('/[\r\n]+/', '', $name)); //Strip breaks and trim
 		$this->fromName = $name;
 
@@ -316,11 +326,11 @@ class Email
 
 	/**
 	 * Return The email address that a reading confirmation should be sent to, also known as read receipt.
-	 * @return string
+	 * @return string|null
 	 */
-	public function getConfirmReadingTo(): string
+	public function getConfirmReadingTo(): ?string
 	{
-		return $this->confirmReadingTo ?? '';
+		return $this->confirmReadingTo;
 	}
 
 	/**
@@ -330,6 +340,11 @@ class Email
 	 */
 	public function setConfirmReadingTo(?string $emailAddress): self
 	{
+		if (null === $emailAddress) {
+			$this->confirmReadingTo = null;
+			return $this;
+		}
+
 		$emailAddress = trim($emailAddress);
 		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
 			//trace('Invalid address : '.$emailAddress);
