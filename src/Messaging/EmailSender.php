@@ -5,22 +5,18 @@ namespace Osimatic\Helpers\Messaging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class EmailSender
+class EmailSender implements EmailSenderInterface
 {
-	private LoggerInterface $logger;
-	private EmailSendingMethod $sendingMethod;
-	private ?string $host = null;
-	private ?int $port = null;
-	private bool $smtpAuth = false;
-	private ?string $smtpAuthEncryption = null;
-	private ?string $smtpAuthUsername = null;
-	private ?string $smtpAuthPassword = null;
-
-
-	public function __construct(EmailSendingMethod $sendingMethod=EmailSendingMethod::SMTP) {
-		$this->logger = new NullLogger();
-		$this->sendingMethod = $sendingMethod;
-	}
+	public function __construct(
+		private EmailSendingMethod $sendingMethod = EmailSendingMethod::SMTP,
+		private LoggerInterface $logger = new NullLogger(),
+		private ?string $host = null,
+		private ?int $port = null,
+		private bool $smtpAuth = false,
+		private ?string $smtpAuthEncryption = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS,
+		private ?string $smtpAuthUsername = null,
+		private ?string $smtpAuthPassword = null,
+	) {}
 
 	public function setLogger(LoggerInterface $logger): void
 	{
