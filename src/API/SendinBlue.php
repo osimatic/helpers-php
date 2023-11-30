@@ -13,25 +13,10 @@ use Psr\Log\NullLogger;
  */
 class SendinBlue
 {
-	/**
-	 * @var LoggerInterface
-	 */
-	private LoggerInterface $logger;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $apiKey = null;
-
-	/**
-	 * SendinBlue constructor.
-	 * @param string|null $apiKey
-	 */
-	public function __construct(?string $apiKey=null)
-	{
-		$this->logger = new NullLogger();
-		$this->apiKey = $apiKey;
-	}
+	public function __construct(
+		private ?string $apiKey = null,
+		private LoggerInterface $logger=new NullLogger(),
+	) {}
 
 	/**
 	 * @param string $apiKey

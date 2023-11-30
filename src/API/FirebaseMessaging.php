@@ -8,29 +8,15 @@ use Psr\Log\NullLogger;
 class FirebaseMessaging
 {
 	/**
-	 * @var LoggerInterface
-	 */
-	private LoggerInterface $logger;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $projectId = null;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $serviceKeyFile = null;
-
-	/**
 	 * @var array|null
 	 */
 	private ?array $result;
 
-	public function __construct()
-	{
-		$this->logger = new NullLogger();
-	}
+	public function __construct(
+		private ?string $projectId = null,
+		private ?string $serviceKeyFile = null,
+		private LoggerInterface $logger = new NullLogger(),
+	) {}
 
 	/**
 	 * @param string $projectId

@@ -13,7 +13,7 @@ class GoogleMaps
 {
 	public function __construct(
 		private ?string $apiKey=null,
-		private LoggerInterface $logger=new NullLogger()
+		private LoggerInterface $logger=new NullLogger(),
 	) {}
 
 	/**

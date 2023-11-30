@@ -15,32 +15,11 @@ class Ekomi
 	public const URL = 'http://api.ekomi.de/v3/';
 	public const SCRIPT_VERSION = '1.0.0';
 
-	/**
-	 * @var LoggerInterface
-	 */
-	private LoggerInterface $logger;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $interfaceId;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $interfacePassword;
-
-	/**
-	 * Ekomi constructor.
-	 * @param string|null $interfaceId
-	 * @param string|null $interfacePassword
-	 */
-	public function __construct(?string $interfaceId=null, ?string $interfacePassword=null)
-	{
-		$this->interfaceId = $interfaceId;
-		$this->interfacePassword = $interfacePassword;
-		$this->logger = new NullLogger();
-	}
+	public function __construct(
+		private ?string $interfaceId=null,
+		private ?string $interfacePassword=null,
+		private LoggerInterface $logger=new NullLogger(),
+	) {}
 
 	/**
 	 * @param LoggerInterface $logger
