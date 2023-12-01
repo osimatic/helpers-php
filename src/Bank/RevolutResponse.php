@@ -104,7 +104,7 @@ class RevolutResponse {
     /**
      * @param string|null $publicId
      */
-    public function setPublicId(?string $publicId)
+    public function setPublicId(?string $publicId): void
     {
         $this->publicId = $publicId;
     }
@@ -120,7 +120,7 @@ class RevolutResponse {
     /**
      * @param string|null $type
      */
-    public function setType(?string $type)
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }
@@ -136,7 +136,7 @@ class RevolutResponse {
     /**
      * @param string|null $state
      */
-    public function setState(?string $state)
+    public function setState(?string $state): void
     {
         $this->state = $state;
     }
@@ -152,7 +152,7 @@ class RevolutResponse {
     /**
      * @param \DateTime|null $creationDate
      */
-    public function setCreationDate(?\DateTime $creationDate)
+    public function setCreationDate(?\DateTime $creationDate): void
     {
         $this->creationDate = $creationDate;
     }
@@ -168,7 +168,7 @@ class RevolutResponse {
     /**
      * @param \DateTime|null $updateDate
      */
-    public function setUpdateDate(?\DateTime $updateDate)
+    public function setUpdateDate(?\DateTime $updateDate): void
     {
         $this->updateDate = $updateDate;
     }
@@ -184,7 +184,7 @@ class RevolutResponse {
     /**
      * @param string|null $captureMode
      */
-    public function setCaptureMode(?string $captureMode)
+    public function setCaptureMode(?string $captureMode): void
     {
         $this->captureMode = $captureMode;
     }
@@ -200,7 +200,7 @@ class RevolutResponse {
     /**
      * @param string|null $merchantOrderExtRef
      */
-    public function setMerchantOrderExtRef(?string $merchantOrderExtRef)
+    public function setMerchantOrderExtRef(?string $merchantOrderExtRef): void
     {
         $this->merchantOrderExtRef = $merchantOrderExtRef;
     }
@@ -216,7 +216,7 @@ class RevolutResponse {
     /**
      * @param integer|null $amount
      */
-    public function setAmount(?int $amount)
+    public function setAmount(?int $amount): void
     {
         $this->amount = $amount;
     }
@@ -232,7 +232,7 @@ class RevolutResponse {
     /**
      * @param string|null $currency
      */
-    public function setCurrency(?string $currency)
+    public function setCurrency(?string $currency): void
     {
         $this->currency = $currency;
     }
@@ -248,7 +248,7 @@ class RevolutResponse {
     /**
      * @param string|null $checkoutUrl
      */
-    public function setCheckoutUrl(?string $checkoutUrl)
+    public function setCheckoutUrl(?string $checkoutUrl): void
     {
         $this->checkoutUrl = $checkoutUrl;
     }

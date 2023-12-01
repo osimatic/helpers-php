@@ -414,7 +414,7 @@ class File
 	 * @param int|null $options Either a PATHINFO_* constant
 	 * @return string|array
 	 */
-	public static function mb_pathinfo(string $path, ?int $options = null)
+	public static function mb_pathinfo(string $path, ?int $options = null): array|string
 	{
 		$ret = ['dirname' => '', 'basename' => '', 'extension' => '', 'filename' => ''];
 		$pathinfo = [];
