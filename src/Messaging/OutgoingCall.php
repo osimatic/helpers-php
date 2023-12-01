@@ -19,25 +19,25 @@ class OutgoingCall
 	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
-	private $identifier;
+	private ?string $identifier = null;
 
 	/**
 	 * Numéro de téléphone appelé
-	 * @var string
+	 * @var string|null
 	 */
-	protected $calledNumber;
+	private ?string $calledNumber = null;
 
 	/**
 	 * Numéro de téléphone affiché sur le téléphone de l'appelé
-	 * @var string
+	 * @var string|null
 	 */
-	protected $displayedNumber;
+	private ?string $displayedNumber = null;
 
 	/**
 	 * Date/heure de l'appel. Permet d'effectuer l'appel en différé (null = appel immédiat).
 	 * @var \DateTime
 	 */
-	protected $callDateTime;
+	private \DateTime $callDateTime;
 
 
 

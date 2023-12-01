@@ -826,18 +826,13 @@ class Email
 	public function addListAttachment(array $listAttachments): self
 	{
 		foreach ($listAttachments as $attachment) {
-			$attachmentPath = '';
-			$attachmentName = '';
 			if (is_array($attachment)) {
-				if (isset($attachment[0])) {
-					$attachmentPath = $attachment[0];
-					if (isset($attachment[1])) {
-						$attachmentName = $attachment[1];
-					}
-				}
+				$attachmentPath = $attachment[0] ?? '';
+				$attachmentName = $attachment[1] ?? '';
 			}
 			else {
 				$attachmentPath = $attachment;
+				$attachmentName = '';
 			}
 			if (!empty($attachmentPath)) {
 				$this->addAttachment($attachmentPath, $attachmentName);

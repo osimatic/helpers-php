@@ -10,19 +10,15 @@ use Osimatic\Helpers\Network\HTTPRequest;
  */
 class Bitly
 {
-	private $login;
-	private $key;
-
 	/**
 	 * Bitly constructor.
 	 * @param string|null $login
 	 * @param string|null $key
 	 */
-	public function __construct(?string $login=null, ?string $key=null)
-	{
-		$this->login = $login;
-		$this->key = $key;
-	}
+	public function __construct(
+		private ?string $login=null,
+		private ?string $key=null,
+	) {}
 
 	/**
 	 * @param string $login

@@ -8,17 +8,12 @@ namespace Osimatic\Helpers\API;
  */
 class Mantis
 {
-	private $url;
-	private $userId;
-	private $userName;
-	private $userPassword;
-
-	/**
-	 * Mantis constructor.
-	 */
-	public function __construct()
-	{
-	}
+	public function __construct(
+		private ?string $url = null,
+		private ?string $userId = null,
+		private ?string $userName = null,
+		private ?string $userPassword = null,
+	) {}
 
 	/**
 	 * @param string $url
@@ -68,11 +63,11 @@ class Mantis
 	 * @param int $projectId
 	 * @param string $title
 	 * @param string $desc
-	 * @param int $serverity
+	 * @param int $severity
 	 * @param string|null $projectName
 	 * @return bool
 	 */
-	public function addIssue(int $projectId, string $title, string $desc, int $serverity, string $projectName=null): bool
+	public function addIssue(int $projectId, string $title, string $desc, int $severity, string $projectName=null): bool
 	{
 		if (empty($this->url)) {
 			return false;
@@ -91,7 +86,7 @@ class Mantis
 			'description' 	=> $desc,
 			'handler' 		=> ['id'=> $this->userId, 'name' => $this->userName],
 			'project' 		=> ['id' => $projectId, 'name' => $projectName ?? ''],
-			'severity' 		=> ['id' => $serverity],
+			'severity' 		=> ['id' => $severity],
 			'category' 		=> 'General'
 		]);
 

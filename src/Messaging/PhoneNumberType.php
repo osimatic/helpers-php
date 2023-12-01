@@ -24,6 +24,7 @@ enum PhoneNumberType: int
 			self::PREMIUM_RATE => 'PREMIUM_RATE',
 			self::TOLL_FREE => 'TOLL_FREE',
 			self::SHARED_COST => 'SHARED_COST',
+			self::VOIP => 'VOIP',
 			self::UNKNOWN => 'UNKNOWN',
 		};
 	}

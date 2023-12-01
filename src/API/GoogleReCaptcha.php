@@ -10,19 +10,10 @@ use Osimatic\Helpers\Network\HTTPRequest;
  */
 class GoogleReCaptcha
 {
-	private $siteKey;
-	private $secret;
-
-	/**
-	 * GoogleReCaptcha constructor.
-	 * @param string|null $siteKey
-	 * @param string|null $secret
-	 */
-	public function __construct(?string $siteKey=null, ?string $secret=null)
-	{
-		$this->siteKey = $siteKey;
-		$this->secret = $secret;
-	}
+	public function __construct(
+		private ?string $siteKey=null,
+		private ?string $secret=null
+	) {}
 
 	/**
 	 * @param string $siteKey

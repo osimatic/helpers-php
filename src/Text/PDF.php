@@ -16,19 +16,16 @@ class PDF
 		'application/vnd.sealedmedia.softseal.pdf',
 	];
 
-	private $header;
-	private $footer;
-	private $body;
+	private ?string $header = null;
+	private ?string $footer = null;
+	private ?string $body = null;
 
-	private $logger;
-	private $wkHtmlToPdtBinaryPath;
-	private $pdfToImgConverterBinaryPath;
-	private $pdfToolkitBinaryPath;
-
-	public function __construct()
-	{
-		$this->logger = new NullLogger();
-	}
+	public function __construct(
+		private LoggerInterface $logger = new NullLogger(),
+		private ?string $wkHtmlToPdtBinaryPath = null,
+		private ?string $pdfToolkitBinaryPath = null,
+		private ?string $pdfToImgConverterBinaryPath = null,
+	) {}
 
 	/**
 	 * Set the logger to use to log debugging data.

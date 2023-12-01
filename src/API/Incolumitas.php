@@ -12,7 +12,9 @@ use Psr\Log\NullLogger;
  */
 class Incolumitas
 {
-	public function __construct(private LoggerInterface $logger=new NullLogger()) {}
+	public function __construct(
+		private LoggerInterface $logger=new NullLogger()
+	) {}
 
 	/**
 	 * @param LoggerInterface $logger

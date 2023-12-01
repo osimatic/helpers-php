@@ -17,31 +17,31 @@ class VCard
 	 * Properties
 	 * @var array
 	 */
-	private $properties;
+	private array $properties = [];
 
 	/**
 	 * Default Charset
 	 * @var string
 	 */
-	public $charset = 'utf-8';
+	public string $charset = 'utf-8';
 
 	/**
 	 * definedElements
 	 * @var array
 	 */
-	private $definedElements;
+	private array $definedElements = [];
 
 	/**
 	 * Filename
-	 * @var string
+	 * @var string|null
 	 */
-	private $filename;
+	private ?string $filename = null;
 
 	/**
 	 * Multiple properties for element allowed
 	 * @var array
 	 */
-	private static $multiplePropertiesForElementAllowed = [
+	private static array $multiplePropertiesForElementAllowed = [
 		'email',
 		'address',
 		'phoneNumber',
@@ -192,7 +192,7 @@ class VCard
 	 * @param string $coordinates latitude and longitude
 	 * @return self
 	 */
-	public function addLocation($coordinates): self
+	public function addLocation(string $coordinates): self
 	{
 		$this->setProperty(
 			'coordinates',
@@ -537,7 +537,7 @@ class VCard
 	 * @param  string $separator [optional] Default separator is an underscore '_'
 	 * @return void
 	 */
-	public function setFilename($value, bool $overwrite = true, string $separator = '_'): void
+	public function setFilename(mixed $value, bool $overwrite = true, string $separator = '_'): void
 	{
 		// recast to string if $value is array
 		if (is_array($value)) {

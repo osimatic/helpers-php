@@ -2,8 +2,6 @@
 
 namespace Osimatic\Helpers\Messaging;
 
-use Osimatic\Helpers\Messaging\PhoneNumber;
-
 /**
  * Class SMS
  * @package Osimatic\Helpers\Messaging
@@ -17,43 +15,43 @@ class SMS
 	 * The identifier property represents any kind of identifier.
 	 * @var string|null
 	 */
-	private $identifier;
+	private ?string $identifier = null;
 
 	/**
 	 * Tableau contenant la liste des numéros de téléphone des destinataires du SMS.
 	 * @var array
 	 */
-	protected $recipients = [];
+	private array $recipients = [];
 
 	/**
 	 * Texte (message) du SMS.
 	 * @var string
 	 */
-	protected $text;
+	private string $text = '';
 
 	/**
 	 * True pour couper le texte pour qu'il rentre sur un seul SMS, false pour laisser le texte entier même s'il dépasse la taille d'un SMS.
 	 * @var boolean
 	 */
-	protected $truncateText = false;
+	private bool $truncateText = false;
 
 	/**
 	 * Nom de l'expéditeur du SMS.
-	 * @var string
+	 * @var string|null
 	 */
-	protected $senderName;
+	private ?string $senderName = null;
 
 	/**
 	 * Date/heure de l'envoi du SMS. Permet d'envoyer le SMS en différé (null = envoi immédiat).
 	 * @var \DateTime
 	 */
-	protected $sendingDateTime;
+	private \DateTime $sendingDateTime;
 
 	/**
 	 *
 	 * @var boolean
 	 */
-	protected $adultContent = false;
+	private bool $adultContent = false;
 
 
 	public function __construct()
@@ -81,11 +79,11 @@ class SMS
 	// ========== Sender ==========
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public function getSenderName(): string
+	public function getSenderName(): ?string
 	{
-		return $this->senderName ?? '';
+		return $this->senderName;
 	}
 
 	/**
@@ -112,7 +110,7 @@ class SMS
 
 	/**
 	 * Récupère l'unique destinataires du SMS.
-	 * @return string le numéro de téléphone du destinataires du SMS.
+	 * @return string|null le numéro de téléphone du destinataires du SMS.
 	 */
 	public function getRecipient(): ?string
 	{
@@ -283,7 +281,7 @@ class SMS
 	 * @param string $text : texte du SMS.
 	 * @return self
 	 */
-	public function setText($text): self
+	public function setText(string $text): self
 	{
 		$text = str_replace("’", "'", $text);
 		
