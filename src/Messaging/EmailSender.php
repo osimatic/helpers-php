@@ -34,7 +34,7 @@ class EmailSender implements EmailSenderInterface
 		$this->port = $port;
 	}
 
-	public function setSmtpAuth(string $username=null, string $password=null, string $encryption=\PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS): void
+	public function setSmtpAuth(string $username, string $password, string $encryption=\PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS): void
 	{
 		$this->smtpAuth = true;
 		$this->smtpAuthUsername = $username;
