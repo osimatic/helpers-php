@@ -503,7 +503,7 @@ class Str
 	 */
 	public static function underscore(string $str): string
 	{
-		return preg_replace('/[\s]+/', '_', strtolower(trim($str)));
+		return preg_replace('/[\s]+/', '_', mb_strtolower(trim($str)));
 	}
 
 	/**
@@ -513,7 +513,7 @@ class Str
 	 */
 	public static function humanize(string $str): string
 	{
-		return ucwords(preg_replace('/[_]+/', ' ', strtolower(trim($str))));
+		return ucwords(preg_replace('/[_]+/', ' ', mb_strtolower(trim($str))));
 	}
 
 	/**
@@ -535,7 +535,7 @@ class Str
 	{
 		return (new CamelCaseToSnakeCaseNameConverter())->denormalize($str);
 
-		//$str = 'x'.strtolower(trim($str));
+		//$str = 'x'.mb_strtolower(trim($str));
 		//$str = ucwords(preg_replace('/[\s_]+/', ' ', $str));
 		//return substr(str_replace(' ', '', $str), 1);
 	}

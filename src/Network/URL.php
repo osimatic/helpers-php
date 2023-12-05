@@ -53,16 +53,16 @@ class URL
 		if (empty($matches)) {
 			// i.e http://mon-site.fr[?arg=unArg]
 			if (!strrpos($url, '?')) {
-				return strtolower($url);
+				return mb_strtolower($url);
 			}
 			$tabUrl = explode('?', $url);
-			return strtolower($tabUrl[0]) . '?' . $tabUrl[1];
+			return mb_strtolower($tabUrl[0]) . '?' . $tabUrl[1];
 		}
 
 		// i.e http://mon-site.fr/categ1[/categ2?arg=unArg]
 		// Reconstitution de l'url
 		// Match[1][1] contient la position du "/"
-		return strtolower(substr($url, 0, $matches[1][1])) . substr($url, $matches[1][1]);
+		return mb_strtolower(substr($url, 0, $matches[1][1])) . substr($url, $matches[1][1]);
 	}
 
 	// ========== Components of URL ==========

@@ -396,7 +396,7 @@ class Email
 	 */
 	public function addReplyTo(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress('replyTo', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::replyTo, $emailAddress, $name);
 
 		return $this;
 	}
@@ -410,7 +410,7 @@ class Email
 	public function setReplyTo(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearReplyTo();
-		$this->addEmailAddress('replyTo', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::replyTo, $emailAddress, $name);
 		// $this->replyTo = array(array($replyToEmail, $replyToName));
 
 		return $this;
@@ -508,7 +508,7 @@ class Email
 	 */
 	public function addTo(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress('listTo', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
 
 		return $this;
 	}
@@ -521,7 +521,7 @@ class Email
 	 */
 	public function addRecipient(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress('listTo', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
 
 		return $this;
 	}
@@ -534,7 +534,7 @@ class Email
 	 */
 	public function addCc(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress('listCc', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listCc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -547,7 +547,7 @@ class Email
 	 */
 	public function addBcc(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress('listBcc', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listBcc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -559,7 +559,7 @@ class Email
 	 */
 	public function addListTo(array $recipientList): self
 	{
-		$this->addEmailAddressList('listTo', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listTo, $recipientList);
 
 		return $this;
 	}
@@ -571,7 +571,7 @@ class Email
 	 */
 	public function addListCc(array $recipientList): self
 	{
-		$this->addEmailAddressList('listCc', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listCc, $recipientList);
 
 		return $this;
 	}
@@ -583,7 +583,7 @@ class Email
 	 */
 	public function addListBcc(array $recipientList): self
 	{
-		$this->addEmailAddressList('listBcc', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listBcc, $recipientList);
 
 		return $this;
 	}
@@ -598,7 +598,7 @@ class Email
 	public function setRecipient(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddress('listTo', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
 
 		return $this;
 	}
@@ -612,7 +612,7 @@ class Email
 	public function setTo(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddress('listTo', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
 
 		return $this;
 	}
@@ -626,7 +626,7 @@ class Email
 	public function setCc(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddress('listCc', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listCc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -640,7 +640,7 @@ class Email
 	public function setBcc(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddress('listBcc', $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::listBcc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -653,7 +653,7 @@ class Email
 	public function setListRecipients(array $recipientList): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddressList('listTo', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listTo, $recipientList);
 
 		return $this;
 	}
@@ -666,7 +666,7 @@ class Email
 	public function setListTo(array $recipientList): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddressList('listTo', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listTo, $recipientList);
 
 		return $this;
 	}
@@ -679,7 +679,7 @@ class Email
 	public function setListCc(array $recipientList): self
 	{
 		$this->clearListCc();
-		$this->addEmailAddressList('listCc', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listCc, $recipientList);
 
 		return $this;
 	}
@@ -692,7 +692,7 @@ class Email
 	public function setListBcc(array $recipientList): self
 	{
 		$this->clearListBcc();
-		$this->addEmailAddressList('listBcc', $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::listBcc, $recipientList);
 
 		return $this;
 	}
@@ -720,8 +720,8 @@ class Email
 	public function clearListTo(): void
 	{
 		foreach ($this->listTo as $to) {
-			if (!empty($to[0]) && isset($this->allAdresses[strtolower($to[0])])) {
-				unset($this->allAdresses[strtolower($to[0])]);
+			if (!empty($to[0]) && isset($this->allAdresses[mb_strtolower($to[0])])) {
+				unset($this->allAdresses[mb_strtolower($to[0])]);
 			}
 		}
 		$this->listTo = [];
@@ -733,8 +733,8 @@ class Email
 	public function clearListCc(): void
 	{
 		foreach ($this->listCc as $cc) {
-			if (!empty($cc[0]) && isset($this->allAdresses[strtolower($cc[0])])) {
-				unset($this->allAdresses[strtolower($cc[0])]);
+			if (!empty($cc[0]) && isset($this->allAdresses[mb_strtolower($cc[0])])) {
+				unset($this->allAdresses[mb_strtolower($cc[0])]);
 			}
 		}
 		$this->listCc = [];
@@ -746,8 +746,8 @@ class Email
 	public function clearListBcc(): void
 	{
 		foreach ($this->listBcc as $bcc) {
-			if (!empty($bcc[0]) && isset($this->allAdresses[strtolower($bcc[0])])) {
-				unset($this->allAdresses[strtolower($bcc[0])]);
+			if (!empty($bcc[0]) && isset($this->allAdresses[mb_strtolower($bcc[0])])) {
+				unset($this->allAdresses[mb_strtolower($bcc[0])]);
 			}
 		}
 		$this->listBcc = [];
@@ -1232,24 +1232,19 @@ class Email
 	// ========== private ==========
 
 	/**
-	 * @param string $kind
+	 * @param EmailAddressKind $kind
 	 * @param array $emailList
 	 */
-	private function addEmailAddressList(string $kind, array $emailList): void
+	private function addEmailAddressList(EmailAddressKind $kind, array $emailList): void
 	{
 		foreach ($emailList as $emailData) {
-			$email = '';
-			$name = '';
 			if (is_array($emailData)) {
-				if (isset($emailData[0])) {
-					$email = $emailData[0];
-					if (isset($emailData[1])) {
-						$name = $emailData[1];
-					}
-				}
+				$email = $emailData[0] ?? '';
+				$name = $emailData[1] ?? '';
 			}
 			else {
 				$email = $emailData;
+				$name = '';
 			}
 			if (!empty($email)) {
 				$this->addEmailAddress($kind, $email, $name);
@@ -1260,19 +1255,14 @@ class Email
 	/**
 	 * Adds an address to one of the recipient arrays
 	 * Addresses that have been added already return false, but do not throw exceptions
-	 * @param string $kind One of 'listTo', 'listCc', 'listBcc', 'replyTo'
+	 * @param EmailAddressKind $kind One of 'listTo', 'listCc', 'listBcc', 'replyTo'
 	 * @param string $emailAddress The email address to send to
 	 * @param string $name
 	 * @return boolean true on success, false if address already used or invalid in some way
 	 * @access private
 	 */
-	private function addEmailAddress(string $kind, string $emailAddress, string $name = ''): bool
+	private function addEmailAddress(EmailAddressKind $kind, string $emailAddress, string $name = ''): bool
 	{
-		if (!preg_match('/^(listTo|listCc|listBcc|replyTo)$/', $kind)) {
-			//trace('Invalid recipient array : '.$kind);
-			return false;
-		}
-
 		$emailAddress = trim($emailAddress);
 		$name = trim(preg_replace('/[\r\n]+/', '', $name)); //Strip breaks and trim
 		if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
@@ -1280,22 +1270,30 @@ class Email
 			return false;
 		}
 
-		if ($kind !== 'replyTo') {
-			if (!array_key_exists(strtolower($emailAddress), $this->allAdresses)) {
-				$this->$kind[] = [$emailAddress, $name];
-				$this->allAdresses[strtolower($emailAddress)] = true;
+		if (EmailAddressKind::replyTo === $kind) {
+			if (!array_key_exists(mb_strtolower($emailAddress), $this->replyTo)) {
+				$this->replyTo[mb_strtolower($emailAddress)] = [$emailAddress, $name];
 				return true;
 			}
 
 			return false;
 		}
 
-		if (!array_key_exists(strtolower($emailAddress), $this->replyTo)) {
-			$this->replyTo[strtolower($emailAddress)] = [$emailAddress, $name];
+		if (!array_key_exists(mb_strtolower($emailAddress), $this->allAdresses)) {
+			$key = $kind->value;
+			$this->$key[] = [$emailAddress, $name];
+			$this->allAdresses[mb_strtolower($emailAddress)] = true;
 			return true;
 		}
 
 		return false;
 	}
 
+}
+
+enum EmailAddressKind: string {
+	case listTo = 'listTo';
+	case listCc = 'listCc';
+	case listBcc = 'listBcc';
+	case replyTo = 'replyTo';
 }

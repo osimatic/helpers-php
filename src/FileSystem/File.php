@@ -88,7 +88,7 @@ class File
 			return false;
 		}
 
-		$extension = strtolower('.'.pathinfo($clientOriginalName, PATHINFO_EXTENSION));
+		$extension = mb_strtolower('.'.pathinfo($clientOriginalName, PATHINFO_EXTENSION));
 		if (empty($extension) || !in_array($extension, $extensionsAllowed)) {
 			return false;
 		}

@@ -85,16 +85,20 @@ class EmailSender implements EmailSenderInterface
 			$mail->CharSet = $email->getCharSet();
 			$mail->setFrom($email->getFromEmailAddress(), $email->getFromName());
 			foreach ($email->getReplyTo() as $replyTo) {
-				$mail->addReplyTo($replyTo);
+				$replyTo = is_array($replyTo) ? $replyTo : [$replyTo];
+				$mail->addReplyTo(mb_strtolower($replyTo[0]), $replyTo[1] ?? '');
 			}
 			foreach ($email->getListTo() as $to) {
-				$mail->addAddress(strtolower($to[0]), (!empty($to[1])?$to[1]:''));
+				$to = is_array($to) ? $to : [$to];
+				$mail->addAddress(mb_strtolower($to[0]), $to[1] ?? '');
 			}
 			foreach ($email->getListCc() as $cc) {
-				$mail->addCC(strtolower($cc[0]), (!empty($cc[1])?$cc[1]:''));
+				$cc = is_array($cc) ? $cc : [$cc];
+				$mail->addCC(mb_strtolower($cc[0]), $cc[1] ?? '');
 			}
 			foreach ($email->getListBcc() as $bcc) {
-				$mail->addBCC(strtolower($bcc[0]), (!empty($bcc[1])?$bcc[1]:''));
+				$bcc = is_array($bcc) ? $bcc : [$bcc];
+				$mail->addBCC(mb_strtolower($bcc[0]), $bcc[1] ?? '');
 			}
 
 			$mail->Subject = $email->getSubject();
