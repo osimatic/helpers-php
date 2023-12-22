@@ -261,7 +261,7 @@ class DatePeriod
 	 */
 	public static function getNbYears(\DateTime $periodStart, \DateTime $periodEnd): int
 	{
-		$nbSeconds = $periodStart->setTime(0, 0, 0)->getTimestamp() - $periodEnd->setTime(0, 0, 0)->getTimestamp();
+		$nbSeconds = $periodEnd->setTime(0, 0, 0)->getTimestamp() - $periodStart->setTime(0, 0, 0)->getTimestamp();
 		return (int) floor($nbSeconds / (3600*24*365.25));
 	}
 
