@@ -67,6 +67,17 @@ class PublicHolidays
 	 */
 	public static function getList(string $country, int $year, array $options=[]): array
 	{
+		return \Osimatic\Helpers\ArrayList\Arr::collection_array_unique(self::getListOfCountry($country, $year, $options), fn(PublicHoliday $publicHoliday) => $publicHoliday->getKey());
+	}
+
+	/**
+	 * @param string $country
+	 * @param int $year
+	 * @param array $options
+	 * @return PublicHoliday[]
+	 */
+	private static function getListOfCountry(string $country, int $year, array $options=[]): array
+	{
 		$country = mb_strtoupper($country);
 
 		//$easterDateTime = (new \DateTime('@'.easter_date($year)))->setTimezone(new \DateTimeZone($timeZone));

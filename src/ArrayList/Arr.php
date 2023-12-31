@@ -188,6 +188,24 @@ class Arr
 		return \array_values($unique);
 	}
 
+	/**
+	 * @param array $values
+	 * @param callable $getUniqValue
+	 * @return array
+	 */
+	public static function collection_array_unique(array $values, callable $getUniqValue): array
+	{
+		return array_filter($values, function($obj) use ($getUniqValue) {
+			static $list = [];
+			$uniqValue = $getUniqValue($obj);
+			if (in_array($uniqValue, $list)) {
+				return false;
+			}
+			$list[] = $uniqValue;
+			return true;
+		});
+	}
+
 
 
 	// ========== Génération de valeur ==========
