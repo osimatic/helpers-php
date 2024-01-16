@@ -9,7 +9,8 @@ use Psr\Log\NullLogger;
 class AllMySms implements SmsSenderInterface
 {
 	public function __construct(
-		private string $authToken,
+		private string $login,
+		private string $apiKey,
 		private LoggerInterface $logger=new NullLogger(),
 	) {}
 
@@ -18,9 +19,19 @@ class AllMySms implements SmsSenderInterface
 		$this->logger = $logger;
 	}
 
-	public function setAuthToken(string $authToken): void
+	public function setLogin(string $login): void
 	{
-		$this->authToken = $authToken;
+		$this->login = $login;
+	}
+
+	public function setApiKey(string $apiKey): void
+	{
+		$this->apiKey = $apiKey;
+	}
+
+	public function getAuthToken(): string
+	{
+		return base64_encode($this->login.':'.$this->apiKey);
 	}
 
 	/**
@@ -55,9 +66,6 @@ class AllMySms implements SmsSenderInterface
 		];
 		*/
 
-		//config
-		$authToken = $this->authToken;
-
 		foreach ($sms->getListRecipients() as $phoneNumber) {
 			$json = json_encode([
 				'from' => $sms->getSenderName(),
@@ -78,7 +86,7 @@ class AllMySms implements SmsSenderInterface
 					CURLOPT_CUSTOMREQUEST => "POST",
 					CURLOPT_POSTFIELDS => $json,
 					CURLOPT_HTTPHEADER => [
-						"Authorization: Basic ".$authToken,
+						"Authorization: Basic ".$this->getAuthToken(),
 						"Content-Type: application/json",
 						"cache-control: no-cache"
 					],
