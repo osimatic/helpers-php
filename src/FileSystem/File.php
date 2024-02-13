@@ -114,6 +114,17 @@ class File
 	}
 
 	/**
+	 * @param string $filename
+	 * @param string $newExtension
+	 * @return string
+	 */
+	public static function replaceExtension(string $filename, string $newExtension): string
+	{
+		$info = pathinfo($filename);
+		return ($info['dirname'] ? $info['dirname'] . DIRECTORY_SEPARATOR : '') . $info['filename'] . (!str_starts_with($newExtension, '.') ? '.' : '') . $newExtension;
+	}
+
+	/**
 	 * Envoi un fichier au navigateur du client.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath
