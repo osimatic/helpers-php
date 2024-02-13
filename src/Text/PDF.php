@@ -24,7 +24,7 @@ class PDF
 		private LoggerInterface $logger = new NullLogger(),
 		private ?string $wkHtmlToPdtBinaryPath = null,
 		private ?string $pdfToolkitBinaryPath = null,
-		private ?string $pdfToImgConverterBinaryPath = null,
+		private ?string $imagickConverterBinaryPath = null,
 	) {}
 
 	/**
@@ -164,6 +164,30 @@ class PDF
 		return true;
 	}
 
+	/**
+	 * @param string $imageFilePath
+	 * @param string $pdfFilePath
+	 * @return bool
+	 */
+	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
+	{
+		$commandLine = $this->imagickConverterBinaryPath . ' "'.$imageFilePath.'" "'.$pdfFilePath.'"';
+
+		// Envoi de la commande
+		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		$lastLine = system($commandLine);
+
+		/*try {
+			$pdf = new \Imagick([$imageFilePath]);
+			$pdf->setImageFormat('pdf');
+			$pdf->writeImages($pdfFilePath, true);
+		} catch (\ImagickException $e) {
+			$this->logger->error($e->getMessage());
+			return false;
+		}*/
+
+		return true;
+	}
 
 	// ========== Modification de PDF ==========
 
@@ -181,7 +205,7 @@ class PDF
 		$optionQualiteDoc = '-quality 100 -density 150 ';
 
 		$args = $optionQualiteDoc . $pdfPath . ' ' . $imagePath;
-		$commandLine = $this->pdfToImgConverterBinaryPath . ' ' . $args;
+		$commandLine = $this->imagickConverterBinaryPath . ' ' . $args;
 
 		// Envoi de la ligne de commande
 		$lastLine = system($commandLine);
@@ -253,12 +277,12 @@ class PDF
 	}
 
 	/**
-	 * @param string $pdfToImgConverterBinaryPath
+	 * @param string $imagickConverterBinaryPath
 	 * @return self
 	 */
-	public function setPdfToImgConverterBinaryPath(string $pdfToImgConverterBinaryPath): self
+	public function setImagickConverterBinaryPath(string $imagickConverterBinaryPath): self
 	{
-		$this->pdfToImgConverterBinaryPath = $pdfToImgConverterBinaryPath;
+		$this->imagickConverterBinaryPath = $imagickConverterBinaryPath;
 
 		return $this;
 	}
