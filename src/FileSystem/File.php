@@ -43,6 +43,15 @@ class File
 
 	/**
 	 * @param InputFile|UploadedFile $uploadedFile
+	 * @return string|null
+	 */
+	public static function getExtensionOfUploadedFile(InputFile|UploadedFile $uploadedFile): ?string
+	{
+		return is_a(\Osimatic\Helpers\FileSystem\InputFile::class, $uploadedFile) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
+	}
+
+	/**
+	 * @param InputFile|UploadedFile $uploadedFile
 	 * @param string $filePath
 	 * @param LoggerInterface|null $logger
 	 * @return bool
