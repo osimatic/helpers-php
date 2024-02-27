@@ -13,7 +13,6 @@
 	  	"ext-curl": "*",
 	  	"ext-json": "*",
 		"ext-calendar": "*",
-		"ext-imagick": "*",
 	  	"psr/log": "*",
 	  	"psr/http-message": "*",
 	  	"giggsey/libphonenumber-for-php": "^8",
