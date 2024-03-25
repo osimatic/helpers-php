@@ -2,6 +2,7 @@
 
 namespace Osimatic\Helpers\Media;
 
+use Osimatic\Helpers\FileSystem\OutputFile;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use getID3;
@@ -231,6 +232,16 @@ class Audio
 	{
 		//\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
 		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+	}
+
+	/**
+	 * Envoi au navigateur du client un fichier audio.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 */
+	public static function outputFile(OutputFile $file): void
+	{
+		\Osimatic\Helpers\FileSystem\File::downloadFile($file);
 	}
 
 	/**

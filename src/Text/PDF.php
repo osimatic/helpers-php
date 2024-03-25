@@ -2,6 +2,7 @@
 
 namespace Osimatic\Helpers\Text;
 
+use Osimatic\Helpers\FileSystem\OutputFile;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,9 +60,19 @@ class PDF
 	 * @param string $filePath
 	 * @param string|null $fileName
 	 */
-	public static function download(string $filePath, ?string $fileName=null): void
+	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'application/pdf');
+	}
+
+	/**
+	 * Envoi au navigateur du client un fichier PDF.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 */
+	public static function outputFile(OutputFile $file): void
+	{
+		\Osimatic\Helpers\FileSystem\File::outputFile($file, 'application/pdf');
 	}
 
 	/**
@@ -70,9 +81,19 @@ class PDF
 	 * @param string $filePath
 	 * @param string|null $fileName
 	 */
-	public static function output(string $filePath, ?string $fileName=null): void
+	public static function download(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'application/pdf');
+		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+	}
+
+	/**
+	 * Envoi au navigateur du client un fichier PDF.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 */
+	public static function downloadFile(OutputFile $file): void
+	{
+		\Osimatic\Helpers\FileSystem\File::downloadFile($file);
 	}
 
 	/**

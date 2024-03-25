@@ -148,6 +148,21 @@ class File
 	/**
 	 * Envoi un fichier au navigateur du client.
 	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 * @param string|null $mimeType
+	 */
+	public static function outputFile(OutputFile $file, ?string $mimeType=null): void
+	{
+		if (null === $file->getFilePath()) {
+			return;
+		}
+
+		self::_output($file->getFilePath(), $file->getFileName(), false, $mimeType, null, true);
+	}
+
+	/**
+	 * Envoi un fichier au navigateur du client.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
 	 * @param string $filePath
 	 * @param string|null $fileName
 	 * @param string|null $transferEncoding
@@ -155,6 +170,21 @@ class File
 	public static function download(string $filePath, ?string $fileName=null, ?string $transferEncoding=null): void
 	{
 		self::_output($filePath, $fileName, true, null, $transferEncoding, true);
+	}
+
+	/**
+	 * Envoi un fichier au navigateur du client.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 * @param string|null $transferEncoding
+	 */
+	public static function downloadFile(OutputFile $file, ?string $transferEncoding=null): void
+	{
+		if (null === $file->getFilePath()) {
+			return;
+		}
+
+		self::_output($file->getFilePath(), $file->getFileName(), true, null, $transferEncoding, true);
 	}
 
 	/**

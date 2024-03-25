@@ -2,6 +2,7 @@
 
 namespace Osimatic\Helpers\Text;
 
+use Osimatic\Helpers\FileSystem\OutputFile;
 use Symfony\Component\HttpFoundation\Response;
 
 class XML
@@ -16,6 +17,14 @@ class XML
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
 		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/xml');
+	}
+
+	/**
+	 * @param OutputFile $file
+	 */
+	public static function outputFile(OutputFile $file): void
+	{
+		\Osimatic\Helpers\FileSystem\File::outputFile($file, 'text/xml');
 	}
 
 	/**

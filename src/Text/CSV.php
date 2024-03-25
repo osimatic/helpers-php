@@ -2,6 +2,7 @@
 
 namespace Osimatic\Helpers\Text;
 
+use Osimatic\Helpers\FileSystem\OutputFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -73,6 +74,16 @@ class CSV
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
 		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/csv');
+	}
+
+	/**
+	 * Envoi au navigateur du client un fichier CSV.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 */
+	public static function outputFile(OutputFile $file): void
+	{
+		\Osimatic\Helpers\FileSystem\File::outputFile($file, 'text/csv');
 	}
 
 	/**

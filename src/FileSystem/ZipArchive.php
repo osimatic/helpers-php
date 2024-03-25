@@ -38,6 +38,16 @@ class ZipArchive
 	}
 
 	/**
+	 * Envoi au navigateur du client un fichier zip.
+	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
+	 * @param OutputFile $file
+	 */
+	public static function outputFile(OutputFile $file): void
+	{
+		\Osimatic\Helpers\FileSystem\File::downloadFile($file);
+	}
+
+	/**
 	 * @param string $filePath
 	 * @param string|null $fileName
 	 * @return Response
@@ -50,7 +60,7 @@ class ZipArchive
 	/**
 	 * Crée une archive zip contenant la liste des fichiers passée en paramètre.
 	 * @param string $filePath Le chemin de l'archive à créer
-	 * @param array $files Un tableau contenant la liste des fichiers à ajouter dans l'archive.
+	 * @param string[] $files Un tableau contenant la liste des fichiers à ajouter dans l'archive.
 	 */
 	public static function archive(string $filePath, array $files): void
 	{
@@ -61,6 +71,25 @@ class ZipArchive
 		foreach ($files as $f) {
 			if (file_exists($f)) {
 				$zip->addFile($f, basename($f));
+			}
+		}
+		$zip->close();
+	}
+
+	/**
+	 * Crée une archive zip contenant la liste des fichiers passée en paramètre.
+	 * @param string $filePath Le chemin de l'archive à créer
+	 * @param OutputFile[] $files Un tableau contenant la liste des fichiers à ajouter dans l'archive.
+	 */
+	public static function archiveOutputFiles(string $filePath, array $files): void
+	{
+		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+
+		$zip = new \ZipArchive();
+		$zip->open($filePath, \ZipArchive::CREATE);
+		foreach ($files as $outputFile) {
+			if (null !== ($filePath = $outputFile->getFilePath()) && file_exists($filePath)) {
+				$zip->addFile($filePath, $outputFile->getFileName() ?? basename($filePath));
 			}
 		}
 		$zip->close();

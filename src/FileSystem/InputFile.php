@@ -5,12 +5,13 @@ namespace Osimatic\Helpers\FileSystem;
 class InputFile
 {
 	/**
-	 * The filename of the uploaded file.
+	 * The full file path of the uploaded file.
 	 * @var string|null
 	 */
 	private ?string $uploadedFilePath;
 
 	/**
+	 * The original filename of the uploaded file.
 	 * @var string|null
 	 */
 	private ?string $originalFileName;
