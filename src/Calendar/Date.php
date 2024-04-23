@@ -49,4 +49,22 @@ class Date
 
 	// ========== Année ==========
 
+	/**
+	 * @param int $year
+	 * @return int
+	 */
+	public static function isLeapYear(int $year): int
+	{
+		return ((($year % 4) == 0) && ((($year % 100) != 0) || (($year %400) == 0)));
+	}
+
+	/**
+	 * @param int $year
+	 * @return int
+	 */
+	public static function getNumberOfDaysInYear(int $year): int
+	{
+		return self::isLeapYear($year) ? 366 : 365;
+	}
+
 }
