@@ -64,8 +64,9 @@ class GoogleDistanceMatrix
 			return null;
 		}
 
+		$params['avoid'] = [];
+
 		if (TravelMode::DRIVE === $travelMode) {
-			$params['avoid'] = [];
 			if ($parameters->isAvoidTolls()) {
 				$params['avoid'][] = 'tolls';
 			}
