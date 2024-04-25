@@ -95,12 +95,19 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 				$webPushNotification->getMessage(),
 			);
 
+			$responseData = $report->jsonSerialize();
+
 			if (!$report->isSuccess()) {
 				$this->logger->info('Error during sending message to endpoint "'.$report->getEndpoint().'" : '.$report->getReason());
-				return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::UNKNOWN);
+
+				if ($report->isSubscriptionExpired()) {
+					return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::TOKEN_EXPIRED, $responseData);
+				}
+
+				return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::UNKNOWN, $responseData);
 			}
 
-			return new PushNotificationSendingResponse(true);
+			return new PushNotificationSendingResponse(true, null, $responseData);
 		}
 		catch (\ErrorException $e) {
 			$this->logger->info('Error envoi web push notification: '.$e->getMessage());

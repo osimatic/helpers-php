@@ -122,8 +122,19 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 
 		$this->logger->info((string) $result->getBody());
 
-		if (null === $responseData || (!empty($this->result['error']) && !empty($errorCode = $this->result['error']['code'] ?? null) && in_array($errorCode, [400, 404], true))) {
-			return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::SETTINGS_INVALID, $responseData);
+		if (null === $responseData) {
+			return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::UNKNOWN);
+		}
+
+		if (!empty($responseData['error'])) {
+			$errorStatus = $responseData['error']['status'] ?? null;
+			if ('INVALID_ARGUMENT' === $errorStatus) {
+				return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::SETTINGS_INVALID, $responseData);
+			}
+			if ('UNREGISTERED' === $errorStatus) {
+				return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::TOKEN_EXPIRED, $responseData);
+			}
+			return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::UNKNOWN, $responseData);
 		}
 
 		return new PushNotificationSendingResponse(true, null, $responseData);
