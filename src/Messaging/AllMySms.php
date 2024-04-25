@@ -1,8 +1,7 @@
 <?php
 
-namespace Osimatic\Helpers\API;
+namespace Osimatic\Helpers\Messaging;
 
-use Osimatic\Helpers\Messaging\SmsSenderInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

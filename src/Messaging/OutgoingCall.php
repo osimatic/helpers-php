@@ -2,19 +2,12 @@
 
 namespace Osimatic\Helpers\Messaging;
 
-use Osimatic\Helpers\Messaging\PhoneNumber;
-
 /**
  * Class OutgoingCall
  * @package Osimatic\Helpers\Messaging
  */
 class OutgoingCall
 {
-	public const CALL_RESULT_OK = 'OK';
-	public const CALL_RESULT_BUSY = 'BUSY';
-	public const CALL_RESULT_NO_RESPONSE = 'NO_RESPONSE';
-	public const CALL_RESULT_FAILED = 'FAILED';
-
 	/**
 	 * The identifier property represents any kind of identifier.
 	 * @var string|null

@@ -15,6 +15,11 @@ interface WebPushNotificationSubscriptionInterface
 	public function getEndpoint() : string;
 
 	/**
+	 * @return array
+	 */
+	public function getSubscriptionKeys() : array;
+
+	/**
 	 * @return string
 	 */
 	public function getPublicKey() : string;
@@ -25,9 +30,9 @@ interface WebPushNotificationSubscriptionInterface
 	public function getAuthToken() : string;
 
 	/**
-	 * @return int
+	 * @return int|null
 	 */
-	public function getExpirationTimestamp() : int;
+	public function getExpirationTimestamp() : ?int;
 
 	/**
 	 * @return string|null

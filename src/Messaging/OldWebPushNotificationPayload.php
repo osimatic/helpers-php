@@ -7,7 +7,7 @@ namespace Osimatic\Helpers\Messaging;
  * Represent payload of a web push notification
  * @package Osimatic\Helpers\Messaging
  */
-class WebPushNotification
+class OldWebPushNotificationPayload
 {
 	/**
 	 * @var \DateTime|null
@@ -64,63 +64,6 @@ class WebPushNotification
 	 */
 	private $sound;
 
-	public function getPayload() : string
-	{
-		return json_encode($this->getPayloadData());
-	}
-
-	public function getPayloadData() : array
-	{
-
-		$opt = [
-			'renotify' => $this->reNotify,
-			'requireInteraction' => $this->requireInteraction,
-			'silent' => $this->silent,
-			'data' => []
-		];
-
-		if (!empty($this->tag)) {
-			$opt['tag'] = $this->tag;
-		}
-		if (!empty($this->badge)) {
-			$opt['image'] = $this->image;
-		}
-		if (!empty($this->badge)) {
-			$opt['badge'] = $this->badge;
-		}
-
-		if (!empty($this->dateTime)) {
-			$opt['timestamp'] = $this->dateTime->getTimestamp() * 1000;
-		}
-
-		if (!empty($this->url)) {
-			$opt['data']['url'] = $this->url;
-		}
-
-		if (!empty($this->vibrate)) {
-			$opt['vibrate'] = $this->vibrate;
-		}
-		if (!empty($this->sound)) {
-			$opt['sound'] = $this->sound;
-		}
-
-		if (!empty($this->actions)) {
-			$opt['actions'] = [];
-			foreach ($this->actions as $action) {
-				$opt['actions'][] = [
-					'action' => $action['action'],
-					'title' => $action['title'],
-					'icon' => $action['icon'],
-					'custom' => $action['custom_info']
-				];
-			}
-		}
-
-		return [
-			'opt' => $opt
-		];
-	}
-
 
 	/**
 	 * Note: the URL is no part of the JS showNotification() - Options!
@@ -129,6 +72,11 @@ class WebPushNotification
 	public function setURL(string $url) : void
 	{
 		$this->url = $url;
+	}
+
+	public function getUrl(): string
+	{
+		return $this->url;
 	}
 
 	/**
@@ -146,6 +94,18 @@ class WebPushNotification
 		$this->reNotify = $reNotify;
 	}
 
+	public function getTag(): string
+	{
+		return $this->tag;
+	}
+
+	public function isReNotify(): bool
+	{
+		return $this->reNotify;
+	}
+
+
+
 	/**
 	 * containing the URL of an larger image to be displayed in the notification.
 	 * Size, position and cropping vary with the different browsers and platforms
@@ -154,6 +114,11 @@ class WebPushNotification
 	public function setImage(string $image) : void
 	{
 		$this->image = $image;
+	}
+
+	public function getImage(): string
+	{
+		return $this->image;
 	}
 
 	/**
@@ -168,6 +133,11 @@ class WebPushNotification
 	public function setBadge(string $badge) : void
 	{
 		$this->badge = $badge;
+	}
+
+	public function getBadge(): string
+	{
+		return $this->badge;
 	}
 
 	/**
@@ -194,6 +164,11 @@ class WebPushNotification
 		];
 	}
 
+	public function getActions(): array
+	{
+		return $this->actions;
+	}
+
 	/**
 	 * Set the time when the notification was created.
 	 * It can be used to indicate the time at which a notification is actual. For example, this could
@@ -205,6 +180,11 @@ class WebPushNotification
 	public function setDateTime(\DateTime $dateTime) : void
 	{
 		$this->dateTime = $dateTime;
+	}
+
+	public function getDateTime(): ?\DateTime
+	{
+		return $this->dateTime;
 	}
 
 	/**
@@ -220,6 +200,11 @@ class WebPushNotification
 		$this->requireInteraction = $requireInteraction;
 	}
 
+	public function isRequireInteraction(): bool
+	{
+		return $this->requireInteraction;
+	}
+
 	/**
 	 * Indicates that no sounds or vibrations should be made.
 	 * If this 'mute' function is activated, a previously set vibration is reset to prevent a TypeError exception.
@@ -229,6 +214,11 @@ class WebPushNotification
 	{
 		$this->silent = $silent;
 		$this->vibrate = null;
+	}
+
+	public function isSilent(): bool
+	{
+		return $this->silent;
 	}
 
 	/**
@@ -245,6 +235,13 @@ class WebPushNotification
 		$this->vibrate = $pattern;
 	}
 
+	public function getVibrate(): ?array
+	{
+		return $this->vibrate;
+	}
+
+
+
 	/**
 	 * containing the URL of an sound - file (mp3 or wav).
 	 * currently not found any browser supports sounds
@@ -253,6 +250,11 @@ class WebPushNotification
 	public function setSound(string $sound) : void
 	{
 		$this->sound = $sound;
+	}
+
+	public function getSound(): ?string
+	{
+		return $this->sound;
 	}
 
 }
