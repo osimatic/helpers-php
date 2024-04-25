@@ -59,12 +59,12 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 	}
 
 	/**
-	 * @param WebPushNotificationInterface $webPushNotification
+	 * @param PushNotificationInterface $webPushNotification
 	 * @return PushNotificationSendingResponse
 	 */
-	public function send(WebPushNotificationInterface $webPushNotification): PushNotificationSendingResponse
+	public function send(PushNotificationInterface $webPushNotification): PushNotificationSendingResponse
 	{
-		if (empty($endPoint = $webPushNotification->getSubscription()->getEndpoint())) {
+		if (!is_a($subscription = $webPushNotification->getSubscription(), WebPushNotificationSubscriptionInterface::class) || empty($endPoint = $subscription->getEndpoint())) {
 			return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::TOKEN_INVALID);
 		}
 
@@ -86,7 +86,7 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 		try {
 			$sub = \Minishlink\WebPush\Subscription::create([
 				'endpoint' => $endPoint,
-				'keys' => $webPushNotification->getSubscription()->getSubscriptionKeys()
+				'keys' => $subscription->getSubscriptionKeys()
 			]);
 
 			$webPush = new \Minishlink\WebPush\WebPush($auth);

@@ -2,13 +2,13 @@
 
 namespace Osimatic\Helpers\Messaging;
 
-interface MobilePushNotificationInterface
+interface PushNotificationInterface
 {
 	/**
 	 * The recipient subscription to send to
-	 * @return MobilePushNotificationSubscriptionInterface
+	 * @return MobilePushNotificationSubscriptionInterface|WebPushNotificationSubscriptionInterface
 	 */
-	public function getSubscription(): MobilePushNotificationSubscriptionInterface;
+	public function getSubscription(): MobilePushNotificationSubscriptionInterface|WebPushNotificationSubscriptionInterface;
 
 	/**
 	 * The title of message

@@ -49,10 +49,10 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 
 	/**
 	 * Send the message to the device
-	 * @param MobilePushNotificationInterface $mobilePushNotification
+	 * @param PushNotificationInterface $mobilePushNotification
 	 * @return PushNotificationSendingResponse
 	 */
-	public function send(MobilePushNotificationInterface $mobilePushNotification): PushNotificationSendingResponse
+	public function send(PushNotificationInterface $mobilePushNotification): PushNotificationSendingResponse
 	{
 		if (empty($this->projectId)) {
 			$this->logger->error('Project ID not set');
@@ -66,7 +66,7 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 
 		$url = 'https://fcm.googleapis.com/v1/projects/'.$this->projectId.'/messages:send';
 
-		if (empty($deviceToken = $mobilePushNotification->getSubscription()->getDeviceToken())) {
+		if (!is_a($subscription = $mobilePushNotification->getSubscription(), MobilePushNotificationSubscriptionInterface::class) || empty($deviceToken = $subscription->getDeviceToken())) {
 			$this->logger->error('No device set');
 			return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::TOKEN_INVALID);
 		}
