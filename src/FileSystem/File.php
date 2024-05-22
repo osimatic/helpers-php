@@ -4,6 +4,7 @@ namespace Osimatic\Helpers\FileSystem;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class File
@@ -48,6 +49,81 @@ class File
 	public static function getExtensionOfUploadedFile(InputFile|UploadedFile $uploadedFile): ?string
 	{
 		return is_a($uploadedFile, \Osimatic\Helpers\FileSystem\InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
+	}
+
+
+	/**
+	 * @param UploadedFile $uploadedFile
+	 * @param string[] $allowedFormats
+	 * @return bool
+	 */
+	private static function checkAllowedFormat(UploadedFile $uploadedFile, array $allowedFormats): bool
+	{
+		$allowedFormats = array_map(fn(string $format) => mb_strtolower($format), $allowedFormats);
+
+		$formatWithCheckCallable = [
+			'pdf' => \Osimatic\Helpers\Text\PDF::checkFile(...),
+			'csv' => \Osimatic\Helpers\Text\CSV::checkFile(...),
+			'image' => \Osimatic\Helpers\Media\Image::checkFile(...),
+			'jpg' => \Osimatic\Helpers\Media\Image::checkJpgFile(...),
+			'png' => \Osimatic\Helpers\Media\Image::checkPngFile(...),
+			'audio' => \Osimatic\Helpers\Media\Audio::checkFile(...),
+			'mp3' => \Osimatic\Helpers\Media\Audio::checkMp3File(...),
+			'wav' => \Osimatic\Helpers\Media\Audio::checkWavFile(...),
+			'video' => \Osimatic\Helpers\Media\Video::checkFile(...),
+			'mp4' => \Osimatic\Helpers\Media\Video::checkMp4File(...),
+			'avi' => \Osimatic\Helpers\Media\Video::checkAviFile(...),
+			'mpg' => \Osimatic\Helpers\Media\Video::checkMpgFile(...),
+			'wmv' => \Osimatic\Helpers\Media\Video::checkWmvFile(...),
+			'zip' => \Osimatic\Helpers\FileSystem\ZipArchive::checkFile(...),
+		];
+
+		foreach ($formatWithCheckCallable as $format => $callable) {
+			if (in_array($format, $allowedFormats) && $callable($uploadedFile->getRealPath(), $uploadedFile->getClientOriginalName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * @param Request $request
+	 * @param string $inputFileName
+	 * @param string $inputFileDataName
+	 * @param string[] $allowedFormats
+	 * @param LoggerInterface|null $logger
+	 * @return InputFile|UploadedFile|null
+	 */
+	public static function getUploadedFileFromRequest(Request $request, string $inputFileName, string $inputFileDataName, array $allowedFormats=[], ?LoggerInterface $logger=null): InputFile|UploadedFile|null
+	{
+		if (!empty($data = $request->get($inputFileDataName))) {
+			$logger?->info('Uploaded file from base64 content.');
+			if (null === ($uploadedFileData = self::getDataFromBase64Data($data))) {
+				$logger?->info('Decode base64 file content failed.');
+				return null;
+			}
+			return new InputFile(null, $uploadedFileData, self::getMimeTypeFromBase64Data($data));
+		}
+
+		/** @var UploadedFile $uploadedFile */
+		if (!empty($uploadedFile = $request->files->get($inputFileName)) && $uploadedFile->getSize() !== 0) {
+			$logger?->info('Uploaded file from form.');
+			if (UPLOAD_ERR_OK !== $uploadedFile->getError()) {
+				$logger?->info('Upload failed with error code '.$uploadedFile->getError().'. Error message : '.$uploadedFile->getErrorMessage());
+				return null;
+			}
+
+			if (!empty($allowedFormats) && !self::checkAllowedFormat($uploadedFile, $allowedFormats)) {
+				$logger?->info('Uploaded file with invalid format.');
+				return null;
+			}
+
+			return $uploadedFile;
+		}
+
+		$logger?->info('Uploaded file not found in request.');
+		return null;
 	}
 
 	/**
