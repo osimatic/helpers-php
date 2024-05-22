@@ -27,6 +27,9 @@ class Video
 	public const WEBM_EXTENSION 		= '.webm';
 	public const WEBM_MIME_TYPES 		= ['video/webm'];
 
+	public const _3GPP_EXTENSION 		= '.3gp';
+	public const _3GPP_MIME_TYPES 		= ['video/3gpp'];
+
 	public const QUICKTIME_EXTENSION 	= '.mov';
 	public const QUICKTIME_EXTENSIONS 	= [self::QUICKTIME_EXTENSION, '.qt'];
 	public const QUICKTIME_MIME_TYPES 	= ['video/quicktime'];
@@ -44,6 +47,7 @@ class Video
 			'flv' => [[self::FLV_EXTENSION], self::FLV_MIME_TYPES],
 			'ogg' => [[self::OGG_EXTENSION], self::OGG_MIME_TYPES],
 			'webm' => [[self::WEBM_EXTENSION], self::WEBM_MIME_TYPES],
+			'3gpp' => [[self::_3GPP_EXTENSION], self::_3GPP_MIME_TYPES],
 			'quicktime' => [self::QUICKTIME_EXTENSIONS, self::QUICKTIME_MIME_TYPES],
 		];
 	}
@@ -109,6 +113,16 @@ class Video
 	public static function checkFlvFile(string $filePath, string $clientOriginalName): bool
 	{
 		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FLV_EXTENSION], self::FLV_MIME_TYPES);
+	}
+
+	/**
+	 * @param string $filePath
+	 * @param string $clientOriginalName
+	 * @return bool
+	 */
+	public static function check3GppFile(string $filePath, string $clientOriginalName): bool
+	{
+		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::_3GPP_EXTENSION], self::_3GPP_MIME_TYPES);
 	}
 
 	/**
