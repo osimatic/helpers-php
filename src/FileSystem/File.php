@@ -30,15 +30,60 @@ class File
 	 */
 	public static function getMimeTypeFromBase64Data(string $data): ?string
 	{
-		if (!str_contains($data, 'base64,')) {
-			return null;
+		if (str_contains($data, 'base64,')) {
+			if (empty($fileInfos = explode('base64,', $data)[0] ?? '')) {
+				return null;
+			}
+			if (str_starts_with($fileInfos, 'data:') && str_ends_with($fileInfos, ';')) {
+				return substr($fileInfos, 5, -1);
+			}
+
+			if (empty($data = explode('base64,', $data)[1] ?? '')) {
+				return null;
+			}
 		}
-		if (empty($fileInfos = explode('base64,', $data)[0] ?? '')) {
-			return null;
+
+		// Détection du mime type par la signature de fichier
+		// https://en.wikipedia.org/wiki/List_of_file_signatures
+
+		/** @var array $fileSignatures */
+		$fileSignatures = [
+			[["\x66\x74\x79\x70\x33\x67"], \Osimatic\Helpers\Media\Video::_3GPP_MIME_TYPES[0]], // 3GPP
+			[["\x42\x4D"], \Osimatic\Helpers\Media\Image::BMP_MIME_TYPES[0]], // Bitmap
+			[[""], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'], // Excel
+			[[""], 'application/vnd.ms-excel'], // Excel 97-2003
+			[["\x4D\x5A"], 'application/octet-stream'], // Exe (Windows)
+			[["\x47\x49\x46\x38\x37\x61", "\x47\x49\x46\x38\x39\x61"], \Osimatic\Helpers\Media\Image::GIF_MIME_TYPES[0]], // GIF
+			[["\xFF\xD8\xFF"], \Osimatic\Helpers\Media\Image::JPG_MIME_TYPES[0]], // JPEG
+			[["\x66\x74\x79\x70\x69\x73\x6F\x6D", "\x66\x74\x79\x70\x4D\x53\x4E\x56"], \Osimatic\Helpers\Media\Video::MP4_MIME_TYPES[0]], // MP4
+			[[""], 'application/vnd.oasis.opendocument.presentationn'], // Open Document Presentation
+			[[""], 'application/vnd.oasis.opendocument.spreadsheet'], // Open Document Spreadhseet
+			[[""], 'application/vnd.oasis.opendocument.text'], // Open Document Text
+			[[""], 'application/vnd.ms-outlook'], // Outlook Message
+			[["\x25\x50\x44\x46\x2D"], \Osimatic\Helpers\Text\PDF::MIME_TYPES[0]], // PDF
+			[["\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"], \Osimatic\Helpers\Media\Image::PNG_MIME_TYPES[0]], // PNG
+			[[""], 'application/vnd.openxmlformats-officedocument.presentationml.presentation'], // PowerPoint
+			[[""], 'application/vnd.ms-powerpoint'], // Powerpoint 97-2003
+			[["\x71\x74\x20\x20"], \Osimatic\Helpers\Media\Video::QUICKTIME_MIME_TYPES[0]], // QuickTime
+			[["\x7B\x5C\x72\x74\x66\x31"], 'application/rtf'], // Rich Text Format
+			[["\x49\x49\x2A\x00", "\x4D\x4D\x00\x2A"], \Osimatic\Helpers\Media\Image::TIFF_MIME_TYPES[0]], // TIFF
+			[[""], 'application/vnd.visio'], // Visio
+			[[""], 'application/vnd.visio'], // Visio 97-2003
+			[["\x52\x49\x46\x46", "\x57\x45\x42\x50"], \Osimatic\Helpers\Media\Image::WEBP_MIME_TYPES[0]], // Webp
+			[[""], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], // Word
+			[[""], 'application/msword'], // Word 97-2003
+			[[""], 'application/vnd.ms-xpsdocument'], // Xps
+			[["\x50\x4B\x03\x04"], \Osimatic\Helpers\FileSystem\ZipArchive::MIME_TYPES[0]], // Zip
+		];
+
+		foreach ($fileSignatures as [$hexList, $mimeType]) {
+			foreach (array_filter($hexList) as $hex) {
+				if (str_starts_with($data, base64_encode($hex))) {
+					return $mimeType;
+				}
+			}
 		}
-		if (str_starts_with($fileInfos, 'data:') && str_ends_with($fileInfos, ';')) {
-			return substr($fileInfos, 5, -1);
-		}
+
 		return null;
 	}
 
