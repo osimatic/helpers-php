@@ -47,7 +47,7 @@ class File
 	 */
 	public static function getExtensionOfUploadedFile(InputFile|UploadedFile $uploadedFile): ?string
 	{
-		return is_a(\Osimatic\Helpers\FileSystem\InputFile::class, $uploadedFile) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
+		return is_a($uploadedFile, \Osimatic\Helpers\FileSystem\InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
 	}
 
 	/**
