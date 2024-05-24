@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -19,7 +19,7 @@ class LastNameValidator extends ConstraintValidator
 		}
 
 		/** @var LastName $constraint */
-		if (!\Osimatic\Helpers\Person\Name::checkLastName($value)) {
+		if (!\Osimatic\Person\Name::checkLastName($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

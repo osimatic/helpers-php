@@ -1,6 +1,6 @@
 <?php 
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
 /**
  * https://developer.revolut.com/docs/api-reference/merchant/#tag/Orders/operation/createOrder

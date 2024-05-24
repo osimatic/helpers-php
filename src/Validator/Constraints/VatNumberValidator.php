@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -20,7 +20,7 @@ class VatNumberValidator extends ConstraintValidator
 		}
 
 		/** @var VatNumber $constraint */
-		if (!\Osimatic\Helpers\Organization\VatNumber::check($value)) {
+		if (!\Osimatic\Organization\VatNumber::check($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

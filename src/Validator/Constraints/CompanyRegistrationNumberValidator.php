@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -20,7 +20,7 @@ class CompanyRegistrationNumberValidator extends ConstraintValidator
 		}
 
 		/** @var CompanyRegistrationNumber $constraint */
-		if ($constraint->companyCountry === 'FR' && !\Osimatic\Helpers\Organization\Company::checkFranceSiret($value)) {
+		if ($constraint->companyCountry === 'FR' && !\Osimatic\Organization\Company::checkFranceSiret($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

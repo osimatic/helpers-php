@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Draw;
+namespace Osimatic\Draw;
 
 class Color
 {

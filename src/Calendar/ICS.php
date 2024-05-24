@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -26,7 +26,7 @@ class ICS
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, self::FILE_EXTENSIONS);
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, self::FILE_EXTENSIONS);
 	}
 
 	// ---------- output ----------
@@ -39,7 +39,7 @@ class ICS
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/calendar');
+		\Osimatic\FileSystem\File::output($filePath, $fileName, 'text/calendar');
 		// header('Connection: close'); // sert à qqchose ?
 	}
 
@@ -50,7 +50,7 @@ class ICS
 	 */
 	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
 	{
-		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/calendar');
+		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/calendar');
 	}
 
 	// ---------- generate ----------
@@ -98,7 +98,7 @@ class ICS
 	 */
 	public static function generateFile(array $events, string $filePath): void
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		file_put_contents($filePath, self::getContent($events));
 	}

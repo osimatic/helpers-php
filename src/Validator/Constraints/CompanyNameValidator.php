@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -21,7 +21,7 @@ class CompanyNameValidator extends ConstraintValidator
 		}
 
 		/** @var CompanyName $constraint */
-		if (!\Osimatic\Helpers\Organization\Company::checkCompanyName($value)) {
+		if (!\Osimatic\Organization\Company::checkCompanyName($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

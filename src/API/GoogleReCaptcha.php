@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\API;
+namespace Osimatic\API;
 
-use Osimatic\Helpers\Network\HTTPRequest;
+use Osimatic\Network\HTTPRequest;
 
 /**
  * Class GoogleReCaptcha

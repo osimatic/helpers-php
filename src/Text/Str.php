@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Text;
+namespace Osimatic\Text;
 
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -368,11 +368,7 @@ class Str
 	 */
 	public static function getStringWithSameChar(string $char, int $nb): string
 	{
-		$string = '';
-		for ($numChar=0; $numChar<$nb; $numChar++) {
-			$string .= $char;
-		}
-		return $string;
+		return str_repeat($char, $nb);
 	}
 
 	/**
@@ -629,7 +625,7 @@ class Str
 	public static function increment(string $str, string $separator = '_', int $first = 1): string
 	{
 		preg_match('/(.+)'.$separator.'([0-9]+)$/', $str, $match);
-		return isset($match[2]) ? $match[1].$separator.($match[2] + 1) : $str.$separator.$first;
+		return isset($match[2]) ? $match[1].$separator.(((int) $match[2]) + 1) : $str.$separator.$first;
 	}
 
 	/**
@@ -663,10 +659,10 @@ class Str
 
 		foreach ($censored as $badword) {
 			if ($replacement !== '') {
-				$str = preg_replace("/({$delim})(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")({$delim})/i", "\\1{$replacement}\\3", $str);
+				$str = preg_replace("/($delim)(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")($delim)/i", "\\1$replacement\\3", $str);
 			}
 			else {
-				$str = preg_replace("/({$delim})(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")({$delim})/ie", "'\\1'.str_repeat('#', strlen('\\2')).'\\3'", $str);
+				$str = preg_replace("/($delim)(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")($delim)/ie", "'\\1'.str_repeat('#', strlen('\\2')).'\\3'", $str);
 			}
 		}
 		return trim($str);
@@ -959,7 +955,7 @@ class Str
 	/**
 	 * Mulit-byte Unserialize
 	 * UTF-8 will screw up a serialized string
-	 * @param string
+	 * @param string $string
 	 * @return array|null
 	 */
 	public static function mb_unserialize(string $string): ?array

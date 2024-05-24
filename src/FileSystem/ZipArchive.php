@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\FileSystem;
+namespace Osimatic\FileSystem;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,7 +34,7 @@ class ZipArchive
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+		\Osimatic\FileSystem\File::download($filePath, $fileName);
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ZipArchive
 	 */
 	public static function outputFile(OutputFile $file): void
 	{
-		\Osimatic\Helpers\FileSystem\File::downloadFile($file);
+		\Osimatic\FileSystem\File::downloadFile($file);
 	}
 
 	/**
@@ -54,7 +54,7 @@ class ZipArchive
 	 */
 	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
 	{
-		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, true);
+		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, true);
 	}
 
 	/**
@@ -64,7 +64,7 @@ class ZipArchive
 	 */
 	public static function archive(string $filePath, array $files): void
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);
@@ -83,7 +83,7 @@ class ZipArchive
 	 */
 	public static function archiveOutputFiles(string $filePath, array $files): void
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);
@@ -102,7 +102,7 @@ class ZipArchive
 	 */
 	public static function archiveFilesFromString(string $filePath, array $contentFiles): void
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);

@@ -1,9 +1,9 @@
 <?php
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
 use Psr\Log\LoggerInterface;
-use Osimatic\Helpers\Network\HTTPRequest;
+use Osimatic\Network\HTTPRequest;
 
 class Revolut
 {

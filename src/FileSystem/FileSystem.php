@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\FileSystem;
+namespace Osimatic\FileSystem;
 
 class FileSystem
 {

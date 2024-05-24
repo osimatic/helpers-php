@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Number;
+namespace Osimatic\Number;
 
 class Duration
 {
@@ -196,7 +196,7 @@ class Duration
 	 * @param int $hourPos
 	 * @param int $minutePos
 	 * @param int $secondPos
-	 * @return int
+	 * @return int|null
 	 */
 	private static function _parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?int
 	{
@@ -204,7 +204,7 @@ class Duration
 			return (int) $enteredDuration;
 		}
 
-		if (null === ($timeArray = \Osimatic\Helpers\Calendar\Time::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos))) {
+		if (null === ($timeArray = \Osimatic\Calendar\Time::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos))) {
 			return null;
 		}
 

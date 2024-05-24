@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
-use Osimatic\Helpers\FileSystem\File;
+use Osimatic\FileSystem\File;
 
 /**
  * Class Email
@@ -201,7 +201,7 @@ class Email
 	 */
 	public function __construct()
 	{
-		$this->sendingDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
+		$this->sendingDateTime = \Osimatic\Calendar\DateTime::getCurrentDateTime();
 	}
 
 

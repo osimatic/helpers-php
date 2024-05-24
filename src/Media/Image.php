@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Media;
+namespace Osimatic\Media;
 
 use Symfony\Component\HttpFoundation\Response;
 
@@ -54,7 +54,7 @@ class Image
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, array_merge(self::JPG_EXTENSIONS, [self::PNG_EXTENSION], [self::GIF_EXTENSION]), array_merge(self::JPG_MIME_TYPES, self::PNG_MIME_TYPES, self::GIF_MIME_TYPES));
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, array_merge(self::JPG_EXTENSIONS, [self::PNG_EXTENSION], [self::GIF_EXTENSION]), array_merge(self::JPG_MIME_TYPES, self::PNG_MIME_TYPES, self::GIF_MIME_TYPES));
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Image
 	 */
 	public static function checkJpgFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, self::JPG_EXTENSIONS, self::JPG_MIME_TYPES);
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, self::JPG_EXTENSIONS, self::JPG_MIME_TYPES);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Image
 	 */
 	public static function checkPngFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::PNG_EXTENSION], self::PNG_MIME_TYPES);
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, [self::PNG_EXTENSION], self::PNG_MIME_TYPES);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Image
 	 */
 	public static function checkGifFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::GIF_EXTENSION], self::GIF_MIME_TYPES);
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, [self::GIF_EXTENSION], self::GIF_MIME_TYPES);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Image
 	 */
 	public static function getMimeTypeFromExtension(string $extension): ?string
 	{
-		return \Osimatic\Helpers\FileSystem\File::getMimeTypeFromExtension($extension, self::getExtensionsAndMimeTypes());
+		return \Osimatic\FileSystem\File::getMimeTypeFromExtension($extension, self::getExtensionsAndMimeTypes());
 	}
 
 	/**
@@ -102,7 +102,7 @@ class Image
 	 */
 	public static function getExtensionFromMimeType(string $mimeType): ?string
 	{
-		return \Osimatic\Helpers\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
+		return \Osimatic\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
 	}
 
 	// ========== Récupération d'information ==========
@@ -217,7 +217,7 @@ class Image
 
 	/**
 	 * @param string $photoPath
-	 * @return array
+	 * @return array|null
 	 */
 	public static function readExifData(string $photoPath): ?array
 	{

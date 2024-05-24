@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Person;
+namespace Osimatic\Person;
 
 /**
  * Cette classe contient des fonctions relatives au fichier VCard.
@@ -480,7 +480,7 @@ class VCard
 	 */
 	public function build(string $path): void
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($path);
+		\Osimatic\FileSystem\FileSystem::initializeFile($path);
 
 		file_put_contents($path, $this->getContent());
 	}
@@ -552,7 +552,7 @@ class VCard
 			return;
 		}
 		// urlize this part
-		$value = \Osimatic\Helpers\Text\Str::toURLFriendly($value);
+		$value = \Osimatic\Text\Str::toURLFriendly($value);
 		// overwrite filename or add to filename using a prefix in between
 		$this->filename = ($overwrite) ? $value : $this->filename . $separator . $value;
 	}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\ArrayList;
+namespace Osimatic\ArrayList;
 
 /**
  * Class MultidimensionalArray
@@ -90,7 +90,8 @@ class MultidimensionalArray
 	 * @param $key
 	 * @return mixed|null
 	 */
-	public static function getValue(array $array, $value, $key) {
+	public static function getValue(array $array, $value, $key): mixed
+	{
 		foreach ($array as $subArray) {
 			if (isset($subArray[$key]) && $subArray[$key] == $value) {
 				return $subArray;
@@ -135,8 +136,8 @@ class MultidimensionalArray
 
 	// ========== Tri ==========
 
-	private static $sortListColumnSorting = null;
-	private static $sortDepth = null;
+	private static ?array $sortListColumnSorting = null;
+	private static ?int $sortDepth = null;
 
 	/**
 	 * Tri un tableau multidimensionnel.
@@ -166,10 +167,10 @@ class MultidimensionalArray
 		self::$sortListColumnSorting = $listColumnSorting;
 		self::$sortDepth = 0;
 
-		usort($array, 'self::sortCompareRecursive');
+		usort($array, self::sortCompareRecursive(...));
 	}
 
-	private static function sortCompareRecursive($sousArray1, $sousArray2)
+	private static function sortCompareRecursive(array $sousArray1, array $sousArray2): int
 	{
 		//if (self::$sortDepth == 0) {
 		//
@@ -203,7 +204,8 @@ class MultidimensionalArray
 		return $cmp;
 	}
 
-	private static function compareValue($val1, $val2, $ordreNaturel=false, $caseSensitive=false) {
+	private static function compareValue($val1, $val2, $ordreNaturel=false, $caseSensitive=false): int
+	{
 		if (is_numeric($val1) && is_numeric($val2)) {
 			return $val1 <=> $val2;
 		}

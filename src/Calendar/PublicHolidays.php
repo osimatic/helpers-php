@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
 class PublicHolidays
 {
@@ -67,7 +67,7 @@ class PublicHolidays
 	 */
 	public static function getList(string $country, int $year, array $options=[]): array
 	{
-		$list = \Osimatic\Helpers\ArrayList\Arr::collection_array_unique(self::getListOfCountry($country, $year, $options), fn(PublicHoliday $publicHoliday) => $publicHoliday->getKey());
+		$list = \Osimatic\ArrayList\Arr::collection_array_unique(self::getListOfCountry($country, $year, $options), fn(PublicHoliday $publicHoliday) => $publicHoliday->getKey());
 		usort($list, fn(PublicHoliday $publicHoliday1, PublicHoliday $publicHoliday2) => $publicHoliday1->getTimestamp() <=> $publicHoliday2->getTimestamp());
 		return $list;
 	}

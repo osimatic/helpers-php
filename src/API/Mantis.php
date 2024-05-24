@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\API;
+namespace Osimatic\API;
 
 /**
  * Class Mantis

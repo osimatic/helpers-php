@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Location;
+namespace Osimatic\Location;
 
 use Symfony\Component\Intl\Countries;
 
@@ -290,7 +290,7 @@ class Country
 			'YT', // Mayotte
 			'GF', // Guyane
 		];
-		return in_array($countryIsoCode, $FRANCE_OVERSEAS_COUNTRY_CODES, true) || (!empty($zipCode) && substr($zipCode, 0, 2) === '97');
+		return in_array($countryIsoCode, $FRANCE_OVERSEAS_COUNTRY_CODES, true) || (!empty($zipCode) && str_starts_with($zipCode, '97'));
 	}
 
 	/**

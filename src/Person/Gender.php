@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Person;
+namespace Osimatic\Person;
 
 enum Gender: int
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Media;
+namespace Osimatic\Media;
 
 /**
  * Class Book

@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Media;
+namespace Osimatic\Media;
 
-use Osimatic\Helpers\FileSystem\OutputFile;
+use Osimatic\FileSystem\OutputFile;
 use getID3;
 use getid3_exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -146,7 +146,7 @@ class Audio
 	 */
 	private static function checkFileByType(string $filePath, string $clientOriginalName, ?array $extensionsAllowed, ?array $mimeTypesAllowed=null, ?array $formatsAllowed=null): bool
 	{
-		if (empty($filePath) || !\Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, $extensionsAllowed, $mimeTypesAllowed)) {
+		if (empty($filePath) || !\Osimatic\FileSystem\File::check($filePath, $clientOriginalName, $extensionsAllowed, $mimeTypesAllowed)) {
 			return false;
 		}
 
@@ -174,7 +174,7 @@ class Audio
 	 */
 	public static function getMimeTypeFromExtension(string $extension): ?string
 	{
-		return \Osimatic\Helpers\FileSystem\File::getMimeTypeFromExtension($extension, self::getExtensionsAndMimeTypes());
+		return \Osimatic\FileSystem\File::getMimeTypeFromExtension($extension, self::getExtensionsAndMimeTypes());
 	}
 
 	/**
@@ -183,7 +183,7 @@ class Audio
 	 */
 	public static function getExtensionFromMimeType(string $mimeType): ?string
 	{
-		return \Osimatic\Helpers\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
+		return \Osimatic\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
 	}
 
 	/**
@@ -204,8 +204,8 @@ class Audio
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		//\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName);
-		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+		//\Osimatic\FileSystem\File::output($filePath, $fileName);
+		\Osimatic\FileSystem\File::download($filePath, $fileName);
 	}
 
 	/**
@@ -215,7 +215,7 @@ class Audio
 	 */
 	public static function outputFile(OutputFile $file): void
 	{
-		\Osimatic\Helpers\FileSystem\File::downloadFile($file);
+		\Osimatic\FileSystem\File::downloadFile($file);
 	}
 
 	/**

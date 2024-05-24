@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Text;
+namespace Osimatic\Text;
 
-use Osimatic\Helpers\FileSystem\OutputFile;
+use Osimatic\FileSystem\OutputFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -30,7 +30,7 @@ class CSV
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
 
 	// ========== Lecture ==========
@@ -73,7 +73,7 @@ class CSV
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/csv');
+		\Osimatic\FileSystem\File::output($filePath, $fileName, 'text/csv');
 	}
 
 	/**
@@ -83,7 +83,7 @@ class CSV
 	 */
 	public static function outputFile(OutputFile $file): void
 	{
-		\Osimatic\Helpers\FileSystem\File::outputFile($file, 'text/csv');
+		\Osimatic\FileSystem\File::outputFile($file, 'text/csv');
 	}
 
 	/**
@@ -93,15 +93,15 @@ class CSV
 	 */
 	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
 	{
-		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/csv');
+		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/csv');
 	}
 
 	// ========== Ecriture ==========
 
-	private $title;
-	private $tableHead = [];
-	private $tableBody = [];
-	private $tableFoot = [];
+	private ?string $title = null;
+	private array $tableHead = [];
+	private array $tableBody = [];
+	private array $tableFoot = [];
 
 	/**
 	 * @param string $title
@@ -196,7 +196,7 @@ class CSV
 	 */
 	public static function generateFile(string $filePath, ?array $tableHead, array $tableBody, ?array $tableFoot, ?string $title=null): bool
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder([CsvEncoder::DELIMITER_KEY => ';', CsvEncoder::OUTPUT_UTF8_BOM_KEY => true])]);
 

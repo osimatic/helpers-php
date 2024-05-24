@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
-use Osimatic\Helpers\Location\Continent;
+use Osimatic\Location\Continent;
 
 interface CallAndSmsRateInterface
 {

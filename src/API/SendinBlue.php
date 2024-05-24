@@ -1,8 +1,7 @@
 <?php
 
-namespace Osimatic\Helpers\API;
+namespace Osimatic\API;
 
-use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -86,7 +85,7 @@ class SendinBlue
 			$options[\GuzzleHttp\RequestOptions::JSON] = $queryData;
 			$res = $httpClient->request('POST', $url, $options);
 		}
-		catch (\Exception | GuzzleException $e) {
+		catch (\Exception | \GuzzleHttp\Exception\GuzzleException $e) {
 			$this->logger->error($e->getMessage());
 			return null;
 		}

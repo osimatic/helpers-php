@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -646,7 +646,7 @@ class OldWebPushNotificationSender
 	 * @param string $der
 	 * @return bool|string
 	 */
-	public static function signatureFromDER(string $der)
+	public static function signatureFromDER(string $der): bool|string
 	{
 		$sig = false;
 		$R = false;

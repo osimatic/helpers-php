@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 /**
  * Class EmailAddress
@@ -45,7 +45,7 @@ class EmailAddress
 	public static function getTld(string $email, bool $withPoint=true): string
 	{
 		$host = self::getHost($email);
-		return \Osimatic\Helpers\Network\URL::getTld($host, $withPoint);
+		return \Osimatic\Network\URL::getTld($host, $withPoint);
 	}
 
 

@@ -1,8 +1,7 @@
 <?php
 
-namespace Osimatic\Helpers\API;
+namespace Osimatic\Network;
 
-use Osimatic\Helpers\Network\HTTPRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

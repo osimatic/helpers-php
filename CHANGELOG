@@ -25,3 +25,7 @@ Version 24/05/2024 :
 - Media\Audio::convertWavToMp3() -> Media\AudioConverter::convertWavToMp3()
 - Media\Audio::convertWebMToMp3() -> Media\AudioConverter::convertWebMToMp3()
 - Media\Image::resize() -> Media\ImageResizer::resize()
+- API\GoogleCalendar -> Calendar\GoogleCalendar
+- API\GoogleMaps -> Location\GoogleMaps
+- API\GoogleContact -> Person\GoogleContact
+- API\SmsToBe -> Messaging\SmsToBe

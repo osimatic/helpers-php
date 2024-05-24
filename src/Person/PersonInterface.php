@@ -1,10 +1,10 @@
 <?php
 
-namespace Osimatic\Helpers\Person;
+namespace Osimatic\Person;
 
-use Osimatic\Helpers\Location\PlaceInterface;
-use Osimatic\Helpers\Location\PostalAddressInterface;
-use Osimatic\Helpers\Organization\OrganizationInterface;
+use Osimatic\Location\PlaceInterface;
+use Osimatic\Location\PostalAddressInterface;
+use Osimatic\Organization\OrganizationInterface;
 
 /**
  * Interface PersonInterface

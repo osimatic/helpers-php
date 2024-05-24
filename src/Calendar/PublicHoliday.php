@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
 if (!defined('CAL_HIJRI')) {
 	define('CAL_HIJRI', 101);
@@ -31,10 +31,10 @@ class PublicHoliday
 		if (preg_match('/((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $key) !== 0) {
 			if ($calendar === PublicHolidayCalendar::HIJRI) {
 				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertTimestampToIslamicDate($timestamp);
-				$name .= ' ('.$hijriDay.(1 === $hijriDay ? 'er' : '').' '.\Osimatic\Helpers\Calendar\IslamicCalendar::getMonthName($hijriMonth).')';
+				$name .= ' ('.$hijriDay.(1 === $hijriDay ? 'er' : '').' '.\Osimatic\Calendar\IslamicCalendar::getMonthName($hijriMonth).')';
 			}
 			else {
-				$name .= ' ('.date('d', $timestamp). (1 === ((int)date('d', $timestamp)) ? 'er' : '').' '.\Osimatic\Helpers\Calendar\Date::getMonthName(date('m', $timestamp)).')';
+				$name .= ' ('.date('d', $timestamp). (1 === ((int)date('d', $timestamp)) ? 'er' : '').' '.\Osimatic\Calendar\Date::getMonthName(date('m', $timestamp)).')';
 			}
 		}
 

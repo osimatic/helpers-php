@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Route;
+namespace Osimatic\Route;
 
 class GoogleDistanceMatrixParameters
 {

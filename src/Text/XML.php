@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Text;
+namespace Osimatic\Text;
 
-use Osimatic\Helpers\FileSystem\OutputFile;
+use Osimatic\FileSystem\OutputFile;
 use Symfony\Component\HttpFoundation\Response;
 
 class XML
@@ -16,7 +16,7 @@ class XML
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'text/xml');
+		\Osimatic\FileSystem\File::output($filePath, $fileName, 'text/xml');
 	}
 
 	/**
@@ -24,7 +24,7 @@ class XML
 	 */
 	public static function outputFile(OutputFile $file): void
 	{
-		\Osimatic\Helpers\FileSystem\File::outputFile($file, 'text/xml');
+		\Osimatic\FileSystem\File::outputFile($file, 'text/xml');
 	}
 
 	/**
@@ -34,7 +34,7 @@ class XML
 	 */
 	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
 	{
-		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/xml');
+		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/xml');
 	}
 
 	// ========== Fabrication ==========
@@ -65,7 +65,7 @@ class XML
 	 */
 	public static function generateFile(string $filePath, array $array, ?string $firstTag=null, ?string $firstTagAttributes=null): bool
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$firstTag = $firstTag ?? 'Document';
 		$xml = self::convertArrayToXml($array, $firstTag);

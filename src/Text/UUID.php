@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Text;
+namespace Osimatic\Text;
 
 /**
  * Class UUID

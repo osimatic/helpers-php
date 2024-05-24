@@ -1,6 +1,9 @@
 <?php
 
-namespace Osimatic\Helpers\API;
+namespace Osimatic\Person;
+
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class GoogleContact
@@ -8,15 +11,21 @@ namespace Osimatic\Helpers\API;
  */
 class GoogleContact
 {
-	private $client;
+	private \Google_Client $client;
 
 	/**
 	 * GoogleContact constructor.
 	 * @param string|null $clientId
 	 * @param string|null $secret
 	 * @param string|null $appName
+	 * @param LoggerInterface $logger
 	 */
-	public function __construct(?string $clientId=null, ?string $secret=null, ?string $appName=null)
+	public function __construct(
+		?string $clientId=null,
+		?string $secret=null,
+		?string $appName=null,
+		private LoggerInterface $logger=new NullLogger(),
+	)
 	{
 		$this->client = new \Google_Client();
 		$this->client->setApplicationName('');
@@ -101,13 +110,12 @@ class GoogleContact
 		try {
 			$res = $clientHTTP->request('GET', 'https://www.google.com/m8/feeds/contacts/default/full?max-results=150&alt=json&v=3.0&oauth_token='.$accessToken);
 		}
-		//catch (\GuzzleHttp\Exception\GuzzleException $e) {
-		catch (\Exception $e) {
-			//var_dump($e->getMessage());
+		catch (\Exception | \GuzzleHttp\Exception\GuzzleException $e) {
+			$this->logger->info($e->getMessage());
 			return null;
 		}
 
-		$dataList = \GuzzleHttp\json_decode((string) $res->getBody(), true);
+		$dataList = \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
 		//dump($dataList);
 
 		$googleContacts = $dataList['feed']['entry'];
@@ -221,8 +229,8 @@ class GoogleContact
 			$this->client->setAccessToken($this->client->fetchAccessTokenWithAuthCode($code));
 			$accessTokenData = $this->client->getAccessToken();
 		}
-		catch (\InvalidArgumentException $exception) {
-			//var_dump($exception->getMessage());
+		catch (\InvalidArgumentException $e) {
+			$this->logger->info($e->getMessage());
 			return null;
 		}
 

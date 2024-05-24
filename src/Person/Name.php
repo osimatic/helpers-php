@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Person;
+namespace Osimatic\Person;
 
 /**
  * Class Name
@@ -285,24 +285,4 @@ class Name
 
 		return $this;
 	}
-
-	// ---------- deprecated ----------
-
-	/** @deprecated */
-	private $title = 0;
-
-	/** @deprecated */
-	public function getTitle(): ?int
-	{
-		return $this->title;
-	}
-
-	/** @deprecated */
-	public function setTitle(?int $title): self
-	{
-		$this->title = $title;
-
-		return $this;
-	}
-
 }

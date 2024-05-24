@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
-use Osimatic\Helpers\Organization\OrganizationInterface;
+use Osimatic\Organization\OrganizationInterface;
 
 /**
  * https://schema.org/Invoice

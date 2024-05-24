@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;

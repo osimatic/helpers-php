@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Intl\Countries;
 use Symfony\Component\Validator\Constraint;

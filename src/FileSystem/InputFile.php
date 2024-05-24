@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\FileSystem;
+namespace Osimatic\FileSystem;
 
 class InputFile
 {
@@ -58,9 +58,9 @@ class InputFile
 	public function getExtension(): ?string
 	{
 		if (!empty($this->getOriginalFileName())) {
-			return \Osimatic\Helpers\FileSystem\File::getExtension($this->getOriginalFileName());
+			return \Osimatic\FileSystem\File::getExtension($this->getOriginalFileName());
 		}
-		if (!empty($this->getMimeType()) && null !== ($extension = \Osimatic\Helpers\FileSystem\File::getExtensionFromMimeType($this->getMimeType()))) {
+		if (!empty($this->getMimeType()) && null !== ($extension = \Osimatic\FileSystem\File::getExtensionFromMimeType($this->getMimeType()))) {
 			return $extension;
 		}
 		return null;

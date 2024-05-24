@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
-use Osimatic\Helpers\Messaging\PhoneNumberType;
+use Osimatic\Messaging\PhoneNumberType;
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 

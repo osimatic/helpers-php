@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
 use Symfony\Component\Intl\Currencies;
 
@@ -13,7 +13,7 @@ class Currency
 	public static function getCurrencyOfCountry(string $countryCode): string
 	{
 		return (new \NumberFormatter(
-			\Osimatic\Helpers\Location\Country::getLocaleByCountryCode($countryCode),
+			\Osimatic\Location\Country::getLocaleByCountryCode($countryCode),
 			\NumberFormatter::CURRENCY
 		))->getTextAttribute(\NumberFormatter::CURRENCY_CODE);
 	}
@@ -59,7 +59,7 @@ class Currency
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::CURRENCY);
 		$fmt->setTextAttribute(\NumberFormatter::CURRENCY_CODE, $currency);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->formatCurrency($number, $currency));
+		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->formatCurrency($number, $currency));
 	}
 
 	/**
@@ -72,7 +72,7 @@ class Currency
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number)).' '.$currency;
+		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->format($number)).' '.$currency;
 	}
 
 }

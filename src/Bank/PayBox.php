@@ -1,12 +1,10 @@
 <?php
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Osimatic\Helpers\Network\HTTPRequest;
+use Osimatic\Network\HTTPRequest;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Cette classe permet d'effectuer un paiement par CB via la plateforme PayBox
@@ -54,138 +52,138 @@ class PayBox
 	/**
 	 * @var LoggerInterface|null
 	 */
-	private $logger;
+	private ?LoggerInterface $logger;
 
 	/**
 	 * @var string
 	 */
-	private $version;
+	private string $version = self::VERSION_PAYBOX_DIRECT;
 
 	/**
 	 * @var string
 	 */
-	private $numSite;
+	private string $numSite = '';
 
 	/**
 	 * Unique identifier provided by Paybox, used for Paybox System only ("PBX_IDENTIFIANT" parameter)
 	 * @var string
 	 */
-	private $identifier;
+	private string $identifier = '';
 
 	/**
 	 * Unique key provided by Paybox and used for Paybox Direct only ("CLE" parameter)
 	 * @var string
 	 */
-	private $httpPassword;
+	private string $httpPassword = '';
 
 	/**
 	 * Unique key generated in back-office and used for Paybox System only (HMAC generation)
 	 * @var string
 	 */
-	private $secretKey;
+	private string $secretKey = '';
 
 	/**
 	 * @var string
 	 */
-	private $rang;
+	private string $rang = '';
 
 	/**
 	 * @var string
 	 */
-	private $locale = 'FR';
+	private string $locale = 'FR';
 
 	/**
 	 * @var bool
 	 */
-	private $isTest = false;
+	private bool $isTest = false;
 
 	/**
 	 * @var bool
 	 */
-	private $useForm = false;
+	private bool $useForm = false;
 
 
 	/**
 	 * Date and time of the request
 	 * @var \DateTime|null
 	 */
-	private $date;
+	private ?\DateTime $date = null;
 
 	/**
 	 * @var string
 	 */
-	private $typeQuestion;
+	private string $typeQuestion = self::TYPE_OPERATION_DEBIT;
 
 	/**
 	 * Unique identifier for the request that allows to avoid confusion in case of multiple	simultaneous requests.
-	 * @var int
+	 * @var int|null
 	 */
-	private $numQuestion;
+	private ?int $numQuestion = null;
 
 	/**
 	 * Amount of the transaction
 	 * @var float
 	 */
-	private $montant;
+	private float $montant = 0.;
 
 	/**
 	 * Currency code for the transaction.
 	 * @var string
 	 */
-	private $devise = 'EUR';
+	private string $devise = 'EUR';
 
 	/**
 	 * This is the merchant order reference (free field). This allows the merchant to link his platform to the Paybox platform using a reference number.
 	 * @var string
 	 */
-	private $reference;
+	private string $reference = '';
 
 	/**
 	 * Merchant reference number allowing him to clearly identify the subscriber (profile) that corresponds to the transaction.
 	 * @var string
 	 */
-	private $subscriberRef;
+	private string $subscriberRef = '';
 
 	/**
 	 * @var string
 	 */
-	private $porteurEmail;
+	private string $porteurEmail = '';
 
 	/**
 	 * PAN (card number) of the customer, without any spaces and left aligned, or subscriber number for the request.
 	 * @var string
 	 */
-	private $porteur;
+	private string $porteur = '';
 
 	/**
 	 * Expiry date of the card
 	 * @var string
 	 */
-	private $dateValidite;
+	private string $dateValidite = '';
 
 	/**
 	 * Visual cryptogram on the back of the card
 	 * @var string
 	 */
-	private $cvv;
+	private string $cvv = '';
 
 	/**
 	 * This parameter allows to inform the acquirer (bank) how the transaction was initiated and how the card entry was realized.
 	 * @var string
 	 */
-	private $activite;
+	private string $activite = '';
 
 	/**
 	 * This reference is transmitted to the acquirer (bank) of the merchant during the settlement of the transaction. The reference needs to be unique and allows the merchant to inquire for additional information from the acquirer (bank) in case of a dispute.
-	 * @var string
+	 * @var string|null
 	 */
-	private $archivage;
+	private ?string $archivage = null;
 
 	/**
 	 * Number of days to postpone the settlement
-	 * @var int
+	 * @var int|null
 	 */
-	private $differe;
+	private ?int $differe = null;
 
 	/**
 	 * Version du 3D Secure
@@ -194,89 +192,89 @@ class PayBox
 	private bool $is3DSecureV2 = false;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $formCssClass;
+	private ?string $formCssClass = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $buttonCssClass;
+	private ?string $buttonCssClass = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $buttonText;
+	private ?string $buttonText = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $urlResponseOk;
+	private ?string $urlResponseOk = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $urlResponseRefused;
+	private ?string $urlResponseRefused = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $urlResponseCanceled;
+	private ?string $urlResponseCanceled = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $urlResponseWaiting;
+	private ?string $urlResponseWaiting = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $urlIpn;
+	private ?string $urlIpn = null;
 
-
-	/**
-	 * This number is returned by Verifone when a transaction is successfully processed.
-	 * @var int
-	 */
-	private $numAppel;
 
 	/**
 	 * This number is returned by Verifone when a transaction is successfully processed.
-	 * @var int
+	 * @var int|null
 	 */
-	private $numTransaction;
+	private ?int $numAppel = null;
+
+	/**
+	 * This number is returned by Verifone when a transaction is successfully processed.
+	 * @var int|null
+	 */
+	private ?int $numTransaction = null;
 
 	/**
 	 * Authorization number provided by the merchant that was obtained by telephone call to	the acquirer (bank)
-	 * @var string
+	 * @var string|null
 	 */
-	private $autorisation;
+	private ?string $autorisation = null;
 
 	/**
 	 * Country code of the issuance of the card
-	 * @var string
+	 * @var string|null
 	 */
-	private $cardCountryCode;
+	private ?string $cardCountryCode = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $codeReponse;
+	private ?string $codeReponse = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private $libelleReponse;
+	private ?string $libelleReponse = null;
 
 	/**
-	 * @var ShoppingCartInterface
+	 * @var ShoppingCartInterface|null
 	 */
-	private $shoppingCart;
+	private ?ShoppingCartInterface $shoppingCart = null;
 
 	/**
-	 * @var BillingAddressInterface
+	 * @var BillingAddressInterface|null
 	 */
-	private $billingAddress;
+	private ?BillingAddressInterface $billingAddress = null;
 
 	/**
 	 * Paybox system form's expiration in seconds
@@ -594,10 +592,10 @@ class PayBox
 	}
 
 	/**
-	 * @param int $questionNumber
+	 * @param int|null $questionNumber
 	 * @return self
 	 */
-	public function setQuestionNumber(int $questionNumber): self
+	public function setQuestionNumber(?int $questionNumber): self
 	{
 		$this->numQuestion = $questionNumber;
 
@@ -724,10 +722,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $archivingReference
+	 * @param string|null $archivingReference
 	 * @return self
 	 */
-	public function setArchivingReference(string $archivingReference): self
+	public function setArchivingReference(?string $archivingReference): self
 	{
 		$this->archivage = $archivingReference;
 
@@ -735,10 +733,10 @@ class PayBox
 	}
 
 	/**
-	 * @param int $numberOfDays
+	 * @param int|null $numberOfDays
 	 * @return self
 	 */
-	public function setNumberOfDaysForPostponedSettlement(int $numberOfDays): self
+	public function setNumberOfDaysForPostponedSettlement(?int $numberOfDays): self
 	{
 		$this->differe = $numberOfDays;
 
@@ -903,9 +901,10 @@ class PayBox
 	}
 
 	/**
+	 * @param int $formTimeout
 	 * @return self
 	 */
-	public function setFormTimeout($formTimeout): self
+	public function setFormTimeout(int $formTimeout): self
 	{
 		$this->formTimeout = $formTimeout;
 
@@ -913,9 +912,9 @@ class PayBox
 	}
 
 	/**
-	 * @return BillingAddressInterface
+	 * @return BillingAddressInterface|null
 	 */
-	private function getBillingAddress(): BillingAddressInterface
+	private function getBillingAddress(): ?BillingAddressInterface
 	{
 	   return $this->billingAddress;
 	}
@@ -932,9 +931,9 @@ class PayBox
 	}
 
 	/**
-	 * @return ShoppingCartInterface
+	 * @return ShoppingCartInterface|null
 	 */
-	private function getShoppingCart(): ShoppingCartInterface
+	private function getShoppingCart(): ?ShoppingCartInterface
 	{
 	   return $this->shoppingCart;
 	}
@@ -1017,7 +1016,7 @@ class PayBox
 
 		return '<?xml version="1.0" encoding="utf-8"?><Billing>'
 			.'<Address><FirstName>'.($billingAddress->getFirstName() ?? '-').'</FirstName><LastName>'.($billingAddress->getLastName() ?? $billingAddress->getCompanyName()).'</LastName><Address1>'.$billingAddress->getStreet().'</Address1>'
-			.'<Address2>'.$billingAddress->getStreet2().'</Address2><ZipCode>'.$billingAddress->getZipCode().'</ZipCode><City>'.$billingAddress->getCity().'</City><CountryCode>'.\Osimatic\Helpers\Location\Country::getCountryNumericCodeFromCountryCode($billingAddress->getCountryCode()).'</CountryCode></Address>'
+			.'<Address2>'.$billingAddress->getStreet2().'</Address2><ZipCode>'.$billingAddress->getZipCode().'</ZipCode><City>'.$billingAddress->getCity().'</City><CountryCode>'.\Osimatic\Location\Country::getCountryNumericCodeFromCountryCode($billingAddress->getCountryCode()).'</CountryCode></Address>'
 			.'</Billing>';
 	}
 

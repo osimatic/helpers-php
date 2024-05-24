@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Data;
+namespace Osimatic\Data;
 
 /**
  * Class LinearBarcode

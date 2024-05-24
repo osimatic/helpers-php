@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Media;
+namespace Osimatic\Media;
 
 class ImageResizer
 {
@@ -29,7 +29,7 @@ class ImageResizer
 			return false;
 		}
 
-		$mime = self::getMimeType($cheminImage);
+		$mime = Image::getMimeType($cheminImage);
 
 		if (!str_starts_with($mime, 'image/')) {
 			//trace("Erreur : Ce format d'image n'est pas pris en charge.");

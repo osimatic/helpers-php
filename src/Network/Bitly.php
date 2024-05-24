@@ -1,8 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\API;
-
-use Osimatic\Helpers\Network\HTTPRequest;
+namespace Osimatic\Network;
 
 /**
  * Class Bitly

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Network;
+namespace Osimatic\Network;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;

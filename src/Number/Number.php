@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Number;
+namespace Osimatic\Number;
 
 class Number
 {
@@ -28,7 +28,7 @@ class Number
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number));
+		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->format($number));
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Number
 	public static function formatOrdinal(float|int $number): string
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::ORDINAL);
-		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number));
+		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->format($number));
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Number
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::SCIENTIFIC);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number));
+		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->format($number));
 	}
 
 	/**
@@ -71,7 +71,7 @@ class Number
 	{
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::SPELLOUT);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
-		return \Osimatic\Helpers\Text\Str::removeNonBreakingSpaces($fmt->format($number));
+		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->format($number));
 	}
 
 	/**

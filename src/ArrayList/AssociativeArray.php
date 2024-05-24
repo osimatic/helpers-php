@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\ArrayList;
+namespace Osimatic\ArrayList;
 
 /**
  * Class AssociativeArray

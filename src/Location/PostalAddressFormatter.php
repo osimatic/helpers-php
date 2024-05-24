@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Location;
+namespace Osimatic\Location;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -18,13 +18,13 @@ use Symfony\Component\Yaml\Yaml;
  */
 class PostalAddressFormatter
 {
-	private $separator;
-	private $components = [];
-	private $componentAliases = [];
-	private $templates = [];
-	private $stateCodes = [];
-	private $countries = [];
-	private $validReplacementComponents = [
+	private ?string $separator = null;
+	private array $components = [];
+	private array $componentAliases = [];
+	private array $templates = [];
+	private array $stateCodes = [];
+	private array $countries = [];
+	private array $validReplacementComponents = [
 		'state',
 	];
 
@@ -123,7 +123,7 @@ class PostalAddressFormatter
 		return implode($this->separator, array_filter(explode("\n", $formattedAddress)));
 	}
 
-	public function formatArray($addressArray, $options = [])
+	public function formatArray(array $addressArray, array $options = []): string
 	{
 		$countryCode = $this->determineCountryCode($addressArray);
 
@@ -180,7 +180,7 @@ class PostalAddressFormatter
 		return $text;
 	}
 
-	private function findUnknownComponents($addressArray)
+	private function findUnknownComponents(array $addressArray): array
 	{
 		$unknown = [];
 
@@ -193,7 +193,7 @@ class PostalAddressFormatter
 		return $unknown;
 	}
 
-	private function postFormatReplace($text, $replacements)
+	private function postFormatReplace(string $text, $replacements): string
 	{
 		//Remove duplicates
 		$beforePieces = explode(', ', $text);
@@ -201,7 +201,7 @@ class PostalAddressFormatter
 		$afterPieces = [];
 
 		foreach ($beforePieces as $piece) {
-			$piece = preg_replace('/^\s+/', '', $piece);
+			$piece = ltrim($piece);
 
 			if (!isset($seen[$piece])) {
 				$seen[$piece] = 0;
@@ -226,7 +226,7 @@ class PostalAddressFormatter
 		return $text;
 	}
 
-	private function render($tplText, $addressArray)
+	private function render(string $tplText, array $addressArray): string
 	{
 		$m = new \Mustache_Engine;
 
@@ -263,7 +263,7 @@ class PostalAddressFormatter
 		return $text;
 	}
 
-	private function cleanupRendered($text)
+	private function cleanupRendered(string $text): string
 	{
 		$replacements = [
 			'/[\},\s]+$/u' => '',
@@ -332,15 +332,15 @@ class PostalAddressFormatter
 
 		$text = implode("\n", $afterLines);
 
-		$text = preg_replace('/^\s+/', '', $text); //remove leading whitespace
-		$text = preg_replace('/\s+$/', '', $text); //remove end whitespace
+		$text = ltrim($text); //remove leading whitespace
+		$text = rtrim($text); //remove end whitespace
 
 		$text .= "\n"; //add final newline
 
 		return $text;
 	}
 
-	private function fixCountry($addressArray)
+	private function fixCountry(array $addressArray): array
 	{
 		/**
 		 * Hacks for bad country data
@@ -360,7 +360,7 @@ class PostalAddressFormatter
 		return $addressArray;
 	}
 
-	private function applyReplacements($addressArray, $replacements)
+	private function applyReplacements(array $addressArray, array $replacements): array
 	{
 		foreach ($addressArray as $key => $val) {
 			foreach ($replacements as $replacement) {
@@ -380,7 +380,7 @@ class PostalAddressFormatter
 		return $addressArray;
 	}
 
-	private function addStateCode($addressArray)
+	private function addStateCode(array $addressArray): array
 	{
 		if (!isset($addressArray['state_code'])) {
 			if (isset($addressArray['state']) && isset($addressArray['country_code'])) {
@@ -400,7 +400,7 @@ class PostalAddressFormatter
 		return $addressArray;
 	}
 
-	private function determineCountryCode(&$addressArray)
+	private function determineCountryCode(array &$addressArray): string
 	{
 		$countryCode = (isset($addressArray['country_code'])) ? $addressArray['country_code'] : '';
 
@@ -412,7 +412,7 @@ class PostalAddressFormatter
 				$countryCode = 'GB';
 			}
 
-			$addressArray['country'] = Country::getCountryNameByCountryCode($countryCode);
+			$addressArray['country'] = Country::getCountryNameFromCountryCode($countryCode);
 
 			/**
 			 * Check if the country config tells us to use a different country code.
@@ -439,7 +439,7 @@ class PostalAddressFormatter
 						$addressArray['country'] = $newCountry;
 					}
 
-					if (isset($this->templates[$oldCountryCode]['add_component']) && strpos($this->templates[$oldCountryCode]['add_component'], '=') !== false) {
+					if (isset($this->templates[$oldCountryCode]['add_component']) && str_contains($this->templates[$oldCountryCode]['add_component'], '=')) {
 						list($k, $v) = explode('=', $this->templates[$oldCountryCode]['add_component']);
 
 						if (in_array($k, $this->validReplacementComponents)) {
@@ -468,7 +468,7 @@ class PostalAddressFormatter
 		return $countryCode;
 	}
 
-	private function sanityCleanAddress($addressArray)
+	private function sanityCleanAddress(array $addressArray): array
 	{
 		if (isset($addressArray['postcode']) && strlen($addressArray['postcode']) > 20) {
 			unset($addressArray['postcode']);
@@ -484,7 +484,7 @@ class PostalAddressFormatter
 		return $addressArray;
 	}
 
-	private function hasMinimumAddressComponents($addressArray)
+	private function hasMinimumAddressComponents(array $addressArray): bool
 	{
 		$missing = 0;
 		$minThreshold = 2;
@@ -500,13 +500,13 @@ class PostalAddressFormatter
 			}
 		}
 
-		return ($missing < $minThreshold) ? true : false;
+		return $missing < $minThreshold;
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	public function loadTemplates()
+	public function loadTemplates(): void
 	{
 		$templatesPath = implode(DIRECTORY_SEPARATOR, array(realpath(dirname(__FILE__)), 'conf'));
 		if (!is_dir($templatesPath)) {
@@ -545,17 +545,17 @@ class PostalAddressFormatter
 		$this->stateCodes = $stateCodes;
 	}
 
-	public function getComponents()
+	public function getComponents(): array
 	{
 		return $this->components;
 	}
 
-	public function getCountries()
+	public function getCountries(): array
 	{
 		return $this->countries;
 	}
 
-	public function getStateCodes()
+	public function getStateCodes(): array
 	{
 		return $this->stateCodes;
 	}

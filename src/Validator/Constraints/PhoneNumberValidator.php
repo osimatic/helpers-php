@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
-use Osimatic\Helpers\Messaging\PhoneNumberType;
+use Osimatic\Messaging\PhoneNumberType;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -21,10 +21,10 @@ class PhoneNumberValidator extends ConstraintValidator
 
 		/** @var PhoneNumber $constraint */
 
-		$phoneNumber = \Osimatic\Helpers\Messaging\PhoneNumber::parse($value);
+		$phoneNumber = \Osimatic\Messaging\PhoneNumber::parse($value);
 
 		// vérification syntaxe numéro téléphone saisi
-		if (false === \Osimatic\Helpers\Messaging\PhoneNumber::isValid($phoneNumber)) {
+		if (false === \Osimatic\Messaging\PhoneNumber::isValid($phoneNumber)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();
@@ -36,7 +36,7 @@ class PhoneNumberValidator extends ConstraintValidator
 		}
 
 		// si le type du numéro attendu est bien le type correspondant au numéro, c'est ok.
-		if (($phoneNumberType = \Osimatic\Helpers\Messaging\PhoneNumber::getType($phoneNumber)) === $constraint->phoneNumberType) {
+		if (($phoneNumberType = \Osimatic\Messaging\PhoneNumber::getType($phoneNumber)) === $constraint->phoneNumberType) {
 			return;
 		}
 

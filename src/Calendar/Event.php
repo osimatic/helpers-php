@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
 /**
  * Class Event
@@ -52,7 +52,7 @@ class Event
 			$postalAddress = $event->getAddress();
 		}
 		if (null !== $postalAddress) {
-			return \Osimatic\Helpers\Location\PostalAddress::format($postalAddress);
+			return \Osimatic\Location\PostalAddress::format($postalAddress);
 		}
 		return null;
 	}

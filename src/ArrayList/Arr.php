@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\ArrayList;
+namespace Osimatic\ArrayList;
 
 /**
  * Class SimpleArray
@@ -268,6 +268,7 @@ class Arr
 			return [];
 		}
 
+		$ka = [];
 		foreach ($a as $s) {
 			if ($s) {
 				if ($pos = strpos($s, $kv)) { // key/value delimiter

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Network;
+namespace Osimatic\Network;
 
 class UserAgent implements \JsonSerializable
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
-use Osimatic\Helpers\Location\PlaceInterface;
-use Osimatic\Helpers\Location\PostalAddressInterface;
-use Osimatic\Helpers\Organization\OrganizationInterface;
-use Osimatic\Helpers\Person\PersonInterface;
+use Osimatic\Location\PlaceInterface;
+use Osimatic\Location\PostalAddressInterface;
+use Osimatic\Organization\OrganizationInterface;
+use Osimatic\Person\PersonInterface;
 
 /**
  * Interface EventInterface

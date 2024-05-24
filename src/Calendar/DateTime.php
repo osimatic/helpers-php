@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
 class DateTime
 {
@@ -309,7 +309,7 @@ class DateTime
 		if (self::isWeekend($dateTime)) {
 			return false;
 		}
-		if ($withPublicHoliday && self::isPublicHoliday($dateTime)) {
+		if ($withPublicHoliday && PublicHolidays::isPublicHoliday($dateTime)) {
 			return false;
 		}
 		return true;
@@ -327,7 +327,7 @@ class DateTime
 		if ($dayOfWeek === 7) {
 			return false;
 		}
-		if ($withPublicHoliday && self::isPublicHoliday($dateTime)) {
+		if ($withPublicHoliday && PublicHolidays::isPublicHoliday($dateTime)) {
 			return false;
 		}
 		return true;

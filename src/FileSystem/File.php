@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\FileSystem;
+namespace Osimatic\FileSystem;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -48,32 +48,32 @@ class File
 
 		/** @var array $fileSignatures */
 		$fileSignatures = [
-			[["\x66\x74\x79\x70\x33\x67"], \Osimatic\Helpers\Media\Video::_3GPP_MIME_TYPES[0]], // 3GPP
-			[["\x42\x4D"], \Osimatic\Helpers\Media\Image::BMP_MIME_TYPES[0]], // Bitmap
+			[["\x66\x74\x79\x70\x33\x67"], \Osimatic\Media\Video::_3GPP_MIME_TYPES[0]], // 3GPP
+			[["\x42\x4D"], \Osimatic\Media\Image::BMP_MIME_TYPES[0]], // Bitmap
 			[[""], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'], // Excel
 			[[""], 'application/vnd.ms-excel'], // Excel 97-2003
 			[["\x4D\x5A"], 'application/octet-stream'], // Exe (Windows)
-			[["\x47\x49\x46\x38\x37\x61", "\x47\x49\x46\x38\x39\x61"], \Osimatic\Helpers\Media\Image::GIF_MIME_TYPES[0]], // GIF
-			[["\xFF\xD8\xFF"], \Osimatic\Helpers\Media\Image::JPG_MIME_TYPES[0]], // JPEG
-			[["\x66\x74\x79\x70\x69\x73\x6F\x6D", "\x66\x74\x79\x70\x4D\x53\x4E\x56"], \Osimatic\Helpers\Media\Video::MP4_MIME_TYPES[0]], // MP4
+			[["\x47\x49\x46\x38\x37\x61", "\x47\x49\x46\x38\x39\x61"], \Osimatic\Media\Image::GIF_MIME_TYPES[0]], // GIF
+			[["\xFF\xD8\xFF"], \Osimatic\Media\Image::JPG_MIME_TYPES[0]], // JPEG
+			[["\x66\x74\x79\x70\x69\x73\x6F\x6D", "\x66\x74\x79\x70\x4D\x53\x4E\x56"], \Osimatic\Media\Video::MP4_MIME_TYPES[0]], // MP4
 			[[""], 'application/vnd.oasis.opendocument.presentationn'], // Open Document Presentation
 			[[""], 'application/vnd.oasis.opendocument.spreadsheet'], // Open Document Spreadhseet
 			[[""], 'application/vnd.oasis.opendocument.text'], // Open Document Text
 			[[""], 'application/vnd.ms-outlook'], // Outlook Message
-			[["\x25\x50\x44\x46\x2D"], \Osimatic\Helpers\Text\PDF::MIME_TYPES[0]], // PDF
-			[["\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"], \Osimatic\Helpers\Media\Image::PNG_MIME_TYPES[0]], // PNG
+			[["\x25\x50\x44\x46\x2D"], \Osimatic\Text\PDF::MIME_TYPES[0]], // PDF
+			[["\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"], \Osimatic\Media\Image::PNG_MIME_TYPES[0]], // PNG
 			[[""], 'application/vnd.openxmlformats-officedocument.presentationml.presentation'], // PowerPoint
 			[[""], 'application/vnd.ms-powerpoint'], // Powerpoint 97-2003
-			[["\x71\x74\x20\x20"], \Osimatic\Helpers\Media\Video::QUICKTIME_MIME_TYPES[0]], // QuickTime
+			[["\x71\x74\x20\x20"], \Osimatic\Media\Video::QUICKTIME_MIME_TYPES[0]], // QuickTime
 			[["\x7B\x5C\x72\x74\x66\x31"], 'application/rtf'], // Rich Text Format
-			[["\x49\x49\x2A\x00", "\x4D\x4D\x00\x2A"], \Osimatic\Helpers\Media\Image::TIFF_MIME_TYPES[0]], // TIFF
+			[["\x49\x49\x2A\x00", "\x4D\x4D\x00\x2A"], \Osimatic\Media\Image::TIFF_MIME_TYPES[0]], // TIFF
 			[[""], 'application/vnd.visio'], // Visio
 			[[""], 'application/vnd.visio'], // Visio 97-2003
-			[["\x52\x49\x46\x46", "\x57\x45\x42\x50"], \Osimatic\Helpers\Media\Image::WEBP_MIME_TYPES[0]], // Webp
+			[["\x52\x49\x46\x46", "\x57\x45\x42\x50"], \Osimatic\Media\Image::WEBP_MIME_TYPES[0]], // Webp
 			[[""], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], // Word
 			[[""], 'application/msword'], // Word 97-2003
 			[[""], 'application/vnd.ms-xpsdocument'], // Xps
-			[["\x50\x4B\x03\x04"], \Osimatic\Helpers\FileSystem\ZipArchive::MIME_TYPES[0]], // Zip
+			[["\x50\x4B\x03\x04"], \Osimatic\FileSystem\ZipArchive::MIME_TYPES[0]], // Zip
 		];
 
 		foreach ($fileSignatures as [$hexList, $mimeType]) {
@@ -93,7 +93,7 @@ class File
 	 */
 	public static function getExtensionOfUploadedFile(InputFile|UploadedFile $uploadedFile): ?string
 	{
-		return is_a($uploadedFile, \Osimatic\Helpers\FileSystem\InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
+		return is_a($uploadedFile, \Osimatic\FileSystem\InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
 	}
 
 
@@ -107,20 +107,20 @@ class File
 		$allowedFormats = array_map(fn(string $format) => mb_strtolower($format), $allowedFormats);
 
 		$formatWithCheckCallable = [
-			'pdf' => \Osimatic\Helpers\Text\PDF::checkFile(...),
-			'csv' => \Osimatic\Helpers\Text\CSV::checkFile(...),
-			'image' => \Osimatic\Helpers\Media\Image::checkFile(...),
-			'jpg' => \Osimatic\Helpers\Media\Image::checkJpgFile(...),
-			'png' => \Osimatic\Helpers\Media\Image::checkPngFile(...),
-			'audio' => \Osimatic\Helpers\Media\Audio::checkFile(...),
-			'mp3' => \Osimatic\Helpers\Media\Audio::checkMp3File(...),
-			'wav' => \Osimatic\Helpers\Media\Audio::checkWavFile(...),
-			'video' => \Osimatic\Helpers\Media\Video::checkFile(...),
-			'mp4' => \Osimatic\Helpers\Media\Video::checkMp4File(...),
-			'avi' => \Osimatic\Helpers\Media\Video::checkAviFile(...),
-			'mpg' => \Osimatic\Helpers\Media\Video::checkMpgFile(...),
-			'wmv' => \Osimatic\Helpers\Media\Video::checkWmvFile(...),
-			'zip' => \Osimatic\Helpers\FileSystem\ZipArchive::checkFile(...),
+			'pdf' => \Osimatic\Text\PDF::checkFile(...),
+			'csv' => \Osimatic\Text\CSV::checkFile(...),
+			'image' => \Osimatic\Media\Image::checkFile(...),
+			'jpg' => \Osimatic\Media\Image::checkJpgFile(...),
+			'png' => \Osimatic\Media\Image::checkPngFile(...),
+			'audio' => \Osimatic\Media\Audio::checkFile(...),
+			'mp3' => \Osimatic\Media\Audio::checkMp3File(...),
+			'wav' => \Osimatic\Media\Audio::checkWavFile(...),
+			'video' => \Osimatic\Media\Video::checkFile(...),
+			'mp4' => \Osimatic\Media\Video::checkMp4File(...),
+			'avi' => \Osimatic\Media\Video::checkAviFile(...),
+			'mpg' => \Osimatic\Media\Video::checkMpgFile(...),
+			'wmv' => \Osimatic\Media\Video::checkWmvFile(...),
+			'zip' => \Osimatic\FileSystem\ZipArchive::checkFile(...),
 		];
 
 		foreach ($formatWithCheckCallable as $format => $callable) {
@@ -179,7 +179,7 @@ class File
 	 */
 	public static function moveUploadedFile(InputFile|UploadedFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::createDirectories($filePath);
+		\Osimatic\FileSystem\FileSystem::createDirectories($filePath);
 
 		if (file_exists($filePath)) {
 			unlink($filePath);
@@ -466,9 +466,9 @@ class File
 	public static function getExtensionsAndMimeTypes(): array
 	{
 		return array_merge(
-			self::formatExtensionsAndMimeTypes(\Osimatic\Helpers\Media\Image::getExtensionsAndMimeTypes()),
-			self::formatExtensionsAndMimeTypes(\Osimatic\Helpers\Media\Audio::getExtensionsAndMimeTypes()),
-			self::formatExtensionsAndMimeTypes(\Osimatic\Helpers\Media\Video::getExtensionsAndMimeTypes()),
+			self::formatExtensionsAndMimeTypes(\Osimatic\Media\Image::getExtensionsAndMimeTypes()),
+			self::formatExtensionsAndMimeTypes(\Osimatic\Media\Audio::getExtensionsAndMimeTypes()),
+			self::formatExtensionsAndMimeTypes(\Osimatic\Media\Video::getExtensionsAndMimeTypes()),
 			[
 				[['xl'], ['application/excel']],
 				[['js'], ['application/javascript']],

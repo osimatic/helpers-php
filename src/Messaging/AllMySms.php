@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -34,10 +34,10 @@ class AllMySms implements SmsSenderInterface
 	}
 
 	/**
-	 * @param \Osimatic\Helpers\Messaging\SMS $sms
+	 * @param \Osimatic\Messaging\SMS $sms
 	 * @throws \Exception
 	 */
-	public function send(\Osimatic\Helpers\Messaging\SMS $sms): void
+	public function send(\Osimatic\Messaging\SMS $sms): void
 	{
 		/*
 		$listSuccess = [

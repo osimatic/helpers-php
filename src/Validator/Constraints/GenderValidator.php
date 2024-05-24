@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -20,7 +20,7 @@ class GenderValidator extends ConstraintValidator
 		}
 
 		/** @var Gender $constraint */
-		if (!\Osimatic\Helpers\Person\Name::checkCivility($value)) {
+		if (!\Osimatic\Person\Name::checkCivility($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

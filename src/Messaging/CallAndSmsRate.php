@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 class CallAndSmsRate
 {
@@ -16,7 +16,7 @@ class CallAndSmsRate
 	 */
 	public static function getSmsCostByPhoneNumber(string $phoneNumber): float
 	{
-		if (null !== ($callAndSmsRate = self::getRatesOfCountry(\Osimatic\Helpers\Messaging\PhoneNumber::getCountryIsoCode($phoneNumber)))) {
+		if (null !== ($callAndSmsRate = self::getRatesOfCountry(\Osimatic\Messaging\PhoneNumber::getCountryIsoCode($phoneNumber)))) {
 			return $callAndSmsRate->getSmsRate();
 		}
 		return 0;
@@ -41,8 +41,8 @@ class CallAndSmsRate
 	 */
 	public static function getCallRatePerMinuteByPhoneNumber(string $phoneNumber): float
 	{
-		if (null !== ($callAndSmsRate = self::getRatesOfCountry(\Osimatic\Helpers\Messaging\PhoneNumber::getCountryIsoCode($phoneNumber)))) {
-			if (\Osimatic\Helpers\Messaging\PhoneNumber::isMobile($phoneNumber)) {
+		if (null !== ($callAndSmsRate = self::getRatesOfCountry(\Osimatic\Messaging\PhoneNumber::getCountryIsoCode($phoneNumber)))) {
+			if (\Osimatic\Messaging\PhoneNumber::isMobile($phoneNumber)) {
 				return $callAndSmsRate->getMobileRatePerMinute();
 			}
 			return $callAndSmsRate->getLandlineRatePerMinute();

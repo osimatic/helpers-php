@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Location;
+namespace Osimatic\Location;
 
 /**
  * @deprecated use PlaceInterface instead

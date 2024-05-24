@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Number;
+namespace Osimatic\Number;
 
-use Osimatic\Helpers\Location\PlaceInterface;
+use Osimatic\Location\PlaceInterface;
 
 class Distance
 {

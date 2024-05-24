@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;

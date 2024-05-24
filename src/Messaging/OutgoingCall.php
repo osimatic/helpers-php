@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 /**
  * Class OutgoingCall
@@ -36,7 +36,7 @@ class OutgoingCall
 
 	public function __construct()
 	{
-		$this->callDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
+		$this->callDateTime = \Osimatic\Calendar\DateTime::getCurrentDateTime();
 	}
 
 	/**

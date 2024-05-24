@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Bank;
+namespace Osimatic\Bank;
 
 class BillingTax
 {
@@ -17,20 +17,20 @@ class BillingTax
 			$country = $billingCountry;
 		}
 
-		if (\Osimatic\Helpers\Location\Country::isCountryInFranceOverseas($country)) {
+		if (\Osimatic\Location\Country::isCountryInFranceOverseas($country)) {
 			$country = 'FR';
 		}
 
 		// TVA étranger
 		if ($country !== $billingCountry) {
-			if (false === \Osimatic\Helpers\Location\Country::isCountryInEuropeanUnion($billingCountry)) {
+			if (false === \Osimatic\Location\Country::isCountryInEuropeanUnion($billingCountry)) {
 				// Pas de TVA car l'entité qui facture est hors UE.
 				return 0.0;
 			}
 
 			// Le pays qui facture est dans l'UE.
 
-			if (false === \Osimatic\Helpers\Location\Country::isCountryInEuropeanUnion($country)) {
+			if (false === \Osimatic\Location\Country::isCountryInEuropeanUnion($country)) {
 				// Pas de TVA car le client est hors UE.
 				return 0.0;
 			}

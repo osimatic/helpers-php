@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Location;
+namespace Osimatic\Location;
 
 enum Continent: int
 {

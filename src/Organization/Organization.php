@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Organization;
+namespace Osimatic\Organization;
 
-use Osimatic\Helpers\Location\PostalAddressInterface;
+use Osimatic\Location\PostalAddressInterface;
 
 /**
  * @deprecated use OrganizationInterface instead

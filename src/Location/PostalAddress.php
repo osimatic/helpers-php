@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Location;
+namespace Osimatic\Location;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -599,7 +599,7 @@ class PostalAddress
 	 * @deprecated
 	 * @param PostalAddressInterface $postalAddress
 	 * @param string|null $separator
-	 * @return string
+	 * @return string|null
 	 */
 	public static function formatInlineFromTwig(PostalAddressInterface $postalAddress, ?string $separator=', '): ?string
 	{

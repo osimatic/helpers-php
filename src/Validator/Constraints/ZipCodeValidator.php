@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Validator\Constraints;
+namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -20,7 +20,7 @@ class ZipCodeValidator extends ConstraintValidator
 		}
 
 		/** @var ZipCode $constraint */
-		if (!\Osimatic\Helpers\Location\PostalAddress::checkZipCode($value)) {
+		if (!\Osimatic\Location\PostalAddress::checkZipCode($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

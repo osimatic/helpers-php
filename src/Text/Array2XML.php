@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Text;
+namespace Osimatic\Text;
 
 /**
  * Array2XML: A class to convert array in PHP to XML
@@ -58,7 +58,7 @@ class Array2XML
 	 * @return \DomDocument
 	 * @throws \Exception
 	 */
-	public static function &createXML($node_name, $arr=[])
+	public static function &createXML($node_name, $arr=[]): \DomDocument
 	{
 		$xml = self::getXMLRoot();
 		$xml->appendChild(self::convert($node_name, $arr));
@@ -74,7 +74,7 @@ class Array2XML
 	 * @return \DOMNode
 	 * @throws \Exception
 	 */
-	private static function &convert($node_name, $arr=[])
+	private static function &convert($node_name, $arr=[]): \DOMNode
 	{
 		//print_arr($node_name);
 		$xml = self::getXMLRoot();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Calendar;
+namespace Osimatic\Calendar;
 
 /**
  * Class Timezone
@@ -64,7 +64,7 @@ class Timezone
 		if ($withCountry || $withCities) {
 			$str .= ' (';
 			if ($withCountry) {
-				$str .= (\Osimatic\Helpers\Location\Country::getCountryNameByCountryCode($countryCodeOrCountryName) ?? $countryCodeOrCountryName);
+				$str .= (\Osimatic\Location\Country::getCountryNameFromCountryCode($countryCodeOrCountryName) ?? $countryCodeOrCountryName);
 			}
 			if ($withCountry && $withCities) {
 				$str .= ' : ';

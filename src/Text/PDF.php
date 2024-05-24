@@ -1,8 +1,8 @@
 <?php
 
-namespace Osimatic\Helpers\Text;
+namespace Osimatic\Text;
 
-use Osimatic\Helpers\FileSystem\OutputFile;
+use Osimatic\FileSystem\OutputFile;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +49,7 @@ class PDF
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\Helpers\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
 
 	// ========== Affichage ==========
@@ -62,7 +62,7 @@ class PDF
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::output($filePath, $fileName, 'application/pdf');
+		\Osimatic\FileSystem\File::output($filePath, $fileName, 'application/pdf');
 	}
 
 	/**
@@ -72,7 +72,7 @@ class PDF
 	 */
 	public static function outputFile(OutputFile $file): void
 	{
-		\Osimatic\Helpers\FileSystem\File::outputFile($file, 'application/pdf');
+		\Osimatic\FileSystem\File::outputFile($file, 'application/pdf');
 	}
 
 	/**
@@ -83,7 +83,7 @@ class PDF
 	 */
 	public static function download(string $filePath, ?string $fileName=null): void
 	{
-		\Osimatic\Helpers\FileSystem\File::download($filePath, $fileName);
+		\Osimatic\FileSystem\File::download($filePath, $fileName);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class PDF
 	 */
 	public static function downloadFile(OutputFile $file): void
 	{
-		\Osimatic\Helpers\FileSystem\File::downloadFile($file);
+		\Osimatic\FileSystem\File::downloadFile($file);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class PDF
 	 */
 	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
 	{
-		return \Osimatic\Helpers\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'application/pdf');
+		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'application/pdf');
 	}
 
 	// ========== Génération ==========
@@ -161,7 +161,7 @@ class PDF
 	 */
 	public function generateFile(string $filePath, array $options=[]): bool
 	{
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($filePath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$snappy = new \Knp\Snappy\Pdf();
 		$snappy->setBinary($this->wkHtmlToPdtBinaryPath);
@@ -244,7 +244,7 @@ class PDF
 	{
 		$this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
 
-		\Osimatic\Helpers\FileSystem\FileSystem::initializeFile($newPdfPath);
+		\Osimatic\FileSystem\FileSystem::initializeFile($newPdfPath);
 
 		// Vérification que tous les fichiers existent bien
 		if ($profondeur === 0) {

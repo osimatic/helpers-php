@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Network;
+namespace Osimatic\Network;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Number;
+namespace Osimatic\Number;
 
 class Percent
 {

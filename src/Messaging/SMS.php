@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Helpers\Messaging;
+namespace Osimatic\Messaging;
 
 /**
  * Class SMS
@@ -56,7 +56,7 @@ class SMS
 
 	public function __construct()
 	{
-		$this->sendingDateTime = \Osimatic\Helpers\Calendar\DateTime::getCurrentDateTime();
+		$this->sendingDateTime = \Osimatic\Calendar\DateTime::getCurrentDateTime();
 	}
 
 	/**
