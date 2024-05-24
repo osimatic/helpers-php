@@ -69,7 +69,7 @@ class PostalAddress
 	 * @param string|null $separator
 	 * @return string|null
 	 */
-	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=null): ?string
+	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
 	{
 		return (new PostalAddressFormatter())->format($postalAddress, [], $separator, $withAttention);
 	}
@@ -81,17 +81,6 @@ class PostalAddress
 	 * @return string|null
 	 */
 	public static function formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', '): ?string
-	{
-		return self::format($postalAddress, $withAttention, $separator);
-	}
-
-	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param bool $withAttention
-	 * @param string|null $separator
-	 * @return string|null
-	 */
-	public static function formatFromTwig(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
 	{
 		return self::format($postalAddress, $withAttention, $separator);
 	}
@@ -596,7 +585,7 @@ class PostalAddress
 	}
 
 	/**
-	 * @deprecated
+	 * @deprecated use formatInline instead
 	 * @param PostalAddressInterface $postalAddress
 	 * @param string|null $separator
 	 * @return string|null
@@ -604,6 +593,18 @@ class PostalAddress
 	public static function formatInlineFromTwig(PostalAddressInterface $postalAddress, ?string $separator=', '): ?string
 	{
 		return self::format($postalAddress, $separator);
+	}
+
+	/**
+	 * @deprecated use format instead
+	 * @param PostalAddressInterface $postalAddress
+	 * @param bool $withAttention
+	 * @param string|null $separator
+	 * @return string|null
+	 */
+	public static function formatFromTwig(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
+	{
+		return self::format($postalAddress, $withAttention, $separator);
 	}
 
 }
