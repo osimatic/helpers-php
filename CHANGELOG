@@ -19,3 +19,9 @@ Version 04/04/2023 :
 
 Version 24/05/2023 :
 - Refonte total de la classe ICS (utilisation de EventInterface au lieu de l'objet ICS)
+
+Version 24/05/2024 :
+- Media\Audio::convertToWavCcittALaw() -> Media\AudioConverter::convertToWavCcittALaw()
+- Media\Audio::convertWavToMp3() -> Media\AudioConverter::convertWavToMp3()
+- Media\Audio::convertWebMToMp3() -> Media\AudioConverter::convertWebMToMp3()
+- Media\Image::resize() -> Media\ImageResizer::resize()

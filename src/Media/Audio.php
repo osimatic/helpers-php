@@ -3,8 +3,6 @@
 namespace Osimatic\Helpers\Media;
 
 use Osimatic\Helpers\FileSystem\OutputFile;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use getID3;
 use getid3_exception;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,30 +54,6 @@ class Audio
 			'wma' => [[self::WMA_EXTENSION], self::WMA_MIME_TYPES],
 			'weba' => [[self::WEBM_EXTENSION], self::WEBM_MIME_TYPES],
 		];
-	}
-
-	/**
-	 * @var LoggerInterface
-	 */
-	private LoggerInterface $logger;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $soxBinaryPath = null;
-
-	public function __construct()
-	{
-		$this->logger = new NullLogger();
-	}
-
-	/**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
-	 */
-	public function setLogger(LoggerInterface $logger): void
-	{
-		$this->logger = $logger;
 	}
 
 	/**
@@ -432,111 +406,4 @@ class Audio
 
 		exit();
 	}
-
-	/**
-	 * @param string $srcAudioFilePath
-	 * @param string|null $destAudioFilePath
-	 * @return bool
-	 */
-	public function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath=null): bool
-	{
-		// Vérification que le fichier soit un fichier wav ou mp3
-		$fileFormat = self::getFormat($srcAudioFilePath);
-		if (!in_array($fileFormat, [self::MP3_FORMAT, self::WAV_FORMAT], true)) {
-			$this->logger->error('Message audio pas au format mp3 ou WAV');
-			return false;
-		}
-
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension wav si ce n'est pas le cas)
-		if (empty($destAudioFilePath)) {
-			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted'.substr($srcAudioFilePath, strrpos($srcAudioFilePath, '.'));
-		}
-		if ($fileFormat !== self::WAV_FORMAT) {
-			$destAudioFilePath = substr($destAudioFilePath, 0, strrpos($destAudioFilePath, '.')+1).'wav';
-		}
-
-		$params = ($fileFormat === self::MP3_FORMAT?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
-		$commandLine = $this->soxBinaryPath.' '.$params;
-
-		// Envoi de la commande
-		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-		//$lastLine = exec($commandLine, $output, $returnVar);
-		//var_dump($output, $lastLine);
-
-		return true;
-	}
-
-	/**
-	 * Exemple de commande : sox -t wav -r 8000 -c 1 file.wav -t mp3 file.mp3
-	 * @param string $srcAudioFilePath
-	 * @param string|null $destAudioFilePath
-	 * @return bool
-	 */
-	public function convertWavToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
-	{
-		// Vérification que le fichier soit un fichier wav
-		if (self::getFormat($srcAudioFilePath) !== self::WAV_FORMAT) {
-			$this->logger->error('Message audio pas au format WAV');
-			return false;
-		}
-
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
-		if (empty($destAudioFilePath)) {
-			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
-		}
-
-		$commandLine = $this->soxBinaryPath.' -t wav -r 8000 -c 1 "'.$srcAudioFilePath.'" -t mp3 "'.$destAudioFilePath.'"';
-
-		// Envoi de la commande
-		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-		//$lastLine = exec($commandLine, $output, $returnVar);
-		//var_dump($output, $lastLine);
-
-		return true;
-	}
-
-	/**
-	 * @param string $srcAudioFilePath
-	 * @param string|null $destAudioFilePath
-	 * @return bool
-	 */
-	public function convertWebMToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
-	{
-		// Vérification que le fichier soit au format WebM
-		if (self::getFormat($srcAudioFilePath) !== self::WEBM_FORMAT) {
-			$this->logger->error('Message audio pas au format WebM');
-			return false;
-		}
-
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
-		if (empty($destAudioFilePath)) {
-			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
-		}
-
-		if (file_exists($destAudioFilePath)) {
-			unlink($destAudioFilePath);
-		}
-
-		$commandLine = 'ffmpeg -i "'.$srcAudioFilePath.'" -ab 160k -ar 44100 "'.$destAudioFilePath.'"';
-
-		// Envoi de la commande
-		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-		//$lastLine = exec($commandLine, $output, $returnVar);
-		//var_dump($output, $lastLine);
-
-		return true;
-	}
-
-	/**
-	 * @param string $soxBinaryPath
-	 */
-	public function setSoxBinaryPath(string $soxBinaryPath): void
-	{
-		$this->soxBinaryPath = $soxBinaryPath;
-	}
-
-
 }
