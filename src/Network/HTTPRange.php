@@ -9,11 +9,11 @@ class HTTPRange
 {
 	/**
 	 * @param Request $request
-	 * @param int $totalSize
+	 * @param int|null $totalSize
 	 * @param LoggerInterface|null $logger
 	 * @return array|null
 	 */
-	public static function getRangeFromRequest(Request $request, int $totalSize, ?LoggerInterface $logger=null): ?array
+	public static function getRangeFromRequest(Request $request, ?int $totalSize=null, ?LoggerInterface $logger=null): ?array
 	{
 		if (empty($range = $request->get('range'))) {
 			return null;
