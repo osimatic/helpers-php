@@ -25,9 +25,9 @@ class HTTPRequest
 	 * 						 - user_password :
 	 * 						 - response_file :
 	 * @link http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
-	 * @return mixed la réponse renvoyée par la requête après son exécution
+	 * @return string|bool la réponse renvoyée par la requête après son exécution
 	 */
-	public static function execute(string $url, string $method='GET', array $queryParameters=[], array $headers=[], array $options=[])
+	public static function execute(string $url, string $method='GET', array $queryParameters=[], array $headers=[], array $options=[]): string|bool
 	{
 		//trace('URL : '.$url);
 
@@ -191,8 +191,7 @@ class HTTPRequest
 	 * @param array $queryData
 	 * @param LoggerInterface|null $logger
 	 * @param array $headers
-	 * @param bool $jsonParams
-	 * 
+	 * @param bool $jsonBody
 	 * @return ResponseInterface|null
 	 */
 	public static function post(string $url, array $queryData = [], ?LoggerInterface $logger = null, array $headers = [], bool $jsonBody = false): ?ResponseInterface
