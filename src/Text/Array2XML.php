@@ -35,49 +35,37 @@ namespace Osimatic\Text;
  */
 class Array2XML
 {
-	private static $xml = null;
-	private static $encoding = 'UTF-8';
-
-	/**
-	 * Initialize the root XML node [optional]
-	 * @param $version
-	 * @param $encoding
-	 * @param $format_output
-	 */
-	public static function init($version = '1.0', $encoding = 'UTF-8', $format_output = true)
-	{
-		self::$xml = new \DomDocument($version, $encoding);
-		self::$xml->formatOutput = $format_output;
-		self::$encoding = $encoding;
-	}
-
 	/**
 	 * Convert an Array to XML
 	 * @param string $node_name - name of the root node to be converted
 	 * @param array $arr - aray to be converterd
+	 * @param string $version
+	 * @param string $encoding
+	 * @param bool $format_output
 	 * @return \DomDocument
-	 * @throws \Exception
 	 */
-	public static function &createXML($node_name, $arr=[]): \DomDocument
+	public static function createXML(string $node_name, array $arr=[], string $version = '1.0', string $encoding = 'UTF-8', bool $format_output = true): \DomDocument
 	{
-		$xml = self::getXMLRoot();
-		$xml->appendChild(self::convert($node_name, $arr));
-
-		self::$xml = null;	// clear the xml node in the class for 2nd time use.
+		$xml = new \DomDocument($version, $encoding);
+		$xml->formatOutput = $format_output;
+		try {
+			$xml->appendChild(self::convert($xml, $node_name, $arr));
+		} catch (\DOMException $e) {
+		}
 		return $xml;
 	}
 
 	/**
 	 * Convert an Array to XML
+	 * @param \DomDocument $xml
 	 * @param string $node_name - name of the root node to be converted
 	 * @param array $arr - aray to be converterd
 	 * @return \DOMNode
-	 * @throws \Exception
+	 * @throws \DOMException
 	 */
-	private static function &convert($node_name, $arr=[]): \DOMNode
+	private static function &convert(\DomDocument $xml, string $node_name, array $arr=[]): \DOMNode
 	{
 		//print_arr($node_name);
-		$xml = self::getXMLRoot();
 		$node = $xml->createElement($node_name);
 
 		if(is_array($arr)){
@@ -87,7 +75,7 @@ class Array2XML
 					if(!self::isValidTagName($key)) {
 						throw new \RuntimeException('[Array2XML] Illegal character in attribute name. attribute: '.$key.' in node: '.$node_name);
 					}
-					$node->setAttribute($key, self::bool2str($value));
+					$node->setAttribute($key, self::formatValue($value));
 				}
 				unset($arr['@attributes']); //remove the key from the array once done.
 			}
@@ -95,13 +83,13 @@ class Array2XML
 			// check if it has a value stored in @value, if yes store the value and return
 			// else check if its directly stored as string
 			if(isset($arr['@value'])) {
-				$node->appendChild($xml->createTextNode(self::bool2str($arr['@value'])));
+				$node->appendChild($xml->createTextNode(self::formatValue($arr['@value'])));
 				unset($arr['@value']);	//remove the key from the array once done.
 				//return from recursion, as a note with value cannot have child nodes.
 				return $node;
 			}
 			if(isset($arr['@cdata'])) {
-				$node->appendChild($xml->createCDATASection(self::bool2str($arr['@cdata'])));
+				$node->appendChild($xml->createCDATASection(self::formatValue($arr['@cdata'])));
 				unset($arr['@cdata']);	//remove the key from the array once done.
 				//return from recursion, as a note with cdata cannot have child nodes.
 				return $node;
@@ -120,11 +108,11 @@ class Array2XML
 					// if the new array is numeric index, means it is array of nodes of the same kind
 					// it should follow the parent key name
 					foreach($value as $k=>$v){
-						$node->appendChild(self::convert($key, $v));
+						$node->appendChild(self::convert($xml, $key, $v));
 					}
 				} else {
 					// ONLY ONE NODE OF ITS KIND
-					$node->appendChild(self::convert($key, $value));
+					$node->appendChild(self::convert($xml, $key, $value));
 				}
 				unset($arr[$key]); //remove the key from the array once done.
 			}
@@ -133,39 +121,36 @@ class Array2XML
 		// after we are done with all the keys in the array (if it is one)
 		// we check if it has any text value, if yes, append it.
 		if(!is_array($arr)) {
-			$node->appendChild($xml->createTextNode(self::bool2str($arr)));
+			$node->appendChild($xml->createTextNode(self::formatValue($arr)));
 		}
 
 		return $node;
 	}
 
 	/*
-	 * Get the root XML node, if there isn't one, create it.
+	 * Get string representation of boolean value
 	 */
-	private static function getXMLRoot()
+	private static function formatValue($v)
 	{
-		if (empty(self::$xml)) {
-			self::init();
+		if (is_bool($v)) {
+			return self::bool2str($v);
 		}
-		return self::$xml;
+		return $v;
 	}
 
 	/*
 	 * Get string representation of boolean value
 	 */
-	private static function bool2str($v)
+	private static function bool2str(bool $v): string
 	{
-		//convert boolean to text value.
-		$v = $v === true ? 'true' : $v;
-		$v = $v === false ? 'false' : $v;
-		return $v;
+		return $v === true ? 'true' : 'false';
 	}
 
 	/*
 	 * Check if the tag name or attribute name contains illegal characters
 	 * Ref: http://www.w3.org/TR/xml/#sec-common-syn
 	 */
-	private static function isValidTagName($tag)
+	private static function isValidTagName(string $tag): bool
 	{
 		$pattern = '/^[a-z_]+[a-z0-9\:\-\.\_]*[^:]*$/i';
 		return preg_match($pattern, $tag, $matches) && $matches[0] == $tag;
