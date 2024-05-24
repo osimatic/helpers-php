@@ -15,7 +15,7 @@ class HTTPRange
 	 */
 	public static function getRangeFromRequest(Request $request, ?int $totalSize=null, ?LoggerInterface $logger=null): ?array
 	{
-		if (empty($range = $request->get('range'))) {
+		if (empty($range = $request->headers->get('Range'))) {
 			return null;
 		}
 
