@@ -205,6 +205,16 @@ class DatePeriod
 	 */
 	public static function getListOfMonths(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-n'): array
 	{
+		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateMonths($periodStart, $periodEnd));
+	}
+
+	/**
+	 * @param \DateTime $periodStart
+	 * @param \DateTime $periodEnd
+	 * @return \DateTime[]
+	 */
+	public static function getListOfDateMonths(\DateTime $periodStart, \DateTime $periodEnd): array
+	{
 		$startIntervalDate = (clone $periodStart)->modify('first day of this month');
 		$endIntervalDate = (clone $periodEnd)->modify('last day of this month');
 
@@ -213,7 +223,7 @@ class DatePeriod
 
 			$periodList = [];
 			foreach ($dateRange as $date) {
-				$periodList[] = $date->format($dateFormat);
+				$periodList[] = $date;
 			}
 			return $periodList;
 		}
