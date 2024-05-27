@@ -2,7 +2,8 @@
 
 namespace Osimatic\Bank;
 
-use Osimatic\Network\HTTPRequest;
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -12,80 +13,47 @@ use Psr\Log\NullLogger;
  */
 class PayBox
 {
-	public const URL_PAIEMENT_TEST = 'https://preprod-ppps.paybox.com/PPPS.php';
-	public const URL_PAIEMENT = 'https://ppps.paybox.com/PPPS.php';
-	public const URL_PAIEMENT_SECOURS = 'https://ppps1.paybox.com/PPPS.php';
+	public const string URL_PAIEMENT_TEST = 'https://preprod-ppps.paybox.com/PPPS.php';
+	public const string URL_PAIEMENT = 'https://ppps.paybox.com/PPPS.php';
+	public const string URL_PAIEMENT_SECOURS = 'https://ppps1.paybox.com/PPPS.php';
 
-	public const URL_FORM_TEST = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-	public const URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-	public const URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	public const string URL_FORM_TEST = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	public const string URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	public const string URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
 
-	public const VERSION_PAYBOX_DIRECT = '00103';
-	public const VERSION_PAYBOX_DIRECT_PLUS = '00104';
+	public const string VERSION_PAYBOX_DIRECT = '00103';
+	public const string VERSION_PAYBOX_DIRECT_PLUS = '00104';
 
-	public const CALL_ORIGIN_NOT_SPECIFIED = '020';
-	public const CALL_ORIGIN_TELEPHONE_ORDER = '021';
-	public const CALL_ORIGIN_MAIL_ORDER = '022';
-	public const CALL_ORIGIN_MINITEL = '023';
-	public const CALL_ORIGIN_INTERNET_PAYMENT = '024';
-	public const CALL_ORIGIN_RECURRING_PAYMENT = '027';
+	public const string CALL_ORIGIN_NOT_SPECIFIED = '020';
+	public const string CALL_ORIGIN_TELEPHONE_ORDER = '021';
+	public const string CALL_ORIGIN_MAIL_ORDER = '022';
+	public const string CALL_ORIGIN_MINITEL = '023';
+	public const string CALL_ORIGIN_INTERNET_PAYMENT = '024';
+	public const string CALL_ORIGIN_RECURRING_PAYMENT = '027';
 
-	public const DEFAULT_FORM_TIMEOUT = 1800;
+	public const int DEFAULT_FORM_TIMEOUT = 1800;
 
 	/**
 	 * Ces constantes sont internes, ne pas utiliser de l'extérieur
 	 */
-	public const TYPE_OPERATION_AUTORISATION_SEULE = '00001';
-	public const TYPE_OPERATION_DEBIT = '00002';
-	public const TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
-	public const TYPE_OPERATION_CREDIT = '00004';
-	public const TYPE_OPERATION_ANNULATION = '00005';
-	public const TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
-	public const TYPE_OPERATION_DEBIT_ABONNE = '00052';
-	public const TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
-	public const TYPE_OPERATION_CREDIT_ABONNE = '00054';
-	public const TYPE_OPERATION_ANNULATION_ABONNE = '00055';
-	public const TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
-	public const TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
+	public const string TYPE_OPERATION_AUTORISATION_SEULE = '00001';
+	public const string TYPE_OPERATION_DEBIT = '00002';
+	public const string TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
+	public const string TYPE_OPERATION_CREDIT = '00004';
+	public const string TYPE_OPERATION_ANNULATION = '00005';
+	public const string TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
+	public const string TYPE_OPERATION_DEBIT_ABONNE = '00052';
+	public const string TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
+	public const string TYPE_OPERATION_CREDIT_ABONNE = '00054';
+	public const string TYPE_OPERATION_ANNULATION_ABONNE = '00055';
+	public const string TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
+	public const string TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
 
-
-	/**
-	 * @var LoggerInterface|null
-	 */
-	private ?LoggerInterface $logger;
 
 	/**
 	 * @var string
 	 */
 	private string $version = self::VERSION_PAYBOX_DIRECT;
-
-	/**
-	 * @var string
-	 */
-	private string $numSite = '';
-
-	/**
-	 * Unique identifier provided by Paybox, used for Paybox System only ("PBX_IDENTIFIANT" parameter)
-	 * @var string
-	 */
-	private string $identifier = '';
-
-	/**
-	 * Unique key provided by Paybox and used for Paybox Direct only ("CLE" parameter)
-	 * @var string
-	 */
-	private string $httpPassword = '';
-
-	/**
-	 * Unique key generated in back-office and used for Paybox System only (HMAC generation)
-	 * @var string
-	 */
-	private string $secretKey = '';
-
-	/**
-	 * @var string
-	 */
-	private string $rang = '';
 
 	/**
 	 * @var string
@@ -282,6 +250,7 @@ class PayBox
 	 */
 	private int $formTimeout = self::DEFAULT_FORM_TIMEOUT;
 
+	private HTTPClient $httpClient;
 
 	private static array $visaResponseCodes = [
 		'00100' => 'Transaction approuvée ou traitée avec succès',
@@ -335,7 +304,7 @@ class PayBox
 		'00199' => 'Incident domaine initiateur.',
 	];
 
-	private static $responseCodes = [
+	private static array $responseCodes = [
 		'00000' => 'Opération réussie',
 		'00001' => 'Echec de connexion au centre d’autorisation',
 		'00002' => 'Une erreur de cohérence est survenue',
@@ -367,9 +336,34 @@ class PayBox
 		'00099' => 'Incohérence entre la question et la réponse. Refaire une nouvelle tentative ultérieurement',
 	];
 
-	public function __construct()
+	public function __construct(
+		/**
+		 */
+		private string $siteNumber = '',
+
+		/**
+		 */
+		private string $rang = '',
+
+		/**
+		 * Unique identifier provided by Paybox, used for Paybox System only ("PBX_IDENTIFIANT" parameter)
+		 */
+		private string $identifier = '',
+
+		/**
+		 * Unique key provided by Paybox and used for Paybox Direct only ("CLE" parameter)
+		 */
+		private string $httpPassword = '',
+
+		/**
+		 * Unique key generated in back-office and used for Paybox System only (HMAC generation)
+		 */
+		private string $secretKey = '',
+
+		private LoggerInterface $logger=new NullLogger(),
+	)
 	{
-		$this->logger = new NullLogger();
+		$this->httpClient = new HTTPClient($logger);
 	}
 
 	/**
@@ -502,12 +496,23 @@ class PayBox
 	}
 
 	/**
-	 * @param string $numSite
+	 * @param string $siteNumber
 	 * @return self
 	 */
-	public function setNumSite(string $numSite): self
+	public function setSiteNumber(string $siteNumber): self
 	{
-		$this->numSite = $numSite;
+		$this->siteNumber = $siteNumber;
+
+		return $this;
+	}
+
+	/**
+	 * @param string $rang
+	 * @return self
+	 */
+	public function setRang(string $rang): self
+	{
+		$this->rang = $rang;
 
 		return $this;
 	}
@@ -541,17 +546,6 @@ class PayBox
 	public function setSecretKey(string $secretKey): self
 	{
 		$this->secretKey = $secretKey;
-
-		return $this;
-	}
-
-	/**
-	 * @param string $rang
-	 * @return self
-	 */
-	public function setRang(string $rang): self
-	{
-		$this->rang = $rang;
 
 		return $this;
 	}
@@ -1046,15 +1040,15 @@ class PayBox
 
 		if ($this->isTest) {
 			$this->version = self::VERSION_PAYBOX_DIRECT_PLUS;
-			$this->numSite = '1999888';
+			$this->siteNumber = '1999888';
 			$this->identifier = '109518543';
 			$this->httpPassword = '1999888I';
 			$this->secretKey = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
 			$this->rang = '63';
 		}
 
-		if (empty($this->numSite) || strlen($this->numSite) !== 7) {
-			$this->logger?->error('Numéro de TPE invalide : ' . $this->numSite);
+		if (empty($this->siteNumber) || strlen($this->siteNumber) !== 7) {
+			$this->logger?->error('Numéro de TPE invalide : ' . $this->siteNumber);
 			return false;
 		}
 
@@ -1189,7 +1183,7 @@ class PayBox
 		$postData = [
 			'VERSION' => $this->version,
 			'TYPE' => $this->getTypeOperationFormatted(),
-			'SITE' => $this->numSite,
+			'SITE' => $this->siteNumber,
 			'RANG' => $this->rang,
 			'CLE' => $this->httpPassword,
 
@@ -1230,14 +1224,13 @@ class PayBox
 		$this->logger?->info('Référence achat : ' . $postData['REFERENCE']);
 
 		// Appel de l'URL Paybox avec les arguments POST
-		$res = HTTPRequest::post($urlPaiement, $postData, $this->logger);
+		$res = $this->httpClient->stringRequest(HTTPMethod::POST, $urlPaiement, queryData: $postData);
 
 		if (null === $res) {
 			$this->logger?->info('Appel Paybox échoué');
 			return null;
 		}
 
-		$res = (string) $res->getBody();
 		$this->logger?->info('Résultat appel Paybox : ' . $res);
 
 		// Récupération des arguments retour
@@ -1279,7 +1272,7 @@ class PayBox
 	{
 		//variables demandées par PayBox
 		$pbxVars = [
-			'PBX_SITE' => $this->numSite,
+			'PBX_SITE' => $this->siteNumber,
 			'PBX_RANG' => $this->rang,
 			'PBX_IDENTIFIANT' => $this->identifier,
 			'PBX_LANGUE' => $this->getLanguageCode(),
@@ -1312,7 +1305,7 @@ class PayBox
 		$hmac = $this->getHmac($pbxVars);
 
 		// Construction HTML
-		$form = ''.'<form method="POST" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
+		$form = '<form method="POST" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
 		
 		foreach ($pbxVars as $index => $value) {
 			$form .= '<input type="hidden" name="'.$index.'" value="' . ($index === 'PBX_SHOPPINGCART' || $index === 'PBX_BILLING' ? htmlspecialchars($value) : $value) . '">';

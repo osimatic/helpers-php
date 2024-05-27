@@ -277,18 +277,4 @@ class PhoneNumber
 		}
 		return $phoneNumber;
 	}
-
-
-	/** @deprecated use enum PhoneNumberType instead */
-	public const TYPE_MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE;
-	/** @deprecated use enum PhoneNumberType instead */
-	public const TYPE_FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE;
-	/** @deprecated use enum PhoneNumberType instead */
-	public const TYPE_PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE;
-	/** @deprecated use enum PhoneNumberType instead */
-	public const TYPE_TOLL_FREE 	= \libphonenumber\PhoneNumberType::TOLL_FREE;
-	/** @deprecated use enum PhoneNumberType instead */
-	public const TYPE_SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST;
-	/** @deprecated use enum PhoneNumberType instead */
-	public const TYPE_UNKNOWN 		= \libphonenumber\PhoneNumberType::UNKNOWN;
 }

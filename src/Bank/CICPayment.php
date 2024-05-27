@@ -10,9 +10,9 @@ use Psr\Log\NullLogger;
  */
 class CICPayment
 {
-	const CMCIC_VERSION 			= '3.0';
-	const CMCIC_URL_PAIEMENT 		= 'https://ssl.paiement.cic-banques.fr/paiement.cgi';
-	const CMCIC_URL_PAIEMENT_TEST 	= 'https://ssl.paiement.cic-banques.fr/test/paiement.cgi';
+	public const string CMCIC_VERSION 			= '3.0';
+	public const string CMCIC_URL_PAIEMENT 		= 'https://ssl.paiement.cic-banques.fr/paiement.cgi';
+	public const string CMCIC_URL_PAIEMENT_TEST = 'https://ssl.paiement.cic-banques.fr/test/paiement.cgi';
 
 	/**
 	 * @var int

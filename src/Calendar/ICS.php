@@ -12,9 +12,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ICS
 {
-	public const FILE_EXTENSION = '.ics';
-	public const FILE_EXTENSIONS = ['.ics', '.vcs', '.ical', '.ifb'];
-	const LN = "\r\n";
+	public const string FILE_EXTENSION = '.ics';
+	public const array FILE_EXTENSIONS = ['.ics', '.vcs', '.ical', '.ifb'];
+	public const string LN = "\r\n";
 
 
 	// ---------- check ----------

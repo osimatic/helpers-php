@@ -6,8 +6,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ZipArchive
 {
-	const FILE_EXTENSION = '.zip';
-	const MIME_TYPES = [
+	public const string FILE_EXTENSION = '.zip';
+	public const array MIME_TYPES = [
 		'application/x-rar',
 		'application/x-rar-compressed',
 		'application/zip',

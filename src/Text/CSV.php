@@ -10,8 +10,8 @@ use Symfony\Component\Serializer\Serializer;
 
 class CSV
 {
-	public const FILE_EXTENSION = '.csv';
-	public const MIME_TYPES = [
+	public const string FILE_EXTENSION = '.csv';
+	public const array MIME_TYPES = [
 		'text/csv',
 		'txt/csv',
 		'application/octet-stream',

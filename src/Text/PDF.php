@@ -9,8 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PDF
 {
-	public const FILE_EXTENSION = '.pdf';
-	public const MIME_TYPES = [
+	public const string FILE_EXTENSION = '.pdf';
+	public const array MIME_TYPES = [
 		'application/pdf',
 		'application/x-pdf',
 		'application/vnd.cups-pdf',

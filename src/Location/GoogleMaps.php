@@ -2,16 +2,21 @@
 
 namespace Osimatic\Location;
 
-use Osimatic\Network\HTTPRequest;
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class GoogleMaps
 {
+	private HTTPClient $httpClient;
+
 	public function __construct(
 		private ?string $apiKey=null,
 		private LoggerInterface $logger=new NullLogger(),
-	) {}
+	) {
+		$this->httpClient = new HTTPClient($logger);
+	}
 
 	/**
 	 * @param string $apiKey
@@ -31,6 +36,7 @@ class GoogleMaps
 	public function setLogger(LoggerInterface $logger): self
 	{
 		$this->logger = $logger;
+		$this->httpClient->setLogger($logger);
 
 		return $this;
 	}
@@ -57,7 +63,7 @@ class GoogleMaps
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
 
-		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
+		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
 			return null;
 		}
 
@@ -83,7 +89,7 @@ class GoogleMaps
 	{
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($latitude, $longitude).'&key='.$this->apiKey;
 
-		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
+		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
 			return null;
 		}
 

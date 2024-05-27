@@ -4,8 +4,8 @@ namespace Osimatic\Bank;
 
 class PayBoxResponse
 {
-	public const _3D_SECURE_VERSION_1 = 1;
-	public const _3D_SECURE_VERSION_2 = 2;
+	public const int _3D_SECURE_VERSION_1 = 1;
+	public const int _3D_SECURE_VERSION_2 = 2;
 
 	/**
 	 * @var string|null

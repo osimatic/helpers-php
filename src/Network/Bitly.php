@@ -2,21 +2,24 @@
 
 namespace Osimatic\Network;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 /**
  * Class Bitly
  * @package Osimatic\Helpers\API
  */
 class Bitly
 {
-	/**
-	 * Bitly constructor.
-	 * @param string|null $login
-	 * @param string|null $key
-	 */
+	private HTTPClient $httpClient;
+
 	public function __construct(
 		private ?string $login=null,
 		private ?string $key=null,
-	) {}
+		LoggerInterface $logger=new NullLogger(),
+	) {
+		$this->httpClient = new HTTPClient($logger);
+	}
 
 	/**
 	 * @param string $login
@@ -49,16 +52,15 @@ class Bitly
 	{
 		$version = '2.0.1';
 
-		$url = 'http://api.bit.ly/shorten?version='.$version.'&longUrl='.urlencode($url).'&login='.$this->login.'&apiKey='.$this->key.'&format=json';
-
-		if (null === ($res = HTTPRequest::get($url))) {
-			return null;
-		}
-
-		try {
-			$json = \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
-		}
-		catch (\Exception $e) {
+		$bitlyUrl = 'http://api.bit.ly/shorten';
+		$queryData = [
+			'version' => $version,
+			'longUrl' => urlencode($url),
+			'login' => $this->login,
+			'apiKey' => $this->key,
+			'format' => 'json'
+		];
+		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $bitlyUrl, queryData: $queryData))) {
 			return null;
 		}
 

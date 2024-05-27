@@ -6,28 +6,28 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Image
 {
-	public const JPG_EXTENSION 			= '.jpg';
-	public const JPG_EXTENSIONS 		= [self::JPG_EXTENSION, '.jpeg', '.jpe'];
-	public const JPG_MIME_TYPES 		= ['image/jpeg'];
+	public const string JPG_EXTENSION 		= '.jpg';
+	public const array JPG_EXTENSIONS 		= [self::JPG_EXTENSION, '.jpeg', '.jpe'];
+	public const array JPG_MIME_TYPES 		= ['image/jpeg'];
 
-	public const PNG_EXTENSION 			= '.png';
-	public const PNG_MIME_TYPES 		= ['image/png'];
+	public const string PNG_EXTENSION 		= '.png';
+	public const array PNG_MIME_TYPES 		= ['image/png'];
 
-	public const GIF_EXTENSION 			= '.gif';
-	public const GIF_MIME_TYPES 		= ['image/gif'];
+	public const string GIF_EXTENSION 		= '.gif';
+	public const array GIF_MIME_TYPES 		= ['image/gif'];
 
-	public const SVG_EXTENSION 			= '.svg';
-	public const SVG_MIME_TYPES 		= ['image/svg+xml'];
+	public const string SVG_EXTENSION 		= '.svg';
+	public const array SVG_MIME_TYPES 		= ['image/svg+xml'];
 
-	public const BMP_EXTENSION 			= '.bmp';
-	public const BMP_MIME_TYPES 		= ['image/bmp'];
+	public const string BMP_EXTENSION 		= '.bmp';
+	public const array BMP_MIME_TYPES 		= ['image/bmp'];
 
-	public const WEBP_EXTENSION 		= '.webp';
-	public const WEBP_MIME_TYPES 		= ['image/webp'];
+	public const string WEBP_EXTENSION 		= '.webp';
+	public const array WEBP_MIME_TYPES 		= ['image/webp'];
 
-	public const TIFF_EXTENSION 		= '.tiff';
-	public const TIFF_EXTENSIONS 		= [self::TIFF_EXTENSION, '.tif'];
-	public const TIFF_MIME_TYPES 		= ['image/tiff'];
+	public const string TIFF_EXTENSION 		= '.tiff';
+	public const array TIFF_EXTENSIONS 		= [self::TIFF_EXTENSION, '.tif'];
+	public const array TIFF_MIME_TYPES 		= ['image/tiff'];
 
 	/**
 	 * @return array

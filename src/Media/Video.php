@@ -4,35 +4,35 @@ namespace Osimatic\Media;
 
 class Video
 {
-	public const MP4_EXTENSION 			= '.mp4';
-	public const MP4_EXTENSIONS 		= [self::MP4_EXTENSION, '.mp4v', '.mpg4'];
-	public const MP4_MIME_TYPES 		= ['video/mp4'];
+	public const string MP4_EXTENSION 			= '.mp4';
+	public const array MP4_EXTENSIONS 			= [self::MP4_EXTENSION, '.mp4v', '.mpg4'];
+	public const array MP4_MIME_TYPES 			= ['video/mp4'];
 
-	public const MPG_EXTENSION 			= '.mpg';
-	public const MPG_EXTENSIONS 		= [self::MPG_EXTENSION, '.mpeg', '.mpe', '.m1v', '.m2v'];
-	public const MPG_MIME_TYPES 		= ['video/mpeg'];
+	public const string MPG_EXTENSION 			= '.mpg';
+	public const array MPG_EXTENSIONS 			= [self::MPG_EXTENSION, '.mpeg', '.mpe', '.m1v', '.m2v'];
+	public const array MPG_MIME_TYPES 			= ['video/mpeg'];
 
-	public const AVI_EXTENSION 			= '.avi';
-	public const AVI_MIME_TYPES 		= ['video/x-msvideo'];
+	public const string AVI_EXTENSION 			= '.avi';
+	public const array AVI_MIME_TYPES 			= ['video/x-msvideo'];
 
-	public const WMV_EXTENSION 			= '.wmv';
-	public const WMV_MIME_TYPES 		= ['video/x-ms-wmv'];
+	public const string WMV_EXTENSION 			= '.wmv';
+	public const array WMV_MIME_TYPES 			= ['video/x-ms-wmv'];
 
-	public const FLV_EXTENSION 			= '.flv';
-	public const FLV_MIME_TYPES 		= ['video/x-flv'];
+	public const string FLV_EXTENSION 			= '.flv';
+	public const array FLV_MIME_TYPES 			= ['video/x-flv'];
 
-	public const OGG_EXTENSION 			= '.ogv';
-	public const OGG_MIME_TYPES 		= ['video/ogg'];
+	public const string OGG_EXTENSION 			= '.ogv';
+	public const array OGG_MIME_TYPES 			= ['video/ogg'];
 
-	public const WEBM_EXTENSION 		= '.webm';
-	public const WEBM_MIME_TYPES 		= ['video/webm'];
+	public const string WEBM_EXTENSION 			= '.webm';
+	public const array WEBM_MIME_TYPES 			= ['video/webm'];
 
-	public const _3GPP_EXTENSION 		= '.3gp';
-	public const _3GPP_MIME_TYPES 		= ['video/3gpp'];
+	public const string _3GPP_EXTENSION 		= '.3gp';
+	public const array _3GPP_MIME_TYPES 		= ['video/3gpp'];
 
-	public const QUICKTIME_EXTENSION 	= '.mov';
-	public const QUICKTIME_EXTENSIONS 	= [self::QUICKTIME_EXTENSION, '.qt'];
-	public const QUICKTIME_MIME_TYPES 	= ['video/quicktime'];
+	public const string QUICKTIME_EXTENSION 	= '.mov';
+	public const array QUICKTIME_EXTENSIONS 	= [self::QUICKTIME_EXTENSION, '.qt'];
+	public const array QUICKTIME_MIME_TYPES 	= ['video/quicktime'];
 
 	/**
 	 * @return array

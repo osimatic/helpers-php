@@ -419,19 +419,19 @@ class PublicHolidays
 			}
 
 			// --- FRANCE - Jours non fériés mais qui correspondent à des fêtes civiles ---
-			if ($options['fetes_civiles'] ?? false) {
+			//if ($options['fetes_civiles'] ?? false) {
 				// todo
-			}
+			//}
 
 			// --- FRANCE - Jours non fériés mais qui correspondent à des fêtes catholiques ---
-			if ($options['fetes_catholiques'] ?? false) {
+			//if ($options['fetes_catholiques'] ?? false) {
 				// todo
-			}
+			//}
 
 			// --- FRANCE - Jours non fériés mais qui correspondent à des fêtes protestantes ---
-			if ($options['fetes_protestantes'] ?? false) {
+			//if ($options['fetes_protestantes'] ?? false) {
 				// todo
-			}
+			//}
 
 			return $listOfPublicHolidays;
 		}

@@ -2,7 +2,10 @@
 
 namespace Osimatic\API;
 
-use Osimatic\Network\HTTPRequest;
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class GoogleReCaptcha
@@ -10,10 +13,27 @@ use Osimatic\Network\HTTPRequest;
  */
 class GoogleReCaptcha
 {
+	private HTTPClient $httpClient;
+
 	public function __construct(
 		private ?string $siteKey=null,
-		private ?string $secret=null
-	) {}
+		private ?string $secret=null,
+		LoggerInterface $logger=new NullLogger(),
+
+	) {
+		$this->httpClient = new HTTPClient($logger);
+	}
+
+	/**
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
+	{
+		$this->httpClient->setLogger($logger);
+
+		return $this;
+	}
 
 	/**
 	 * @param string $siteKey
@@ -47,9 +67,14 @@ class GoogleReCaptcha
 			return false;
 		}
 
-		$url = 'https://www.google.com/recaptcha/api/siteverify?secret='.$this->secret.'&response='.$recaptchaResponse;
-		// '&remoteip='.($_SERVER['REMOTE_ADDR'] ?? null);
-		if (null === ($json = HTTPRequest::getAndDecodeJson($url))) {
+		$url = 'https://www.google.com/recaptcha/api/siteverify';
+		$queryData = [
+			'secret' => $this->secret,
+			'response' => $recaptchaResponse,
+			//'remoteip' => ($_SERVER['REMOTE_ADDR'] ?? null),
+		];
+
+		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url, queryData: $queryData))) {
 			return false;
 		}
 

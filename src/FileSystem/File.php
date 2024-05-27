@@ -612,23 +612,4 @@ class File
 		};
 	}
 
-
-
-	/**
-	 * @deprecated
-	 */
-	public static function getMimeTypesForFile(string $filename): string
-	{
-		return self::getMimeTypeForFile($filename);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public static function getMimeTypesForFileExtension(string $ext = ''): string
-	{
-		return self::getMimeTypeFromExtension($ext) ?? 'application/octet-stream';
-	}
-
-
 }

@@ -11,9 +11,13 @@ use Psr\Log\NullLogger;
  */
 class Incolumitas
 {
+	private HTTPClient $httpClient;
+
 	public function __construct(
-		private LoggerInterface $logger=new NullLogger()
-	) {}
+		LoggerInterface $logger=new NullLogger(),
+	) {
+		$this->httpClient = new HTTPClient($logger);
+	}
 
 	/**
 	 * @param LoggerInterface $logger
@@ -21,7 +25,8 @@ class Incolumitas
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
-		$this->logger = $logger;
+		$this->httpClient->setLogger($logger);
+
 		return $this;
 	}
 
@@ -32,8 +37,7 @@ class Incolumitas
 	public function getIpInfos(string $ipAddress): ?array
 	{
 		$url = 'https://api.incolumitas.com/?q='.$ipAddress;
-
-		if (null === ($data = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
+		if (null === ($data = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
 			return null;
 		}
 

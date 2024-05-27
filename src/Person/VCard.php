@@ -10,8 +10,8 @@ namespace Osimatic\Person;
  */
 class VCard
 {
-	public const FILE_EXTENSION = '.vcf';
-	public const LN = "\r\n";
+	public const string FILE_EXTENSION = '.vcf';
+	public const string LN = "\r\n";
 
 	/**
 	 * Properties

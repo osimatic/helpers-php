@@ -2,10 +2,7 @@
 
 namespace Osimatic\Network;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 /**
  * Class HTTPRequest
@@ -15,26 +12,105 @@ class HTTPRequest
 {
 	/**
 	 * Exécute une requête HTTP avec l'extension cURL de PHP.
+	 * @param HTTPMethod $method méthod utilisée pour exécuter la requête
 	 * @param string $url l'URL de la requête HTTP à exécuter
-	 * @param string $method méthod utilisée pour exécuter la requête
 	 * @param array $queryParameters query parameter of request (key-value array)
 	 * @param array $headers list of HTTP header fields
 	 * @param array $options options :
-	 * 						 - time_out : Temps (en secondes) maximum autorisé pour l'exécution de la requête
-	 * 						 - user_agent : Chaîne de caractère "User-Agent" envoyée au serveur
-	 * 						 - user_password :
-	 * 						 - response_file :
-	 * @link http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+	 *                         - time_out : Temps (en secondes) maximum autorisé pour l'exécution de la requête
+	 *                         - user_agent : Chaîne de caractère "User-Agent" envoyée au serveur
+	 *                         - user_password :
+	 *                         - response_file :
+	 * @param LoggerInterface|null $logger
 	 * @return string|bool la réponse renvoyée par la requête après son exécution
+	 * @link http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 */
-	public static function execute(string $url, string $method='GET', array $queryParameters=[], array $headers=[], array $options=[]): string|bool
+	public static function execute(HTTPMethod $method, string $url, array $queryParameters=[], array $headers=[], array $options=[], ?LoggerInterface $logger=null): string|bool
 	{
 		//trace('URL : '.$url);
+		$ch = self::initCurl($method, $url, $queryParameters, $headers, $options);
 
+		// Configuration du corps de la requête
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		// Configuration du fichier pour l'enregistrement de la réponse
+		if (null !== ($responseFile = $options['response_file'] ?? null)) {
+			curl_setopt($ch, CURLOPT_FILE, $responseFile);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+		}
+
+		// Configuration du mode de transmission de la réponse
+		if (true === ($options['binary_transfer'] ?? false)) {
+			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+		}
+
+		// Exécution de la requête
+		$data = curl_exec($ch);
+
+		// Récupération de l'éventuelle erreur
+		if ($data === false) {
+			$requestError = curl_error($ch);
+			$logger?->error('Erreur cURL request : '.$requestError);
+			return false;
+		}
+
+		// Récupération du code HTTP
+		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		// Fermeture de la connexion
+		curl_close($ch);
+
+		$logger?->info('HTTP response code: '.$httpResponseCode.' ; Response size: '.(null === $responseFile ? strlen($data) : filesize($responseFile)));
+
+		if (null === $responseFile) {
+			return $data;
+		}
+		return true;
+	}
+	/**
+	 * Test la réponse d'une requête HTTP avec l'extension cURL de PHP.
+	 * @param string $url l'URL de la requête HTTP à tester
+	 * @param array $headers list of HTTP header fields
+	 * @param array $options options
+	 * @return boolean
+	 */
+	public static function check(string $url, array $headers=[], array $options=[]): bool
+	{
+		$ch = self::initCurl(HTTPMethod::GET, $url, [], $headers, $options);
+
+		// Configuration du corps de la requête
+		curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+
+		// Exécution de la requête
+		$data = curl_exec($ch);
+
+		// Récupération du code HTTP
+		$codeHttp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		// Fermeture de la connexion
+		curl_close($ch);
+
+		if ($data === false) {
+			return false;
+		}
+		return in_array($codeHttp, [200, 301, 302], true);
+	}
+
+	/**
+	 * Test la réponse d'une requête HTTP avec l'extension cURL de PHP.
+	 * @param HTTPMethod $method
+	 * @param string $url
+	 * @param array $queryParameters
+	 * @param array $headers list of HTTP header fields
+	 * @param array $options options
+	 * @return \CurlHandle
+	 */
+	private static function initCurl(HTTPMethod $method, string $url, array $queryParameters=[], array $headers=[], array $options=[]): \CurlHandle
+	{
 		$ch = curl_init();
 
 		// Configuration de l'URL
-		if ($method === 'GET') {
+		if (HTTPMethod::GET === $method) {
 			$url .= (!str_contains($url, '?') ? '?' : '') . '&' . http_build_query($queryParameters);
 		}
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -63,9 +139,8 @@ class HTTPRequest
 			curl_setopt($ch, CURLOPT_TIMEOUT, $options['time_out']);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $options['time_out']);
 		}
-
 		// Configuration des variables POST
-		if ($method === 'POST') {
+		if (HTTPMethod::GET !== $method) {
 			curl_setopt($ch, CURLOPT_POST, TRUE);
 			if ($ssl) {
 				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($queryParameters));
@@ -91,194 +166,7 @@ class HTTPRequest
 		//	curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
 		//}
 
-		// Configuration du corps de la requête
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		// Configuration du fichier pour l'enregistrement de la réponse
-		if (null !== ($responseFile = $options['response_file'] ?? null)) {
-			//trace('Le résultat sera placé dans le fichier "'.$cheminFichierReponse.'"');
-			curl_setopt($ch, CURLOPT_FILE, $responseFile);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-		}
-
-		// Configuration du mode de transmission de la réponse
-		if (true === ($options['binary_transfer'] ?? false)) {
-			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-		}
-
-		// Exécution de la requête
-		$data = curl_exec($ch);
-
-		// Récupération de l'éventuelle erreur
-		if ($data === false) {
-			$requestError = curl_error($ch);
-			//trace('Erreur request : '.$requestError);
-			return false;
-		}
-
-		// Récupération du code HTTP
-		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		// Fermeture de la connexion
-		curl_close($ch);
-
-		//trace('Exec ok - Code HTTP : '.$httpResponseCode.' ; Temps exec : '.$tempsExecutionRequete.' secondes');
-		//if ($responseFile === null) {
-		//	trace('Longueur resultat : '.strlen($data));
-		//}
-		//else {
-		//	trace('Taille du fichier : '.filesize($responseFile));
-		//}
-
-		if ($responseFile === null) {
-			return $data;
-		}
-		return true;
-	}
-
-	/**
-	 * @param string $url
-	 * @param array $queryData
-	 * @param LoggerInterface|null $logger
-	 * @param array $headers
-	 * @return ResponseInterface|null
-	 */
-	public static function get(string $url, array $queryData = [], ?LoggerInterface $logger = null, array $headers = []): ?ResponseInterface
-	{
-		$logger ??= new NullLogger();
-		$client = new \GuzzleHttp\Client();
-		try {
-			$options = [
-				'http_errors' => false,
-				'headers' => $headers
-			];
-			if (!empty($queryData)) {
-				$url .= (!str_contains($url, '?') ? '?' : '').http_build_query($queryData);
-			}
-			return $client->request('GET', $url, $options);
-		}
-		catch (\Exception | GuzzleException $e) {
-			$logger->error('Erreur pendant la requête GET vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
-		}
-		return null;
-	}
-
-	/**
-	 * @param string $url
-	 * @param array $queryData
-	 * @param LoggerInterface|null $logger
-	 * @return mixed|null
-	 */
-	public static function getAndDecodeJson(string $url, array $queryData = [], ?LoggerInterface $logger = null): mixed
-	{
-		$logger ??= new NullLogger();
-
-		if (null === ($res = self::get($url, [], $logger))) {
-			return null;
-		}
-
-		try {
-			return \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
-		}
-		catch (\Exception $e) {
-			$logger->error('Erreur pendant le décodage du résultat. Erreur : '.$e->getMessage());
-		}
-		return null;
-	}
-
-	/**
-	 * @param string $url
-	 * @param array $queryData
-	 * @param LoggerInterface|null $logger
-	 * @param array $headers
-	 * @param bool $jsonBody
-	 * @return ResponseInterface|null
-	 */
-	public static function post(string $url, array $queryData = [], ?LoggerInterface $logger = null, array $headers = [], bool $jsonBody = false): ?ResponseInterface
-	{
-		$logger ??= new NullLogger();
-		$client = new \GuzzleHttp\Client();
-		try {
-			$options = [
-				'http_errors' => false,
-				'headers' => $headers
-			];
-
-			if (true === $jsonBody) {
-				$options['json'] = $queryData;
-			} else {
-				$options['form_params'] = $queryData;
-			}
-
-			return $client->request('POST', $url, $options);
-		}
-		catch (\Exception | GuzzleException $e) {
-			$logger->error('Erreur pendant la requête POST vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
-		}
-		return null;
-	}
-
-	/**
-	 * Test la réponse d'une requête HTTP avec l'extension cURL de PHP.
-	 * @param string $url l'URL de la requête HTTP à tester
-	 * @param array $headers list of HTTP header fields
-	 * @param array $options options
-	 * @return boolean
-	 */
-	public static function check(string $url, array $headers=[], array $options=[]): bool
-	{
-		//trace('URL : '.$url);
-
-		// Configuration de l'URL
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-
-		// Configuration du protocole
-		if (str_starts_with($url, 'https://')) {
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		}
-
-		// Configuration de l'authentification HTTP
-		if (!empty($options['user_password'])) {
-			curl_setopt($ch, CURLOPT_USERPWD, $options['user_password']);
-		}
-
-		// Configuration de l'user-agent
-		if (!empty($options['user_agent'])) {
-			curl_setopt($ch, CURLOPT_USERAGENT, $options['user_agent']);
-		}
-
-		// Configuration du timeout
-		if (null !== ($options['time_out'] ?? null)) {
-			curl_setopt($ch, CURLOPT_TIMEOUT, $options['time_out']);
-			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $options['time_out']);
-		}
-
-		// Configuration des variables HEADER
-		if (!empty($headers)) {
-			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		}
-
-		// Configuration des redirections
-		// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-		// curl_setopt($ch, CURLOPT_MAXREDIRS, 20);
-
-		// Configuration du corps de la requête
-		curl_setopt($ch, CURLOPT_NOBODY, TRUE);
-
-		// Exécution de la requête
-		$data = curl_exec($ch);
-
-		// Récupération du code HTTP
-		$codeHttp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		// Fermeture de la connexion
-		curl_close($ch);
-
-		if ($data === false) {
-			return false;
-		}
-		return in_array($codeHttp, [200, 301, 302], true);
+		return $ch;
 	}
 
 	/**

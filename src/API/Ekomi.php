@@ -2,7 +2,8 @@
 
 namespace Osimatic\API;
 
-use Osimatic\Network\HTTPRequest;
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -12,14 +13,18 @@ use Psr\Log\NullLogger;
  */
 class Ekomi
 {
-	public const URL = 'http://api.ekomi.de/v3/';
-	public const SCRIPT_VERSION = '1.0.0';
+	public const string URL = 'http://api.ekomi.de/v3/';
+	public const string SCRIPT_VERSION = '1.0.0';
+
+	private HTTPClient $httpClient;
 
 	public function __construct(
 		private ?string $interfaceId=null,
 		private ?string $interfacePassword=null,
-		private LoggerInterface $logger=new NullLogger(),
-	) {}
+		LoggerInterface $logger=new NullLogger(),
+	) {
+		$this->httpClient = new HTTPClient($logger);
+	}
 
 	/**
 	 * @param LoggerInterface $logger
@@ -27,7 +32,7 @@ class Ekomi
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
-		$this->logger = $logger;
+		$this->httpClient->setLogger($logger);
 
 		return $this;
 	}
@@ -109,13 +114,13 @@ class Ekomi
 	 */
 	private function executeRequest(string $url): ?array
 	{
-		$version = 'cust-'.self::SCRIPT_VERSION;
-		$auth = $this->interfaceId.'|'.$this->interfacePassword;
+		$queryData = [
+			'auth' => $this->interfaceId.'|'.$this->interfacePassword,
+			'version' => 'cust-'.self::SCRIPT_VERSION,
+			'type' => 'json',
+		];
 
-		$url .= '&auth='.$auth.'&version='.$version.'&type=json';
-
-		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
-			$this->logger->error('Erreur pendant la requete vers l\'API Ekomi.');
+		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url, queryData: $queryData))) {
 			return null;
 		}
 

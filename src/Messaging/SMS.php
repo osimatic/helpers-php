@@ -9,7 +9,7 @@ namespace Osimatic\Messaging;
 class SMS
 {
 	// Nombre de caractères maximum dans un SMS.
-	public const MESSAGE_NB_CHAR_MAX = 160;
+	public const int MESSAGE_NB_CHAR_MAX = 160;
 
 	/**
 	 * The identifier property represents any kind of identifier.

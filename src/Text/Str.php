@@ -976,10 +976,10 @@ class Str
 
 	// ========== Random ==========
 
-	const VOYELLES 					= 'aeiouy';
-	const CONSONNES 				= 'bcdfghjklmnpqrstvwxz';
-	const LETTRES					= 'abcdefghijklmnopqrstuvwxyz';
-	const CHIFFRES					= '0123456789';
+	private const string VOYELLES 				= 'aeiouy';
+	private const string CONSONNES 				= 'bcdfghjklmnpqrstvwxz';
+	private const string LETTRES				= 'abcdefghijklmnopqrstuvwxyz';
+	private const string CHIFFRES				= '0123456789';
 
 	/**
 	 * Génère une chaîne de caractères prononcable (c'est-à-dire alternant les consonnes et les voyelles)

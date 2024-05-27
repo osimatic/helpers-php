@@ -2,16 +2,21 @@
 
 namespace Osimatic\Route;
 
-use Osimatic\Network\HTTPRequest;
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class GoogleDistanceMatrix
 {
+	private HTTPClient $httpClient;
+
 	public function __construct(
 		private ?string $apiKey=null,
-		private LoggerInterface $logger=new NullLogger(),
-	) {}
+		LoggerInterface $logger=new NullLogger(),
+	) {
+		$this->httpClient = new HTTPClient($logger);
+	}
 
 	/**
 	 * @param string $apiKey
@@ -30,7 +35,7 @@ class GoogleDistanceMatrix
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
-		$this->logger = $logger;
+		$this->httpClient->setLogger($logger);
 
 		return $this;
 	}
@@ -96,7 +101,7 @@ class GoogleDistanceMatrix
 
 		$url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'.http_build_query($params).'&key='.$this->apiKey;
 
-		if (null === ($json = HTTPRequest::getAndDecodeJson($url, [], $this->logger))) {
+		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
 			return null;
 		}
 

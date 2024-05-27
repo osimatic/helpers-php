@@ -5,40 +5,41 @@ namespace Osimatic\Media;
 use Osimatic\FileSystem\OutputFile;
 use getID3;
 use getid3_exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class Audio
 {
-	public const MP3_FORMAT 			= 'mp3';
-	public const MP3_EXTENSION 			= '.mp3';
-	public const MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
-	public const MP3_MIME_TYPES 		= ['audio/mpeg'];
+	public const string MP3_FORMAT 			= 'mp3';
+	public const string MP3_EXTENSION 		= '.mp3';
+	public const array MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
+	public const array MP3_MIME_TYPES 		= ['audio/mpeg'];
 
-	public const WAV_FORMAT 			= 'wav';
-	public const WAV_EXTENSION 			= '.wav';
-	public const WAV_MIME_TYPES 		= ['audio/x-wav'];
+	public const string WAV_FORMAT 			= 'wav';
+	public const string WAV_EXTENSION 		= '.wav';
+	public const array WAV_MIME_TYPES 		= ['audio/x-wav'];
 
-	public const OGG_FORMAT 			= 'ogg';
-	public const OGG_EXTENSION 			= '.ogg';
-	public const OGG_EXTENSIONS 		= ['.ogg', '.oga', '.spx'];
-	public const OGG_MIME_TYPES 		= ['audio/ogg'];
+	public const string OGG_FORMAT 			= 'ogg';
+	public const string OGG_EXTENSION 		= '.ogg';
+	public const array OGG_EXTENSIONS 		= ['.ogg', '.oga', '.spx'];
+	public const array OGG_MIME_TYPES 		= ['audio/ogg'];
 
-	public const AAC_FORMAT 			= 'aac';
-	public const AAC_EXTENSION 			= '.aac';
-	public const AAC_MIME_TYPES 		= ['audio/x-aac', 'audio/aac'];
+	public const string AAC_FORMAT 			= 'aac';
+	public const string AAC_EXTENSION 		= '.aac';
+	public const array AAC_MIME_TYPES 		= ['audio/x-aac', 'audio/aac'];
 
-	public const AIFF_FORMAT 			= 'aiff';
-	public const AIFF_EXTENSION 		= '.aiff';
-	public const AIFF_EXTENSIONS 		= ['.aif', '.aiff', '.aifc'];
-	public const AIFF_MIME_TYPES 		= ['audio/x-aiff'];
+	public const string AIFF_FORMAT 		= 'aiff';
+	public const string AIFF_EXTENSION 		= '.aiff';
+	public const array AIFF_EXTENSIONS 		= ['.aif', '.aiff', '.aifc'];
+	public const array AIFF_MIME_TYPES 		= ['audio/x-aiff'];
 
-	public const WMA_FORMAT 			= 'wma';
-	public const WMA_EXTENSION 			= '.wma';
-	public const WMA_MIME_TYPES 		= ['audio/x-ms-wma'];
+	public const string WMA_FORMAT 			= 'wma';
+	public const string WMA_EXTENSION 		= '.wma';
+	public const array WMA_MIME_TYPES 		= ['audio/x-ms-wma'];
 
-	public const WEBM_FORMAT 			= 'webm';
-	public const WEBM_EXTENSION 		= '.weba';
-	public const WEBM_MIME_TYPES 		= ['audio/webm'];
+	public const string WEBM_FORMAT 		= 'webm';
+	public const string WEBM_EXTENSION 		= '.weba';
+	public const array WEBM_MIME_TYPES 		= ['audio/webm'];
 
 	/**
 	 * @return array
@@ -58,15 +59,16 @@ class Audio
 
 	/**
 	 * @param string $audioFilePath
+	 * @param LoggerInterface|null $logger
 	 * @return array|null
 	 */
-	public static function getInfos(string $audioFilePath): ?array
+	public static function getInfos(string $audioFilePath, ?LoggerInterface $logger=null): ?array
 	{
 		try {
 			$getID3 = new getID3();
 			return $getID3->analyze($audioFilePath);
 		} catch (getid3_exception $e) {
-			//var_dump($e->getMessage());
+			$logger?->info($e->getMessage());
 		}
 		return null;
 	}

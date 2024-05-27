@@ -10,7 +10,7 @@ use Symfony\Component\Intl\Countries;
  */
 class Country
 {
-	public const EUROPEAN_UNION = [
+	public const array EUROPEAN_UNION = [
 		'DE', // Allemagne
 		'AT', // Autriche
 		'BE', // Belgique
@@ -312,9 +312,7 @@ class Country
 			$data = (new \League\ISO3166\ISO3166)->alpha2($countryIsoCode);
 			return $data['numeric'];
 		}
-		catch (\Exception $e) {
-
-		}
+		catch (\Exception) {}
 		return null;
 	}
 
