@@ -30,16 +30,17 @@ class HTTPClient
 	 * @param array $queryData
 	 * @param array $headers
 	 * @param bool $jsonBody
+	 * @param array $options
 	 * @return ResponseInterface|null
 	 */
-	public function request(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false): ?ResponseInterface
+	public function request(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): ?ResponseInterface
 	{
 		$client = new \GuzzleHttp\Client();
 		try {
-			$options = [
+			$options = array_merge($options, [
 				'http_errors' => false,
 				'headers' => $headers
-			];
+			]);
 
 			if (HTTPMethod::GET === $method) {
 				if (!empty($queryData)) {
@@ -68,11 +69,12 @@ class HTTPClient
 	 * @param array $queryData
 	 * @param array $headers
 	 * @param bool $jsonBody
+	 * @param array $options
 	 * @return mixed|null
 	 */
-	public function jsonRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false): mixed
+	public function jsonRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): mixed
 	{
-		if (null === ($res = self::request($method, $url, $queryData, $headers, $jsonBody))) {
+		if (null === ($res = self::request($method, $url, $queryData, $headers, $jsonBody, $options))) {
 			return null;
 		}
 
@@ -91,11 +93,12 @@ class HTTPClient
 	 * @param array $queryData
 	 * @param array $headers
 	 * @param bool $jsonBody
+	 * @param array $options
 	 * @return string|null
 	 */
-	public function stringRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false): ?string
+	public function stringRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): ?string
 	{
-		if (null === ($res = self::request($method, $url, $queryData, $headers, $jsonBody))) {
+		if (null === ($res = self::request($method, $url, $queryData, $headers, $jsonBody, $options))) {
 			return null;
 		}
 
