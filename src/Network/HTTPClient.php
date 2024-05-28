@@ -44,7 +44,7 @@ class HTTPClient
 
 			if (HTTPMethod::GET === $method) {
 				if (!empty($queryData)) {
-					$url .= (!str_contains($url, '?') ? '?' : '').http_build_query($queryData);
+					$url .= (!str_contains($url, '?') ? '?' : '').'&'.http_build_query($queryData);
 				}
 			}
 			else {
