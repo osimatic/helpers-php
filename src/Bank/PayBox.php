@@ -7,6 +7,12 @@ use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+enum PayBoxVersion : string
+{
+	case PAYBOX_DIRECT = '00103';
+	case PAYBOX_DIRECT_PLUS = '00104';
+}
+
 /**
  * Cette classe permet d'effectuer un paiement par CB via la plateforme PayBox
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
@@ -21,9 +27,6 @@ class PayBox
 	public const string URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
 	public const string URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
 
-	public const string VERSION_PAYBOX_DIRECT = '00103';
-	public const string VERSION_PAYBOX_DIRECT_PLUS = '00104';
-
 	public const string CALL_ORIGIN_NOT_SPECIFIED = '020';
 	public const string CALL_ORIGIN_TELEPHONE_ORDER = '021';
 	public const string CALL_ORIGIN_MAIL_ORDER = '022';
@@ -33,27 +36,26 @@ class PayBox
 
 	public const int DEFAULT_FORM_TIMEOUT = 1800;
 
-	/**
-	 * Ces constantes sont internes, ne pas utiliser de l'extérieur
-	 */
-	public const string TYPE_OPERATION_AUTORISATION_SEULE = '00001';
-	public const string TYPE_OPERATION_DEBIT = '00002';
-	public const string TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
-	public const string TYPE_OPERATION_CREDIT = '00004';
-	public const string TYPE_OPERATION_ANNULATION = '00005';
-	public const string TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
-	public const string TYPE_OPERATION_DEBIT_ABONNE = '00052';
-	public const string TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
-	public const string TYPE_OPERATION_CREDIT_ABONNE = '00054';
-	public const string TYPE_OPERATION_ANNULATION_ABONNE = '00055';
-	public const string TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
-	public const string TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
+	private const string TYPE_OPERATION_AUTORISATION_SEULE = '00001';
+	private const string TYPE_OPERATION_DEBIT = '00002';
+	private const string TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
+	private const string TYPE_OPERATION_CREDIT = '00004';
+	private const string TYPE_OPERATION_ANNULATION = '00005';
+	private const string TYPE_OPERATION_REFUND = '00014';
+	private const string TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
+	private const string TYPE_OPERATION_DEBIT_ABONNE = '00052';
+	private const string TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
+	private const string TYPE_OPERATION_CREDIT_ABONNE = '00054';
+	private const string TYPE_OPERATION_ANNULATION_ABONNE = '00055';
+	private const string TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
+	private const string TYPE_OPERATION_MODIFICATION_ABONNE = '00057';
+	private const string TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
 
 
 	/**
-	 * @var string
+	 * @var PayBoxVersion
 	 */
-	private string $version = self::VERSION_PAYBOX_DIRECT;
+	private PayBoxVersion $version = PayBoxVersion::PAYBOX_DIRECT_PLUS;
 
 	/**
 	 * @var string
@@ -78,9 +80,9 @@ class PayBox
 	private ?\DateTime $date = null;
 
 	/**
-	 * @var string
+	 * @var BankCardOperation
 	 */
-	private string $typeQuestion = self::TYPE_OPERATION_DEBIT;
+	private BankCardOperation $bankCardOperation = BankCardOperation::AUTHORIZATION_AND_DEBIT;
 
 	/**
 	 * Unique identifier for the request that allows to avoid confusion in case of multiple	simultaneous requests.
@@ -125,9 +127,9 @@ class PayBox
 
 	/**
 	 * Expiry date of the card
-	 * @var string
+	 * @var \DateTime|null
 	 */
-	private string $dateValidite = '';
+	private ?\DateTime $expirationDate = null;
 
 	/**
 	 * Visual cryptogram on the back of the card
@@ -223,16 +225,6 @@ class PayBox
 	 * @var string|null
 	 */
 	private ?string $cardCountryCode = null;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $codeReponse = null;
-
-	/**
-	 * @var string|null
-	 */
-	private ?string $libelleReponse = null;
 
 	/**
 	 * @var ShoppingCartInterface|null
@@ -369,9 +361,12 @@ class PayBox
 	/**
 	 *
 	 */
-	public function newPayment(): void
+	public function newPayment(): ?PayBoxResponse
 	{
-		$this->codeReponse = '99999';
+		if (false === ($result = $this->doRequest())) {
+			return null;
+		}
+		return $result;
 	}
 
 	/**
@@ -379,12 +374,8 @@ class PayBox
 	 */
 	public function doAuthorization(): ?PayBoxResponse
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_SEULE;
-
-		if (false === ($result = $this->doRequest())) {
-			return null;
-		}
-		return $result;
+		$this->bankCardOperation = BankCardOperation::AUTHORIZATION_ONLY;
+		return $this->newPayment();
 	}
 
 	/**
@@ -392,12 +383,8 @@ class PayBox
 	 */
 	public function doDebit(): ?PayBoxResponse
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_DEBIT;
-
-		if (false === ($result = $this->doRequest())) {
-			return null;
-		}
-		return $result;
+		$this->bankCardOperation = BankCardOperation::DEBIT;
+		return $this->newPayment();
 	}
 
 	/**
@@ -405,12 +392,8 @@ class PayBox
 	 */
 	public function doAuthorizationAndDebit(): ?PayBoxResponse
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_AND_DEBIT;
-
-		if (false === ($result = $this->doRequest())) {
-			return null;
-		}
-		return $result;
+		$this->bankCardOperation = BankCardOperation::AUTHORIZATION_AND_DEBIT;
+		return $this->newPayment();
 	}
 
 	/**
@@ -418,12 +401,8 @@ class PayBox
 	 */
 	public function addSubscriber(): ?PayBoxResponse
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_INSCRIPTION_ABONNE;
-
-		if (false === ($result = $this->doRequest())) {
-			return null;
-		}
-		return $result;
+		$this->bankCardOperation = BankCardOperation::REGISTER_SUBSCRIBER;
+		return $this->newPayment();
 	}
 
 	/**
@@ -431,12 +410,8 @@ class PayBox
 	 */
 	public function deleteSubscriber(): ?PayBoxResponse
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_SUPPRESSION_ABONNE;
-
-		if (false === ($result = $this->doRequest())) {
-			return null;
-		}
-		return $result;
+		$this->bankCardOperation = BankCardOperation::DELETE_SUBSCRIBER;
+		return $this->newPayment();
 	}
 
 
@@ -446,7 +421,7 @@ class PayBox
 	 */
 	public function getFormSubscriberRegister(): ?string
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_INSCRIPTION_ABONNE;
+		$this->bankCardOperation = BankCardOperation::REGISTER_SUBSCRIBER;
 		$this->useForm = true;
 
 		if (false === ($result = $this->doRequest())) {
@@ -485,10 +460,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $version
+	 * @param PayBoxVersion $version
 	 * @return self
 	 */
-	public function setVersion(string $version): self
+	public function setVersion(PayBoxVersion $version): self
 	{
 		$this->version = $version;
 
@@ -581,6 +556,17 @@ class PayBox
 	public function setDate(?\DateTime $date): self
 	{
 		$this->date = $date;
+
+		return $this;
+	}
+
+	/**
+	 * @param BankCardOperation $bankCardOperation
+	 * @return self
+	 */
+	public function setBankCardOperation(BankCardOperation $bankCardOperation): self
+	{
+		$this->bankCardOperation = $bankCardOperation;
 
 		return $this;
 	}
@@ -683,12 +669,12 @@ class PayBox
 	}
 
 	/**
-	 * @param string $dateValidite
+	 * @param \DateTime|null $expirationDate
 	 * @return self
 	 */
-	public function setExpirationDate(string $dateValidite): self
+	public function setExpirationDate(?\DateTime $expirationDate): self
 	{
-		$this->dateValidite = $dateValidite;
+		$this->expirationDate = $expirationDate;
 
 		return $this;
 	}
@@ -863,7 +849,7 @@ class PayBox
 	 */
 	public function setAuthorizationOnly(): self
 	{
-		$this->typeQuestion = self::TYPE_OPERATION_AUTORISATION_SEULE;
+		$this->bankCardOperation = BankCardOperation::AUTHORIZATION_ONLY;
 
 		return $this;
 	}
@@ -978,23 +964,6 @@ class PayBox
 		return $this->cardCountryCode;
 	}
 
-	/**
-	 * @return string|null
-	 */
-	public function getResponseCode(): ?string
-	{
-		return $this->codeReponse;
-	}
-
-	/**
-	 * @return string|null
-	 */
-	public function getResponseMessage(): ?string
-	{
-		return $this->libelleReponse;
-	}
-
-	
 
 	// ========== Private function ==========
 
@@ -1032,14 +1001,8 @@ class PayBox
 	 */
 	private function doRequest(): PayBoxResponse|bool|string|null
 	{
-		$this->version = (empty($this->version) ? self::VERSION_PAYBOX_DIRECT_PLUS : $this->version);
-		if (!in_array($this->version, [self::VERSION_PAYBOX_DIRECT, self::VERSION_PAYBOX_DIRECT_PLUS], true)) {
-			$this->logger?->error('Version invalide : ' . $this->version);
-			return false;
-		}
-
 		if ($this->isTest) {
-			$this->version = self::VERSION_PAYBOX_DIRECT_PLUS;
+			$this->version = PayBoxVersion::PAYBOX_DIRECT_PLUS;
 			$this->siteNumber = '1999888';
 			$this->identifier = '109518543';
 			$this->httpPassword = '1999888I';
@@ -1075,15 +1038,13 @@ class PayBox
 			}
 		}
 
-		$this->typeQuestion = (empty($this->typeQuestion) ? self::TYPE_OPERATION_AUTORISATION_AND_DEBIT : $this->typeQuestion);
-
 		$this->numQuestion = (empty($this->numQuestion) ? date('His') . mt_rand(1, 999) : $this->numQuestion);
 		if (!is_numeric($this->numQuestion)) {
 			$this->logger?->error('Num question invalide : ' . $this->numQuestion);
 			return false;
 		}
 
-		if ($this->typeQuestion !== self::TYPE_OPERATION_SUPPRESSION_ABONNE) {
+		if (!in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER])) {
 			if (empty($this->montant)) {
 				$this->logger?->error('Montant invalide : ' . $this->montant);
 				return false;
@@ -1095,7 +1056,7 @@ class PayBox
 			}
 		}
 
-		if ($this->typeQuestion === self::TYPE_OPERATION_SUPPRESSION_ABONNE) {
+		if (in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER])) {
 			if (empty($this->subscriberRef)) {
 				$this->logger?->error('Référence abonné vide.');
 				return false;
@@ -1107,7 +1068,7 @@ class PayBox
 			return false;
 		}
 
-		$isCaptureAfterAuthorization = in_array($this->typeQuestion, [self::TYPE_OPERATION_DEBIT, self::TYPE_OPERATION_ANNULATION], true);
+		$isCaptureAfterAuthorization = in_array($this->bankCardOperation, [BankCardOperation::DEBIT, BankCardOperation::CANCEL], true);
 
 		if ($this->useForm) {
 			// Utilisation Paybox System (formulaire de paiement sur la plateforme Paybox)
@@ -1181,7 +1142,7 @@ class PayBox
 		$urlPaiement = ($this->isTest ? self::URL_PAIEMENT_TEST : self::URL_PAIEMENT);
 
 		$postData = [
-			'VERSION' => $this->version,
+			'VERSION' => $this->version->value,
 			'TYPE' => $this->getTypeOperationFormatted(),
 			'SITE' => $this->siteNumber,
 			'RANG' => $this->rang,
@@ -1209,13 +1170,8 @@ class PayBox
 		];
 
 		foreach ($postData as $cleVar => $value) {
-			if ($value === null) {
-				$postData[$cleVar] = '';
-			} else {
-				$postData[$cleVar] = trim($value);
-			}
+			$postData[$cleVar] = trim($value ?? '');
 		}
-
 		$queryString = http_build_query($postData);
 
 		// Log
@@ -1235,27 +1191,18 @@ class PayBox
 
 		// Récupération des arguments retour
 		parse_str($res, $tabArg);
-		$this->codeReponse = $tabArg['CODEREPONSE'] ?? '';
+		$responseCode = $tabArg['CODEREPONSE'] ?? '';
 
 		$responseCodes = array_merge(self::$responseCodes, self::$visaResponseCodes);
-		if (array_key_exists($this->codeReponse, $responseCodes)) {
-			$this->libelleReponse = $responseCodes[$this->codeReponse];
-		} else {
-			$this->libelleReponse = 'Erreur inconnue';
-		}
+		$this->logger?->info('Response code: ' . $responseCode.' ; Error message: ' . ($responseCodes[$responseCode] ?? 'Erreur inconnue'));
 
-		// Log réponse
-		$this->logger?->info('Code réponse : ' . $this->codeReponse.' ; Libellé réponse : ' . $this->libelleReponse);
-
-		$paiementOk = ($this->codeReponse === '00000');
-
-		if (!$paiementOk) {
+		if ($responseCode !== '00000') {
 			return null;
 		}
 
 		$payBoxResponse = new PayBoxResponse();
 		$payBoxResponse->setReference(!empty($tabArg['REFERENCE']) ? urldecode($tabArg['REFERENCE']) : null);
-		$payBoxResponse->setResponseCode(!empty($tabArg['CODEREPONSE']) ? urldecode($tabArg['CODEREPONSE']) : null);
+		$payBoxResponse->setResponseCode(!empty($responseCode) ? urldecode($responseCode) : null);
 		$payBoxResponse->setAuthorizationNumber(!empty($tabArg['AUTORISATION']) ? urldecode($tabArg['AUTORISATION']) : null);
 		$payBoxResponse->setCallNumber(!empty($tabArg['NUMAPPEL']) ? urldecode($tabArg['NUMAPPEL']) : null);
 		$payBoxResponse->setTransactionNumber(!empty($tabArg['NUMTRANS']) ? urldecode($tabArg['NUMTRANS']) : null);
@@ -1283,7 +1230,7 @@ class PayBox
 			'PBX_RETOUR' => $this->getReturnedVars(),
 			'PBX_HASH' => 'SHA512',
 			'PBX_TIME' => date('c', $this->getTimestamp()),
-			'PBX_AUTOSEULE' => (in_array($this->typeQuestion, [self::TYPE_OPERATION_AUTORISATION_SEULE, self::TYPE_OPERATION_INSCRIPTION_ABONNE], true) ? 'O' : 'N'),
+			'PBX_AUTOSEULE' => (in_array($this->bankCardOperation, [BankCardOperation::AUTHORIZATION_ONLY, BankCardOperation::REGISTER_SUBSCRIBER], true) ? 'O' : 'N'),
 			'PBX_REPONDRE_A' => $this->urlIpn,
 			'PBX_RUF1' => 'POST',
 			'PBX_EFFECTUE' => $this->urlResponseOk,
@@ -1320,23 +1267,34 @@ class PayBox
 	private function getTypeOperationFormatted(): string
 	{
 		if (!empty($this->subscriberRef)) {
-			if ($this->typeQuestion === self::TYPE_OPERATION_AUTORISATION_SEULE) {
+			if ($this->bankCardOperation === BankCardOperation::AUTHORIZATION_ONLY) {
 				return self::TYPE_OPERATION_AUTORISATION_SEULE_ABONNE;
 			}
-			if ($this->typeQuestion === self::TYPE_OPERATION_DEBIT) {
+			if ($this->bankCardOperation === BankCardOperation::DEBIT) {
 				return self::TYPE_OPERATION_DEBIT_ABONNE;
 			}
-			if ($this->typeQuestion === self::TYPE_OPERATION_AUTORISATION_AND_DEBIT) {
+			if ($this->bankCardOperation === BankCardOperation::AUTHORIZATION_AND_DEBIT) {
 				return self::TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE;
 			}
-			if ($this->typeQuestion === self::TYPE_OPERATION_CREDIT) {
+			if ($this->bankCardOperation === BankCardOperation::CREDIT) {
 				return self::TYPE_OPERATION_CREDIT_ABONNE;
 			}
-			if ($this->typeQuestion === self::TYPE_OPERATION_ANNULATION) {
+			if ($this->bankCardOperation === BankCardOperation::CANCEL) {
 				return self::TYPE_OPERATION_ANNULATION_ABONNE;
 			}
 		}
-		return $this->typeQuestion;
+
+		return match($this->bankCardOperation) {
+			BankCardOperation::AUTHORIZATION_ONLY => self::TYPE_OPERATION_AUTORISATION_SEULE,
+			BankCardOperation::DEBIT => self::TYPE_OPERATION_DEBIT,
+			BankCardOperation::AUTHORIZATION_AND_DEBIT => self::TYPE_OPERATION_AUTORISATION_AND_DEBIT,
+			BankCardOperation::CREDIT => self::TYPE_OPERATION_CREDIT,
+			BankCardOperation::CANCEL => self::TYPE_OPERATION_ANNULATION,
+			BankCardOperation::REFUND => self::TYPE_OPERATION_REFUND,
+			BankCardOperation::REGISTER_SUBSCRIBER => self::TYPE_OPERATION_INSCRIPTION_ABONNE,
+			BankCardOperation::UPDATE_SUBSCRIBER => self::TYPE_OPERATION_MODIFICATION_ABONNE,
+			BankCardOperation::DELETE_SUBSCRIBER => self::TYPE_OPERATION_SUPPRESSION_ABONNE,
+		};
 	}
 
 	private function getReturnedVars(): string
@@ -1344,7 +1302,7 @@ class PayBox
 		// La longueur total de $returnedVars ne doit pas exéder 150 caractères (sinon erreur PayBox)
 		//$returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_last_digits:J;card_expiry_date:D;response_code:E;3d_secure_authentication:F;3d_secure_enabled:G;3d_secure_version:v';
 		$returnedVars = 'amount:M;ref:R;authorizt_nb:A;call_nb:T;transact_nb:S;bc_type:C;bc_ldigit:J;bc_expdate:D;response_code:E;3ds:G;3ds_auth:F;3ds_v:v';
-		if ($this->typeQuestion === self::TYPE_OPERATION_INSCRIPTION_ABONNE) {
+		if ($this->bankCardOperation === BankCardOperation::REGISTER_SUBSCRIBER) {
 			$returnedVars .= ';card_ref:U;bin6:N';
 		}
 
@@ -1430,7 +1388,10 @@ class PayBox
 
 	private function getExpirationDateFormatted(): ?string
 	{
-		if (strlen($this->dateValidite) === 10) { // format yyyy-mm-dd
+		if (null !== $this->expirationDate) {
+			return $this->expirationDate->format('my');
+		}
+		/*if (strlen($this->dateValidite) === 10) { // format yyyy-mm-dd
 			return substr($this->dateValidite, 5, 2) . substr($this->dateValidite, 2, 2);
 		}
 		if (strlen($this->dateValidite) === 7) { // format mm/yyyy
@@ -1438,7 +1399,7 @@ class PayBox
 		}
 		if (strlen($this->dateValidite) === 4) { // format mmyy
 			return substr($this->dateValidite, 0, 2) . substr($this->dateValidite, -2);
-		}
+		}*/
 		return null;
 	}
 
