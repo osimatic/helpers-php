@@ -137,9 +137,9 @@ class PayBox
 
 	/**
 	 * This parameter allows to inform the acquirer (bank) how the transaction was initiated and how the card entry was realized.
-	 * @var string
+	 * @var string|null
 	 */
-	private string $activite = '';
+	private ?string $activite = null;
 
 	/**
 	 * This reference is transmitted to the acquirer (bank) of the merchant during the settlement of the transaction. The reference needs to be unique and allows the merchant to inquire for additional information from the acquirer (bank) in case of a dispute.
@@ -705,10 +705,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $callOrigin
+	 * @param string|null $callOrigin
 	 * @return self
 	 */
-	public function setCallOrigin(string $callOrigin): self
+	public function setCallOrigin(?string $callOrigin): self
 	{
 		$this->activite = $callOrigin;
 
@@ -1245,8 +1245,7 @@ class PayBox
 		}
 
 		// Log réponse
-		$this->logger?->info('Code réponse : ' . $this->codeReponse);
-		$this->logger?->info('Libellé réponse : ' . $this->libelleReponse);
+		$this->logger?->info('Code réponse : ' . $this->codeReponse.' ; Libellé réponse : ' . $this->libelleReponse);
 
 		$paiementOk = ($this->codeReponse === '00000');
 
