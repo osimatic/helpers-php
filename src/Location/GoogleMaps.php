@@ -338,22 +338,22 @@ class GoogleMaps
 	private function getResults(array $result): ?array
 	{
 		if ($result['status'] === 'REQUEST_DENIED') {
-			$this->logger->info('Accès refusé : '.($result['error_message'] ?? ''));
+			$this->logger->error('Accès refusé : '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'OVER_QUERY_LIMIT') {
-			$this->logger->info('Quota atteint : '.($result['error_message'] ?? ''));
+			$this->logger->error('Quota atteint : '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'INVALID_REQUEST') {
-			$this->logger->info('Requête invalide : '.($result['error_message'] ?? ''));
+			$this->logger->error('Requête invalide : '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'UNKNOWN_ERROR' || $result['status'] === 'ERROR') {
-			$this->logger->info('Erreur pendant la requete vers l\'API Google : '.($result['error_message'] ?? ''));
+			$this->logger->error('Erreur pendant la requete vers l\'API Google : '.($result['error_message'] ?? ''));
 			return null;
 		}
 

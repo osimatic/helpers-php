@@ -111,7 +111,7 @@ class GoogleContact
 			$res = $clientHTTP->request('GET', 'https://www.google.com/m8/feeds/contacts/default/full?max-results=150&alt=json&v=3.0&oauth_token='.$accessToken);
 		}
 		catch (\Exception | \GuzzleHttp\Exception\GuzzleException $e) {
-			$this->logger->info($e->getMessage());
+			$this->error->info($e->getMessage());
 			return null;
 		}
 
@@ -230,7 +230,7 @@ class GoogleContact
 			$accessTokenData = $this->client->getAccessToken();
 		}
 		catch (\InvalidArgumentException $e) {
-			$this->logger->info($e->getMessage());
+			$this->error->info($e->getMessage());
 			return null;
 		}
 

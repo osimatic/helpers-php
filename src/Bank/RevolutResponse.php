@@ -316,7 +316,6 @@ class RevolutResponse {
     
     /**
      * @param array $request
-     *
      * @return RevolutResponse
      */
     public static function getFromRequest(array $request): RevolutResponse
@@ -330,8 +329,10 @@ class RevolutResponse {
         $revolutResponse->setPublicId(!empty($request['public_id']) ? urldecode($request['public_id']) : null);
         $revolutResponse->setType(!empty($request['type']) ? urldecode($request['type']) : null);
         $revolutResponse->setState(!empty($request['state']) ? urldecode($request['state']) : null);
-        $revolutResponse->setCreationDate(!empty($request['created_at']) ? new \DateTime($request['created_at']) : null);
-        $revolutResponse->setUpdateDate(!empty($request['updated_at']) ? new \DateTime($request['updated_at']) : null);
+		try {
+			$revolutResponse->setCreationDate(!empty($request['created_at']) ? new \DateTime($request['created_at']) : null);
+			$revolutResponse->setUpdateDate(!empty($request['updated_at']) ? new \DateTime($request['updated_at']) : null);
+		} catch (\Exception) {}
         $revolutResponse->setCaptureMode(!empty($request['capture_mode']) ? urldecode($request['capture_mode']) : null);
         $revolutResponse->setMerchantOrderExtRef(!empty($request['merchant_order_ext_ref']) ? urldecode($request['merchant_order_ext_ref']) : null);
         $revolutResponse->setAmount(!empty($orderAmount) ? urldecode($orderAmount['value']) : null);

@@ -7,12 +7,6 @@ use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-enum PayBoxVersion : string
-{
-	case PAYBOX_DIRECT = '00103';
-	case PAYBOX_DIRECT_PLUS = '00104';
-}
-
 /**
  * Cette classe permet d'effectuer un paiement par CB via la plateforme PayBox
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
@@ -1183,7 +1177,7 @@ class PayBox
 		$res = $this->httpClient->stringRequest(HTTPMethod::POST, $urlPaiement, queryData: $postData);
 
 		if (null === $res) {
-			$this->logger?->info('Appel Paybox échoué');
+			$this->logger?->error('Appel Paybox échoué');
 			return null;
 		}
 
@@ -1194,11 +1188,13 @@ class PayBox
 		$responseCode = $tabArg['CODEREPONSE'] ?? '';
 
 		$responseCodes = array_merge(self::$responseCodes, self::$visaResponseCodes);
-		$this->logger?->info('Response code: ' . $responseCode.' ; Error message: ' . ($responseCodes[$responseCode] ?? 'Erreur inconnue'));
 
 		if ($responseCode !== '00000') {
+			$this->logger?->error('Response code: ' . $responseCode.' ; Error message: ' . ($responseCodes[$responseCode] ?? 'Erreur inconnue'));
 			return null;
 		}
+
+		$this->logger?->info('Response code: ' . $responseCode.' (Opération réussie)');
 
 		$payBoxResponse = new PayBoxResponse();
 		$payBoxResponse->setReference(!empty($tabArg['REFERENCE']) ? urldecode($tabArg['REFERENCE']) : null);

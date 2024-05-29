@@ -161,24 +161,24 @@ class Revolut
 		$res = $this->httpClient->request($httpMethod, $url, queryData: $payload, headers: ['Authorization' => 'Bearer ' . $this->secretKey], jsonBody: HTTPMethod::POST === $httpMethod);
 
 		if (null === $res) {
-			$this->logger?->info('Appel Revolut échoué');
+			$this->logger?->error('Appel Revolut échoué');
 			return null;
 		}
 
 		$statusCode = $res->getStatusCode();
 
 		if (401 === $statusCode) {
-			$this->logger?->info('Appel Revolut échoué : auth token incorrect ou expiré');
+			$this->logger?->error('Appel Revolut échoué : auth token incorrect ou expiré');
 			return null;
 		}
 
 		if (400 !== $statusCode && 201 !== $statusCode && 200 !== $statusCode) {
-			$this->logger?->info('Appel Revolut échoué : erreur inconnue');
+			$this->logger?->error('Appel Revolut échoué : erreur inconnue');
 			return null;
 		}
 
 		if (400 === $statusCode) {
-			$this->logger?->info('Appel Revolut échoué : format paramètres incorrect');
+			$this->logger?->error('Appel Revolut échoué : format paramètres incorrect');
 		}
 
 		$res = (string)$res->getBody();
