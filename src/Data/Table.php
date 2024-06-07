@@ -103,8 +103,8 @@ class Table
 			$table[] = array_values($this->tableHead);
 		}
 
-		foreach ($this->tableBody as $key => $line) {
-			$table[$key] = array_values($line);
+		foreach ($this->tableBody as $line) {
+			$table[] = array_values($line);
 		}
 
 		if (!empty($this->tableFoot)) {
