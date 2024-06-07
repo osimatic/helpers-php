@@ -344,6 +344,18 @@ class Country
 		return \Locale::getDisplayRegion($locale, \Locale::getDefault());
 	}
 
+	/**
+	 * @param string|null $countryIsoCode
+	 * @return string
+	 */
+	public static function formatCountryNameFromTwig(?string $countryIsoCode): string
+	{
+		if (null === $countryIsoCode) {
+			return '';
+		}
+		return Countries::getName($countryIsoCode);
+	}
+
 	// ========== Language ==========
 
 	/**

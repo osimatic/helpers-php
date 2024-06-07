@@ -51,7 +51,7 @@ class HTMLRenderer
 			new \Twig\TwigFilter('localized_number', \Osimatic\Number\Number::format(...)),
 			new \Twig\TwigFilter('localized_currency', \Osimatic\Bank\Currency::format(...)),
 			new \Twig\TwigFilter('localized_currency_with_code', \Osimatic\Bank\Currency::formatWithCode(...)),
-			new \Twig\TwigFilter('country_name', \Osimatic\Location\Country::getCountryNameFromCountryCode(...)),
+			new \Twig\TwigFilter('country_name', \Osimatic\Location\Country::formatCountryNameFromTwig(...)),
 			new \Twig\TwigFilter('name', \Osimatic\Person\Name::formatFromTwig(...)),
 			new \Twig\TwigFilter('address', \Osimatic\Location\PostalAddress::format(...)),
 			new \Twig\TwigFilter('address_inline', \Osimatic\Location\PostalAddress::formatInline(...)),
@@ -66,6 +66,8 @@ class HTMLRenderer
 			new \Twig\TwigFilter('hour', \Osimatic\Calendar\Time::formatHour(...)),
 			new \Twig\TwigFilter('url', \Osimatic\Network\URL::format(...)),
 			new \Twig\TwigFilter('file_size', \Osimatic\FileSystem\File::formatSize(...)),
+			new \Twig\TwigFilter('iban', \Osimatic\Bank\BankAccount::formatIban(...)),
+			new \Twig\TwigFilter('currency_symbol', \Symfony\Component\Intl\Currencies::getSymbol(...)),
 		];
 	}
 

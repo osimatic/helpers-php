@@ -68,16 +68,21 @@ class DateTime
 
 
 	/**
-	 * @param \DateTime|null $dateTime
+	 * @param string|\DateTime|null $dateTime
 	 * @param string $dateFormatter
 	 * @param string $timeFormatter
 	 * @param string|null $locale
 	 * @return string|null
+	 * @throws \Exception
 	 */
-	public static function formatFromTwig(?\DateTime $dateTime, string $dateFormatter='short', string $timeFormatter='short', ?string $locale=null): ?string
+	public static function formatFromTwig(string|\DateTime|null $dateTime, string $dateFormatter='short', string $timeFormatter='short', ?string $locale=null): ?string
 	{
 		if (null === $dateTime) {
 			return null;
+		}
+
+		if (is_string($dateTime)) {
+			$dateTime = new \DateTime($dateTime);
 		}
 
 		return self::format($dateTime, self::getDateTimeFormatterFromTwig($dateFormatter), self::getDateTimeFormatterFromTwig($timeFormatter), $locale);
