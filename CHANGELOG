@@ -29,3 +29,9 @@ Version 24/05/2024 :
 - API\GoogleMaps -> Location\GoogleMaps
 - API\GoogleContact -> Person\GoogleContact
 - API\SmsToBe -> Messaging\SmsToBe
+
+Version du 07/06/2024 :
+- HTMLRenderer usage
+- PDF usage (PDFGenerator, PDFMerger)
+- CSV usage (CSVGenerator)
+- XML usage (XMLGenerator)

@@ -17,10 +17,6 @@ class PDF
 		'application/vnd.sealedmedia.softseal.pdf',
 	];
 
-	private ?string $header = null;
-	private ?string $footer = null;
-	private ?string $body = null;
-
 	public function __construct(
 		private LoggerInterface $logger = new NullLogger(),
 		private ?string $wkHtmlToPdtBinaryPath = null,
@@ -106,9 +102,96 @@ class PDF
 		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'application/pdf');
 	}
 
-	// ========== Génération ==========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// DEPRECATED
 
 	/**
+	 * @deprecated
+	 * @param string $imageFilePath
+	 * @param string $pdfFilePath
+	 * @return bool
+	 */
+	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
+	{
+		$commandLine = $this->imagickConverterBinaryPath . ' "'.$imageFilePath.'" "'.$pdfFilePath.'"';
+
+		// Envoi de la commande
+		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		$lastLine = system($commandLine);
+
+		/*try {
+			$pdf = new \Imagick([$imageFilePath]);
+			$pdf->setImageFormat('pdf');
+			$pdf->writeImages($pdfFilePath, true);
+		} catch (\ImagickException $e) {
+			$this->logger->error($e->getMessage());
+			return false;
+		}*/
+
+		return true;
+	}
+
+	/**
+	 * @deprecated
+	 * @param string $pdfPath
+	 * @param string $imagePath
+	 * @return bool
+	 */
+	public function convertToImages(string $pdfPath, string $imagePath): bool
+	{
+		if (!file_exists($pdfPath)) {
+			return false;
+		}
+
+		$optionQualiteDoc = '-quality 100 -density 150 ';
+
+		$args = $optionQualiteDoc . $pdfPath . ' ' . $imagePath;
+		$commandLine = $this->imagickConverterBinaryPath . ' ' . $args;
+
+		// Envoi de la ligne de commande
+		$lastLine = system($commandLine);
+
+		return true;
+	}
+
+
+	/**
+	 * @deprecated
+	 * @param string $imagickConverterBinaryPath
+	 * @return self
+	 */
+	public function setImagickConverterBinaryPath(string $imagickConverterBinaryPath): self
+	{
+		$this->imagickConverterBinaryPath = $imagickConverterBinaryPath;
+
+		return $this;
+	}
+
+	private ?string $header = null;
+	private ?string $footer = null;
+	private ?string $body = null;
+
+	/**
+	 * @deprecated
 	 * @param string $html
 	 * @return self
 	 */
@@ -120,6 +203,7 @@ class PDF
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $html
 	 * @return self
 	 */
@@ -131,6 +215,7 @@ class PDF
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $htmlHeader
 	 * @param string $htmlFooter
 	 * @return self
@@ -144,6 +229,7 @@ class PDF
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $html
 	 * @return self
 	 */
@@ -155,6 +241,7 @@ class PDF
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $filePath
 	 * @param array $options
 	 * @return bool
@@ -186,55 +273,31 @@ class PDF
 	}
 
 	/**
-	 * @param string $imageFilePath
-	 * @param string $pdfFilePath
-	 * @return bool
+	 * @deprecated
+	 * @param string $wkHtmlToPdtBinaryPath
+	 * @return self
 	 */
-	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
+	public function setWkHtmlToPdtBinaryPath(string $wkHtmlToPdtBinaryPath): self
 	{
-		$commandLine = $this->imagickConverterBinaryPath . ' "'.$imageFilePath.'" "'.$pdfFilePath.'"';
+		$this->wkHtmlToPdtBinaryPath = $wkHtmlToPdtBinaryPath;
 
-		// Envoi de la commande
-		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-
-		/*try {
-			$pdf = new \Imagick([$imageFilePath]);
-			$pdf->setImageFormat('pdf');
-			$pdf->writeImages($pdfFilePath, true);
-		} catch (\ImagickException $e) {
-			$this->logger->error($e->getMessage());
-			return false;
-		}*/
-
-		return true;
-	}
-
-	// ========== Modification de PDF ==========
-
-	/**
-	 * @param string $pdfPath
-	 * @param string $imagePath
-	 * @return bool
-	 */
-	public function convertToImages(string $pdfPath, string $imagePath): bool
-	{
-		if (!file_exists($pdfPath)) {
-			return false;
-		}
-
-		$optionQualiteDoc = '-quality 100 -density 150 ';
-
-		$args = $optionQualiteDoc . $pdfPath . ' ' . $imagePath;
-		$commandLine = $this->imagickConverterBinaryPath . ' ' . $args;
-
-		// Envoi de la ligne de commande
-		$lastLine = system($commandLine);
-
-		return true;
+		return $this;
 	}
 
 	/**
+	 * @deprecated
+	 * @param string $pdfToolkitBinaryPath
+	 * @return self
+	 */
+	public function setPdfToolkitBinaryPath(string $pdfToolkitBinaryPath): self
+	{
+		$this->pdfToolkitBinaryPath = $pdfToolkitBinaryPath;
+
+		return $this;
+	}
+
+	/**
+	 * @deprecated
 	 * @param array $listPdfPath
 	 * @param string $newPdfPath
 	 * @param int $profondeur
@@ -283,40 +346,4 @@ class PDF
 
 		return true;
 	}
-
-
-
-	/**
-	 * @param string $wkHtmlToPdtBinaryPath
-	 * @return self
-	 */
-	public function setWkHtmlToPdtBinaryPath(string $wkHtmlToPdtBinaryPath): self
-	{
-		$this->wkHtmlToPdtBinaryPath = $wkHtmlToPdtBinaryPath;
-
-		return $this;
-	}
-
-	/**
-	 * @param string $imagickConverterBinaryPath
-	 * @return self
-	 */
-	public function setImagickConverterBinaryPath(string $imagickConverterBinaryPath): self
-	{
-		$this->imagickConverterBinaryPath = $imagickConverterBinaryPath;
-
-		return $this;
-	}
-
-	/**
-	 * @param string $pdfToolkitBinaryPath
-	 * @return self
-	 */
-	public function setPdfToolkitBinaryPath(string $pdfToolkitBinaryPath): self
-	{
-		$this->pdfToolkitBinaryPath = $pdfToolkitBinaryPath;
-
-		return $this;
-	}
-
 }

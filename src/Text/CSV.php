@@ -33,36 +33,6 @@ class CSV
 		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, [self::FILE_EXTENSION], self::MIME_TYPES);
 	}
 
-	// ========== Lecture ==========
-
-	/**
-	 * @link http://gist.github.com/385876
-	 * @param string $filename
-	 * @param string $delimiter
-	 * @return array|null
-	 */
-	public static function toArray(string $filename, string $delimiter=','): ?array
-	{
-		if (!file_exists($filename) || !is_readable($filename)) {
-			return null;
-		}
-
-		$header = null;
-		$data = [];
-		if (($handle = fopen($filename, 'rb')) !== false) {
-			while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
-				if (!$header) {
-					$header = $row;
-				}
-				else {
-					$data[] = array_combine($header, $row);
-				}
-			}
-			fclose($handle);
-		}
-		return $data;
-	}
-
 	// ========== Affichage ==========
 
 	/**
@@ -96,14 +66,66 @@ class CSV
 		return \Osimatic\FileSystem\File::getHttpResponse($filePath, $fileName, false, 'text/csv');
 	}
 
-	// ========== Ecriture ==========
-
-	private ?string $title = null;
-	private array $tableHead = [];
-	private array $tableBody = [];
-	private array $tableFoot = [];
+	// ========== Conversion ==========
 
 	/**
+	 * @link http://gist.github.com/385876
+	 * @param string $filename
+	 * @param string $delimiter
+	 * @return array|null
+	 */
+	public static function convertToArray(string $filename, string $delimiter=','): ?array
+	{
+		if (!file_exists($filename) || !is_readable($filename)) {
+			return null;
+		}
+
+		$header = null;
+		$data = [];
+		if (($handle = fopen($filename, 'rb')) !== false) {
+			while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
+				if (!$header) {
+					$header = $row;
+				}
+				else {
+					$data[] = array_combine($header, $row);
+				}
+			}
+			fclose($handle);
+		}
+		return $data;
+	}
+
+	// ========== Divers ==========
+
+	/**
+	 * @param string|int|float|null $value
+	 * @return string
+	 */
+	public static function forceStringForExcel(string|int|float|null $value): string
+	{
+		return null !== $value && '' !== $value ? '="'.$value.'"' : '';
+	}
+
+
+
+
+	// DEPRECATED
+
+	/**
+	 * @deprecated
+	 * @param string $filePath
+	 * @return bool
+	 */
+	public function save(string $filePath): bool
+	{
+		return self::generateFile($filePath, $this->tableHead, $this->tableBody, $this->tableFoot, $this->title);
+	}
+
+	private ?string $title = null;
+
+	/**
+	 * @deprecated
 	 * @param string $title
 	 * @return self
 	 */
@@ -114,7 +136,12 @@ class CSV
 		return $this;
 	}
 
+	private array $tableHead = [];
+	private array $tableBody = [];
+	private array $tableFoot = [];
+
 	/**
+	 * @deprecated
 	 * @param array|null $tableHead
 	 * @param array $tableBody
 	 * @param array|null $tableFoot
@@ -136,6 +163,7 @@ class CSV
 	}
 
 	/**
+	 * @deprecated
 	 * @param $cell
 	 * @return self
 	 */
@@ -147,6 +175,7 @@ class CSV
 	}
 
 	/**
+	 * @deprecated
 	 * @param array $line
 	 * @return self
 	 */
@@ -158,6 +187,7 @@ class CSV
 	}
 
 	/**
+	 * @deprecated
 	 * @param $cell
 	 * @return self
 	 */
@@ -169,24 +199,7 @@ class CSV
 	}
 
 	/**
-	 * @param string $filePath
-	 * @return bool
-	 */
-	public function save(string $filePath): bool
-	{
-		return self::generateFile($filePath, $this->tableHead, $this->tableBody, $this->tableFoot, $this->title);
-	}
-
-	/**
-	 * @param string|int|float|null $value
-	 * @return string
-	 */
-	public static function forceStringForExcel(string|int|float|null $value): string
-	{
-		return null !== $value && '' !== $value ? '="'.$value.'"' : '';
-	}
-
-	/**
+	 * @deprecated
 	 * @param string $filePath
 	 * @param array|null $tableHead
 	 * @param array $tableBody
