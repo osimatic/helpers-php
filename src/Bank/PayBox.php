@@ -353,6 +353,27 @@ class PayBox
 	}
 
 	/**
+	 * @return void
+	 */
+	public function reset(): void
+	{
+		$this->numQuestion = null;
+		$this->date = null;
+		$this->reference = '';
+		$this->subscriberRef = '';
+		$this->porteurEmail = '';
+		$this->porteur = '';
+		$this->expirationDate = null;
+		$this->cvv = '';
+
+		$this->numAppel = null;
+		$this->numTransaction = null;
+		$this->autorisation = null;
+		$this->shoppingCart = null;
+		$this->billingAddress = null;
+	}
+
+	/**
 	 *
 	 */
 	public function newPayment(): ?PayBoxResponse
