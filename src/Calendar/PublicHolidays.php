@@ -322,7 +322,7 @@ class PublicHolidays
 		}
 
 		// ---------- FRANCE ----------
-		if (in_array($country, ['FR', 'MQ', 'GP', 'RE'], true)) {
+		if (in_array($country, ['FR', 'MQ', 'GP', 'RE', 'GF'], true)) {
 			// --- FRANCE - Fêtes civiles ---
 			$listOfPublicHolidays = [
 				// 1er janvier - Jour de l’an
@@ -415,6 +415,14 @@ class PublicHolidays
 			if ('RE' === $country) {
 				// Abolition de l’esclavage
 				$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 12, 20, $year));
+
+			}
+
+			// --- GUYANE ---
+
+			if ('GF' === $country) {
+				// Abolition de l’esclavage
+				$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 6, 10, $year));
 
 			}
 
