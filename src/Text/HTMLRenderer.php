@@ -34,6 +34,11 @@ class HTMLRenderer
 		return $this;
 	}
 
+	/**
+	 * @param string $templateFile
+	 * @param array $templateData
+	 * @return string|null
+	 */
 	public function render(string $templateFile, array $templateData=[]): ?string
 	{
 		try {
@@ -45,6 +50,9 @@ class HTMLRenderer
 		return null;
 	}
 
+	/**
+	 * @return \Twig\TwigFilter[]
+	 */
 	public static function getTwigFilters(): array
 	{
 		return [
@@ -57,6 +65,7 @@ class HTMLRenderer
 			new \Twig\TwigFilter('address_inline', \Osimatic\Location\PostalAddress::formatInline(...)),
 			new \Twig\TwigFilter('phone_number_national', \Osimatic\Messaging\PhoneNumber::formatNational(...)),
 			new \Twig\TwigFilter('phone_number_international', \Osimatic\Messaging\PhoneNumber::formatInternational(...)),
+			new \Twig\TwigFilter('phone_number_country_iso_code', \Osimatic\Messaging\PhoneNumber::getCountryIsoCode(...)),
 			new \Twig\TwigFilter('duration_chrono', \Osimatic\Number\Duration::formatHourChrono(...)),
 			new \Twig\TwigFilter('localized_date_time', \Osimatic\Calendar\DateTime::formatFromTwig(...)),
 			new \Twig\TwigFilter('localized_date', \Osimatic\Calendar\DateTime::formatDateFromTwig(...)),
@@ -68,6 +77,7 @@ class HTMLRenderer
 			new \Twig\TwigFilter('file_size', \Osimatic\FileSystem\File::formatSize(...)),
 			new \Twig\TwigFilter('iban', \Osimatic\Bank\BankAccount::formatIban(...)),
 			new \Twig\TwigFilter('currency_symbol', \Symfony\Component\Intl\Currencies::getSymbol(...)),
+			new \Twig\TwigFilter('vat_number', \Osimatic\Organization\VatNumber::format(...)),
 		];
 	}
 

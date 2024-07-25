@@ -2,8 +2,23 @@
 
 namespace Osimatic\Bank;
 
+use Osimatic\Calendar\Date;
+
 class BankCard
 {
+	/**
+	 * @param int $year
+	 * @param int $month
+	 * @return \DateTime|null
+	 */
+	public static function getExpirationDateFromYearAndMonth(int $year, int $month): ?\DateTime
+	{
+		try {
+			return new \DateTime($year . '-' . $month . '-' .Date::getNumberOfDaysInMonth($year, $month).' 00:00:00');
+		} catch (\Exception) {}
+		return null;
+	}
+
 	/**
 	 * @param string $cardNumber
 	 * @return bool
