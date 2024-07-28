@@ -35,3 +35,6 @@ Version du 07/06/2024 :
 - PDF usage (PDFGenerator, PDFMerger)
 - CSV usage (CSVGenerator)
 - XML usage (XMLGenerator)
+
+Version du 28/07/2024 :
+- suppression HTTPRequest::check

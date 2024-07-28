@@ -28,85 +28,6 @@ class HTTPRequest
 	public static function execute(HTTPMethod $method, string $url, array $queryParameters=[], array $headers=[], array $options=[], ?LoggerInterface $logger=null): string|bool
 	{
 		//trace('URL : '.$url);
-		$ch = self::initCurl($method, $url, $queryParameters, $headers, $options);
-
-		// Configuration du corps de la requête
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		// Configuration du fichier pour l'enregistrement de la réponse
-		if (null !== ($responseFile = $options['response_file'] ?? null)) {
-			curl_setopt($ch, CURLOPT_FILE, $responseFile);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-		}
-
-		// Configuration du mode de transmission de la réponse
-		if (true === ($options['binary_transfer'] ?? false)) {
-			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-		}
-
-		// Exécution de la requête
-		$data = curl_exec($ch);
-
-		// Récupération de l'éventuelle erreur
-		if ($data === false) {
-			$requestError = curl_error($ch);
-			$logger?->error('Erreur cURL request : '.$requestError);
-			return false;
-		}
-
-		// Récupération du code HTTP
-		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		// Fermeture de la connexion
-		curl_close($ch);
-
-		$logger?->info('HTTP response code: '.$httpResponseCode.' ; Response size: '.(null === $responseFile ? strlen($data) : filesize($responseFile)));
-
-		if (null === $responseFile) {
-			return $data;
-		}
-		return true;
-	}
-	/**
-	 * Test la réponse d'une requête HTTP avec l'extension cURL de PHP.
-	 * @param string $url l'URL de la requête HTTP à tester
-	 * @param array $headers list of HTTP header fields
-	 * @param array $options options
-	 * @return boolean
-	 */
-	public static function check(string $url, array $headers=[], array $options=[]): bool
-	{
-		$ch = self::initCurl(HTTPMethod::GET, $url, [], $headers, $options);
-
-		// Configuration du corps de la requête
-		curl_setopt($ch, CURLOPT_NOBODY, TRUE);
-
-		// Exécution de la requête
-		$data = curl_exec($ch);
-
-		// Récupération du code HTTP
-		$codeHttp = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		// Fermeture de la connexion
-		curl_close($ch);
-
-		if ($data === false) {
-			return false;
-		}
-		return in_array($codeHttp, [200, 301, 302], true);
-	}
-
-	/**
-	 * Test la réponse d'une requête HTTP avec l'extension cURL de PHP.
-	 * @param HTTPMethod $method
-	 * @param string $url
-	 * @param array $queryParameters
-	 * @param array $headers list of HTTP header fields
-	 * @param array $options options
-	 * @return \CurlHandle
-	 */
-	private static function initCurl(HTTPMethod $method, string $url, array $queryParameters=[], array $headers=[], array $options=[]): \CurlHandle
-	{
 		$ch = curl_init();
 
 		// Configuration de l'URL
@@ -166,7 +87,44 @@ class HTTPRequest
 		//	curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
 		//}
 
-		return $ch;
+		// Configuration du corps de la requête
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		// Configuration du fichier pour l'enregistrement de la réponse
+		if (null !== ($responseFile = $options['response_file'] ?? null)) {
+			curl_setopt($ch, CURLOPT_FILE, $responseFile);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+		}
+
+		// Configuration du mode de transmission de la réponse
+		if (true === ($options['binary_transfer'] ?? false)) {
+			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+		}
+
+		// Exécution de la requête
+		$data = curl_exec($ch);
+
+		// Récupération du code HTTP
+		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		// Récupération de l'éventuelle erreur
+		$requestError = curl_error($ch);
+
+		// Fermeture de la connexion
+		curl_close($ch);
+
+		$logger?->info('HTTP response code: '.$httpResponseCode.' ; Response size: '.(null === $responseFile ? ($data !== false ? strlen($data) : '<null>') : filesize($responseFile)));
+
+		// Récupération de l'éventuelle erreur
+		if ($data === false) {
+			$logger?->error('Erreur cURL request : '.$requestError);
+			return false;
+		}
+
+		if (null === $responseFile) {
+			return $data;
+		}
+		return true;
 	}
 
 	/**
