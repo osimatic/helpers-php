@@ -78,6 +78,7 @@ class HTMLRenderer
 			new \Twig\TwigFilter('iban', \Osimatic\Bank\BankAccount::formatIban(...)),
 			new \Twig\TwigFilter('currency_symbol', \Symfony\Component\Intl\Currencies::getSymbol(...)),
 			new \Twig\TwigFilter('vat_number', \Osimatic\Organization\VatNumber::format(...)),
+			new \Twig\TwigFilter('bank_card_number', \Osimatic\Bank\BankCard::formatCardNumber(...)),
 		];
 	}
 
