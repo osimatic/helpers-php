@@ -168,34 +168,7 @@ class DateTime
 	 */
 	public static function parse(string $str): ?\DateTime
 	{
-		try {
-			return new \DateTime($str);
-		}
-		catch (\Exception $e) { }
-		return null;
-	}
-
-	/**
-	 * @param string $str
-	 * @return null|\DateTime
-	 */
-	public static function parseDate(string $str): ?\DateTime
-	{
-		if (empty($str)) {
-			return null;
-		}
-
-		// Format YYYY-mm-ddTHH:ii:ss
-		if (strlen($str) === strlen('YYYY-mm-ddTHH:ii:ss') && null !== ($dateTime = self::parseFromSqlDateTime($str))) {
-			return $dateTime;
-		}
-
-		//if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
-		if (null !== ($sqlDate = SqlDate::parse($str)) && false !== SqlDate::check($sqlDate)) {
-			return self::parseFromSqlDateTime($sqlDate.' 00:00:00');
-		}
-
-		return null;
+		return Date::parse($str);
 	}
 
 	/**
@@ -206,7 +179,8 @@ class DateTime
 	{
 		try {
 			return new \DateTime($sqlDateTime);
-		} catch (\Exception $e) {}
+		}
+		catch (\Exception $e) { }
 		return null;
 	}
 
@@ -216,11 +190,8 @@ class DateTime
 	 */
 	public static function parseFromTimestamp(int $timestamp): ?\DateTime
 	{
-		try {
-			//return new \DateTime('@'.$timestamp);
-			return new \DateTime(date('Y-m-d H:i:s', $timestamp));
-		} catch (\Exception $e) {}
-		return null;
+		//return new \DateTime('@'.$timestamp);
+		return self::parseFromTimestamp(date('Y-m-d H:i:s', $timestamp));
 	}
 
 	/**
@@ -648,4 +619,39 @@ class DateTime
 		$to = new \DateTime();
 		return (int) $from->diff($to)->y;
 	}
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * @deprecated replace by DateTime::parse()
+	 * @param string $str
+	 * @return null|\DateTime
+	 */
+	public static function parseDate(string $str): ?\DateTime
+	{
+		if (empty($str)) {
+			return null;
+		}
+
+		// Format YYYY-mm-ddTHH:ii:ss
+		if (strlen($str) === strlen('YYYY-mm-ddTHH:ii:ss') && null !== ($dateTime = self::parseFromSqlDateTime($str))) {
+			return $dateTime;
+		}
+
+		//if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
+		if (null !== ($sqlDate = SqlDate::parse($str)) && false !== SqlDate::check($sqlDate)) {
+			return self::parseFromSqlDateTime($sqlDate.' 00:00:00');
+		}
+
+		return null;
+	}
+
 }

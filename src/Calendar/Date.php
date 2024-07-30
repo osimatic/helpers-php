@@ -4,6 +4,42 @@ namespace Osimatic\Calendar;
 
 class Date
 {
+	// ========== Parse ==========
+
+	/**
+	 * @param string $str
+	 * @return null|\DateTime
+	 */
+	public static function parse(string $str): ?\DateTime
+	{
+		if (empty($str)) {
+			return null;
+		}
+
+		// Format YYYY-mm-ddTHH:ii:ss
+		if (strlen($str) === strlen('YYYY-mm-ddTHH:ii:ss') && null !== ($dateTime = DateTime::parseFromSqlDateTime($str))) {
+			return $dateTime;
+		}
+
+		// Format YYYYmmddHHiiss
+		if (strlen($str) === strlen('yyyymmddhhiiss')) {
+			$sqlDate = substr($str, 0, 4).'-'.substr($str, 4, 2).'-'.substr($str, 6, 2);
+			$sqlTime = substr($str, 8, 2).':'.substr($str, 10, 2).':'.substr($str, 12, 2);
+
+			if (null !== ($dateTime = DateTime::parseFromSqlDateTime($sqlDate.' '.$sqlTime))) {
+				return $dateTime;
+			}
+		}
+
+		//if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
+		if (null !== ($sqlDate = SqlDate::parse($str)) && false !== SqlDate::check($sqlDate)) {
+			return DateTime::parseFromSqlDateTime($sqlDate.' 00:00:00');
+		}
+
+		return null;
+	}
+
+
 	// ========== Jour de la semaine ==========
 
 	/**

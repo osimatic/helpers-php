@@ -74,11 +74,7 @@ class Time
 			return null;
 		}
 
-		try {
-			return new \DateTime(date('Y-m-d') . ' ' . $sqlTime);
-		} catch (\Exception $e) {
-		}
-		return null;
+		return DateTime::parseFromSqlDateTime(date('Y-m-d') . ' ' . $sqlTime);
 	}
 
 	/**
