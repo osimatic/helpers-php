@@ -106,11 +106,11 @@ class FormService
 
 		if (null !== $otherErrors) {
 			foreach ($otherErrors as $key => $error) {
-				$errorKey = is_array($error) ? $error[0] : $error;
-				$errorMessage = is_array($error) ? $error[1] : $error;
+				$errorKey = is_array($error) ? $error[0] ?? null : $error;
+				$errorMessage = is_array($error) ? $error[1] ?? null : $error;
 
 				if ($translateMessages && null !== $translator) {
-					$parameters = is_array($error) ? $error[1] : [];
+					$parameters = is_array($error) ? $error[1] ?? [] : [];
 					$errorMessage = $translator->trans($errorKey, $parameters, 'validators');
 				}
 
