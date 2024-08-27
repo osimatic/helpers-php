@@ -148,7 +148,7 @@ class File
 				$logger?->info('Decode base64 file content failed.');
 				return null;
 			}
-			return new InputFile(null, $uploadedFileData, self::getMimeTypeFromBase64Data($data));
+			return new InputFile(data: $uploadedFileData, mimeType: self::getMimeTypeFromBase64Data($data), base64EncodedData: $data);
 		}
 
 		/** @var UploadedFile $uploadedFile */

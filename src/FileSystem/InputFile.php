@@ -17,10 +17,16 @@ class InputFile
 	private ?string $originalFileName;
 
 	/**
-	 * Data of the file (if data sent directly instead of uploaded file)
+	 * Binary data of the file (if data sent directly instead of uploaded file)
 	 * @var string|null
 	 */
 	private ?string $data;
+
+	/**
+	 * Base64 encoded data of the file (if data sent directly instead of uploaded file)
+	 * @var string|null
+	 */
+	private ?string $base64EncodedData;
 
 	/**
 	 * Mime Type of the file (if data sent directly instead of uploaded file)
@@ -32,13 +38,15 @@ class InputFile
 	 * @param array|null $uploadedFileInfos
 	 * @param string|null $data
 	 * @param string|null $mimeType
+	 * @param string|null $base64EncodedData
 	 */
-	public function __construct(?array $uploadedFileInfos=null, ?string $data=null, ?string $mimeType=null)
+	public function __construct(?array $uploadedFileInfos=null, ?string $data=null, ?string $mimeType=null, ?string $base64EncodedData=null)
 	{
 		if (null !== $uploadedFileInfos) {
 			$this->setUploadedFileInfos($uploadedFileInfos);
 		}
 		$this->data = $data;
+		$this->base64EncodedData = $base64EncodedData;
 		$this->mimeType = $mimeType;
 	}
 
@@ -117,6 +125,22 @@ class InputFile
 	public function setData(?string $data): void
 	{
 		$this->data = $data;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getBase64EncodedData(): ?string
+	{
+		return $this->base64EncodedData;
+	}
+
+	/**
+	 * @param string|null $base64EncodedData
+	 */
+	public function setBase64EncodedData(?string $base64EncodedData): void
+	{
+		$this->base64EncodedData = $base64EncodedData;
 	}
 
 	/**
