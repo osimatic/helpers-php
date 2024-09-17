@@ -3,6 +3,7 @@
 namespace Osimatic\Bank;
 
 use Osimatic\Location\Country;
+use Osimatic\Text\CSVGenerator;
 
 /**
  * Class Accounting
@@ -95,7 +96,7 @@ class Accounting
 			}
 		}
 
-		\Osimatic\Text\CSV::generateFile($filePath, $tableHead, $tableBody, null);
+		(new CSVGenerator())->generateFile($filePath, (new \Osimatic\Data\Table($tableHead, $tableBody, []))->getTableData());
 	}
 
 	private function getAccountKey(?string $customerCountry, ?string $customerZipCode=null, ?string $vatNumber=null): string
