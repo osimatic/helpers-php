@@ -4,7 +4,6 @@ namespace Osimatic\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CompanyNameValidator extends ConstraintValidator
 {

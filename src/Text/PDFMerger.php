@@ -66,7 +66,7 @@ class PDFMerger
 
 			// todo : faire en fonction de la taille des noms de fichier (la ligne de commande est limité à un certain nombre de caractère)
 			if ($nbFile >= 20 && !empty($listPdfPath)) {
-				$filePathTemp = sys_get_temp_dir().'/'.uniqid(md5(mt_rand()), true).self::FILE_EXTENSION;
+				$filePathTemp = sys_get_temp_dir().'/'.uniqid(md5(mt_rand()), true).PDF::FILE_EXTENSION;
 				$this->mergeFiles($listPdfPath, $filePathTemp, $profondeur+1);
 
 				$listPdfStringFormat .= '"'.$filePathTemp.'" ';
