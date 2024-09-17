@@ -326,17 +326,6 @@ class RevolutResponse {
         $orderAmount = array_key_exists('order_amount', $request) ? $request['order_amount'] : null;
         $cardData = array_key_exists('payments', $request) ? $request['payments'][0]['payment_method']['card'] : null;
 
-		$cardExpirationDate = !empty($cardData['card_expiry']) ? urldecode($cardData['card_expiry']) : null;
-		if (null !== $cardExpirationDate) {
-			if (str_contains($cardExpirationDate, '/')) {
-				$dateArr = explode('/', $cardExpirationDate);
-				if (!empty($year = $dateArr[0] ?? null) && !empty($month = $dateArr[1] ?? null)) {
-					$cardExpirationDate = DateTime::getLastDayOfMonth($year, $month);
-				}
-			}
-			$cardExpirationDate = Date::parse($cardExpirationDate);
-		}
-
         $revolutResponse = new RevolutResponse();
         $revolutResponse->setErrorId(!empty($request['errorId']) ? urldecode($request['errorId']) : null);
         $revolutResponse->setId(!empty($request['id']) ? urldecode($request['id']) : null);
@@ -353,7 +342,7 @@ class RevolutResponse {
         $revolutResponse->setCurrency(!empty($orderAmount) ? urldecode($orderAmount['currency']) : null);
         $revolutResponse->setCheckoutUrl(!empty($request['checkout_url']) ? urldecode($request['checkout_url']) : null);
         $revolutResponse->setCardLastDigits(!empty($cardData['card_last_four']) ? urldecode($cardData['card_last_four']) : null);
-        $revolutResponse->setCardExpiration($cardExpirationDate);
+        $revolutResponse->setCardExpiration(!empty($cardData['card_expiry']) ? BankCard::getExpirationDateFromString(urldecode($cardData['card_expiry'])) : null);
         
         return $revolutResponse;
     }

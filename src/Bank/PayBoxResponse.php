@@ -117,8 +117,7 @@ class PayBoxResponse
 		}
 
 		if (!empty($cardExpirationDate = urldecode($request['bc_expdate'] ?? null))) {
-			$cardExpirationSqlDate = '20'.substr($cardExpirationDate, 0, 2).'-'.substr($cardExpirationDate, 2, 2).'-01';
-			$payBoxResponse->setCardExpirationDateTime(new \DateTime(date('Y-m-t H:i:s', strtotime($cardExpirationSqlDate.' 00:00:00'))));
+			$payBoxResponse->setCardExpirationDateTime(BankCard::getExpirationDateFromYearAndMonth((int) ('20'.substr($cardExpirationDate, 0, 2)), (int) (substr($cardExpirationDate, 2, 2))));
 		}
 
 		$payBoxResponse->set3DSecureEnabled(($request['3ds'] ?? null) === 'O');
