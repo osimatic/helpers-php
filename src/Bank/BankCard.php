@@ -3,7 +3,6 @@
 namespace Osimatic\Bank;
 
 use Osimatic\Calendar\Date;
-use Osimatic\Calendar\DateTime;
 
 class BankCard
 {
@@ -70,8 +69,12 @@ class BankCard
 		return $cardNumber;
 	}
 
-	public static function formatCardExpirationDate(?\DateTime $expirationDate, int $dateFormatter=\IntlDateFormatter::LONG): false|string
+	public static function formatCardExpirationDate(?\DateTime $expirationDate, int $dateFormatter=\IntlDateFormatter::LONG): ?string
 	{
+		if (null === $expirationDate) {
+			return null;
+		}
+
 		if (\IntlDateFormatter::LONG === $dateFormatter) {
 			return Date::getMonthName((int) ($expirationDate->format('m'))).' '.$expirationDate->format('Y');
 		}
