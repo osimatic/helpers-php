@@ -4,6 +4,7 @@ namespace Osimatic\Text;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Twig\TwigFunction;
 
 class HTMLRenderer
 {
@@ -79,7 +80,38 @@ class HTMLRenderer
 			new \Twig\TwigFilter('currency_symbol', \Symfony\Component\Intl\Currencies::getSymbol(...)),
 			new \Twig\TwigFilter('vat_number', \Osimatic\Organization\VatNumber::format(...)),
 			new \Twig\TwigFilter('bank_card_number', \Osimatic\Bank\BankCard::formatCardNumber(...)),
+			new \Twig\TwigFilter('bank_card_expiration_date', \Osimatic\Bank\BankCard::formatCardExpirationDate(...)),
 		];
 	}
 
+	public static function getTwigFunctions(): array
+	{
+		return [
+			new TwigFunction('enum', self::enum(...)),
+		];
+	}
+
+	public static function enum(string $fullClassName): object
+	{
+		$parts = explode('::', $fullClassName);
+		$className = $parts[0];
+		$constant = $parts[1] ?? null;
+
+		if (!enum_exists($className)) {
+			throw new \InvalidArgumentException(sprintf('"%s" is not an enum.', $className));
+		}
+
+		if ($constant) {
+			return constant($fullClassName);
+		}
+
+		return new readonly class($fullClassName) {
+			public function __construct(private string $fullClassName) {}
+
+			public function __call(string $caseName, array $arguments): mixed
+			{
+				return call_user_func_array([$this->fullClassName, $caseName], $arguments);
+			}
+		};
+	}
 }

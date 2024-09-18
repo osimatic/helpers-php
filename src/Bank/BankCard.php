@@ -70,6 +70,15 @@ class BankCard
 		return $cardNumber;
 	}
 
+	public static function formatCardExpirationDate(?\DateTime $expirationDate, int $dateFormatter=\IntlDateFormatter::LONG): false|string
+	{
+		if (\IntlDateFormatter::LONG === $dateFormatter) {
+			return Date::getMonthName((int) ($expirationDate->format('m'))).' '.$expirationDate->format('Y');
+		}
+
+		return \IntlDateFormatter::create(null, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE, null, null, 'MM/YYYY')->format($expirationDate->getTimestamp());
+	}
+
 	/**
 	 * @param string $cardNumber
 	 * @return BankCardType|null
