@@ -13,7 +13,7 @@ class BankCard
 	 */
 	public static function getExpirationDateFromString(string $date): ?\DateTime
 	{
-		if (str_contains($date, '/') && count($dateArr = explode('/', $date)) === 2 && !empty($year = $dateArr[0] ?? null) && !empty($month = $dateArr[1] ?? null)) {
+		if (str_contains($date, '/') && count($dateArr = explode('/', $date)) === 2 && !empty($year = $dateArr[1] ?? null) && !empty($month = $dateArr[0] ?? null)) {
 			return self::getExpirationDateFromYearAndMonth($year, $month);
 		}
 		return Date::parse($date);
