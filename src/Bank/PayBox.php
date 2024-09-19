@@ -13,38 +13,15 @@ use Psr\Log\NullLogger;
  */
 class PayBox
 {
-	public const string URL_PAIEMENT_TEST = 'https://preprod-ppps.paybox.com/PPPS.php';
-	public const string URL_PAIEMENT = 'https://ppps.paybox.com/PPPS.php';
-	public const string URL_PAIEMENT_SECOURS = 'https://ppps1.paybox.com/PPPS.php';
+	private const string URL_PAIEMENT_TEST = 'https://preprod-ppps.paybox.com/PPPS.php';
+	private const string URL_PAIEMENT = 'https://ppps.paybox.com/PPPS.php';
+	private const string URL_PAIEMENT_SECOURS = 'https://ppps1.paybox.com/PPPS.php';
 
-	public const string URL_FORM_TEST = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-	public const string URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-	public const string URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
-
-	public const string CALL_ORIGIN_NOT_SPECIFIED = '020';
-	public const string CALL_ORIGIN_TELEPHONE_ORDER = '021';
-	public const string CALL_ORIGIN_MAIL_ORDER = '022';
-	public const string CALL_ORIGIN_MINITEL = '023';
-	public const string CALL_ORIGIN_INTERNET_PAYMENT = '024';
-	public const string CALL_ORIGIN_RECURRING_PAYMENT = '027';
+	private const string URL_FORM_TEST = 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	private const string URL_FORM = 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi';
+	private const string URL_FORM_SECOURS = 'https://tpeweb1.paybox.com/cgi/MYchoix_pagepaiement.cgi';
 
 	public const int DEFAULT_FORM_TIMEOUT = 1800;
-
-	private const string TYPE_OPERATION_AUTORISATION_SEULE = '00001';
-	private const string TYPE_OPERATION_DEBIT = '00002';
-	private const string TYPE_OPERATION_AUTORISATION_AND_DEBIT = '00003';
-	private const string TYPE_OPERATION_CREDIT = '00004';
-	private const string TYPE_OPERATION_ANNULATION = '00005';
-	private const string TYPE_OPERATION_REFUND = '00014';
-	private const string TYPE_OPERATION_AUTORISATION_SEULE_ABONNE = '00051';
-	private const string TYPE_OPERATION_DEBIT_ABONNE = '00052';
-	private const string TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE = '00053';
-	private const string TYPE_OPERATION_CREDIT_ABONNE = '00054';
-	private const string TYPE_OPERATION_ANNULATION_ABONNE = '00055';
-	private const string TYPE_OPERATION_INSCRIPTION_ABONNE = '00056';
-	private const string TYPE_OPERATION_MODIFICATION_ABONNE = '00057';
-	private const string TYPE_OPERATION_SUPPRESSION_ABONNE = '00058';
-
 
 	/**
 	 * @var PayBoxVersion
@@ -133,9 +110,9 @@ class PayBox
 
 	/**
 	 * This parameter allows to inform the acquirer (bank) how the transaction was initiated and how the card entry was realized.
-	 * @var string|null
+	 * @var BankCardCallOrigin|null
 	 */
-	private ?string $activite = null;
+	private ?BankCardCallOrigin $activite = null;
 
 	/**
 	 * This reference is transmitted to the acquirer (bank) of the merchant during the settlement of the transaction. The reference needs to be unique and allows the merchant to inquire for additional information from the acquirer (bank) in case of a dispute.
@@ -706,10 +683,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $callOrigin
+	 * @param BankCardCallOrigin|null $callOrigin
 	 * @return self
 	 */
-	public function setCallOrigin(?string $callOrigin): self
+	public function setCallOrigin(?BankCardCallOrigin $callOrigin): self
 	{
 		$this->activite = $callOrigin;
 
@@ -1175,7 +1152,7 @@ class PayBox
 
 			'DATEQ' => date('dmYHis', $this->getTimestamp()),
 
-			'ACTIVITE' => $this->activite,
+			'ACTIVITE' => $this->getActiviteCode(),
 			'ARCHIVAGE' => $this->archivage,
 			'DIFFERE' => $this->differe,
 			'NUMAPPEL' => $this->numAppel,
@@ -1285,32 +1262,32 @@ class PayBox
 	{
 		if (!empty($this->subscriberRef)) {
 			if ($this->bankCardOperation === BankCardOperation::AUTHORIZATION_ONLY) {
-				return self::TYPE_OPERATION_AUTORISATION_SEULE_ABONNE;
+				return '00051';
 			}
 			if ($this->bankCardOperation === BankCardOperation::DEBIT) {
-				return self::TYPE_OPERATION_DEBIT_ABONNE;
+				return '00052';
 			}
 			if ($this->bankCardOperation === BankCardOperation::AUTHORIZATION_AND_DEBIT) {
-				return self::TYPE_OPERATION_AUTORISATION_AND_DEBIT_ABONNE;
+				return '00053';
 			}
 			if ($this->bankCardOperation === BankCardOperation::CREDIT) {
-				return self::TYPE_OPERATION_CREDIT_ABONNE;
+				return '00054';
 			}
 			if ($this->bankCardOperation === BankCardOperation::CANCEL) {
-				return self::TYPE_OPERATION_ANNULATION_ABONNE;
+				return '00055';
 			}
 		}
 
 		return match($this->bankCardOperation) {
-			BankCardOperation::AUTHORIZATION_ONLY => self::TYPE_OPERATION_AUTORISATION_SEULE,
-			BankCardOperation::DEBIT => self::TYPE_OPERATION_DEBIT,
-			BankCardOperation::AUTHORIZATION_AND_DEBIT => self::TYPE_OPERATION_AUTORISATION_AND_DEBIT,
-			BankCardOperation::CREDIT => self::TYPE_OPERATION_CREDIT,
-			BankCardOperation::CANCEL => self::TYPE_OPERATION_ANNULATION,
-			BankCardOperation::REFUND => self::TYPE_OPERATION_REFUND,
-			BankCardOperation::REGISTER_SUBSCRIBER => self::TYPE_OPERATION_INSCRIPTION_ABONNE,
-			BankCardOperation::UPDATE_SUBSCRIBER => self::TYPE_OPERATION_MODIFICATION_ABONNE,
-			BankCardOperation::DELETE_SUBSCRIBER => self::TYPE_OPERATION_SUPPRESSION_ABONNE,
+			BankCardOperation::AUTHORIZATION_ONLY => '00001',
+			BankCardOperation::DEBIT => '00002',
+			BankCardOperation::AUTHORIZATION_AND_DEBIT => '00003',
+			BankCardOperation::CREDIT => '00004',
+			BankCardOperation::CANCEL => '00005',
+			BankCardOperation::REFUND => '00014',
+			BankCardOperation::REGISTER_SUBSCRIBER => '00056',
+			BankCardOperation::UPDATE_SUBSCRIBER => '00057',
+			BankCardOperation::DELETE_SUBSCRIBER => '00058',
 		};
 	}
 
@@ -1384,6 +1361,22 @@ class PayBox
 			return 'SWE'; // Suédois
 		}
 		return 'FRA';
+	}
+
+	private function getActiviteCode(): ?string
+	{
+		if (null === $this->activite) {
+			return null;
+		}
+		
+		return match ($this->activite) {
+			BankCardCallOrigin::NOT_SPECIFIED => '020',
+			BankCardCallOrigin::TELEPHONE_ORDER => '021',
+			BankCardCallOrigin::MAIL_ORDER => '022',
+			BankCardCallOrigin::MINITEL => '023',
+			BankCardCallOrigin::INTERNET_PAYMENT => '024',
+			BankCardCallOrigin::RECURRING_PAYMENT => '027',
+		};
 	}
 
 	private function getAmount(): int

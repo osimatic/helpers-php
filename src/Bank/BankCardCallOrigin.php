@@ -1,0 +1,13 @@
+<?php
+
+namespace Osimatic\Bank;
+
+enum BankCardCallOrigin: string
+{
+	case NOT_SPECIFIED = 'NOT_SPECIFIED';
+	case TELEPHONE_ORDER = 'TELEPHONE_ORDER';
+	case MAIL_ORDER = 'MAIL_ORDER';
+	case MINITEL = 'MINITEL';
+	case INTERNET_PAYMENT = 'INTERNET_PAYMENT';
+	case RECURRING_PAYMENT = 'RECURRING_PAYMENT';
+}
