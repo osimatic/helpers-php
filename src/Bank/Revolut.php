@@ -9,8 +9,8 @@ use Psr\Log\NullLogger;
 
 class Revolut
 {
-	public const string URL_SANDBOX_PAYMENT = 'https://sandbox-merchant.revolut.com/api/1.0/orders';
-	public const string URL_PROD_PAYMENT = 'https://merchant.revolut.com/api/1.0/orders';
+	private const string URL_SANDBOX_PAYMENT = 'https://sandbox-merchant.revolut.com/api/1.0/orders';
+	private const string URL_PROD_PAYMENT = 'https://merchant.revolut.com/api/1.0/orders';
 
 	private const string CAPTURE_MODE_MANUAL = 'MANUAL'; //Autorisation seule
 	private const string CAPTURE_MODE_AUTO = 'AUTOMATIC'; //Autorisation & Débit

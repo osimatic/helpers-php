@@ -2,9 +2,6 @@
 
 namespace Osimatic\Bank;
 
-use Osimatic\Calendar\Date;
-use Osimatic\Calendar\DateTime;
-
 /**
  * https://developer.revolut.com/docs/api-reference/merchant/#tag/Orders/operation/createOrder
  */
