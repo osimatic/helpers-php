@@ -75,26 +75,26 @@ class PayBox
 
 	/**
 	 * This is the merchant order reference (free field). This allows the merchant to link his platform to the Paybox platform using a reference number.
-	 * @var string
+	 * @var string|null
 	 */
-	private string $reference = '';
+	private ?string $reference = null;
 
 	/**
 	 * Merchant reference number allowing him to clearly identify the subscriber (profile) that corresponds to the transaction.
-	 * @var string
+	 * @var string|null
 	 */
-	private string $subscriberRef = '';
+	private ?string $subscriberRef = null;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	private string $porteurEmail = '';
+	private ?string $porteurEmail = null;
 
 	/**
 	 * PAN (card number) of the customer, without any spaces and left aligned, or subscriber number for the request.
-	 * @var string
+	 * @var string|null
 	 */
-	private string $porteur = '';
+	private ?string $porteur = null;
 
 	/**
 	 * Expiry date of the card
@@ -104,9 +104,9 @@ class PayBox
 
 	/**
 	 * Visual cryptogram on the back of the card
-	 * @var string
+	 * @var string|null
 	 */
-	private string $cvv = '';
+	private ?string $cvv = null;
 
 	/**
 	 * This parameter allows to inform the acquirer (bank) how the transaction was initiated and how the card entry was realized.
@@ -336,12 +336,12 @@ class PayBox
 	{
 		$this->numQuestion = null;
 		$this->date = null;
-		$this->reference = '';
-		$this->subscriberRef = '';
-		$this->porteurEmail = '';
-		$this->porteur = '';
+		$this->reference = null;
+		$this->subscriberRef = null;
+		$this->porteurEmail = null;
+		$this->porteur = null;
 		$this->expirationDate = null;
-		$this->cvv = '';
+		$this->cvv = null;
 
 		$this->numAppel = null;
 		$this->numTransaction = null;
@@ -617,10 +617,10 @@ class PayBox
 	}
 
 	/**
-	 * @param $subscriberRef
+	 * @param string|null $subscriberRef
 	 * @return self
 	 */
-	public function setSubscriberReference($subscriberRef): self
+	public function setSubscriberReference(?string $subscriberRef): self
 	{
 		$this->subscriberRef = $subscriberRef;
 
@@ -628,10 +628,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $porteurEmail
+	 * @param string|null $porteurEmail
 	 * @return self
 	 */
-	public function setCustomerEmail(string $porteurEmail): self
+	public function setCustomerEmail(?string $porteurEmail): self
 	{
 		$this->porteurEmail = $porteurEmail;
 
@@ -639,10 +639,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $creditCardNumber
+	 * @param string|null $creditCardNumber
 	 * @return self
 	 */
-	public function setCreditCardNumber(string $creditCardNumber): self
+	public function setCreditCardNumber(?string $creditCardNumber): self
 	{
 		$this->porteur = $creditCardNumber;
 
@@ -650,10 +650,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $creditCardToken
+	 * @param string|null $creditCardToken
 	 * @return self
 	 */
-	public function setCreditCardToken(string $creditCardToken): self
+	public function setCreditCardToken(?string $creditCardToken): self
 	{
 		$this->porteur = $creditCardToken;
 
@@ -672,10 +672,10 @@ class PayBox
 	}
 
 	/**
-	 * @param $cvv
+	 * @param string|null $cvv
 	 * @return self
 	 */
-	public function setCvc($cvv): self
+	public function setCvc(?string $cvv): self
 	{
 		$this->cvv = $cvv;
 
