@@ -435,6 +435,24 @@ class DateTime
 
 	/**
 	 * @param \DateTime $dateTime
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfWeekOfDate(\DateTime $dateTime): ?\DateTime
+	{
+		return self::getFirstDayOfWeek((int) $dateTime->format('Y'), (int) $dateTime->format('W'));
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfWeekOfDate(\DateTime $dateTime): ?\DateTime
+	{
+		return self::getLastDayOfWeek((int) $dateTime->format('Y'), (int) $dateTime->format('W'));
+	}
+
+	/**
+	 * @param \DateTime $dateTime
 	 * @param int $weekDay
 	 * @return \DateTime
 	 */
@@ -547,6 +565,24 @@ class DateTime
 	public static function getLastDayOfMonth(int $year, int $month): ?\DateTime
 	{
 		return self::parseFromSqlDateTime(SqlDate::getLastDayOfMonth($year, $month).' 00:00:00');
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return \DateTime|null
+	 */
+	public static function getFirstDayOfMonthOfDate(\DateTime $dateTime): ?\DateTime
+	{
+		return self::getFirstDayOfMonth($dateTime->format('Y'), $dateTime->format('m'));
+	}
+
+	/**
+	 * @param \DateTime $dateTime
+	 * @return \DateTime|null
+	 */
+	public static function getLastDayOfMonthOfDate(\DateTime $dateTime): ?\DateTime
+	{
+		return self::getLastDayOfMonth($dateTime->format('Y'), $dateTime->format('m'));
 	}
 
 	/**
