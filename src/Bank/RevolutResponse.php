@@ -96,6 +96,11 @@ class RevolutResponse implements BankCardOperationResponseInterface
 		return null;
 	}
 
+	public function getCallNumber(): ?string
+	{
+		return null;
+	}
+
 
 
     /**

@@ -17,6 +17,11 @@ interface BankCardOperationResponseInterface
 	/**
 	 * @return string|null
 	 */
+	public function getCallNumber(): ?string;
+
+	/**
+	 * @return string|null
+	 */
 	public function getAuthorisationNumber(): ?string;
 
 	/**
