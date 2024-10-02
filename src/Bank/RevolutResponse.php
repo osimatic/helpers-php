@@ -5,7 +5,8 @@ namespace Osimatic\Bank;
 /**
  * https://developer.revolut.com/docs/api-reference/merchant/#tag/Orders/operation/createOrder
  */
-class RevolutResponse {
+class RevolutResponse implements BankCardOperationResponseInterface
+{
     /**
      * @var string|null
      */
@@ -75,6 +76,21 @@ class RevolutResponse {
      * @var \DateTime|null
      */
     private ?\DateTime $cardExpiration = null;
+
+
+	/**
+	 * @return string|null
+	 */
+	public function getAuthorizationNumber(): ?string
+	{
+		return null;
+	}
+
+	public function getOrderReference(): ?string
+	{
+		return $this->merchantOrderExtRef;
+	}
+
 
 
     /**
@@ -285,7 +301,7 @@ class RevolutResponse {
     /**
      * @return \DateTime|null $cardExpiration
      */
-    public function getCardExpiration(): ?\DateTime
+    public function getCardExpirationDateTime(): ?\DateTime
     {
         return $this->cardExpiration;
     }
@@ -293,7 +309,7 @@ class RevolutResponse {
     /**
      * @param \DateTime|null $cardExpiration
      */
-    public function setCardExpiration(?\DateTime $cardExpiration): void
+    public function setCardExpirationDateTime(?\DateTime $cardExpiration): void
     {
         $this->cardExpiration = $cardExpiration;
     }
@@ -339,9 +355,29 @@ class RevolutResponse {
         $revolutResponse->setCurrency(!empty($orderAmount) ? urldecode($orderAmount['currency']) : null);
         $revolutResponse->setCheckoutUrl(!empty($request['checkout_url']) ? urldecode($request['checkout_url']) : null);
         $revolutResponse->setCardLastDigits(!empty($cardData['card_last_four']) ? urldecode($cardData['card_last_four']) : null);
-        $revolutResponse->setCardExpiration(!empty($cardData['card_expiry']) ? BankCard::getExpirationDateFromString(urldecode($cardData['card_expiry'])) : null);
+        $revolutResponse->setCardExpirationDateTime(!empty($cardData['card_expiry']) ? BankCard::getExpirationDateFromString(urldecode($cardData['card_expiry'])) : null);
         
         return $revolutResponse;
     }
+
+
+
+	// DEPRECATED
+
+	/**
+	 * @deprecated
+	 */
+	public function getCardExpiration(): ?\DateTime
+	{
+		return $this->cardExpiration;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function setCardExpiration(?\DateTime $cardExpiration): void
+	{
+		$this->cardExpiration = $cardExpiration;
+	}
 
 }

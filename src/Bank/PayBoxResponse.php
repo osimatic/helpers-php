@@ -2,7 +2,7 @@
 
 namespace Osimatic\Bank;
 
-class PayBoxResponse
+class PayBoxResponse implements BankCardOperationResponseInterface
 {
 	public const int _3D_SECURE_VERSION_1 = 1;
 	public const int _3D_SECURE_VERSION_2 = 2;
@@ -135,6 +135,11 @@ class PayBoxResponse
 	public function isSuccess(): bool
 	{
 		return $this->responseCode ===  '00000';
+	}
+
+	public function getOrderReference(): ?string
+	{
+		return $this->reference;
 	}
 
 
