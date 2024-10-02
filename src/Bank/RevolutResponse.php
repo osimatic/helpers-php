@@ -81,7 +81,7 @@ class RevolutResponse implements BankCardOperationResponseInterface
 	/**
 	 * @return string|null
 	 */
-	public function getAuthorizationNumber(): ?string
+	public function getAuthorisationNumber(): ?string
 	{
 		return null;
 	}
@@ -89,6 +89,11 @@ class RevolutResponse implements BankCardOperationResponseInterface
 	public function getOrderReference(): ?string
 	{
 		return $this->merchantOrderExtRef;
+	}
+
+	public function getCardReference(): ?string
+	{
+		return null;
 	}
 
 

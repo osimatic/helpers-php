@@ -17,12 +17,18 @@ interface BankCardOperationResponseInterface
 	/**
 	 * @return string|null
 	 */
-	public function getAuthorizationNumber(): ?string;
+	public function getAuthorisationNumber(): ?string;
 
 	/**
 	 * @return string|null
 	 */
 	public function getTransactionNumber(): ?string;
+
+	/**
+	 * given if autorisation and used for debit later
+	 * @return string|null
+	 */
+	public function getCardReference(): ?string;
 
 	/**
 	 * @return string|null

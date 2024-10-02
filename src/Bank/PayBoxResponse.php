@@ -103,7 +103,7 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 		$payBoxResponse->setResponseCode(!empty($request['response_code']) ? urldecode($request['response_code']) : null);
 		$payBoxResponse->setCallNumber(!empty($request['call_nb']) ? urldecode($request['call_nb']) : null);
 		$payBoxResponse->setTransactionNumber(!empty($request['transact_nb']) ? urldecode($request['transact_nb']) : null);
-		$payBoxResponse->setAuthorizationNumber(!empty($request['authorizt_nb']) ? urldecode($request['authorizt_nb']) : null);
+		$payBoxResponse->setAuthorisationNumber(!empty($request['authorizt_nb']) ? urldecode($request['authorizt_nb']) : null);
 
 		if (!empty($request['card_ref'])) {
 			// card_ref contient la chaine suivante : "abc123abc12  2206  ---" (la premiere partie correspond au token de la carte, à utiliser pour débiter la carte ultérieurement)
@@ -140,6 +140,11 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	public function getOrderReference(): ?string
 	{
 		return $this->reference;
+	}
+
+	public function getCardReference(): ?string
+	{
+		return $this->cardHash;
 	}
 
 
@@ -210,7 +215,7 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	/**
 	 * @return string|null
 	 */
-	public function getAuthorizationNumber(): ?string
+	public function getAuthorisationNumber(): ?string
 	{
 		return $this->authorizationNumber ?? null;
 	}
@@ -218,7 +223,7 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	/**
 	 * @param string|null $authorizationNumber
 	 */
-	public function setAuthorizationNumber(?string $authorizationNumber): void
+	public function setAuthorisationNumber(?string $authorizationNumber): void
 	{
 		$this->authorizationNumber = $authorizationNumber;
 	}
@@ -349,6 +354,25 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	public function set3DSecureVersion(?int $_3DSecureVersion): void
 	{
 		$this->_3DSecureVersion = $_3DSecureVersion;
+	}
+
+
+	// DEPRECATED
+
+	/**
+	 * @deprecated
+	 */
+	public function getAuthorizationNumber(): ?string
+	{
+		return $this->authorizationNumber ?? null;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function setAuthorizationNumber(?string $authorizationNumber): void
+	{
+		$this->authorizationNumber = $authorizationNumber;
 	}
 
 }
