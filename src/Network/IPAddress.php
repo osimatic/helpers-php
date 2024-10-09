@@ -96,6 +96,9 @@ class IPAddress
 	{
 		$api = new \Osimatic\Network\Incolumitas($this->logger);
 		$result = $api->getIpInfos($ipAddress);
+		if (null === $result) {
+			return false;
+		}
 		return \Osimatic\Network\Incolumitas::isVpn($result);
 	}
 
