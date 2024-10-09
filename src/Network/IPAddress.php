@@ -2,8 +2,26 @@
 
 namespace Osimatic\Network;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 class IPAddress
 {
+	public function __construct(
+		private LoggerInterface $logger=new NullLogger(),
+	) {}
+
+	/**
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
+	{
+		$this->logger = $logger;
+
+		return $this;
+	}
+
 	// ========== Vérification ==========
 
 	/**
@@ -66,6 +84,19 @@ class IPAddress
 
 		[$rangeStartIp, $rangeEndIp] = explode($rangeSeparator, $ipAddressRange);
 		return self::checkIpV6(trim($rangeStartIp)) && self::checkIpV6(trim($rangeEndIp));
+	}
+
+	// ========== Infos sur adresses IP ==========
+
+	/**
+	 * @param string $ipAddress
+	 * @return bool
+	 */
+	public function isVpn(string $ipAddress): bool
+	{
+		$api = new \Osimatic\Network\Incolumitas($this->logger);
+		$result = $api->getIpInfos($ipAddress);
+		return \Osimatic\Network\Incolumitas::isVpn($result);
 	}
 
 	// ========== Plages d'adresses IP ==========
