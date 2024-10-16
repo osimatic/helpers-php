@@ -67,7 +67,6 @@ class OutgoingCall
 	{
 		$phoneNumber = PhoneNumber::parse(trim($phoneNumber));
 		if (PhoneNumber::isValid($phoneNumber)) {
-			//trace('Invalid number : '.$mobileNumber);
 			$this->calledNumber = $phoneNumber;
 		}
 

@@ -12,19 +12,6 @@ class Email
 {
 	public const ATTACHMENT_FILESIZE_MAX = 2000000; // 2 Mo
 
-	public const CONTENT_TYPE_PLAINTEXT = 'text/plain';
-	public const CONTENT_TYPE_TEXT_CALENDAR = 'text/calendar';
-	public const CONTENT_TYPE_TEXT_HTML = 'text/html';
-	public const CONTENT_TYPE_MULTIPART_ALTERNATIVE = 'multipart/alternative';
-	public const CONTENT_TYPE_MULTIPART_MIXED = 'multipart/mixed';
-	public const CONTENT_TYPE_MULTIPART_RELATED = 'multipart/related';
-
-	public const ENCODING_7BIT = '7bit';
-	public const ENCODING_8BIT = '8bit';
-	public const ENCODING_BASE64 = 'base64';
-	public const ENCODING_BINARY = 'binary';
-	public const ENCODING_QUOTED_PRINTABLE = 'quoted-printable';
-
 	/**
 	 * The identifier property represents any kind of identifier.
 	 * @var string|null
@@ -138,22 +125,22 @@ class Email
 
 	/**
 	 * The character set of the message.
-	 * @var string
+	 * @var EmailCharset
 	 */
-	private string $charSet = 'utf-8';
+	private EmailCharset $charSet = EmailCharset::UTF8;
 
 	/**
 	 * The MIME Content-type of the message.
-	 * @var string
+	 * @var EmailContentType
 	 */
-	private string $contentType = 'text/html';
+	private EmailContentType $contentType = EmailContentType::TEXT_HTML;
 
 	/**
 	 * The message encoding.
 	 * Options: "8bit", "7bit", "binary", "base64", and "quoted-printable".
-	 * @var string
+	 * @var EmailEncoding
 	 */
-	private string $encoding = self::ENCODING_8BIT;
+	private EmailEncoding $encoding = EmailEncoding::_8BIT;
 
 	/**
 	 * The complete compiled MIME message body.
@@ -847,12 +834,11 @@ class Email
 	 * Returns false if the file could not be found or read.
 	 * @param string $path Path to the attachment.
 	 * @param string $name Overrides the attachment name.
-	 * @param string $encoding File encoding (see $Encoding).
+	 * @param EmailEncoding $encoding File encoding.
 	 * @param string $type File extension (MIME) type.
-	 * @param string $disposition Disposition to use
 	 * @return self
 	 */
-	public function addAttachment(string $path, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'attachment'): self
+	public function addAttachment(string $path, string $name = '', EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
 	{
 		if (!@is_file($path)) {
 			//error('Could not access file: '.$path);
@@ -878,10 +864,10 @@ class Email
 			0 => $path,
 			1 => $filename,
 			2 => $name,
-			3 => $encoding,
+			3 => $encoding->value,
 			4 => $type,
 			5 => false, // isStringAttachment
-			6 => $disposition,
+			6 => 'attachment', // disposition
 			7 => 0
 		];
 
@@ -894,12 +880,11 @@ class Email
 	 * such as a BLOB record from a database.
 	 * @param string $string String attachment data.
 	 * @param string $filename Name of the attachment.
-	 * @param string $encoding File encoding (see $Encoding).
+	 * @param EmailEncoding $encoding File encoding.
 	 * @param string $type File extension (MIME) type.
-	 * @param string $disposition Disposition to use
 	 * @return self
 	 */
-	public function addStringAttachment(string $string, string $filename, string $encoding = 'base64', string $type = '', string $disposition = 'attachment'): self
+	public function addStringAttachment(string $string, string $filename, EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
 	{
 		//If a MIME type is not specified, try to work it out from the file name
 		if (empty($type)) {
@@ -910,10 +895,10 @@ class Email
 			0 => $string,
 			1 => $filename,
 			2 => basename($filename),
-			3 => $encoding,
+			3 => $encoding->value,
 			4 => $type,
 			5 => true, // isStringAttachment
-			6 => $disposition,
+			6 => 'attachment', // disposition
 			7 => 0
 		);
 
@@ -930,12 +915,11 @@ class Email
 	 * @param string $path Path to the attachment.
 	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
 	 * @param string $name Overrides the attachment name.
-	 * @param string $encoding File encoding (see $Encoding).
+	 * @param EmailEncoding $encoding File encoding.
 	 * @param string $type File MIME type.
-	 * @param string $disposition Disposition to use
 	 * @return self
 	 */
-	public function addEmbeddedImage(string $path, string $cid, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'inline'): self
+	public function addEmbeddedImage(string $path, string $cid, string $name = '', EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
 	{
 		if (!@is_file($path)) {
 			//error('Could not access file: '.$path);
@@ -962,10 +946,10 @@ class Email
 			0 => $path,
 			1 => $filename,
 			2 => $name,
-			3 => $encoding,
+			3 => $encoding->value,
 			4 => $type,
 			5 => false, // isStringAttachment
-			6 => $disposition,
+			6 => 'inline', // disposition
 			7 => $cid
 		];
 
@@ -980,12 +964,11 @@ class Email
 	 * @param string $string The attachment binary data.
 	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
 	 * @param string $name
-	 * @param string $encoding File encoding (see $Encoding).
+	 * @param EmailEncoding $encoding File encoding.
 	 * @param string $type MIME type.
-	 * @param string $disposition Disposition to use
 	 * @return self
 	 */
-	public function addStringEmbeddedImage(string $string, string $cid, string $name = '', string $encoding = 'base64', string $type = '', string $disposition = 'inline'): self
+	public function addStringEmbeddedImage(string $string, string $cid, string $name = '', EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
 	{
 		//If a MIME type is not specified, try to work it out from the name
 		if (empty($type)) {
@@ -997,10 +980,10 @@ class Email
 			0 => $string,
 			1 => $name,
 			2 => $name,
-			3 => $encoding,
+			3 => $encoding->value,
 			4 => $type,
 			5 => true, // isStringAttachment
-			6 => $disposition,
+			6 => 'inline', // disposition
 			7 => $cid
 		];
 
@@ -1052,7 +1035,7 @@ class Email
 	 */
 	public function isHTML(): bool
 	{
-		return $this->contentType === 'text/html';
+		return $this->contentType === EmailContentType::TEXT_HTML;
 	}
 
 	/**
@@ -1061,7 +1044,7 @@ class Email
 	 */
 	public function setHtmlFormat(): self
 	{
-		$this->contentType = 'text/html';
+		$this->contentType = EmailContentType::TEXT_HTML;
 
 		return $this;
 	}
@@ -1072,18 +1055,22 @@ class Email
 	 */
 	public function setTextFormat(): self
 	{
-		$this->contentType = 'text/plain';
+		$this->contentType = EmailContentType::PLAINTEXT;
 
 		return $this;
 	}
 
 	/**
 	 * Sets MIME type of the message.
-	 * @param string $contentType
+	 * @param EmailContentType|string $contentType
 	 * @return self
 	 */
-	public function setContentType(string $contentType): self
+	public function setContentType(EmailContentType|string $contentType): self
 	{
+		if (is_string($contentType)) {
+			$contentType = EmailContentType::tryFrom($contentType);
+		}
+
 		$this->contentType = $contentType;
 
 		return $this;
@@ -1108,20 +1095,24 @@ class Email
 
 	/**
 	 * Return the character set of the message.
-	 * @return string
+	 * @return EmailCharset
 	 */
-	public function getCharSet(): string
+	public function getCharSet(): EmailCharset
 	{
 		return $this->charSet;
 	}
 
 	/**
 	 * Sets the character set of the message.
-	 * @param string $charSet
+	 * @param EmailCharset|string $charSet
 	 * @return self
 	 */
-	public function setCharSet(string $charSet): self
+	public function setCharSet(EmailCharset|string $charSet): self
 	{
+		if (is_string($charSet)) {
+			$charSet = EmailCharset::parse($charSet);
+		}
+
 		$this->charSet = $charSet;
 
 		return $this;
