@@ -24,4 +24,17 @@ class GeographicCoordinates
 		return $cleanLatOrLng((string) $latitude).','.$cleanLatOrLng((string) $longitude);
 	}
 
+	/**
+	 * @param string|null $coordinates
+	 * @return string|null
+	 */
+	public static function parse(?string $coordinates): ?string
+	{
+		if (empty($coordinates) || 'NaN,NaN' === $coordinates) {
+			return null;
+		}
+
+		return $coordinates;
+	}
+
 }
