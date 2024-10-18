@@ -4,6 +4,7 @@ namespace Osimatic\Network;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Request;
 
 class IPAddress
 {
@@ -100,6 +101,19 @@ class IPAddress
 			return false;
 		}
 		return \Osimatic\Network\Incolumitas::isVpn($result);
+	}
+
+	/**
+	 * @param Request $request
+	 * @return string
+	 */
+	public function getFromRequest(Request $request): string
+	{
+		$ip = $request->getClientIp();
+		if (empty($ip) || 'unknown' === $ip) {
+			return $_SERVER['REMOTE_ADDR'];
+		}
+		return $ip;
 	}
 
 	// ========== Plages d'adresses IP ==========
