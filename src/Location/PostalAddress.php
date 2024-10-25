@@ -109,7 +109,7 @@ class PostalAddress
 		// caractère parfois utilisé pour le numéro de rue (exemple pour une adresse en Réunion retourné par Google Maps, coordonnées -21.0506425,55.2241411)
 		$value = str_replace('№', 'N°', $value);
 
-		return $value;
+		return \Osimatic\Text\Str::replaceAnnoyingChar($value);
 	}
 
 

@@ -24,12 +24,12 @@ class Str
 			$str = str_replace(array_keys($replacements), array_values($replacements), $str);
 		}
 		if ($replaceLowercaseChar) {
-			$str = str_replace(array_map('mb_strtolower', array_keys($replacements)), array_map('mb_strtolower', array_values($replacements)), $str);
+			$str = str_replace(array_map(mb_strtolower(...), array_keys($replacements)), array_map(mb_strtolower(...), array_values($replacements)), $str);
 		}
 		if ($replaceUppercaseChar) {
 			// Probleme de conversion des caracteres šž du à la fonction replaceListChar (cf. test StringTest::testSupprimerDiacritiques)
 			// mb_strtoupper ne met pas en majuscule ces deux caracteres, ce qui entraine leur remplacement par s et z
-			$str = str_replace(array_map('mb_strtoupper', array_keys($replacements)), array_map('mb_strtoupper', array_values($replacements)), $str);
+			$str = str_replace(array_map(mb_strtoupper(...), array_keys($replacements)), array_map(mb_strtoupper(...), array_values($replacements)), $str);
 			// $str = str_replace(mb_strtoupper($listeRemplacementChar), mb_strtoupper($lettreRemplacement), $str);
 		}
 		return $str;
@@ -50,10 +50,10 @@ class Str
 			$str = str_replace($charactersToRemove, '', $str);
 		}
 		if ($replaceLowercaseChar) {
-			$str = str_replace(array_map('mb_strtolower', array_values($charactersToRemove)), '', $str);
+			$str = str_replace(array_map(mb_strtolower(...), array_values($charactersToRemove)), '', $str);
 		}
 		if ($replaceUppercaseChar) {
-			$str = str_replace(array_map('mb_strtoupper', array_values($charactersToRemove)), '', $str);
+			$str = str_replace(array_map(mb_strtoupper(...), array_values($charactersToRemove)), '', $str);
 		}
 		return $str;
 	}
@@ -599,6 +599,138 @@ class Str
 	}
 
 	/**
+	 * @param string $str
+	 * @return string
+	 */
+	public static function replaceAnnoyingChar(string $str): string
+	{
+		$replacements = [
+			// spaces
+			"\xe2\x80\x80" => ' ', //  	-> En quad
+			"\xe2\x80\x81" => ' ', //  	-> Em quad
+			"\xe2\x80\x82" => ' ', //  	-> En space
+			"\xe2\x80\x83" => ' ', //  	-> Em space
+			"\xe2\x80\x84" => ' ', //  	-> Three-per-em space
+			"\xe2\x80\x85" => ' ', //  	-> Four-per-em space
+			"\xe2\x80\x86" => ' ', //  	-> Six-per-em space
+			"\xe2\x80\x87" => ' ', //  	-> Figure space
+			"\xe2\x80\x88" => ' ', //  	-> Punctuation space
+			"\xe2\x80\x89" => ' ', //  	-> Thin space
+			"\xe2\x80\x8a" => ' ', //  	-> Hair space
+
+			// empty
+			"\xe2\x80\x8b" => '', // ​ 	-> Zero width space
+			"\xe2\x80\x8c" => '', // ‌ 	-> Zero width non-joiner
+			"\xe2\x80\x8d" => '', // ‍ 	-> Zero width joiner
+			"\xe2\x80\x8e" => '', // ‎ 	-> Left-to-right mark
+			"\xe2\x80\x8f" => '', // Right-to-left mark -> ‏
+
+			// hyphen
+			"\xe2\x80\x90" => '-', // ‐ -> Hyphen
+			"\xe2\x80\x91" => '-', // ‑ -> Non-breaking hyphen
+			"\xe2\x80\x92" => '-', // ‒ -> Figure dash
+			"\xe2\x80\x93" => '-', // – -> En dash
+			"\xe2\x80\x94" => '-', // — -> Em dash
+			"\xe2\x80\x95" => '-', // ― -> Horizontal bar
+
+			// others
+			"\xe2\x80\x96" => '|', // ‖ 	-> Double vertical line
+			"\xe2\x80\x97" => '_', // ‗ 	-> Double low line
+			"\xe2\x80\x98" => "'", // ‘		-> Left single quotation mark
+			"\xe2\x80\x99" => "'", // ’		-> Right single quotation mark
+			"\xe2\x80\x9a" => "'", // ‚		-> Single low-9 quotation mark
+			"\xe2\x80\x9b" => "'", // ‛		-> Single high-reversed-9 quotation mark
+			"\xe2\x80\x9c" => '"', // “		-> Left double quotation mark
+			"\xe2\x80\x9d" => '"', // ”		-> Right double quotation mark
+			"\xe2\x80\x9e" => '"', // „		-> Double low-9 quotation mark
+			"\xe2\x80\x9f" => '"', // ‟		-> Double high-reversed-9 quotation mark
+			"\xe2\x80\xa0" => '', // †		-> Dagger
+			"\xe2\x80\xa1" => '', // ‡		-> Double dagger
+			"\xe2\x80\xa2" => '.', // •		-> Bullet
+			"\xe2\x80\xa3" => '.', // ‣		-> Triangular bullet
+			"\xe2\x80\xa4" => '.', // ․		-> One dot leader
+			"\xe2\x80\xa5" => '.', // ‥		-> Two dot leader
+			"\xe2\x80\xa6" => '...', // …	-> Horizontal ellipsis
+			"\xe2\x80\xa7" => '.', // ‧		-> Hyphenation point
+
+			"\xe2\x80\xa8" => ' ', //  	-> Line separator
+			"\xe2\x80\xa9" => ' ', //  	-> Paragraph separator
+			"\xe2\x80\xaa" => ' ', // ‪	-> Left-to-right embedding
+			"\xe2\x80\xab" => ' ', // ‫	-> Right-to-left embedding
+			"\xe2\x80\xac" => ' ', // ‬	-> Pop directional formatting
+			"\xe2\x80\xad" => ' ', // ‭	-> Left-to-right override
+			"\xe2\x80\xae" => ' ', // ‮	-> Right-to-left override
+			"\xe2\x80\xaf" => ' ', //  	-> Narrow no-break space
+
+			"\xe2\x80\xb2" => "'", // ′		-> Prime
+			"\xe2\x80\xb3" => '"', // ″		-> Double prime
+			"\xe2\x80\xb4" => '"', // ‴		-> Triple prime
+			"\xe2\x80\xb5" => "'", // ‵		-> Reversed prime
+			"\xe2\x80\xb6" => '"', // ‶		-> Reversed double prime
+			"\xe2\x80\xb7" => '"', // ‷		-> Reversed triple prime
+			"\xe2\x80\xb8" => '', // ‸		-> Caret
+			"\xe2\x80\xb9" => '<', // ‹		-> Single left-pointing angle quotation mark
+			"\xe2\x80\xba" => '>', // ›		-> Single right-pointing angle quotation mark
+			"\xe2\x80\xbb" => '*', // ※	-> Reference mark
+			"\xe2\x80\xbc" => '!!', // ‼	-> Double exclamation mark
+			"\xe2\x80\xbd" => '', // ‽		-> Interrobang
+			"\xe2\x80\xbe" => '', // ‾		-> Overline
+			"\xe2\x80\xbf" => '', // ‿		-> Undertie
+			"\xe2\x81\x80" => '', // ⁀		-> Character tie
+			"\xe2\x81\x81" => '', // ⁁		-> Caret insertion point
+			"\xe2\x81\x82" => '*', // ⁂	-> Asterism
+			"\xe2\x81\x83" => '-', // ⁃		-> Hyphen bullet
+			"\xe2\x81\x84" => '/', // ⁄		-> Fraction slash
+			"\xe2\x81\x85" => '', // ⁅		-> Left square bracket with quill
+			"\xe2\x81\x86" => '', // ⁆		-> Right square bracket with quill
+			"\xe2\x81\x87" => '??', // ⁇	-> Double question mark
+			"\xe2\x81\x88" => '?!', // ⁈	-> Question exclamation mark
+			"\xe2\x81\x89" => '!?', // ⁉	-> Exclamation question mark
+			"\xe2\x81\x8a" => '', // ⁊		-> Tironian sign et
+			"\xe2\x81\x8b" => '', // ⁋		-> Reversed pilcrow sign
+			"\xe2\x81\x8c" => '.', // ⁌		-> Black leftwards bullet
+			"\xe2\x81\x8d" => '.', // ⁍		-> Black rightwards bullet
+			"\xe2\x81\x8e" => '*', // ⁎		-> Low asterisk
+			"\xe2\x81\x8f" => ';', // ⁏		-> Reversed semicolon
+			"\xe2\x81\x90" => '', // ⁐		-> Close up
+			"\xe2\x81\x91" => '*', // ⁑		-> Two asterisks aligned vertically
+			"\xe2\x81\x92" => '', // ⁒		-> Commercial minus sign
+			"\xe2\x81\x93" => '', // ⁓		-> Swung dash
+			"\xe2\x81\x94" => '', // ⁔		-> Inverted undertie
+			"\xe2\x81\x95" => '', // ⁕		-> Flower punctuation mark
+			"\xe2\x81\x96" => '', // ⁖		-> Three dot punctuation
+			"\xe2\x81\x97" => '', // ⁗		-> Quadruple prime
+			"\xe2\x81\x98" => '', // ⁘		-> Four dot punctuation
+			"\xe2\x81\x99" => '', // ⁙		-> Five dot punctuation
+			"\xe2\x81\x9a" => '', // ⁚		-> Two dot punctuation
+			"\xe2\x81\x9b" => '', // ⁛		-> Four dot mark
+			"\xe2\x81\x9c" => '', // ⁜		-> Dotted cross
+			"\xe2\x81\x9d" => '', // ⁝		-> Tricolon
+			"\xe2\x81\x9e" => '', // ⁞		-> Vertical four dots
+
+			"\xe2\x81\x9f" => ' ', //  	-> Medium mathematical space
+			"\xe2\x81\xa0" => '', // ⁠		-> Word joiner
+			"\xe2\x81\xa1" => '', // ⁡	-> Function application
+			"\xe2\x81\xa2" => '', // ⁢		-> Invisible times
+			"\xe2\x81\xa3" => '', // ⁣		-> Invisible separatoR
+			"\xe2\x81\xa4" => '', // ⁤		-> Invisible plus
+			"\xe2\x81\xa5" => '', // ⁥		->
+			"\xe2\x81\xa6" => '', // ⁦	-> Left-to-right isolate
+			"\xe2\x81\xa7" => '', // ⁧	-> Right-to-left isolate
+			"\xe2\x81\xa8" => '', // ⁨	-> First strong isolate
+			"\xe2\x81\xa9" => '', // ⁩	-> Pop directional isolate
+			"\xe2\x81\xaa" => '', // ⁪	-> Inhibit symmetric swapping
+			"\xe2\x81\xab" => '', // ⁫	-> Activate symmetric swapping
+			"\xe2\x81\xac" => '', // ⁬	-> Inhibit arabic form shaping
+			"\xe2\x81\xad" => '', // ⁭	-> Activate arabic form shaping
+			"\xe2\x81\xae" => '', // ⁮	-> National digit shapes
+			"\xe2\x81\xaf" => '', // ⁯	-> Nominal digit shapes
+		];
+
+		return str_replace(array_keys($replacements), array_values($replacements), $str);
+	}
+
+	/**
 	 * Reduces multiple instances of a particular character.  Example:
 	 * Fred, Bill,, Joe, Jimmy becomes: Fred, Bill, Joe, Jimmy
 	 * @param string $str
@@ -606,7 +738,7 @@ class Str
 	 * @param bool $trim true/false - whether to trim the character from the beginning/end
 	 * @return string
 	 */
-	public static function reduceMultiples(string $str, string $character=',', $trim=false): string
+	public static function reduceMultiples(string $str, string $character=',', bool $trim=false): string
 	{
 		$str = preg_replace('#'.preg_quote($character, '#').'{2,}#', $character, $str);
 		if ($trim === true) {

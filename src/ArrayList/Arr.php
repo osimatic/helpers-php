@@ -140,7 +140,7 @@ class Arr
 	 */
 	public static function in_array_i(mixed $needle, array $haystack, bool $strict=false): bool
 	{
-		return in_array(strtolower($needle), array_map('mb_strtolower', $haystack), $strict);
+		return in_array(mb_strtolower($needle), array_map(mb_strtolower(...), $haystack), $strict);
 	}
 
 	/**

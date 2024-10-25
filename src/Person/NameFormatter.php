@@ -82,7 +82,7 @@ class NameFormatter
 		//$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
 		foreach (['-', '\''] as $delimiter) {
 			if (str_contains($string, $delimiter)) {
-				$string = implode($delimiter, array_map('ucfirst', explode($delimiter, $string)));
+				$string = implode($delimiter, array_map(mb_ucfirst(...), explode($delimiter, $string)));
 				//$string = implode($delimiter, array_map(function($value) {
 				//	return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
 				//}, explode($delimiter, $string)));
