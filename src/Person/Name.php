@@ -15,10 +15,10 @@ class Name
 	// ========== Vérification ==========
 
 	/**
-	 * @param string $value
+	 * @param string|int|null $value
 	 * @return bool
 	 */
-	public static function checkCivility($value): bool
+	public static function checkCivility(string|int|null $value): bool
 	{
 		return preg_match('/[0-2]/', $value);
 	}

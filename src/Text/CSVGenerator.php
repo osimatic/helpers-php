@@ -44,8 +44,14 @@ class CSVGenerator
 		$str = $serializer->encode($data, 'csv');
 		$str = substr($str, strpos($str, "\n")+strlen("\n"));
 		$str = chr(0xEF).chr(0xBB).chr(0xBF).$str; // UTF-8 BOM pour forcer l'UTF8 sur Excel
-		file_put_contents($filePath, $str, FILE_APPEND);
+		$nbBytes = file_put_contents($filePath, $str, FILE_APPEND);
 
+		if (false === $nbBytes) {
+			$this->logger->error('Error writing CSV file: '.$filePath);
+			return false;
+		}
+
+		$this->logger->info('New CSV file generated: '.$filePath.'. Nb bytes: '.$nbBytes);
 		return true;
 	}
 }

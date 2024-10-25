@@ -68,9 +68,12 @@ class Date
 	 */
 	public static function getMonthName(int $month, ?string $locale=null): string
 	{
-		return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
-			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'MMMM')->format(new \DateTime('2020-'.sprintf('%02d', $month).'-15 00:00:00')));
+		try {
+			return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
+				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMMM')->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')));
+		} catch (\Exception) {}
 		//return ucfirst(strftime('%B', mktime(0, 0, 0, $month)));
+		return '';
 	}
 
 	/**

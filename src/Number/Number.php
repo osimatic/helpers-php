@@ -129,7 +129,7 @@ class Number
 	 * @param bool $positiveAllowed
 	 * @return bool
 	 */
-	public static function checkFloat($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	public static function checkFloat(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		$str = self::clean((string) $str);
 
@@ -151,7 +151,7 @@ class Number
 	 * @param bool $positiveAllowed
 	 * @return bool
 	 */
-	public static function checkInt($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	public static function checkInt(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		$str = self::clean((string) $str, false);
 
@@ -172,7 +172,7 @@ class Number
 	 * @param bool $positiveAllowed
 	 * @return bool
 	 */
-	private static function check($str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	private static function check(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		// négatif interdit
 		if (false === $negativeAllowed && str_contains($str, '-')) {
@@ -260,19 +260,19 @@ class Number
 	// ========== Type / Composition d'un nombre ==========
 
 	/**
-	 * @param int|float $val
+	 * @param float|int $val
 	 * @return bool
 	 */
-	public static function isInteger($val): bool
+	public static function isInteger(float|int $val): bool
 	{
 		return ($val - round($val) === 0);
 	}
 
 	/**
-	 * @param int|float $val
+	 * @param float|int $val
 	 * @return bool
 	 */
-	public static function isFloat($val): bool
+	public static function isFloat(float|int $val): bool
 	{
 		return ($val - round($val) !== 0);
 	}
@@ -330,10 +330,10 @@ class Number
 	}
 
 	/**
-	 * @param int|float $number
+	 * @param float|int $number
 	 * @return bool
 	 */
-	public static function checkLuhn($number): bool
+	public static function checkLuhn(float|int $number): bool
 	{
 		$somme = 0;
 		$strNumber = (string) $number;

@@ -10,7 +10,7 @@ use Osimatic\FileSystem\File;
  */
 class Email
 {
-	public const ATTACHMENT_FILESIZE_MAX = 2000000; // 2 Mo
+	public const int ATTACHMENT_FILESIZE_MAX = 2000000; // 2 Mo
 
 	/**
 	 * The identifier property represents any kind of identifier.

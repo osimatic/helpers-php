@@ -123,9 +123,9 @@ class Arr
 
 	/**
 	 * @param array $array
-	 * @return mixed depends on what the array contains
+	 * @return string|int depends on what the array contains
 	 */
-	public static function getRandomKey(array $array): mixed
+	public static function getRandomKey(array $array): string|int
 	{
 		$keys = array_keys($array);
 		return $keys[mt_rand(0, count($keys) - 1)];

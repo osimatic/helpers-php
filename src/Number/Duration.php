@@ -166,7 +166,7 @@ class Duration
 	 * @param int $secondPos
 	 * @return bool
 	 */
-	public static function check($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
+	public static function check(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
 		return (null !== self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos));
 	}
@@ -182,7 +182,7 @@ class Duration
 	 * @param int $secondPos
 	 * @return int
 	 */
-	public static function parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): int
+	public static function parse(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): int
 	{
 		if (null !== ($duration = self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos))) {
 			return $duration;
@@ -198,7 +198,7 @@ class Duration
 	 * @param int $secondPos
 	 * @return int|null
 	 */
-	private static function _parse($enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?int
+	private static function _parse(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?int
 	{
 		if (preg_match("/^-?[0-9]{0,10}$/", $enteredDuration)) {
 			return (int) $enteredDuration;

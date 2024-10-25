@@ -14,11 +14,11 @@ class Event
 	 */
 	public static function getOrganizerName(EventInterface $event): ?string
 	{
-		if (null !== $event->getOrganizer()) {
-			$event->getOrganizer()->getFormattedName();
+		if (null !== ($organizer = $event->getOrganizer())) {
+			return \Osimatic\Person\Name::getFormattedName($organizer->getGender(), $organizer->getGivenName(), $organizer->getFamilyName());
 		}
 		if (null !== $event->getOrganizingOrganization()) {
-			$event->getOrganizingOrganization()->getLegalName();
+			return $event->getOrganizingOrganization()->getLegalName();
 		}
 		return null;
 	}
@@ -30,10 +30,10 @@ class Event
 	public static function getOrganizerEmail(EventInterface $event): ?string
 	{
 		if (null !== $event->getOrganizer()) {
-			$event->getOrganizer()->getEmail();
+			return $event->getOrganizer()->getEmail();
 		}
 		if (null !== $event->getOrganizingOrganization()) {
-			$event->getOrganizingOrganization()->getEmail();
+			return $event->getOrganizingOrganization()->getEmail();
 		}
 		return null;
 	}

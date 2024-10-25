@@ -19,18 +19,15 @@ class MultidimensionalArray
 	public static function count(array $array): int
 	{
 		$count = 0;
-		if (is_array($array)) {
-			foreach ($array as $subArray) {
-				if (!is_array($subArray)) {
-					$count++;
-				}
-				else {
-					$count = ($count + self::count($subArray));
-				}
+		foreach ($array as $subArray) {
+			if (!is_array($subArray)) {
+				$count++;
 			}
-			return $count;
+			else {
+				$count = ($count + self::count($subArray));
+			}
 		}
-		return false;
+		return $count;
 	}
 
 
@@ -123,7 +120,7 @@ class MultidimensionalArray
 	 * @param bool $strict Le troisième paramètre strict est optionnel. S'il vaut TRUE alors in_array() vérifiera aussi que le type du paramètre needle correspond au type de la valeur trouvée dans haystack.
 	 * @return bool Retourne TRUE si needle est trouvé dans le tableau, FALSE sinon.
 	 */
-	public static function inArrayRecursive($needle, array $haystack, bool $strict = false): bool
+	public static function inArrayRecursive(mixed $needle, array $haystack, bool $strict = false): bool
 	{
 		foreach ($haystack as $item) {
 			if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && self::inArrayRecursive($needle, $item, $strict))) {
@@ -157,11 +154,8 @@ class MultidimensionalArray
 			return;
 		}
 
-		if (!is_array($listColumnSorting)) {
-			$listColumnSorting = array(array($listColumnSorting));
-		}
-		elseif (isset($listColumnSorting[0]) && !is_array($listColumnSorting[0])) {
-			$listColumnSorting = array($listColumnSorting);
+		if (isset($listColumnSorting[0]) && !is_array($listColumnSorting[0])) {
+			$listColumnSorting = [$listColumnSorting];
 		}
 
 		self::$sortListColumnSorting = $listColumnSorting;
@@ -204,7 +198,7 @@ class MultidimensionalArray
 		return $cmp;
 	}
 
-	private static function compareValue($val1, $val2, $ordreNaturel=false, $caseSensitive=false): int
+	private static function compareValue($val1, $val2, bool $ordreNaturel=false, bool $caseSensitive=false): int
 	{
 		if (is_numeric($val1) && is_numeric($val2)) {
 			return $val1 <=> $val2;
@@ -226,17 +220,12 @@ class MultidimensionalArray
 	/**
 	 * @param array $array
 	 * @param int $sort_flags
-	 * @return bool
 	 */
-	public static function ksortRecursive(array &$array, int $sort_flags = SORT_REGULAR): bool
+	public static function ksortRecursive(array &$array, int $sort_flags = SORT_REGULAR): void
 	{
-		if (!is_array($array)) {
-			return false;
-		}
 		ksort($array, $sort_flags);
 		foreach ($array as &$arr) {
 			self::ksortRecursive($arr, $sort_flags);
 		}
-		return true;
 	}
 }

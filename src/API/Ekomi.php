@@ -60,10 +60,10 @@ class Ekomi
 	}
 
 	/**
-	 * @param $orderId
+	 * @param string|int $orderId
 	 * @return string|null
 	 */
-	public function getFeedbackLink($orderId): ?string
+	public function getFeedbackLink(string|int $orderId): ?string
 	{
 		$result = $this->executeRequest(self::URL.'putOrder?order_id='.$orderId);
 
@@ -83,7 +83,7 @@ class Ekomi
 	 * @param string $range
 	 * @return array|null
 	 */
-	public function getListFeedback($range='all'): ?array
+	public function getListFeedback(string $range='all'): ?array
 	{
 		$result = $this->executeRequest(self::URL.'getFeedback?range='.$range);
 

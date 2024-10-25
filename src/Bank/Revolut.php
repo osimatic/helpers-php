@@ -45,6 +45,17 @@ class Revolut
 	}
 
 	/**
+	 * @param string $publicKey
+	 * @return self
+	 */
+	public function setPublicKey(string $publicKey): self
+	{
+		$this->publicKey = $publicKey;
+
+		return $this;
+	}
+
+	/**
 	 * @param string $secretKey
 	 * @return self
 	 */

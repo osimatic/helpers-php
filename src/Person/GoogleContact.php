@@ -44,6 +44,17 @@ class GoogleContact
 	}
 
 	/**
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
+	{
+		$this->logger = $logger;
+
+		return $this;
+	}
+
+	/**
 	 * @param string $clientId
 	 * @return self
 	 */
