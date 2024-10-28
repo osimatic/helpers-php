@@ -38,6 +38,22 @@ class FormService
 	}
 
 	/**
+	 * @param string $enum
+	 * @param string|null $value
+	 * @param int $caseType CASE_LOWER or CASE_UPPER
+	 * @return \BackedEnum|null
+	 */
+	public static function parseEnum(string $enum, ?string $value, int $caseType=CASE_UPPER): ?\BackedEnum
+	{
+		if (null === $value) {
+			return null;
+		}
+
+		$value = CASE_LOWER === $caseType ? mb_strtolower($value) : mb_strtoupper($value);
+		return $enum::tryFrom($value); // @phpstan-ignore
+	}
+
+	/**
 	 * @param mixed $array
 	 * @param string $className
 	 * @param array|null $allowedValues
