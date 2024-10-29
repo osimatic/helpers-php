@@ -82,7 +82,7 @@ class EmailSender implements EmailSenderInterface
 		//];
 
 		try {
-			$mail->CharSet = $email->getCharSet();
+			$mail->CharSet = $email->getCharSet()->value;
 			$mail->setFrom($email->getFromEmailAddress(), $email->getFromName());
 			foreach ($email->getReplyTo() as $replyTo) {
 				$replyTo = is_array($replyTo) ? $replyTo : [$replyTo];
