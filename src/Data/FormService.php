@@ -106,9 +106,10 @@ class FormService
 	 * @param bool $translateMessages
 	 * @param bool $returnErrorMessageOnly
 	 * @param TranslatorInterface|null $translator
+	 * @param string|null $translatorDomain
 	 * @return string[]
 	 */
-	public static function getErrorMessages(?ConstraintViolationListInterface $entityErrors, ?array $otherErrors=null, bool $translateMessages=true, bool $returnErrorMessageOnly=true, ?TranslatorInterface $translator=null): array
+	public static function getErrorMessages(?ConstraintViolationListInterface $entityErrors, ?array $otherErrors=null, bool $translateMessages=true, bool $returnErrorMessageOnly=true, ?TranslatorInterface $translator=null, ?string $translatorDomain='validators'): array
 	{
 		$errorMessages = [];
 
@@ -127,7 +128,7 @@ class FormService
 
 				if ($translateMessages && null !== $translator) {
 					$parameters = is_array($error) ? $error[1] ?? [] : [];
-					$errorMessage = $translator->trans($errorKey, $parameters, 'validators');
+					$errorMessage = $translator->trans($errorKey, $parameters, $translatorDomain);
 				}
 
 				$errorMessages[$key] = $returnErrorMessageOnly ? $errorMessage : [$errorKey, $errorMessage];
