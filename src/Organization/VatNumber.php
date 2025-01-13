@@ -2,6 +2,9 @@
 
 namespace Osimatic\Organization;
 
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
+
 class VatNumber
 {
 	/**
@@ -16,14 +19,16 @@ class VatNumber
 
 	/**
 	 * @param string $vatNumber
+	 * @param bool $checkValidity
 	 * @return bool
 	 */
-	public static function check(string $vatNumber): bool
+	public static function check(string $vatNumber, bool $checkValidity=true): bool
 	{
 		if (empty($vatNumber)) {
 			return false;
 		}
 
+		$originalVatNumber = $vatNumber;
 		$countryCode = substr($vatNumber, 0, 2);
 		$vatNumber = substr($vatNumber, 2);
 
@@ -58,6 +63,18 @@ class VatNumber
 		}
 
 		// Vérification de la validité
+		if ($checkValidity) {
+			return self::checkValidity($originalVatNumber);
+		}
+
+		return true;
+	}
+
+	public static function checkValidity(string $vatNumber): bool
+	{
+		$countryCode = substr($vatNumber, 0, 2);
+		$vatNumber = substr($vatNumber, 2);
+
 		try {
 			$client = new \SoapClient('http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl');
 			$response = $client->checkVat(['countryCode' => $countryCode, 'vatNumber' => $vatNumber]);
@@ -68,7 +85,25 @@ class VatNumber
 		catch (\SoapFault $e) {
 			return false;
 		}
-
 		return true;
+
+		/*
+		// Méthode API REST : non activé car pose pb de requete concurrente et renvoie de false au lieu de true 3 fois sur 4
+		$url = 'https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number';
+		$body = [
+			'countryCode' => $countryCode,
+			'vatNumber' => $vatNumber,
+		];
+
+		$httpClient = new HTTPClient();
+		$json = $httpClient->jsonRequest(HTTPMethod::POST, $url, $body, [], true);
+		if (null === $json) {
+			return false;
+		}
+
+		return $json['valid'] ?? false;
+		*/
 	}
+
+
 }

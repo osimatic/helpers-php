@@ -155,6 +155,22 @@ class Arr
 	}
 
 	/**
+	 * Search an array using a user-defined function
+	 * @param array $arr
+	 * @param callable $func
+	 * @return string|int|false
+	 */
+	public static function array_search_func(array $arr, callable $func): string|int|false
+	{
+		foreach ($arr as $key => $v) {
+			if ($func($v)) {
+				return $key;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @param array $values
 	 * @param string $enumClassName
 	 * @return array
