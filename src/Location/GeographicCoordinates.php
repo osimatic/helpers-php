@@ -34,7 +34,8 @@ class GeographicCoordinates
 			return null;
 		}
 
-		return $coordinates;
+		$coordinatesComponents = array_map(trim(...), explode(',', $coordinates));
+		return implode(',', $coordinatesComponents);
 	}
 
 }
