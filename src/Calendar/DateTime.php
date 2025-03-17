@@ -21,7 +21,7 @@ class DateTime
 	 */
 	public static function format(\DateTime $dateTime, int $dateFormatter, int $timeFormatter, ?string $locale=null): string
 	{
-		return \IntlDateFormatter::create($locale, $dateFormatter, $timeFormatter)->format($dateTime->getTimestamp());
+		return \IntlDateFormatter::create($locale, $dateFormatter, $timeFormatter)?->format($dateTime->getTimestamp()) ?? '';
 	}
 
 	/**
@@ -31,7 +31,7 @@ class DateTime
 	 */
 	public static function formatDateTime(\DateTime $dateTime, ?string $locale=null): string
 	{
-		return \IntlDateFormatter::create($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT)->format($dateTime->getTimestamp());
+		return \IntlDateFormatter::create($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT)?->format($dateTime->getTimestamp()) ?? '';
 	}
 
 	/**
@@ -42,7 +42,7 @@ class DateTime
 	 */
 	public static function formatDate(\DateTime $dateTime, ?string $locale=null, int $dateFormatter=\IntlDateFormatter::SHORT): string
 	{
-		return \IntlDateFormatter::create($locale, $dateFormatter, \IntlDateFormatter::NONE)->format($dateTime->getTimestamp());
+		return \IntlDateFormatter::create($locale, $dateFormatter, \IntlDateFormatter::NONE)?->format($dateTime->getTimestamp()) ?? '';
 	}
 
 	/**
@@ -64,7 +64,7 @@ class DateTime
 	 */
 	public static function formatTime(\DateTime $dateTime, ?string $locale=null, int $timeFormatter=\IntlDateFormatter::SHORT): string
 	{
-		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, $timeFormatter)->format($dateTime->getTimestamp());
+		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, $timeFormatter)?->format($dateTime->getTimestamp()) ?? '';
 	}
 
 
@@ -192,7 +192,7 @@ class DateTime
 	public static function parseFromTimestamp(int $timestamp): ?\DateTime
 	{
 		//return new \DateTime('@'.$timestamp);
-		return self::parseFromTimestamp(date('Y-m-d H:i:s', $timestamp));
+		return self::parseFromSqlDateTime(date('Y-m-d H:i:s', $timestamp));
 	}
 
 	/**
