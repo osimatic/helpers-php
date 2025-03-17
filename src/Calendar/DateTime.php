@@ -48,11 +48,12 @@ class DateTime
 	/**
 	 * @param \DateTime $dateTime
 	 * @param string|null $locale
+	 * @param bool $withWeekDay
 	 * @return string
 	 */
-	public static function formatDateInLong(\DateTime $dateTime, ?string $locale=null): string
+	public static function formatDateInLong(\DateTime $dateTime, ?string $locale=null, bool $withWeekDay=false): string
 	{
-		return self::formatDate($dateTime, $locale, \IntlDateFormatter::LONG);
+		return self::formatDate($dateTime, $locale, $withWeekDay ? \IntlDateFormatter::FULL : \IntlDateFormatter::LONG);
 	}
 
 	/**
