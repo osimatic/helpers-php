@@ -38,3 +38,7 @@ Version du 07/06/2024 :
 
 Version du 28/07/2024 :
 - suppression HTTPRequest::check
+
+Version du 17/03/2025 :
+- Number\Duration::formatHourChrono() -> Number\Duration::formatNbHours() avec param displayMode en enum DurationDisplayMode
+- Number\Duration::formatMinuteChrono() -> Number\Duration::formatNbMinutes() avec param displayMode en enum DurationDisplayMode

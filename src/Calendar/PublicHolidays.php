@@ -41,10 +41,7 @@ class PublicHolidays
 	{
 		if ($publicHoliday->getCalendar() === PublicHolidayCalendar::HIJRI) {
 			[, $hijriMonth, $hijriDay] = IslamicCalendar::convertGregorianDateToIslamicDate($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('d'));
-			if ($publicHoliday->getMonth() === $hijriMonth && $publicHoliday->getDay() === $hijriDay) {
-				return true;
-			}
-			return false;
+			return $publicHoliday->getMonth() === $hijriMonth && $publicHoliday->getDay() === $hijriDay;
 		}
 
 		if (date('Y-m-d', $publicHoliday->getTimestamp()) === $dateTime->format('Y-m-d')) {
@@ -67,8 +64,8 @@ class PublicHolidays
 	 */
 	public static function getList(string $country, int $year, array $options=[]): array
 	{
-		$list = \Osimatic\ArrayList\Arr::collection_array_unique(self::getListOfCountry($country, $year, $options), fn(PublicHoliday $publicHoliday) => $publicHoliday->getKey());
-		usort($list, fn(PublicHoliday $publicHoliday1, PublicHoliday $publicHoliday2) => $publicHoliday1->getTimestamp() <=> $publicHoliday2->getTimestamp());
+		$list = \Osimatic\ArrayList\Arr::collection_array_unique(self::getListOfCountry($country, $year, $options), static fn(PublicHoliday $publicHoliday) => $publicHoliday->getKey());
+		usort($list, static fn(PublicHoliday $publicHoliday1, PublicHoliday $publicHoliday2) => $publicHoliday1->getTimestamp() <=> $publicHoliday2->getTimestamp());
 		return $list;
 	}
 

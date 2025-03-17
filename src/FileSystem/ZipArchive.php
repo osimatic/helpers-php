@@ -88,8 +88,8 @@ class ZipArchive
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);
 		foreach ($files as $outputFile) {
-			if (null !== ($filePath = $outputFile->getFilePath()) && file_exists($filePath)) {
-				$zip->addFile($filePath, $outputFile->getFileName() ?? basename($filePath));
+			if (null !== ($currentFilePath = $outputFile->getFilePath()) && file_exists($currentFilePath)) {
+				$zip->addFile($currentFilePath, $outputFile->getFileName() ?? basename($currentFilePath));
 			}
 		}
 		$zip->close();
@@ -106,8 +106,8 @@ class ZipArchive
 
 		$zip = new \ZipArchive();
 		$zip->open($filePath, \ZipArchive::CREATE);
-		foreach ($contentFiles as $filenamr => $content) {
-			$zip->addFromString($filenamr, $content);
+		foreach ($contentFiles as $filename => $content) {
+			$zip->addFromString($filename, $content);
 		}
 		$zip->close();
 	}

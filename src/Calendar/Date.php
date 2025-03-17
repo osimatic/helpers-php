@@ -52,7 +52,7 @@ class Date
 	{
 		$timestamp = strtotime('monday this week')+(($dayOfWeek-1)*3600*24);
 		return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
-			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'EEEE')->format($timestamp));
+			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'EEEE')?->format($timestamp) ?? '');
 		//return ucfirst(strftime('%A', ($timestamp+($dayOfWeek*3600*24))));
 	}
 
@@ -70,7 +70,7 @@ class Date
 	{
 		try {
 			return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
-				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMMM')->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')));
+				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMMM')?->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')) ?? '');
 		} catch (\Exception) {}
 		//return ucfirst(strftime('%B', mktime(0, 0, 0, $month)));
 		return '';

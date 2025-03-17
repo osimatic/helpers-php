@@ -96,22 +96,22 @@ class Duration
 	/**
 	 * Formate une durée en heure pour l'affichage sous la forme "10:20.3" ou "10:20'30" (mode chronomètre), à partir d'une durée en seconde passée en paramètre.
 	 * @param int $durationInSeconds la durée en seconde à formater
-	 * @param string $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
+	 * @param DurationDisplayMode $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
 	 * @param boolean $withSecondes true pour ajouter les secondes dans la durée formatée, false pour ne pas les ajouter (true par défaut)
 	 * @return string la durée formatée pour l'affichage.
 	 */
-	public static function formatHourChrono(int $durationInSeconds, string $displayMode='standard', bool $withSecondes=true): string
+	public static function formatNbHours(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD, bool $withSecondes=true): string
 	{
 		// Heures
 		$strHeure = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
 
 		// Minutes
-		$strMinute = self::getFormattedMinutesInChrono(self::getNbMinutesRemaining($durationInSeconds), $displayMode);
+		$strMinute = self::getFormattedNbMinutes(self::getNbMinutesRemaining($durationInSeconds), $displayMode);
 
 		// Secondes
 		$strSeconde = '';
 		if ($withSecondes) {
-			$strSeconde = self::getFormattedSecondsInChrono(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
+			$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
 		}
 
 		return $strHeure.$strMinute.$strSeconde;
@@ -119,38 +119,38 @@ class Duration
 
 	/**
 	 * @param int $durationInSeconds la durée en seconde à formatter
-	 * @param string $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
+	 * @param DurationDisplayMode $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
 	 * @return string la durée formatée pour l'affichage.
 	 */
-	public static function formatMinuteChrono(int $durationInSeconds, string $displayMode='standard'): string
+	public static function formatNbMinutes(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD): string
 	{
 		// Minutes
-		$strMinute = self::getFormattedMinutesInChrono(self::getNbMinutes($durationInSeconds), $displayMode);
+		$strMinute = self::getFormattedNbMinutes(self::getNbMinutes($durationInSeconds), $displayMode);
 
 		// Secondes
-		$strSeconde = self::getFormattedSecondsInChrono(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
+		$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
 
 		return $strMinute.$strSeconde;
 	}
 
 	/**
 	 * @param int $nbMinutes
-	 * @param string $displayMode
+	 * @param DurationDisplayMode $displayMode
 	 * @return string
 	 */
-	private static function getFormattedMinutesInChrono(int $nbMinutes, string $displayMode='standard'): string
+	private static function getFormattedNbMinutes(int $nbMinutes, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD): string
 	{
-		return sprintf('%02d', $nbMinutes).($displayMode==='chrono'?'\'':'');
+		return sprintf('%02d', $nbMinutes).($displayMode===DurationDisplayMode::CHRONO?'\'':'');
 	}
 
 	/**
 	 * @param int $nbSeconds
-	 * @param string $displayMode
+	 * @param DurationDisplayMode $displayMode
 	 * @return string
 	 */
-	private static function getFormattedSecondsInChrono(int $nbSeconds, string $displayMode='standard'): string
+	private static function getFormattedNbSeconds(int $nbSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD): string
 	{
-		return ($displayMode==='input_time'?':':($displayMode!=='chrono'?'.':'')).sprintf('%02d', $nbSeconds).($displayMode==='chrono'?'"':'');
+		return ($displayMode===DurationDisplayMode::INPUT_TIME?':':($displayMode!==DurationDisplayMode::CHRONO?'.':'')).sprintf('%02d', $nbSeconds).($displayMode===DurationDisplayMode::CHRONO?'"':'');
 	}
 
 
@@ -304,4 +304,50 @@ class Duration
 		return false;
 	}
 
+
+
+
+
+
+
+
+	// ========== DEPRECATED ==========
+
+	/**
+	 * @deprecated use formatNbHours instead
+	 */
+	public static function formatHourChrono(int $durationInSeconds, string $displayMode='standard', bool $withSecondes=true): string
+	{
+		$enumDisplayMode = DurationDisplayMode::parse($displayMode) ?? DurationDisplayMode::STANDARD;
+
+		// Heures
+		$strHeure = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
+
+		// Minutes
+		$strMinute = self::getFormattedNbMinutes(self::getNbMinutesRemaining($durationInSeconds), $enumDisplayMode);
+
+		// Secondes
+		$strSeconde = '';
+		if ($withSecondes) {
+			$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
+		}
+
+		return $strHeure.$strMinute.$strSeconde;
+	}
+
+	/**
+	 * @deprecated use formatNbMinutes instead
+	 */
+	public static function formatMinuteChrono(int $durationInSeconds, string $displayMode='standard'): string
+	{
+		$enumDisplayMode = DurationDisplayMode::parse($displayMode) ?? DurationDisplayMode::STANDARD;
+
+		// Minutes
+		$strMinute = self::getFormattedNbMinutes(self::getNbMinutes($durationInSeconds), $enumDisplayMode);
+
+		// Secondes
+		$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
+
+		return $strMinute.$strSeconde;
+	}
 }
