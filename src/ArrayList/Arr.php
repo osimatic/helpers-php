@@ -211,15 +211,15 @@ class Arr
 	 */
 	public static function collection_array_unique(array $values, callable $getUniqValue): array
 	{
-		return array_filter($values, function($obj) use ($getUniqValue) {
+		return array_values(array_filter($values, static function($obj) use ($getUniqValue) {
 			static $list = [];
 			$uniqValue = $getUniqValue($obj);
-			if (in_array($uniqValue, $list)) {
+			if (in_array($uniqValue, $list, true)) {
 				return false;
 			}
 			$list[] = $uniqValue;
 			return true;
-		});
+		}));
 	}
 
 

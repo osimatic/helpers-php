@@ -10,13 +10,19 @@ class FormService
 {
 	/**
 	 * @param string|null $value
+	 * @param bool $deleteZero
 	 * @return string|null
 	 */
-	public static function trim(?string $value): ?string
+	public static function trim(?string $value, bool $deleteZero=true): ?string
 	{
 		if (null === $value) {
 			return null;
 		}
+
+		if (!$deleteZero) {
+			return trim($value, " \n\r\t\v");
+		}
+
 		return trim($value);
 	}
 
