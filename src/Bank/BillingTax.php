@@ -11,7 +11,7 @@ class BillingTax
 	 * @param string $billingCountry
 	 * @return float
 	 */
-	public static function getBillingTaxRate(?string $country, ?string $zipCode, ?string $vatNumber, string $billingCountry='FR'): float
+	public static function getBillingTaxRate(?string $country, ?string $zipCode=null, ?string $vatNumber=null, string $billingCountry='FR'): float
 	{
 		if (empty($country)) {
 			$country = $billingCountry;

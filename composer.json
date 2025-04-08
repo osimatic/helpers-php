@@ -13,6 +13,7 @@
 	  	"ext-curl": "*",
 	  	"ext-json": "*",
 		"ext-calendar": "*",
+		"ext-ftp": "*",
 	  	"psr/log": "*",
 	  	"psr/http-message": "*",
 	  	"giggsey/libphonenumber-for-php": "^8",
@@ -33,7 +34,7 @@
 		"minishlink/web-push": "^8.0",
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3.4"
-	},
+    },
 	"license": "mit",
 	"authors": [
 		{
