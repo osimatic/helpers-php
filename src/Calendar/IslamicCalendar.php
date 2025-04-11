@@ -16,13 +16,13 @@ class IslamicCalendar
 {
 	/**
 	 * This will return current Unix timestamp for given Hijri date (Islamic calendar)
-	 * @param integer $hijriYear  Hijri year  (Islamic calendar)
-	 * @param integer $hijriMonth Hijri month (Islamic calendar)
-	 * @param integer $hijriDay   Hijri day   (Islamic calendar)
-	 * @param integer $hour       Time hour
-	 * @param integer $minute     Time minute
-	 * @param integer $second     Time second
-	 * @return integer Returns the current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
+	 * @param int $hijriYear  Hijri year  (Islamic calendar)
+	 * @param int $hijriMonth Hijri month (Islamic calendar)
+	 * @param int $hijriDay   Hijri day   (Islamic calendar)
+	 * @param int $hour       Time hour
+	 * @param int $minute     Time minute
+	 * @param int $second     Time second
+	 * @return int Returns the current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	public static function getTimestamp(int $hijriYear, int $hijriMonth, int $hijriDay, int $hour = 0, int $minute = 0, int $second = 0): int
@@ -34,10 +34,10 @@ class IslamicCalendar
 
 	/**
 	 * This will convert given Hijri date (Islamic calendar) into Gregorian date
-	 * @param integer $year Hijri year (Islamic calendar)
-	 * @param integer $month Hijri month (Islamic calendar)
-	 * @param integer $day Hijri day (Islamic calendar)
-	 * @return array Gregorian date [int Year, int Month, int Day]
+	 * @param int $year Hijri year (Islamic calendar)
+	 * @param int $month Hijri month (Islamic calendar)
+	 * @param int $day Hijri day (Islamic calendar)
+	 * @return int[] Gregorian date [int Year, int Month, int Day]
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	public static function convertIslamicDateToGregorianDate(int $year, int $month, int $day): array
@@ -51,10 +51,10 @@ class IslamicCalendar
 
 	/**
 	 * Convert given Gregorian date into Hijri date
-	 * @param integer $year Year Gregorian year
-	 * @param integer $month Month Gregorian month
-	 * @param integer $day Day Gregorian day
-	 * @return array Hijri date [int Year, int Month, int Day](Islamic calendar)
+	 * @param int $year Year Gregorian year
+	 * @param int $month Month Gregorian month
+	 * @param int $day Day Gregorian day
+	 * @return int[] Hijri date [int Year, int Month, int Day](Islamic calendar)
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	public static function convertGregorianDateToIslamicDate(int $year, int $month, int $day): array
@@ -68,7 +68,7 @@ class IslamicCalendar
 
 	/**
 	 * Convert given timestamp into Hijri date
-	 * @param integer $timestamp
+	 * @param int $timestamp
 	 * @return array Hijri date [int Year, int Month, int Day](Islamic calendar)
 	 */
 	public static function convertTimestampToIslamicDate(int $timestamp): array
@@ -104,10 +104,10 @@ class IslamicCalendar
 
 	/**
 	 * Calculate how many days in a given Hijri month
-	 * @param integer $year      Hijri year  (Islamic calendar), valid range[1320-1459]
-	 * @param integer $month     Hijri month (Islamic calendar)
-	 * @param boolean $umAlqoura Should we implement Um-Al-Qura calendar correction in this calculation (default value is true)
-	 * @return integer Days in a given Hijri month
+	 * @param int $year      Hijri year  (Islamic calendar), valid range[1320-1459]
+	 * @param int $month     Hijri month (Islamic calendar)
+	 * @param bool $umAlqoura Should we implement Um-Al-Qura calendar correction in this calculation (default value is true)
+	 * @return int Days in a given Hijri month
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	public static function getNbDaysOfMonth(int $year, int $month, bool $umAlqoura = true): int
@@ -152,10 +152,10 @@ class IslamicCalendar
 
 	/**
 	 * Convert given Hijri date into Julian day
-	 * @param integer $y Year Hijri year
-	 * @param integer $m Month Hijri month
-	 * @param integer $d Day Hijri day
-	 * @return integer Julian day
+	 * @param int $y Year Hijri year
+	 * @param int $m Month Hijri month
+	 * @param int $d Day Hijri day
+	 * @return int Julian day
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	private static function convertIslamicDateToJd(int $y, int $m, int $d): int
@@ -165,8 +165,8 @@ class IslamicCalendar
 
 	/**
 	 * Convert given Julian day into Hijri date
-	 * @param integer $jd Julian day
-	 * @return array Hijri date [int Year, int Month, int Day](Islamic calendar)
+	 * @param int $jd Julian day
+	 * @return int[] Hijri date [int Year, int Month, int Day](Islamic calendar)
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	private static function convertJdToIslamicDate(int $jd): array
@@ -198,14 +198,14 @@ class IslamicCalendar
 
 	/**
 	 * This will return current Unix timestamp for given Hijri date (Islamic calendar)
-	 * @param integer $hour       Time hour
-	 * @param integer $minute     Time minute
-	 * @param integer $second     Time second
-	 * @param integer $hj_month   Hijri month (Islamic calendar)
-	 * @param integer $hj_day     Hijri day   (Islamic calendar)
-	 * @param integer $hj_year    Hijri year  (Islamic calendar)
-	 * @param integer $correction To apply correction factor (+/- 1-2) to standard Hijri calendar
-	 * @return integer Returns the current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
+	 * @param int $hour       Time hour
+	 * @param int $minute     Time minute
+	 * @param int $second     Time second
+	 * @param int $hj_month   Hijri month (Islamic calendar)
+	 * @param int $hj_day     Hijri day   (Islamic calendar)
+	 * @param int $hj_year    Hijri year  (Islamic calendar)
+	 * @param int $correction To apply correction factor (+/- 1-2) to standard Hijri calendar
+	 * @return int Returns the current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	private static function mktime(int $hour, int $minute, int $second, int $hj_month, int $hj_day, int $hj_year, int $correction = 0): int
@@ -220,9 +220,9 @@ class IslamicCalendar
 
 	/**
 	 * Calculate Hijri calendar correction using Um-Al-Qura calendar information
-	 * @param integer $m Hijri month (Islamic calendar)
-	 * @param integer $y Hijri year  (Islamic calendar), valid range [1420-1459]
-	 * @return integer Correction factor to fix Hijri calendar calculation using Um-Al-Qura calendar information
+	 * @param int $m Hijri month (Islamic calendar)
+	 * @param int $y Hijri year  (Islamic calendar), valid range [1420-1459]
+	 * @return int Correction factor to fix Hijri calendar calculation using Um-Al-Qura calendar information
 	 * @author Khaled Al-Sham'aa <khaled@ar-php.org>
 	 */
 	private static function getMktimeCorrection(int $m, int $y): int

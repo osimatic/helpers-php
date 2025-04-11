@@ -44,6 +44,11 @@ class PublicHolidays
 			return $publicHoliday->getMonth() === $hijriMonth && $publicHoliday->getDay() === $hijriDay;
 		}
 
+		if ($publicHoliday->getCalendar() === PublicHolidayCalendar::INDIAN) {
+			[, $indianMonth, $indianDay] = IndianCalendar::convertGregorianDateToIndianDate($dateTime->format('Y'), $dateTime->format('m'), $dateTime->format('d'));
+			return $publicHoliday->getMonth() === $indianMonth && $publicHoliday->getDay() === $indianDay;
+		}
+
 		if (date('Y-m-d', $publicHoliday->getTimestamp()) === $dateTime->format('Y-m-d')) {
 			return true;
 		}
@@ -269,6 +274,57 @@ class PublicHolidays
 				new PublicHoliday('Saint-Étienne', mktime(0, 0, 0, 12, 26, $year)),
 			];
 		}
+
+		// ---------- Île Maurice ----------
+		if ('MU' === $country) {
+			return [
+				// --- MAROC - Fêtes civiles ---
+
+				// 1er/ 2 janvier - Jour de l’an
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)),
+				new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 2, $year)),
+
+				// 1er février - Abolition de l’esclavage
+				new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 2, 1, $year)),
+
+				// 12 mars - Fête nationale (indépendance de l'île Maurice)
+				new PublicHoliday('Fête nationale', mktime(0, 0, 0, 3, 12, $year)),
+
+				// 1er mai - Fête du Travail
+				new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)),
+
+				// 1er novembre - Toussaint
+				new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)),
+
+				// 2 novembre - Arrivée des Travailleurs engagés (Hommage est rendu à l'Aapravasi Ghat aux premiers travailleurs arrivés de Calcutta en 1834 dans l'espoir d'une vie meilleure)
+				new PublicHoliday('Arrivée des Travailleurs engagés', mktime(0, 0, 0, 11, 2, $year)),
+
+				// 25 décembre - Noël
+				new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)),
+
+				// 1er chawal - Aïd el-Fitr (fin du mois de ramadan)
+				new PublicHoliday('Aïd el-Fitr', IslamicCalendar::getTimestamp($year, 10, 1), key: 'aid_el_fitr', calendar: PublicHolidayCalendar::HIJRI),
+
+				// Fête du printemps (Nouvel An chinois)
+				new PublicHoliday('Fête du printemps', 0, key: 'fete_du_printemps'),
+
+				// Thaipoosam Cavadee : Six cavadees rythment l'année tamoule mais celui du mois de thai (janvier-février) est le plus important et le seul qui donne lieu à un jour férié.
+				new PublicHoliday('Thaipoosam Cavadee', 0, key: 'thaipoosam_cavadee', calendar: PublicHolidayCalendar::INDIAN),
+
+				// Maha Shivaratree (la « grande nuit de Shiva ») : Cette fête a lieu durant le mois de phalguna dans le calendrier hindou (février-mars)
+				new PublicHoliday('Maha Shivaratree', 0, key: 'maha_shivaratree', calendar: PublicHolidayCalendar::INDIAN),
+
+				// Ugaadi (Nouvel an du calendrier hindou) - 1er chaitra dans le calendrier hindou (mars-avril)
+				new PublicHoliday('Ugaadi', IndianCalendar::getTimestamp($year, 1, 1), key: 'ugaadi', calendar: PublicHolidayCalendar::INDIAN),
+
+				// Ganesh Chaturthi (célébration de la naissance de Ganesh) - Cette fête a lieu durant le mois de bhadra dans le calendrier hindou (août-septembre)
+				new PublicHoliday('Ganesh Chaturthi', 0, key: 'ganesh_chaturthi', calendar: PublicHolidayCalendar::INDIAN),
+
+				// Divali (commémoration de la victoire du bien sur le mal) - (octobre-novembre)
+				new PublicHoliday('Divali', 0, key: 'divali', calendar: PublicHolidayCalendar::INDIAN),
+			];
+		}
+
 
 		// ---------- MAROC ----------
 		if ('MA' === $country) {

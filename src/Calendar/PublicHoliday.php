@@ -33,6 +33,10 @@ class PublicHoliday
 				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertTimestampToIslamicDate($timestamp);
 				$name .= ' ('.$hijriDay.(1 === $hijriDay ? 'er' : '').' '.\Osimatic\Calendar\IslamicCalendar::getMonthName($hijriMonth).')';
 			}
+			elseif ($calendar === PublicHolidayCalendar::INDIAN) {
+				[, $indianMonth, $indianDay] = IndianCalendar::convertTimestampToIndianDate($timestamp);
+				$name .= ' ('.$indianDay.(1 === $indianDay ? 'er' : '').' '.\Osimatic\Calendar\IndianCalendar::getMonthName($indianMonth).')';
+			}
 			else {
 				$name .= ' ('.date('d', $timestamp). (1 === ((int)date('d', $timestamp)) ? 'er' : '').' '.\Osimatic\Calendar\Date::getMonthName(date('m', $timestamp)).')';
 			}
@@ -52,6 +56,10 @@ class PublicHoliday
 			[, $hijriMonth] = IslamicCalendar::convertTimestampToIslamicDate($this->timestamp);
 			return $hijriMonth;
 		}
+		if ($this->calendar === PublicHolidayCalendar::INDIAN) {
+			[, $indianMonth] = IndianCalendar::convertTimestampToIndianDate($this->timestamp);
+			return $indianMonth;
+		}
 		return date('m', $this->timestamp);
 	}
 
@@ -60,6 +68,10 @@ class PublicHoliday
 		if ($this->calendar === PublicHolidayCalendar::HIJRI) {
 			[,,$hijriDay] = IslamicCalendar::convertTimestampToIslamicDate($this->timestamp);
 			return $hijriDay;
+		}
+		if ($this->calendar === PublicHolidayCalendar::INDIAN) {
+			[,,$indianDay] = IndianCalendar::convertTimestampToIndianDate($this->timestamp);
+			return $indianDay;
 		}
 		return date('d', $this->timestamp);
 	}

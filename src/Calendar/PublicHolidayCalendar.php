@@ -6,4 +6,5 @@ enum PublicHolidayCalendar: string
 {
 	case GREGORIAN = 'GREGORIAN';
 	case HIJRI = 'HIJRI';
+	case INDIAN = 'INDIAN';
 }

@@ -94,7 +94,7 @@ class Date
 	 */
 	public static function isLeapYear(int $year): int
 	{
-		return ((($year % 4) == 0) && ((($year % 100) != 0) || (($year %400) == 0)));
+		return ((($year % 4) === 0) && ((($year % 100) !== 0) || (($year %400) === 0)));
 	}
 
 	/**
