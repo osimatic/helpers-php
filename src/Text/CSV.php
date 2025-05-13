@@ -79,21 +79,33 @@ class CSV
 
 		$header = null;
 		$data = [];
-		if (($handle = fopen($filename, 'rb')) !== false) {
-			while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
-				if (!$header) {
-					$header = $row;
-				}
-				else {
-					$data[] = array_combine($header, $row);
-				}
-			}
-			fclose($handle);
+		if (false === ($handle = fopen($filename, 'rb'))) {
+			return null;
 		}
+
+		while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
+			if (!$header) {
+				$header = $row;
+			}
+			else {
+				$data[] = array_combine($header, $row);
+			}
+		}
+		fclose($handle);
+
 		return $data;
 	}
 
 	// ========== Divers ==========
+
+	/**
+	 * @param string|null $value
+	 * @return string
+	 */
+	public static function parseSeparator(?string $value): string
+	{
+		return ';' === $value ? ';' : ',';
+	}
 
 	/**
 	 * @param string|int|float|null $value
