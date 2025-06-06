@@ -144,7 +144,7 @@ class Arr
 	}
 
 	/**
-	 * Equivalent de la fonction in_array mais en recherchant de multiples valeurs contenu dans un tableau
+	 * Equivalent de la fonction in_array mais en recherchant de multiples valeurs contenues dans un tableau
 	 * @param array $arrayNeedle Les valeurs recherchées.
 	 * @param array $haystack Le tableau
 	 * @return bool Retourne TRUE si une des valeurs dans arrayNeedle est trouvé dans le tableau, FALSE sinon.
@@ -164,6 +164,23 @@ class Arr
 	{
 		foreach ($arr as $key => $v) {
 			if ($func($v)) {
+				return $key;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Search an array using a user-defined function
+	 * @param array $arr
+	 * @param array $values
+	 * @param bool $strict
+	 * @return string|int|false
+	 */
+	public static function array_search_values(array $arr, array $values, bool $strict=true): string|int|false
+	{
+		foreach ($values as $v) {
+			if (false !== ($key = array_search($v, $arr, $strict))) {
 				return $key;
 			}
 		}
