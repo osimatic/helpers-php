@@ -90,20 +90,6 @@ class IPAddress
 	// ========== Infos sur adresses IP ==========
 
 	/**
-	 * @param string $ipAddress
-	 * @return bool
-	 */
-	public function isVpn(string $ipAddress): bool
-	{
-		$api = new \Osimatic\Network\Incolumitas($this->logger);
-		$result = $api->getIpInfos($ipAddress);
-		if (null === $result) {
-			return false;
-		}
-		return \Osimatic\Network\Incolumitas::isVpn($result);
-	}
-
-	/**
 	 * @param Request $request
 	 * @return string
 	 */
@@ -208,5 +194,28 @@ class IPAddress
 		return false;
 	}
 
+
+
+
+
+
+
+
+	// deprecated
+
+	/**
+	 * @deprecated
+	 * @param string $ipAddress
+	 * @return bool
+	 */
+	public function isVpn(string $ipAddress): bool
+	{
+		$api = new \Osimatic\Network\Incolumitas($this->logger);
+		$result = $api->getIpInfos($ipAddress);
+		if (null === $result) {
+			return false;
+		}
+		return \Osimatic\Network\Incolumitas::isVpn($result);
+	}
 
 }

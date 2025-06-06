@@ -5,16 +5,12 @@ namespace Osimatic\Network;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-/**
- * @deprecated
- * @see https://github.com/NikolaiT/IP-Address-API
- * @see https://incolumitas.com/pages/IP-API/
- */
-class Incolumitas
+class VPNAPI
 {
 	private HTTPClient $httpClient;
 
 	public function __construct(
+		private ?string $key=null,
 		LoggerInterface $logger=new NullLogger(),
 	) {
 		$this->httpClient = new HTTPClient($logger);
@@ -32,12 +28,23 @@ class Incolumitas
 	}
 
 	/**
+	 * @param string $key
+	 * @return self
+	 */
+	public function setKey(string $key): self
+	{
+		$this->key = $key;
+
+		return $this;
+	}
+
+	/**
 	 * @param string $ipAddress
 	 * @return null|array
 	 */
 	public function getIpInfos(string $ipAddress): ?array
 	{
-		$url = 'https://api.incolumitas.com/?q='.$ipAddress;
+		$url = 'https://vpnapi.io/api/'.$ipAddress.'?key='.$this->key;
 		if (null === ($data = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
 			return null;
 		}
@@ -47,12 +54,7 @@ class Incolumitas
 
 	public static function isVpn(array $result): bool
 	{
-		return $result['is_vpn'] ?? false;
-	}
-
-	public static function getAsn(array $result): ?int
-	{
-		return $result['asn']['asn'] ?? null;
+		return $result['security']['vpn'] ?? false;
 	}
 
 	public static function getCountryCode(array $result): ?string
@@ -62,4 +64,5 @@ class Incolumitas
 		}
 		return mb_strtoupper($countryCode);
 	}
+
 }
