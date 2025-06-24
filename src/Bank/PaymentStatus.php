@@ -4,8 +4,8 @@ namespace Osimatic\Bank;
 
 enum PaymentStatus: string
 {
-	case ONGOING = 'ONGOING';
-	case WAITING = 'WAITING';
+	case ONGOING = 'CURRENT'; // ONGOING
+	case WAITING = 'VALIDATED'; // WAITING
 	case PAID = 'PAID';
 
 	public static function parse(?string $paymentStatus): ?self
