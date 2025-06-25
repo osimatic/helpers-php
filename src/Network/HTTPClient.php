@@ -74,7 +74,7 @@ class HTTPClient
 	 */
 	public function jsonRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): mixed
 	{
-		if (null === ($res = self::request($method, $url, $queryData, $headers, $jsonBody, $options))) {
+		if (null === ($res = $this->request($method, $url, $queryData, $headers, $jsonBody, $options))) {
 			return null;
 		}
 
@@ -98,7 +98,7 @@ class HTTPClient
 	 */
 	public function stringRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): ?string
 	{
-		if (null === ($res = self::request($method, $url, $queryData, $headers, $jsonBody, $options))) {
+		if (null === ($res = $this->request($method, $url, $queryData, $headers, $jsonBody, $options))) {
 			return null;
 		}
 
