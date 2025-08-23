@@ -42,3 +42,6 @@ Version du 28/07/2024 :
 Version du 17/03/2025 :
 - Number\Duration::formatHourChrono() -> Number\Duration::formatNbHours() avec param displayMode en enum DurationDisplayMode
 - Number\Duration::formatMinuteChrono() -> Number\Duration::formatNbMinutes() avec param displayMode en enum DurationDisplayMode
+
+Version du 23/08/2025 :
+- Text\Str::pluralize : inversion arguments int|float $nb / string $string (argument string maintenant en premiere position)

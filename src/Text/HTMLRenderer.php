@@ -67,7 +67,7 @@ class HTMLRenderer
 			new \Twig\TwigFilter('phone_number_national', \Osimatic\Messaging\PhoneNumber::formatNational(...)),
 			new \Twig\TwigFilter('phone_number_international', \Osimatic\Messaging\PhoneNumber::formatInternational(...)),
 			new \Twig\TwigFilter('phone_number_country_iso_code', \Osimatic\Messaging\PhoneNumber::getCountryIsoCode(...)),
-			new \Twig\TwigFilter('duration_chrono', \Osimatic\Number\Duration::formatHourChrono(...)),
+			new \Twig\TwigFilter('duration_chrono', \Osimatic\Number\Duration::formatNbHours(...)),
 			new \Twig\TwigFilter('localized_date_time', \Osimatic\Calendar\DateTime::formatFromTwig(...)),
 			new \Twig\TwigFilter('localized_date', \Osimatic\Calendar\DateTime::formatDateFromTwig(...)),
 			new \Twig\TwigFilter('localized_time', \Osimatic\Calendar\DateTime::formatTimeFromTwig(...)),

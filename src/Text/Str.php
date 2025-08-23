@@ -3,6 +3,7 @@
 namespace Osimatic\Text;
 
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Twig\Attribute\AsTwigFilter;
 
 class Str
 {
@@ -457,20 +458,21 @@ class Str
 
 	/**
 	 * Gère les singuliers/pluriels dans une chaîne de caractères en fonction d'un nombre
-	 * @param int|float $nb le nombre d'éléments qui permet de savoir si la chaîne doit être au singulier ou au pluriel (1 par défaut)
+	 * Utilisation : "{Aucun item|1 item|{#} items}"
 	 * @param string $string la chaîne de caractères à mettre au singulier ou au pluriel
+	 * @param int|float $nb le nombre d'éléments qui permet de savoir si la chaîne doit être au singulier ou au pluriel (1 par défaut)
 	 * @return string la chaîne de caractères mise au singulier ou au pluriel
-	 * @author Jay Salvat (blog.jaysalvat.com)
-	 * @link http://blog.jaysalvat.com/articles/gerer-facilement-les-singuliers-pluriels-en-php.php
+	 * @author Jay Salvat
 	 */
-	public static function pluralize(int|float $nb, string $string): string
+	#[AsTwigFilter('pluralize')]
+	public static function pluralize(string $string, int|float $nb): string
 	{
 		// remplace {#} par le chiffre
 		$string = str_replace('{#}', $nb, $string);
-		// cherche toutes les occurences de {...}
+		// cherche toutes les occurrences de {...}
 		preg_match_all("/\{(.*?)\}/", $string, $matches);
 		foreach($matches[1] as $k=>$v) {
-			// on coupe l'occurence à |
+			// on coupe l'occurrence à |
 			$part = explode('|', $v);
 			// si aucun
 			if ($nb === 0) {
@@ -484,12 +486,10 @@ class Str
 			else {
 				$mod = (count($part) === 1) ? $part[0] : ((count($part) === 2) ? $part[1] : $part[2]);
 			}
-			// remplace les occurences trouvées par le bon résultat.
+			// remplace les occurrences trouvées par le bon résultat.
 			$string = str_replace($matches[0][$k], $mod , $string);
 		}
 		return $string;
-		// retourne le résultat en y incluant éventuellement les valeurs passées
-		//return vsprintf($string, $values);
 	}
 
 	/**
