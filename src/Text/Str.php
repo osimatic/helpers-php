@@ -464,7 +464,6 @@ class Str
 	 * @return string la chaîne de caractères mise au singulier ou au pluriel
 	 * @author Jay Salvat
 	 */
-	#[AsTwigFilter('pluralize')]
 	public static function pluralize(string $string, int|float $nb): string
 	{
 		// remplace {#} par le chiffre

@@ -57,6 +57,7 @@ class HTMLRenderer
 	public static function getTwigFilters(): array
 	{
 		return [
+			new \Twig\TwigFilter('pluralize', \Osimatic\Text\Str::pluralize(...)),
 			new \Twig\TwigFilter('localized_number', \Osimatic\Number\Number::format(...)),
 			new \Twig\TwigFilter('localized_currency', \Osimatic\Bank\Currency::format(...)),
 			new \Twig\TwigFilter('localized_currency_with_code', \Osimatic\Bank\Currency::formatWithCode(...)),
