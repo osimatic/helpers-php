@@ -4,7 +4,6 @@ namespace Osimatic\Text;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Twig\TwigFunction;
 
 class HTMLRenderer
 {
@@ -88,7 +87,14 @@ class HTMLRenderer
 	public static function getTwigFunctions(): array
 	{
 		return [
-			new TwigFunction('enum', self::enum(...)),
+			new \Twig\TwigFunction('enum', self::enum(...)),
+		];
+	}
+
+	public static function getTwigTests(): array
+	{
+		return [
+			new \Twig\TwigTest('array', is_array(...)),
 		];
 	}
 
