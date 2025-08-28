@@ -31,7 +31,7 @@
 		"johngrogg/ics-parser": "^3",
 		"symfony/http-foundation": "^7.0",
 		"phpmailer/phpmailer": "^6.9",
-		"minishlink/web-push": "^8.0",
+		"minishlink/web-push": "^9.0",
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3.4",
 		"commerceguys/addressing": "^2.2"
