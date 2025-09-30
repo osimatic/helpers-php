@@ -70,9 +70,7 @@ class HTTPRange
 			$points[1] = $points[0];
 		}
 
-		$isValidRangeValue = fn (string $value): bool => ctype_digit($value) || $value === '';
-
-		if (!array_filter($points, 'ctype_digit') || array_filter($points, $isValidRangeValue) !== $points) {
+		if (!array_filter($points, ctype_digit(...)) || array_filter($points, static fn (string $value): bool => ctype_digit($value) || $value === '') !== $points) {
 			throw new \Exception('Unable to parse range: '.$range);
 		}
 

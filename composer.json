@@ -4,7 +4,7 @@
 	"homepage": "https://github.com/osimatic/helpers-php",
 	"type": "package",
 	"require": {
-		"php": "^8.3",
+		"php": "^8.4",
 		"ext-intl": "*",
 		"ext-mbstring": "*",
 		"ext-fileinfo": "*",

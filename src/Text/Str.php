@@ -341,6 +341,15 @@ class Str
 		return self::checkLength($string, $nbCharMin, $nbCharMax);
 	}
 
+	/**
+	 * @param string $string
+	 * @return bool
+	 */
+	public static function ctype_alpha_and_num(string $string): bool
+	{
+		return ctype_alnum($string) && !ctype_digit($string);
+	}
+
 	// ========== Comptage de caractère ==========
 
 	/**
@@ -575,12 +584,12 @@ class Str
 	 * Converts UNIX LF, Mac CR and Windows CRLF line breaks into a single line break format.
 	 * Defaults to CRLF (for message bodies) and preserves consecutive breaks.
 	 * @param string $text
-	 * @param string $breaktype What kind of line break to use, defaults to CRLF
+	 * @param string $breakType What kind of line break to use, defaults to CRLF
 	 * @return string
 	 */
-	public static function normalizeBreaks(string $text, string $breaktype = "\r\n"): string
+	public static function normalizeBreaks(string $text, string $breakType = "\r\n"): string
 	{
-		return preg_replace('/(\r\n|\r|\n)/ms', $breaktype, $text);
+		return preg_replace('/(\r\n|\r|\n)/ms', $breakType, $text);
 	}
 
 	/**
