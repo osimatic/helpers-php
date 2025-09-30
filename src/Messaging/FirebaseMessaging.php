@@ -73,7 +73,7 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 
 		$fields = [
 			'message' => [
-				'name' => 'projects/*/messages/'.date('YmdHis').'-'.uniqid(),
+				'name' => 'projects/*/messages/'.date('YmdHis').'-'.uniqid('', true),
 				'token' => $deviceToken,
 				'notification' => [
 					'title' => $mobilePushNotification->getTitle(),

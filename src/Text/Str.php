@@ -3,7 +3,6 @@
 namespace Osimatic\Text;
 
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use Twig\Attribute\AsTwigFilter;
 
 class Str
 {
@@ -180,7 +179,7 @@ class Str
 		if (strlen($string) > $nbCharMax) {
 			$stringTruncate = substr($string, 0, $nbCharMax);
 
-			if ($dontCutInMiddleOfWord && $string[$nbCharMax-1] != $space) {
+			if ($dontCutInMiddleOfWord && $string[$nbCharMax-1] !== $space) {
 				$posSpace = strrpos($stringTruncate, $space);
 				if ($posSpace !== false) {
 					$stringTruncate = substr($stringTruncate, 0, $posSpace);

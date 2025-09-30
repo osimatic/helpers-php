@@ -34,7 +34,7 @@ class XMLConverter
 	{
 		try {
 			$xml = Array2XML::createXML($firstTag, $array, $docType);
-			return $xml->saveXML();
+			return $xml?->saveXML();
 		}
 		catch (\Exception $e) {
 			$this->logger->error($e->getMessage());

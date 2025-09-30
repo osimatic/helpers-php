@@ -45,7 +45,7 @@ class PhoneNumber
 				return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat);
 			}
 		}
-		catch (\libphonenumber\NumberParseException $e) { }
+		catch (\libphonenumber\NumberParseException) {}
 		return $phoneNumber;
 	}
 
@@ -65,7 +65,7 @@ class PhoneNumber
 				return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::E164);
 			}
 		}
-		catch (\libphonenumber\NumberParseException $e) { }
+		catch (\libphonenumber\NumberParseException) {}
 		return $phoneNumber;
 	}
 
@@ -101,7 +101,7 @@ class PhoneNumber
 				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
 			}
 		}
-		catch (\libphonenumber\NumberParseException $e) { }
+		catch (\libphonenumber\NumberParseException) {}
 		return false;
 	}
 
@@ -122,7 +122,7 @@ class PhoneNumber
 				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
 			}
 		}
-		catch (\libphonenumber\NumberParseException $e) { }
+		catch (\libphonenumber\NumberParseException) {}
 		return false;
 	}
 
@@ -143,7 +143,7 @@ class PhoneNumber
 				return PhoneNumberType::tryFrom(\libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj));
 			}
 		}
-		catch (\libphonenumber\NumberParseException $e) { }
+		catch (\libphonenumber\NumberParseException) {}
 		return null;
 	}
 
@@ -206,7 +206,7 @@ class PhoneNumber
 				return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
 			}
 		}
-		catch (\libphonenumber\NumberParseException $e) { }
+		catch (\libphonenumber\NumberParseException) {}
 		return null;
 	}
 

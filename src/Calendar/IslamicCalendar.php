@@ -87,7 +87,7 @@ class IslamicCalendar
 		try {
 			$dateTime = new \DateTime('@'.self::getTimestamp(1400, $month, 1));
 		}
-		catch(\Exception $e) {
+		catch(\Exception) {
 			return '';
 		}
 

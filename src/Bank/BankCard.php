@@ -79,7 +79,7 @@ class BankCard
 			return Date::getMonthName((int) ($expirationDate->format('m'))).' '.$expirationDate->format('Y');
 		}
 
-		return \IntlDateFormatter::create(null, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE, null, null, 'MM/YYYY')->format($expirationDate->getTimestamp());
+		return \IntlDateFormatter::create(null, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE, null, null, 'MM/YYYY')?->format($expirationDate->getTimestamp());
 	}
 
 	/**

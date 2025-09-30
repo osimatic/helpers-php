@@ -630,7 +630,7 @@ class VCard
 					} elseif (stripos($type, 'charset=') === 0) {
 						try {
 							$value = mb_convert_encoding($value, 'UTF-8', substr($type, 8));
-						} catch (\Exception $e) { }
+						} catch (\Exception) {}
 						unset($types[$i]);
 					}
 					$i++;
@@ -878,7 +878,7 @@ class VCard
 		try {
 			return new \DateTime($value);
 		}
-		catch (\Exception $e) { }
+		catch (\Exception) {}
 		return null;
 	}
 

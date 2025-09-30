@@ -31,14 +31,14 @@ class PublicHoliday
 		if (preg_match('/((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $key) !== 0) {
 			if ($calendar === PublicHolidayCalendar::HIJRI) {
 				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertTimestampToIslamicDate($timestamp);
-				$name .= ' ('.$hijriDay.(1 === $hijriDay ? 'er' : '').' '.\Osimatic\Calendar\IslamicCalendar::getMonthName($hijriMonth).')';
+				$name .= ' ('.$hijriDay.(1 === $hijriDay ? 'er' : '').' '. IslamicCalendar::getMonthName($hijriMonth).')';
 			}
 			elseif ($calendar === PublicHolidayCalendar::INDIAN) {
 				[, $indianMonth, $indianDay] = IndianCalendar::convertTimestampToIndianDate($timestamp);
-				$name .= ' ('.$indianDay.(1 === $indianDay ? 'er' : '').' '.\Osimatic\Calendar\IndianCalendar::getMonthName($indianMonth).')';
+				$name .= ' ('.$indianDay.(1 === $indianDay ? 'er' : '').' '. IndianCalendar::getMonthName($indianMonth).')';
 			}
 			else {
-				$name .= ' ('.date('d', $timestamp). (1 === ((int)date('d', $timestamp)) ? 'er' : '').' '.\Osimatic\Calendar\Date::getMonthName(date('m', $timestamp)).')';
+				$name .= ' ('.date('d', $timestamp). (1 === ((int)date('d', $timestamp)) ? 'er' : '').' '. Date::getMonthName(date('m', $timestamp)).')';
 			}
 		}
 

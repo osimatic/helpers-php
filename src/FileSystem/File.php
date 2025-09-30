@@ -73,7 +73,7 @@ class File
 			[[""], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], // Word
 			[[""], 'application/msword'], // Word 97-2003
 			[[""], 'application/vnd.ms-xpsdocument'], // Xps
-			[["\x50\x4B\x03\x04"], \Osimatic\FileSystem\ZipArchive::MIME_TYPES[0]], // Zip
+			[["\x50\x4B\x03\x04"], ZipArchive::MIME_TYPES[0]], // Zip
 		];
 
 		foreach ($fileSignatures as [$hexList, $mimeType]) {
@@ -93,7 +93,7 @@ class File
 	 */
 	public static function getExtensionOfUploadedFile(InputFile|UploadedFile $uploadedFile): ?string
 	{
-		return is_a($uploadedFile, \Osimatic\FileSystem\InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
+		return is_a($uploadedFile, InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
 	}
 
 
@@ -104,7 +104,7 @@ class File
 	 */
 	private static function checkAllowedFormat(UploadedFile $uploadedFile, array $allowedFormats): bool
 	{
-		$allowedFormats = array_map(fn(string $format) => mb_strtolower($format), $allowedFormats);
+		$allowedFormats = array_map(mb_strtolower(...), $allowedFormats);
 
 		$formatWithCheckCallable = [
 			'pdf' => \Osimatic\Text\PDF::checkFile(...),
@@ -120,11 +120,11 @@ class File
 			'avi' => \Osimatic\Media\Video::checkAviFile(...),
 			'mpg' => \Osimatic\Media\Video::checkMpgFile(...),
 			'wmv' => \Osimatic\Media\Video::checkWmvFile(...),
-			'zip' => \Osimatic\FileSystem\ZipArchive::checkFile(...),
+			'zip' => ZipArchive::checkFile(...),
 		];
 
 		foreach ($formatWithCheckCallable as $format => $callable) {
-			if (in_array($format, $allowedFormats) && $callable($uploadedFile->getRealPath(), $uploadedFile->getClientOriginalName())) {
+			if (in_array($format, $allowedFormats, true) && $callable($uploadedFile->getRealPath(), $uploadedFile->getClientOriginalName())) {
 				return true;
 			}
 		}
@@ -219,13 +219,13 @@ class File
 		}
 
 		$extension = mb_strtolower('.'.pathinfo($clientOriginalName, PATHINFO_EXTENSION));
-		if (empty($extension) || !in_array($extension, $extensionsAllowed)) {
+		if (empty($extension) || !in_array($extension, $extensionsAllowed, true)) {
 			return false;
 		}
 
 		if (!empty($mimeTypesAllowed)) {
 			$fileType = mime_content_type($realPath);
-			if (!in_array($fileType, $mimeTypesAllowed)) {
+			if (!in_array($fileType, $mimeTypesAllowed, true)) {
 				return false;
 			}
 		}

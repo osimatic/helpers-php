@@ -34,10 +34,10 @@ class AllMySms implements SmsSenderInterface
 	}
 
 	/**
-	 * @param \Osimatic\Messaging\SMS $sms
+	 * @param SMS $sms
 	 * @throws \Exception
 	 */
-	public function send(\Osimatic\Messaging\SMS $sms): void
+	public function send(SMS $sms): void
 	{
 		/*
 		$listSuccess = [

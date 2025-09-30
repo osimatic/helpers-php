@@ -1036,7 +1036,7 @@ class PayBox
 			return false;
 		}
 
-		if (!in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER])) {
+		if (!in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER], true)) {
 			if (empty($this->montant)) {
 				$this->logger?->error('Montant invalide : ' . $this->montant);
 				return false;
@@ -1048,7 +1048,7 @@ class PayBox
 			}
 		}
 
-		if (in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER])) {
+		if (in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER], true)) {
 			if (empty($this->subscriberRef)) {
 				$this->logger?->error('Référence abonné vide.');
 				return false;

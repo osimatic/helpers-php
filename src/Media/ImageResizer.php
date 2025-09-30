@@ -66,7 +66,7 @@ class ImageResizer
 
 		if ($ratio !== null) {
 			$cropRatio = explode(':', $ratio);
-			if (count($cropRatio) != 2) {
+			if (count($cropRatio) !== 2) {
 				//trace("Erreur : Ratio incorrect.");
 				return false;
 			}
@@ -158,10 +158,10 @@ class ImageResizer
 
 				$background	= false;
 
-				if (strlen($color) == 6) {
+				if (strlen($color) === 6) {
 					$background	= imagecolorallocate($dst, hexdec($color[0].$color[1]), hexdec($color[2].$color[3]), hexdec($color[4].$color[5]));
 				}
-				else if (strlen($color) == 3) {
+				else if (strlen($color) === 3) {
 					$background	= imagecolorallocate($dst, hexdec($color[0].$color[0]), hexdec($color[1].$color[1]), hexdec($color[2].$color[2]));
 				}
 

@@ -181,7 +181,7 @@ class DateTime
 		try {
 			return new \DateTime($sqlDateTime);
 		}
-		catch (\Exception $e) { }
+		catch (\Exception) { }
 		return null;
 	}
 
@@ -207,7 +207,7 @@ class DateTime
 			$d = new \DateTime();
 			$d->setDate($year, $month, $day);
 			return $d;
-		} catch (\Exception $e) {}
+		} catch (\Exception) {}
 		return null;
 	}
 
@@ -329,8 +329,7 @@ class DateTime
 	{
 		try {
 			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
-		} catch (\Exception $e) {
-		}
+		} catch (\Exception) {}
 		return $dateTime->modify('-'.$nbDays.' day');
 	}
 
@@ -343,8 +342,7 @@ class DateTime
 	{
 		try {
 			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
-		} catch (\Exception $e) {
-		}
+		} catch (\Exception) {}
 		return $dateTime->modify('+'.$nbDays.' day');
 	}
 
@@ -481,8 +479,7 @@ class DateTime
 	{
 		try {
 			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
-		} catch (\Exception $e) {
-		}
+		} catch (\Exception) {}
 		return $dateTime->modify('-'.$nbMonths.' month');
 	}
 
@@ -495,8 +492,7 @@ class DateTime
 	{
 		try {
 			$dateTime = new \DateTime($dateTime->format('Y-m-d H:i:s'));
-		} catch (\Exception $e) {
-		}
+		} catch (\Exception) {}
 		return $dateTime->modify('+'.$nbMonths.' month');
 	}
 
@@ -616,7 +612,7 @@ class DateTime
 
 			return $dateTime;
 		}
-		catch (\Exception $e) { }
+		catch (\Exception) {}
 		return null;
 	}
 
@@ -639,7 +635,7 @@ class DateTime
 			$dateTime->modify('last '.$weekDayName);
 			return $dateTime;
 		}
-		catch (\Exception $e) { }
+		catch (\Exception) {}
 		return null;
 	}
 

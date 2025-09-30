@@ -75,7 +75,7 @@ class Mantis
 
 		try {
 			$soapIssueAdd = new \SoapClient($this->url . 'api/soap/mantisconnect.php?wsdl');
-		} catch (\SoapFault $e) {
+		} catch (\SoapFault) {
 			return false;
 		}
 

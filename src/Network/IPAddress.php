@@ -210,12 +210,12 @@ class IPAddress
 	 */
 	public function isVpn(string $ipAddress): bool
 	{
-		$api = new \Osimatic\Network\Incolumitas($this->logger);
+		$api = new Incolumitas($this->logger);
 		$result = $api->getIpInfos($ipAddress);
 		if (null === $result) {
 			return false;
 		}
-		return \Osimatic\Network\Incolumitas::isVpn($result);
+		return Incolumitas::isVpn($result);
 	}
 
 }

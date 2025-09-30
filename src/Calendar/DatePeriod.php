@@ -239,7 +239,7 @@ class DatePeriod
 	 */
 	public static function isFullMonth(\DateTime $periodStart, \DateTime $periodEnd): bool
 	{
-		return $periodStart->format('Ym') === $periodEnd->format('Ym') && ((int) $periodStart->format('d')) === 1 && null !== ($lastDayOfMonth = \Osimatic\Calendar\DateTime::getLastDayOfMonth($periodEnd->format('Y'), $periodEnd->format('m'))) && $lastDayOfMonth->format('d') === $periodEnd->format('d');
+		return $periodStart->format('Ym') === $periodEnd->format('Ym') && ((int) $periodStart->format('d')) === 1 && null !== ($lastDayOfMonth = DateTime::getLastDayOfMonth($periodEnd->format('Y'), $periodEnd->format('m'))) && $lastDayOfMonth->format('d') === $periodEnd->format('d');
 	}
 
 	/**
@@ -249,7 +249,7 @@ class DatePeriod
 	 */
 	public static function isFullMonths(\DateTime $periodStart, \DateTime $periodEnd): bool
 	{
-		return ((int) $periodStart->format('d')) === 1 && null !== ($lastDayOfMonth = \Osimatic\Calendar\DateTime::getLastDayOfMonth($periodEnd->format('Y'), $periodEnd->format('m'))) && $lastDayOfMonth->format('d') === $periodEnd->format('d');
+		return ((int) $periodStart->format('d')) === 1 && null !== ($lastDayOfMonth = DateTime::getLastDayOfMonth($periodEnd->format('Y'), $periodEnd->format('m'))) && $lastDayOfMonth->format('d') === $periodEnd->format('d');
 	}
 
 	// ========== Année ==========

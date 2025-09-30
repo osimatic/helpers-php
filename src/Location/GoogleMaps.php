@@ -148,7 +148,7 @@ class GoogleMaps
 			return null;
 		}
 
-		$countryName = \Osimatic\Location\Country::getCountryNameFromCountryCode($postalAddress->getCountryCode() ?? $defaultCountryCode);
+		$countryName = Country::getCountryNameFromCountryCode($postalAddress->getCountryCode() ?? $defaultCountryCode);
 		if (!empty($postalAddress->getRoad()) && !empty($postalAddress->getAttention())) {
 			$address = $postalAddress->getRoad().', '.$postalAddress->getAttention().', '.$postalAddress->getPostcode().' '.$postalAddress->getCity().', '.$countryName;
 			if (null !== ($coordinates = $this->getCoordinatesFromAddress($address))) {

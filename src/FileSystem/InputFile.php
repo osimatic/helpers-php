@@ -66,9 +66,9 @@ class InputFile
 	public function getExtension(): ?string
 	{
 		if (!empty($this->getOriginalFileName())) {
-			return \Osimatic\FileSystem\File::getExtension($this->getOriginalFileName());
+			return File::getExtension($this->getOriginalFileName());
 		}
-		if (!empty($this->getMimeType()) && null !== ($extension = \Osimatic\FileSystem\File::getExtensionFromMimeType($this->getMimeType()))) {
+		if (!empty($this->getMimeType()) && null !== ($extension = File::getExtensionFromMimeType($this->getMimeType()))) {
 			return $extension;
 		}
 		return null;

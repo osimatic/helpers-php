@@ -137,11 +137,11 @@ class GoogleContact
 			$firstName = $data['gd$name']['gd$givenName']['$t'] ?? null;
 			$lastName = $data['gd$name']['gd$familyName']['$t'] ?? null;
 			$fullName = $data['gd$name']['gd$fullName']['$t'] ?? null;
-			if (empty($firstName) && !empty($fullName) && $lastName != $fullName) {
+			if (empty($firstName) && !empty($fullName) && $lastName !== $fullName) {
 				//dump('$firstName empty', $fullName);
 				$firstName = substr($fullName, 0, strpos($fullName, ' '));
 			}
-			if (empty($lastName) && !empty($fullName) && $firstName != $fullName) {
+			if (empty($lastName) && !empty($fullName) && $firstName !== $fullName) {
 				//dump('$lastName empty', $fullName);
 				$lastName = substr($fullName, strpos($fullName, ' '));
 			}

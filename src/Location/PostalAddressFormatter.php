@@ -34,8 +34,7 @@ class PostalAddressFormatter
 
 		try {
 			$this->loadTemplates();
-		} catch (\Exception $e) {
-		}
+		} catch (\Exception) {}
 	}
 
 	/**
@@ -389,7 +388,7 @@ class PostalAddressFormatter
 
 				if (isset($this->stateCodes[$addressArray['country_code']])) {
 					foreach($this->stateCodes[$addressArray['country_code']] as $key => $val) {
-						if (strtoupper($addressArray['state']) == strtoupper($val)) {
+						if (strtoupper($addressArray['state']) === strtoupper($val)) {
 							$addressArray['state_code'] = $key;
 						}
 					}
@@ -405,10 +404,10 @@ class PostalAddressFormatter
 		$countryCode = (isset($addressArray['country_code'])) ? $addressArray['country_code'] : '';
 
 		//Make sure it is 2 characters
-		if (strlen($countryCode) == 2) {
+		if (strlen($countryCode) === 2) {
 			$countryCode = strtoupper($countryCode);
 
-			if (strtoupper($countryCode) == 'UK') {
+			if (strtoupper($countryCode) === 'UK') {
 				$countryCode = 'GB';
 			}
 
@@ -442,15 +441,15 @@ class PostalAddressFormatter
 					if (isset($this->templates[$oldCountryCode]['add_component']) && str_contains($this->templates[$oldCountryCode]['add_component'], '=')) {
 						list($k, $v) = explode('=', $this->templates[$oldCountryCode]['add_component']);
 
-						if (in_array($k, $this->validReplacementComponents)) {
+						if (in_array($k, $this->validReplacementComponents, true)) {
 							$addressArray[$k] = $v;
 						}
 					}
 				}
 			}
 
-			if ($countryCode == 'NL') {
-				if (isset($addressArray['state']) && $addressArray['state'] == 'Curaçao') {
+			if ($countryCode === 'NL') {
+				if (isset($addressArray['state']) && $addressArray['state'] === 'Curaçao') {
 					$countryCode = 'CW';
 					$addressArray['country'] = 'Curaçao';
 				} elseif (isset($addressArray['state']) && preg_match('/^sint maarten/i', $addressArray['state']) > 0) {

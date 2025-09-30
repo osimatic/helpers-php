@@ -2,9 +2,6 @@
 
 namespace Osimatic\Organization;
 
-use Osimatic\Network\HTTPClient;
-use Osimatic\Network\HTTPMethod;
-
 class VatNumber
 {
 	/**
@@ -82,7 +79,7 @@ class VatNumber
 				return false;
 			}
 		}
-		catch (\SoapFault $e) {
+		catch (\SoapFault) {
 			return false;
 		}
 		return true;

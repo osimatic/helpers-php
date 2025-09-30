@@ -24,7 +24,7 @@ class AccountingTransaction
 		try {
 			$this->dateTime = new \DateTime($sqlDate.' 00:00:00');
 		}
-		catch (\Exception $e) {}
+		catch (\Exception) {}
 	}
 
 

@@ -4,7 +4,7 @@ namespace Osimatic\Messaging;
 
 class SmsToBe implements SmsSenderInterface
 {
-	public function send(\Osimatic\Messaging\SMS $sms): void
+	public function send(SMS $sms): void
 	{
 		// TODO: Implement send() method.
 	}
