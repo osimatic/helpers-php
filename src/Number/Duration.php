@@ -53,7 +53,7 @@ class Duration
 	}
 
 	/**
-	 * Retourne le nombre d'heure entières restantes (après avoir retiré les jours) dans une durée en secondes.
+	 * Retourne le nombre d'heures entières restantes (après avoir retiré les jours) dans une durée en secondes.
 	 * Par exemple, la durée "1 jour 2 heures 3 minutes et 4 secondes" correspond à 86400 + 7200 + 180 + 4 = 93784 secondes
 	 * Pour la durée 93784 secondes, cette fonction retournera 2.
 	 * @param int $durationInSeconds
@@ -157,7 +157,7 @@ class Duration
 	// ========== Check ==========
 
 	/**
-	 * Vérifie la validité d'une durée saisie dans un formulaire, via un champ text (saisie de int) ou un champs de type time (saisie de type hh:mm:ss)
+	 * Vérifie la validité d'une durée saisie dans un formulaire, via un champ text (saisie de int) ou un champ de type time (saisie de type hh:mm:ss)
 	 * Accepte donc des durées sous la forme "10:23:02" ou "1220" (secondes)
 	 * @param mixed $enteredDuration
 	 * @param string $separator
@@ -264,7 +264,7 @@ class Duration
 		$hoursRounded = $hours;
 		$secondsRounded = 0;
 		if ($mode === 'up' || ($mode === 'close' && $minutesRemainingAndSecondsAsCentieme > $halfRoundPrecision)) {
-			// Arrondissement au dessus
+			// Arrondissement au-dessus
 			if ($minutes > (60-$precision)) {
 				$minutesRounded = 0;
 				$hoursRounded++;
@@ -274,7 +274,7 @@ class Duration
 			}
 		}
 		else {
-			// Arrondissement au dessous
+			// Arrondissement au-dessous
 			$minutesRounded = ($minutes-$minutesRemaining);
 		}
 		

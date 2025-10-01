@@ -7,62 +7,62 @@ namespace Osimatic\Messaging;
  * Represent payload of a web push notification
  * @package Osimatic\Helpers\Messaging
  */
-class OldWebPushNotificationPayload
+class WebPushNotificationPayload
 {
 	/**
 	 * @var \DateTime|null
 	 */
-	private $dateTime = null;
+	private ?\DateTime $dateTime = null;
 
 	/**
 	 * @var string
 	 */
-	private $tag;
+	private string $tag;
 
 	/**
 	 * @var boolean
 	 */
-	private $reNotify = false;
+	private bool $reNotify = false;
 
 	/**
 	 * @var boolean
 	 */
-	private $requireInteraction = false;
+	private bool $requireInteraction = false;
 
 	/**
 	 * @var string
 	 */
-	private $url;
+	private string $url;
 
 	/**
 	 * @var string
 	 */
-	private $image;
+	private string $image;
 
 	/**
 	 * @var string
 	 */
-	private $badge;
+	private string $badge;
 
 	/**
 	 * @var array
 	 */
-	private $actions = [];
+	private array $actions = [];
 
 	/**
 	 * @var boolean
 	 */
-	private $silent = false;
+	private bool $silent = false;
 
 	/**
 	 * @var array|null
 	 */
-	private $vibrate;
+	private ?array $vibrate;
 
 	/**
 	 * @var string|null
 	 */
-	private $sound;
+	private ?string $sound;
 
 
 	/**
@@ -83,7 +83,7 @@ class OldWebPushNotificationPayload
 	 * An ID for a given notification that allows you to find, replace, or remove the notification using
 	 * a script if necessary.
 	 * If set, multiple notifications with the same tag will only reappear if $bReNotify is set to true.
-	 * Usualy the last notification with same tag is displayed in this case.
+	 * Usually the last notification with same tag is displayed in this case.
 	 *
 	 * @param string $tag
 	 * @param bool $reNotify
@@ -107,7 +107,7 @@ class OldWebPushNotificationPayload
 
 
 	/**
-	 * containing the URL of an larger image to be displayed in the notification.
+	 * containing the URL of a larger image to be displayed in the notification.
 	 * Size, position and cropping vary with the different browsers and platforms
 	 * @param string $image
 	 */
@@ -122,7 +122,7 @@ class OldWebPushNotificationPayload
 	}
 
 	/**
-	 * containing the URL of an badge assigend to the notification.
+	 * containing the URL of a badge assigned to the notification.
 	 * The badge is a small monochrome icon that is used to portray a little
 	 * more information to the user about where the notification is from.
 	 * So far I have only found Chrome for Android that supports the badge...
@@ -191,7 +191,7 @@ class OldWebPushNotificationPayload
 	 * Indicates that on devices with sufficiently large screens, a notification should remain active until
 	 * the user clicks or dismisses it. If this value is absent or false, the desktop version of Chrome
 	 * will auto-minimize notifications after approximately twenty seconds. Implementation depends on
-	 * browser and plattform.
+	 * browser and platform.
 	 *
 	 * @param bool $requireInteraction
 	 */
@@ -243,7 +243,7 @@ class OldWebPushNotificationPayload
 
 
 	/**
-	 * containing the URL of an sound - file (mp3 or wav).
+	 * containing the URL of a sound - file (mp3 or wav).
 	 * currently not found any browser supports sounds
 	 * @param string $sound
 	 */

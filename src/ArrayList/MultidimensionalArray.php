@@ -11,8 +11,8 @@ class MultidimensionalArray
 	// ========== Méthodes de comptage ==========
 
 	/**
-	 * Compte toutes le nombre de valeur dans un tableau multidimensionnel
-	 * (toutes les valeurs du tableau principal et de ses éventuels tableau enfants, sans limite de profondeur)
+	 * Compte le nombre de valeurs dans un tableau multidimensionnel
+	 * (toutes les valeurs du tableau principal et de ses éventuels tableaux enfants, sans limite de profondeur)
 	 * @param array $array
 	 * @return int
 	 */
@@ -139,14 +139,14 @@ class MultidimensionalArray
 	/**
 	 * Tri un tableau multidimensionnel.
 	 * @param $array array le tableau multidimensionnel à trier.
-	 * @param $listColumnSorting mixed les critères de tri. Peut être :
+	 * @param $listColumnSorting mixed les critères de tri. Peut-être :
 	 * - La clé selon laquelle le tableau va être trié (sous forme d'entier ou de chaîne de caractère)
 	 * - Un tableau avec en index :
-	 * 		-> 0 : nom de la clé
-	 * 		-> 1 : true pour un tri croissant, false pour un tri décroissant (true par défaut)
-	 * 		-> 2 : true pour un tri en ordre naturel, false pour un tri normal (false par défaut)
-	 * 		-> 3 : true pour un tri en tenant compte de la casse, false pour un tri normal (false par défaut)
-	 * - Un tableau de plusieurs tableaux de critères (pour la structure d'un tableau de critère, voir ci dessus)
+	 * 		→ 0 : nom de la clé
+	 * 		→ 1 : true pour un tri croissant, false pour un tri décroissant (true par défaut)
+	 * 		→ 2 : true pour un tri en ordre naturel, false pour un tri normal (false par défaut)
+	 * 		→ 3 : true pour un tri en tenant compte de la casse, false pour un tri normal (false par défaut)
+	 * - Un tableau de plusieurs tableaux de critères (pour la structure d'un tableau de critère, voir ci-dessus)
 	 */
 	public static function sort(array &$array, array $listColumnSorting): void
 	{

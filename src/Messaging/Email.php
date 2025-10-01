@@ -908,7 +908,7 @@ class Email
 	/**
 	 * Add an embedded (inline) attachment from a file.
 	 * This can include images, sounds, and just about any other document type.
-	 * These differ from 'regular' attachmants in that they are intended to be
+	 * These differ from 'regular' attachments in that they are intended to be
 	 * displayed inline with the message, not just attached for download.
 	 * This is used in HTML messages that embed the images
 	 * the HTML refers to using the $cid value.

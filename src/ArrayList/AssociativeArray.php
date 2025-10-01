@@ -20,16 +20,16 @@ class AssociativeArray
 
 		$result = [];
 		for ($i = 0, $iMax = count($words); $i < $iMax; ++$i ) {
-			$firstword = $words[$i];
-			$remainingwords = array();
+			$firstWord = $words[$i];
+			$remainingWords = array();
 			for ($j = 0, $jMax = count($words); $j < $jMax; ++$j ) {
 				if ( $i <> $j ) {
-					$remainingwords[] = $words[$j];
+					$remainingWords[] = $words[$j];
 				}
 			}
-			$combos = self::getAllCombinations($remainingwords);
+			$combos = self::getAllCombinations($remainingWords);
 			for ($j = 0, $jMax = count($combos); $j < $jMax; ++$j ) {
-				$result[] = $firstword . ' ' . $combos[$j];
+				$result[] = $firstWord . ' ' . $combos[$j];
 			}
 		}
 

@@ -1030,7 +1030,7 @@ class PayBox
 			}
 		}
 
-		$this->numQuestion = (empty($this->numQuestion) ? date('His') . mt_rand(1, 999) : $this->numQuestion);
+		$this->numQuestion = (empty($this->numQuestion) ? date('His') . random_int(1, 999) : $this->numQuestion);
 		if (!is_numeric($this->numQuestion)) {
 			$this->logger?->error('Num question invalide : ' . $this->numQuestion);
 			return false;
@@ -1158,7 +1158,7 @@ class PayBox
 			'NUMAPPEL' => $this->numAppel,
 			'NUMTRANS' => $this->numTransaction,
 			'AUTORISATION' => $this->autorisation,
-			'PAYS' => '', // champs vide permettant le renvoi du code pays de la carte dans la réponse
+			'PAYS' => '', // champ vide permettant le renvoi du code pays de la carte dans la réponse
 		];
 
 		foreach ($postData as $cleVar => $value) {
@@ -1387,8 +1387,7 @@ class PayBox
 	private function getFormattedAmount(): ?string
 	{
 		$montantFormate = (string) $this->getAmount();
-		for ($numChar = strlen($montantFormate); $numChar < 10; $numChar++, $montantFormate = '0' . $montantFormate);
-		return $montantFormate;
+		return str_pad($montantFormate, 10, '0', STR_PAD_LEFT);
 	}
 
 	private function getCurrencyCode(): ?int

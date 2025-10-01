@@ -346,7 +346,7 @@ class RevolutResponse implements BankCardOperationResponseInterface
      */
     public static function getFromRequest(array $request): RevolutResponse
     {
-        $orderAmount = array_key_exists('order_amount', $request) ? $request['order_amount'] : null;
+        $orderAmount = $request['order_amount'] ?? null;
         $cardData = array_key_exists('payments', $request) ? $request['payments'][0]['payment_method']['card'] : null;
 
         $revolutResponse = new RevolutResponse();

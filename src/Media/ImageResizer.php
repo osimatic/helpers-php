@@ -2,37 +2,56 @@
 
 namespace Osimatic\Media;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 class ImageResizer
 {
 	/**
+	 * @param LoggerInterface $logger
+	 */
+	public function __construct(
+		private LoggerInterface $logger=new NullLogger(),
+	) {}
+
+	/**
+	 * @param LoggerInterface $logger
+	 * @return self
+	 */
+	public function setLogger(LoggerInterface $logger): self
+	{
+		$this->logger = $logger;
+
+		return $this;
+	}
+
+	/**
 	 * Resizes images, intelligently sharpens, crops based on width:height ratios, color fills transparent GIFs and PNGs, and caches variations for optimal performance
-	 * Le code de cette fonction provient de Smart Image Resizer 1.4.1
+	 * code from Smart Image Resizer 1.4.1
 	 * @author Joe Lencioni (http://shiftingpixel.com)
 	 * @see http://veryraw.com/history/2005/03/image-resizing-with-php/
-	 * @param string $cheminImage Le chemin vers l'image à redimensionner
+	 * @param string $imagePath Le chemin vers l'image à redimensionner
 	 * @param int $maxWidth maximum width of final image in pixels, 0 pour la même largeur que l'original (false par défaut)
 	 * @param int $maxHeight maximum height of final image in pixels, 0 pour la même hauteur que l'original (false par défaut)
 	 * @param string|null $color background hex color for filling transparent PNGs, without # (default null)
-	 * @param int|null $quality quality of output image, between 0 to 100 (default null)
+	 * @param int|null $quality quality of output image, between 0 and 100 (default null)
 	 * @param string|null $ratio ratio of width to height to crop final image (e.g. 1:1 or 3:2), false pour ne pas faire de recadrage (false par défaut)
 	 * @return bool
 	 */
-	public static function resize(string $cheminImage, int $maxWidth=0, int $maxHeight=0, ?int $quality=null, ?string $color=null, ?string $ratio=null): bool
+	public function resize(string $imagePath, int $maxWidth=0, int $maxHeight=0, ?int $quality=null, ?string $color=null, ?string $ratio=null): bool
 	{
-		//trace("Chemin vers l'image à redimensionner : ".$cheminImage."");
+		$this->logger->info('Image resized: '.$imagePath);
 
-		//trace("Chemin vers l'image de destination : ".$cheminImageResizee."");
-
-		$size = getimagesize($cheminImage);
+		$size = getimagesize($imagePath);
 		if ($size === false) {
-			//trace("Erreur : L'image n'existe pas.");
+			$this->logger->error('Image does not exist.');
 			return false;
 		}
 
-		$mime = Image::getMimeType($cheminImage);
+		$mime = Image::getMimeType($imagePath);
 
 		if (!str_starts_with($mime, 'image/')) {
-			//trace("Erreur : Ce format d'image n'est pas pris en charge.");
+			$this->logger->error('Image format not supported.');
 			return false;
 		}
 
@@ -55,7 +74,7 @@ class ImageResizer
 		// If we don't have a max width or max height, OR the image is smaller than both we do not want to resize it, so we simply output the original image and exit
 		// if ((!$maxWidth && !$maxHeight) || (!$color && $maxWidth >= $width && $maxHeight >= $height)) {
 		if (!$color && !$ratio && $maxWidth >= $width && $maxHeight >= $height) {
-			//trace("Pas de modification à faire sur l'image.");
+			$this->logger->error('No resize needed.');
 			// afficher éventuellement l'image
 			return true;
 		}
@@ -67,7 +86,7 @@ class ImageResizer
 		if ($ratio !== null) {
 			$cropRatio = explode(':', $ratio);
 			if (count($cropRatio) !== 2) {
-				//trace("Erreur : Ratio incorrect.");
+				$this->logger->error('Invalid ratio.');
 				return false;
 			}
 
@@ -142,7 +161,7 @@ class ImageResizer
 		}
 
 		// Read in the original image
-		$src = $creationFunction($cheminImage);
+		$src = $creationFunction($imagePath);
 
 		if (in_array($size['mime'], ['image/gif', 'image/png'])) {
 			if (!$color) {
@@ -198,7 +217,7 @@ class ImageResizer
 		}
 
 		// Write the resized image to the dest path
-		$outputFunction($dst, $cheminImage, $quality);
+		$outputFunction($dst, $imagePath, $quality);
 
 		// Clean up the memory
 		ImageDestroy($src);

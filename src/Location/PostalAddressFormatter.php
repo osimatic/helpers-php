@@ -507,7 +507,7 @@ class PostalAddressFormatter
 	 */
 	public function loadTemplates(): void
 	{
-		$templatesPath = implode(DIRECTORY_SEPARATOR, array(realpath(dirname(__FILE__)), 'conf'));
+		$templatesPath = implode(DIRECTORY_SEPARATOR, array(realpath(__DIR__), 'conf'));
 		if (!is_dir($templatesPath)) {
 			throw new \Exception('Address formatting templates path cannot be found.');
 		}

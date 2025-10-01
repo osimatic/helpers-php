@@ -52,7 +52,7 @@ class AudioConverter
 			return false;
 		}
 
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension wav si ce n'est pas le cas)
+		// Vérification si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension wav si ce n'est pas le cas)
 		if (empty($destAudioFilePath)) {
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted'.substr($srcAudioFilePath, strrpos($srcAudioFilePath, '.'));
 		}
@@ -86,7 +86,7 @@ class AudioConverter
 			return false;
 		}
 
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
+		// Vérification si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
 		if (empty($destAudioFilePath)) {
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
 		}
@@ -115,7 +115,7 @@ class AudioConverter
 			return false;
 		}
 
-		// Vérif si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
+		// Vérification si fichier audio destination renseigné. Si non renseigné, on utilise le nom de fichier audio source (en mettant l'extension mp3)
 		if (empty($destAudioFilePath)) {
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
 		}

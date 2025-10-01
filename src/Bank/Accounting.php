@@ -108,7 +108,7 @@ class Accounting
 			return 'france';
 		}
 		if (Country::isCountryInEuropeanUnion($customerCountry)) {
-			if (empty($vatNumber)) { // Si n° TVA non renseigné, vente assimilé à France (TVA = 20%)
+			if (empty($vatNumber)) { // Si n° TVA non renseigné, vente assimilée à la France (TVA = 20%)
 				return 'france';
 			}
 			return 'inside_ue';

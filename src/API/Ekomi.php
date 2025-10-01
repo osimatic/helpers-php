@@ -65,9 +65,7 @@ class Ekomi
 	 */
 	public function getFeedbackLink(string|int $orderId): ?string
 	{
-		$result = $this->executeRequest(self::URL.'putOrder?order_id='.$orderId);
-
-		if (null !== $result) {
+		if (null !== ($result = $this->executeRequest(self::URL.'putOrder?order_id='.$orderId))) {
 			return null;
 		}
 
@@ -85,9 +83,7 @@ class Ekomi
 	 */
 	public function getListFeedback(string $range='all'): ?array
 	{
-		$result = $this->executeRequest(self::URL.'getFeedback?range='.$range);
-
-		if (null === $result) {
+		if (null === ($result = $this->executeRequest(self::URL.'getFeedback?range='.$range))) {
 			return null;
 		}
 
@@ -99,9 +95,7 @@ class Ekomi
 	 */
 	public function getAverage(): ?array
 	{
-		$result = $this->executeRequest(self::URL.'getSnapshot?range=all');
-
-		if (null === $result) {
+		if (null === ($result = $this->executeRequest(self::URL.'getSnapshot?range=all'))) {
 			return null;
 		}
 

@@ -120,7 +120,7 @@ class Name
 	}
 
 	/**
-	 * Retourne la liste des fêtes du prénoms d'un jour donné
+	 * Retourne la liste des fêtes du prénom d'un jour donné
 	 * @param int|null $month month of name day (default current month)
 	 * @param int|null $day day of month of name day (default current day of month)
 	 * @param string $country

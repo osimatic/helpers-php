@@ -24,7 +24,7 @@ class DatePeriod
 				$periodEnd = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
 			}
 			return (int) $periodStart->diff($periodEnd)->format('%r%a');
-		} catch (\Exception $e) { }
+		} catch (\Exception) {}
 		return 0;
 	}
 
@@ -39,7 +39,7 @@ class DatePeriod
 			$periodStart = new \DateTime($periodStart->format('Y-m-d').' 00:00:00');
 			$periodEnd = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
 			return (int) $periodStart->diff($periodEnd)->d;
-		} catch (\Exception $e) { }
+		} catch (\Exception) {}
 		return 0;
 	}
 
@@ -64,7 +64,7 @@ class DatePeriod
 			}
 			return $list;
 		}
-		catch (\Exception $e) {
+		catch (\Exception) {
 			return [];
 		}
 
@@ -133,7 +133,7 @@ class DatePeriod
 			}
 			return $periodList;
 		}
-		catch (\Exception $e) {
+		catch (\Exception) {
 			return [];
 		}
 	}
@@ -227,7 +227,7 @@ class DatePeriod
 			}
 			return $periodList;
 		}
-		catch (\Exception $e) {
+		catch (\Exception) {
 			return [];
 		}
 	}

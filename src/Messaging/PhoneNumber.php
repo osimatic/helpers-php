@@ -240,7 +240,7 @@ class PhoneNumber
 			'590', // Guadeloupe
 			'596', // Martinique
 			'594', // Guyane
-			'687', // Nouvelle Calédonie
+			'687', // Nouvelle-Calédonie
 			'689', // Polynésie Française
 			'681', // Wallis-et-Futuna
 		];

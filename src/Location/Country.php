@@ -392,17 +392,17 @@ class Country
 	public static function getFlagCountryIsoCode(?string $countryIsoCode): ?string
 	{
 		// France
-		if (in_array($countryIsoCode, ['YT', 'GF', 'GP', 'MQ', 'RE', 'MF', 'CP', 'WF'])) {
+		if (in_array($countryIsoCode, ['YT', 'GF', 'GP', 'MQ', 'RE', 'MF', 'CP', 'WF'], true)) {
 			return 'FR';
 		}
 
 		// Royaume-Uni
-		if (in_array($countryIsoCode, ['SH', 'TA'])) {
+		if (in_array($countryIsoCode, ['SH', 'TA'], true)) {
 			return 'GB';
 		}
 
 		// Espagne
-		if (in_array($countryIsoCode, ['IC'])) {
+		if (in_array($countryIsoCode, ['IC'], true)) {
 			return 'ES';
 		}
 

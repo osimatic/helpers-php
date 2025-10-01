@@ -5,9 +5,9 @@ namespace Osimatic\Messaging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class OldWebPushNotificationSender
+class WebPushNotificationOldSender
 {
-	const MAX_COMPATIBILITY_PAYLOAD_LENGTH = 3052;
+	const int MAX_COMPATIBILITY_PAYLOAD_LENGTH = 3052;
 
 	/**
 	 * @var LoggerInterface
@@ -25,9 +25,9 @@ class OldWebPushNotificationSender
 	private WebPushNotificationSubscriptionInterface $subscription;
 
 	/**
-	 * @var OldWebPushNotificationPayload
+	 * @var WebPushNotificationPayload
 	 */
-	private OldWebPushNotificationPayload $webPushNotificationPayload;
+	private WebPushNotificationPayload $webPushNotificationPayload;
 
 	/**
 	 * @var string local generated public key
@@ -204,7 +204,7 @@ class OldWebPushNotificationSender
 	 * Check for valid VAPID.
 	 * - subject, public key and private key must be set <br>
 	 * - decoded public key must be 65 bytes long  <br>
-	 * - no compresed public key supported <br>
+	 * - no compressed public key supported <br>
 	 * - decoded private key must be 32 bytes long <br>
 	 * @return bool
 	 */

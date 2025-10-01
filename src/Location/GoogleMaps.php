@@ -257,7 +257,7 @@ class GoogleMaps
 		$addressComponents['street_number'] ??= '';
 		$addressComponents['route'] ??= '';
 
-		// on génère la ligne numéro/rue depuis le champs "formatted_address", car la ligne numéro/rue n'est pas disponible dans le champs "address_components"
+		// on génère la ligne numéro/rue depuis le champ "formatted_address", car la ligne numéro/rue n'est pas disponible dans le champ "address_components"
 		//$result['formatted_address'] = '131, Avenue Charles de Gaulle, 92200 Neuilly-sur-Seine, France';
 		$streetAddress = $result['formatted_address'] ?? '';
 		if (!empty($addressComponents['route']) && false !== ($pos = strpos($streetAddress, ',', strpos($streetAddress, $addressComponents['route'])))) {
@@ -270,8 +270,8 @@ class GoogleMaps
 			$addressComponents['street'] = $streetAddress;
 		}
 		else {
-			// si on arrive pas à la récupérer depuis le champs "formatted_address", on concatene simplement le numéro et rue récupéré dans le champs "address_components"
-			// on ne fais pas ceci directement car selon les pays le numéro de la rue se trouve à la fin, au début, précédé de "No.", etc.
+			// si on n'arrive pas à la récupérer depuis le champ "formatted_address", on concatène simplement le numéro et rue récupéré dans le champ "address_components"
+			// on ne fais pas ceci directement, car selon les pays le numéro de la rue se trouve à la fin, au début, précédé de "No.", etc.
 			$addressComponents['street'] = trim($addressComponents['street_number'].' '.$addressComponents['route']);
 		}
 

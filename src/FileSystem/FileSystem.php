@@ -48,9 +48,9 @@ class FileSystem
 	}
 
 	/**
-	 * Crée tous les répertoires appartenant au chemin (du répertoire racine au dernier répertoire), s'ils n'exitent pas encore.
+	 * Crée tous les répertoires appartenant au chemin (du répertoire racine au dernier répertoire), s'ils n'existent pas encore.
 	 * @param string $filePath Le chemin complet vers le répertoire à créer (à partir de la racine disque).
-	 * @return boolean true si les répertoires appartenant au chemin ont bien été crées, fals si une erreur survient.
+	 * @return boolean true si les répertoires appartenant au chemin ont bien été crées, false si une erreur survient.
 	 */
 	public static function createDirectories(string $filePath): bool
 	{
@@ -83,7 +83,7 @@ class FileSystem
 	}
 
 	/**
-	 * Supprime le fichier si le fichier existe et crée tous les répertoires appartenant au chemin (du répertoire racine au dernier répertoire), s'ils n'exitent pas encore.
+	 * Supprime le fichier si le fichier existe et crée tous les répertoires appartenant au chemin (du répertoire racine au dernier répertoire), s'ils n'existent pas encore.
 	 * @param string $filePath Le chemin complet vers le fichier.
 	 */
 	public static function initializeFile(string $filePath): void

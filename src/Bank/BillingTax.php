@@ -24,23 +24,23 @@ class BillingTax
 		// TVA étranger
 		if ($country !== $billingCountry) {
 			if (false === \Osimatic\Location\Country::isCountryInEuropeanUnion($billingCountry)) {
-				// Pas de TVA car l'entité qui facture est hors UE.
+				// Pas de TVA, car l'entité qui facture est hors UE.
 				return 0.0;
 			}
 
 			// Le pays qui facture est dans l'UE.
 
 			if (false === \Osimatic\Location\Country::isCountryInEuropeanUnion($country)) {
-				// Pas de TVA car le client est hors UE.
+				// Pas de TVA, car le client est hors UE.
 				return 0.0;
 			}
 
 			if (!empty($vatNumber)) {
-				// Pas de TVA car le client est dans l'UE et numéro de TVA intracommunautaire renseigné.
+				// Pas de TVA, car le client est dans l'UE et numéro de TVA intracommunautaire renseigné.
 				return 0.0;
 			}
 
-			// Le client est dans l'UE mais n'a pas renseigné son numéro de TVA. On applique donc la TVA du pays de l'entité qui facture.
+			// Le client est dans l'UE, mais n'a pas renseigné son numéro de TVA. On applique donc la TVA du pays de l'entité qui facture.
 			$country = $billingCountry;
 		}
 

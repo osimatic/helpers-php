@@ -179,7 +179,7 @@ class File
 	 */
 	public static function moveUploadedFile(InputFile|UploadedFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
 	{
-		\Osimatic\FileSystem\FileSystem::createDirectories($filePath);
+		FileSystem::createDirectories($filePath);
 
 		if (file_exists($filePath)) {
 			unlink($filePath);
@@ -382,7 +382,7 @@ class File
 	/**
 	 * Retourne la taille plus l'unité arrondie
 	 * @param float $bytes taille en octets
-	 * @param int $numberOfDecimalPlaces le nombre de chiffre après la virgule pour l'affichage du nombre correspondant à la taille
+	 * @param int $numberOfDecimalPlaces le nombre de chiffres après la virgule pour l'affichage du nombre correspondant à la taille
 	 * @return string chaine de caractères formatée
 	 */
 	public static function formatSize(float $bytes, int $numberOfDecimalPlaces=2): string
@@ -561,7 +561,7 @@ class File
 
 	/**
 	 * Map a file name to a MIME type.
-	 * Defaults to 'application/octet-stream', i.e.. arbitrary binary data.
+	 * Defaults to 'application/octet-stream', i.e. arbitrary binary data.
 	 * @param string $filename A file name or full path, does not need to exist as a file
 	 * @return string
 	 */

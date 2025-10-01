@@ -224,7 +224,7 @@ class Number
 	/**
 	 * Arrondi un flottant au plus petit flottant supérieur
 	 * @param float $nombre le flottant à arrondir
-	 * @param int $precision le nombre de chiffre après la virgule à garder
+	 * @param int $precision le nombre de chiffres après la virgule à garder
 	 * @return float le flottant arrondi au flottant supérieur
 	 * @link http://fr2.php.net/manual/fr/function.pow.php
 	 * @link http://fr2.php.net/manual/fr/function.ceil.php
@@ -242,7 +242,7 @@ class Number
 	/**
 	 * Arrondi un flottant au plus grand flottant inférieur
 	 * @param float $nombre le flottant à arrondir
-	 * @param int $precision le nombre de chiffre après la virgule à garder
+	 * @param int $precision le nombre de chiffres après la virgule à garder
 	 * @return float le flottant arrondi au flottant inférieur
 	 * @link http://fr2.php.net/manual/fr/function.pow.php
 	 * @link http://fr2.php.net/manual/fr/function.floor.php

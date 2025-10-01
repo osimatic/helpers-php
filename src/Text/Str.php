@@ -215,7 +215,7 @@ class Str
 	 * This function will strip tags from a string, split it at its max_length and ellipsize
 	 * @param string $str string to ellipsize
 	 * @param int $nbCharInFinalString max length of string
-	 * @param int|float $whereEllipsisShouldAppear int (1|0) or float, .5, .2, etc for position to split
+	 * @param int|float $whereEllipsisShouldAppear int (1|0) or float, .5, .2, etc. for position to split
 	 * @param string $ellipsis ellipsis ; Default '…'
 	 * @return string ellipsized string
 	 */
