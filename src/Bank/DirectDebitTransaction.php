@@ -37,7 +37,7 @@ class DirectDebitTransaction
 		try {
 			return self::getTransactionDate(new \DateTime($year.'-'.sprintf('%02d', $month).'-01 00:00:00'), $transactionDay);
 		}
-		catch (\Exception $e) { }
+		catch (\Exception) {}
 		return null;
 	}
 

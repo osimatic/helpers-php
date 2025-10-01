@@ -522,11 +522,11 @@ class PostalAddressFormatter
 		// The components file is made up of multiple yaml documents but the symfony yaml parser doesn't support multiple docs in a single file. So we split it into multiple docs.
 		$componentYamlParts = explode('---', file_get_contents($componentsPath));
 
-		foreach ($componentYamlParts as $key => $val) {
+		foreach ($componentYamlParts as $val) {
 			$component = Yaml::parse($val);
 
 			if (isset($component['aliases'])) {
-				foreach ($component['aliases'] as $k => $v) {
+				foreach ($component['aliases'] as $v) {
 					$componentAliases[$v] = $component['name'];
 				}
 			}

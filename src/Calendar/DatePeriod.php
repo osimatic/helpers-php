@@ -183,7 +183,7 @@ class DatePeriod
 			$endDate = new \DateTime($periodEnd->format('Y-m-d').' 00:00:00');
 			$dateInterval = $startDate->diff($endDate);
 			return (($dateInterval->y) * 12) + ($dateInterval->m);
-		} catch (\Exception $e) { }
+		} catch (\Exception) {}
 		return 0;
 	}
 

@@ -80,7 +80,7 @@ class PDFMerger
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
+		system($commandLine);
 
 		return true;
 	}

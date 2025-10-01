@@ -603,98 +603,102 @@ class VCard
 			$line = trim($line);
 			if (mb_strtoupper($line) === 'BEGIN:VCARD') {
 				$cardData = new \stdClass();
-			} elseif (mb_strtoupper($line) === 'END:VCARD') {
+				continue;
+			}
+			if (mb_strtoupper($line) === 'END:VCARD') {
 				$vcardObjects[] = $cardData;
-			} elseif (!empty($line)) {
-				$type = '';
-				$value = '';
-				@list($type, $value) = explode(':', $line, 2);
-				$types = explode(';', $type);
-				$element = mb_strtoupper($types[0]);
-				array_shift($types);
-				$i = 0;
-				$rawValue = false;
-				foreach ($types as $type) {
-					if (false !== stripos(mb_strtolower($type), 'base64')) {
-						$value = base64_decode($value);
-						unset($types[$i]);
-						$rawValue = true;
-					} elseif (preg_match('/encoding=b/i', $type)) {
-						$value = base64_decode($value);
-						unset($types[$i]);
-						$rawValue = true;
-					} elseif (false !== stripos($type, 'quoted-printable')) {
-						$value = quoted_printable_decode($value);
-						unset($types[$i]);
-						$rawValue = true;
-					} elseif (stripos($type, 'charset=') === 0) {
-						try {
-							$value = mb_convert_encoding($value, 'UTF-8', substr($type, 8));
-						} catch (\Exception) {}
-						unset($types[$i]);
+				continue;
+			}
+			if (empty($line)) {
+				continue;
+			}
+
+			@list($type, $value) = explode(':', $line, 2);
+			$types = explode(';', $type);
+			$element = mb_strtoupper($types[0]);
+			array_shift($types);
+			$i = 0;
+			$rawValue = false;
+			foreach ($types as $type) {
+				if (false !== stripos(mb_strtolower($type), 'base64')) {
+					$value = base64_decode($value);
+					unset($types[$i]);
+					$rawValue = true;
+				} elseif (preg_match('/encoding=b/i', $type)) {
+					$value = base64_decode($value);
+					unset($types[$i]);
+					$rawValue = true;
+				} elseif (false !== stripos($type, 'quoted-printable')) {
+					$value = quoted_printable_decode($value);
+					unset($types[$i]);
+					$rawValue = true;
+				} elseif (stripos($type, 'charset=') === 0) {
+					try {
+						$value = mb_convert_encoding($value, 'UTF-8', substr($type, 8));
+					} catch (\Exception) {}
+					unset($types[$i]);
+				}
+				$i++;
+			}
+			switch (mb_strtoupper($element)) {
+				case 'FN':
+					$cardData['fullname'] = $value;
+					break;
+				case 'N':
+					foreach($this->parseName($value) as $key => $val) {
+						$cardData->{$key} = $val;
 					}
-					$i++;
-				}
-				switch (mb_strtoupper($element)) {
-					case 'FN':
-						$cardData['fullname'] = $value;
-						break;
-					case 'N':
-						foreach($this->parseName($value) as $key => $val) {
-							$cardData->{$key} = $val;
-						}
-						break;
-					case 'BDAY':
-						$cardData['birthday'] = $this->parseBirthday($value);
-						break;
-					case 'ADR':
-						if (!isset($cardData['address'])) {
-							$cardData['address'] = [];
-						}
-						$key = !empty($types) ? implode(';', $types) : 'WORK;POSTAL';
-						$cardData['address'][$key][] = $this->parseAddress($value);
-						break;
-					case 'TEL':
-						if (!isset($cardData['phone'])) {
-							$cardData['phone'] = [];
-						}
-						$key = !empty($types) ? implode(';', $types) : 'default';
-						$cardData['phone'][$key][] = $value;
-						break;
-					case 'EMAIL':
-						if (!isset($cardData['email'])) {
-							$cardData['email'] = [];
-						}
-						$key = !empty($types) ? implode(';', $types) : 'default';
-						$cardData['email'][$key][] = $value;
-						break;
-					case 'REV':
-						$cardData['revision'] = $value;
-						break;
-					case 'VERSION':
-						$cardData['version'] = $value;
-						break;
-					case 'ORG':
-						$cardData['organization'] = $value;
-						break;
-					case 'URL':
-						if (!isset($cardData['url'])) {
-							$cardData['url'] = [];
-						}
-						$key = !empty($types) ? implode(';', $types) : 'default';
-						$cardData['url'][$key][] = $value;
-						break;
-					case 'TITLE':
-						$cardData['title'] = $value;
-						break;
-					case 'PHOTO':
-						if ($rawValue) {
-							$cardData['rawPhoto'] = $value;
-						} else {
-							$cardData['photo'] = $value;
-						}
-						break;
-				}
+					break;
+				case 'BDAY':
+					$cardData['birthday'] = $this->parseBirthday($value);
+					break;
+				case 'ADR':
+					if (!isset($cardData['address'])) {
+						$cardData['address'] = [];
+					}
+					$key = !empty($types) ? implode(';', $types) : 'WORK;POSTAL';
+					$cardData['address'][$key][] = $this->parseAddress($value);
+					break;
+				case 'TEL':
+					if (!isset($cardData['phone'])) {
+						$cardData['phone'] = [];
+					}
+					$key = !empty($types) ? implode(';', $types) : 'default';
+					$cardData['phone'][$key][] = $value;
+					break;
+				case 'EMAIL':
+					if (!isset($cardData['email'])) {
+						$cardData['email'] = [];
+					}
+					$key = !empty($types) ? implode(';', $types) : 'default';
+					$cardData['email'][$key][] = $value;
+					break;
+				case 'REV':
+					$cardData['revision'] = $value;
+					break;
+				case 'VERSION':
+					$cardData['version'] = $value;
+					break;
+				case 'ORG':
+					$cardData['organization'] = $value;
+					break;
+				case 'URL':
+					if (!isset($cardData['url'])) {
+						$cardData['url'] = [];
+					}
+					$key = !empty($types) ? implode(';', $types) : 'default';
+					$cardData['url'][$key][] = $value;
+					break;
+				case 'TITLE':
+					$cardData['title'] = $value;
+					break;
+				case 'PHOTO':
+					if ($rawValue) {
+						$cardData['rawPhoto'] = $value;
+					} else {
+						$cardData['photo'] = $value;
+					}
+					break;
 			}
 		}
 		return $vcardObjects;

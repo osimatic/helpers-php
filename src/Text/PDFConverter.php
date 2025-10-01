@@ -46,7 +46,7 @@ class PDFConverter
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
+		system($commandLine);
 
 		/*try {
 			$pdf = new \Imagick([$imageFilePath]);
@@ -77,7 +77,7 @@ class PDFConverter
 		$commandLine = $this->imagickConverterBinaryPath . ' ' . $args;
 
 		// Envoi de la ligne de commande
-		$lastLine = system($commandLine);
+		system($commandLine);
 
 		return true;
 	}

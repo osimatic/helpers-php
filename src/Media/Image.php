@@ -221,14 +221,12 @@ class Image
 	 */
 	public static function readExifData(string $photoPath): ?array
 	{
-		$exif = false;
-		if (function_exists('exif_read_data')) {
-			$exif = @exif_read_data($photoPath, null, true);
-			if ($exif !== false) {
-				return $exif;
-			}
+		if (!function_exists('exif_read_data')) {
+			return null;
 		}
-		return null;
+
+		$exif = @exif_read_data($photoPath, null, true);
+		return $exif !== false ? $exif : null;
 	}
 
 	// ========== Affichage d'image ==========

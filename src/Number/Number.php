@@ -366,8 +366,7 @@ class Number
 	{
 		try {
 			return random_int($min, $max);
-		} catch (\Exception $e) {
-		}
+		} catch (\Exception) {}
 		return 0;
 	}
 

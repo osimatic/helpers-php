@@ -154,7 +154,7 @@ class HTTPRequest
 
 		$keyValueStr = '';
 		// loop data blocks
-		foreach ($a_blocks as $id => $block) {
+		foreach ($a_blocks as $block) {
 			if (empty($block)) {
 				continue;
 			}

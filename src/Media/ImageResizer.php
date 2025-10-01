@@ -137,8 +137,6 @@ class ImageResizer
 				// This is maybe not the ideal solution, but IE6 can suck it
 				$creationFunction	= 'ImageCreateFromGif';
 				$outputFunction		= 'ImagePng';
-				// We need to convert GIFs to PNGs
-				$mime				= 'image/png';
 				$doSharpen			= false;
 				// We are converting the GIF to a PNG and PNG needs a compression level of 0 (no compression) through 9
 				$quality			= (int) round(10 - ($quality / 10));

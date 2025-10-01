@@ -65,9 +65,8 @@ class AudioConverter
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-		//$lastLine = exec($commandLine, $output, $returnVar);
-		//var_dump($output, $lastLine);
+		system($commandLine);
+		//exec($commandLine, $output, $returnVar);
 
 		return true;
 	}
@@ -95,9 +94,8 @@ class AudioConverter
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-		//$lastLine = exec($commandLine, $output, $returnVar);
-		//var_dump($output, $lastLine);
+		system($commandLine);
+		//exec($commandLine, $output, $returnVar);
 
 		return true;
 	}
@@ -128,9 +126,8 @@ class AudioConverter
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		$lastLine = system($commandLine);
-		//$lastLine = exec($commandLine, $output, $returnVar);
-		//var_dump($output, $lastLine);
+		system($commandLine);
+		//exec($commandLine, $output, $returnVar);
 
 		return true;
 	}
