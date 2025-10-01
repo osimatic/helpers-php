@@ -1067,11 +1067,7 @@ class Email
 	 */
 	public function setContentType(EmailContentType|string $contentType): self
 	{
-		if (is_string($contentType)) {
-			$contentType = EmailContentType::tryFrom($contentType);
-		}
-
-		$this->contentType = $contentType;
+		$this->contentType = is_string($contentType) ? EmailContentType::tryFrom($contentType) ?? EmailContentType::TEXT_HTML : $contentType;
 
 		return $this;
 	}

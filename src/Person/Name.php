@@ -156,7 +156,9 @@ class Name
 
 			$mainNameDays = [];
 			while (($firstNameData = fgetcsv($handle, 1000, ';')) !== false) {
-				if (count($firstNameData) < 4) continue;
+				if (count($firstNameData) < 4) {
+					continue;
+				}
 
 				if (!$rare && (bool)trim($firstNameData[3])) { // si prénom rare, on l'ignore
 					continue;

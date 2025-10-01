@@ -29,8 +29,8 @@ class SqlTime
 	public static function check(?string $time): bool
 	{
 		$timeArr = explode(':', $time);
-		$hour = ($timeArr[0]??-1);
-		$minute = ($timeArr[1]??-1);
+		$hour = (int) ($timeArr[0] ?? -1);
+		$minute = (int) ($timeArr[1] ?? -1);
 
 		return ($hour >= 0 && $hour < 24 && $minute >= 0 && $minute < 60);
 	}

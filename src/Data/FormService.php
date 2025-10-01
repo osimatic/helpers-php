@@ -55,8 +55,7 @@ class FormService
 			return null;
 		}
 
-		$value = CASE_LOWER === $caseType ? mb_strtolower($value) : mb_strtoupper($value);
-		return $enum::tryFrom($value); // @phpstan-ignore
+		return $enum::tryFrom(CASE_LOWER === $caseType ? mb_strtolower($value) : mb_strtoupper($value)); // @phpstan-ignore
 	}
 
 	/**

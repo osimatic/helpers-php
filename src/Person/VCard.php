@@ -645,7 +645,7 @@ class VCard
 						}
 						break;
 					case 'BDAY':
-						$cardData['birthday'] = $this->parseBirthday($value) ?? null;
+						$cardData['birthday'] = $this->parseBirthday($value);
 						break;
 					case 'ADR':
 						if (!isset($cardData['address'])) {

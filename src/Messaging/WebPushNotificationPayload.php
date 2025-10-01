@@ -149,10 +149,10 @@ class WebPushNotificationPayload
 	 * Appropriate responses have to be implemented within the notificationclick event.
 	 * the event.action property contains the $strAction clicked on
 	 *
-	 * @param string $action     identifying a user action to be displayed on the notification.
-	 * @param string $title      containing action text to be shown to the user.
-	 * @param string $icon       containing the URL of an icon to display with the action.
-	 * @param string $customInfo     custom info - not part of the showNotification()- Options!
+	 * @param string $action identifying a user action to be displayed on the notification.
+	 * @param string $title containing action text to be shown to the user.
+	 * @param string|null $icon containing the URL of an icon to display with the action.
+	 * @param string $customInfo custom info - not part of the showNotification()- Options!
 	 */
 	public function addAction(string $action, string $title, ?string $icon = null, string $customInfo = '') : void
 	{
