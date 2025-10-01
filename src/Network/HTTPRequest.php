@@ -96,11 +96,6 @@ class HTTPRequest
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 		}
 
-		// Configuration du mode de transmission de la réponse
-		if (true === ($options['binary_transfer'] ?? false)) {
-			curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-		}
-
 		// Exécution de la requête
 		$data = curl_exec($ch);
 

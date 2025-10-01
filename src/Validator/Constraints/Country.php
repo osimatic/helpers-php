@@ -11,7 +11,7 @@ class Country extends Constraint
 	public string $message;
 
 	#[HasNamedArguments]
-	public function __construct(?string $message=null, array $groups = null, mixed $payload = null)
+	public function __construct(?string $message=null, ?array $groups = null, mixed $payload = null)
 	{
 		parent::__construct([], $groups, $payload);
 

@@ -13,7 +13,7 @@ class PhoneNumber extends Constraint
 	public ?PhoneNumberType $phoneNumberType;
 
 	#[HasNamedArguments]
-	public function __construct(?PhoneNumberType $phoneNumberType=null, ?string $message=null, array $groups = null, mixed $payload = null)
+	public function __construct(?PhoneNumberType $phoneNumberType=null, ?string $message=null, ?array $groups = null, mixed $payload = null)
 	{
 		parent::__construct([], $groups, $payload);
 

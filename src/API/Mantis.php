@@ -67,7 +67,7 @@ class Mantis
 	 * @param string|null $projectName
 	 * @return bool
 	 */
-	public function addIssue(int $projectId, string $title, string $desc, int $severity, string $projectName=null): bool
+	public function addIssue(int $projectId, string $title, string $desc, int $severity, ?string $projectName=null): bool
 	{
 		if (empty($this->url)) {
 			return false;
