@@ -27,6 +27,14 @@ class Table
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getTableHead(): array
+	{
+		return $this->tableHead;
+	}
+
+	/**
 	 * @param $tableHead
 	 * @return self
 	 */
@@ -49,6 +57,14 @@ class Table
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getTableBody(): array
+	{
+		return $this->tableBody;
+	}
+
+	/**
 	 * @param array $tableBody
 	 * @return self
 	 */
@@ -68,6 +84,14 @@ class Table
 		$this->tableBody[] = $line;
 
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getTableFoot(): array
+	{
+		return $this->tableFoot;
 	}
 
 	/**
