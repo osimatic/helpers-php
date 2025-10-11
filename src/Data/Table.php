@@ -35,6 +35,14 @@ class Table
 	}
 
 	/**
+	 * @param array $tableHead
+	 */
+	public function setTableHead(array $tableHead): void
+	{
+		$this->tableHead = $tableHead;
+	}
+
+	/**
 	 * @param $tableHead
 	 * @return self
 	 */
@@ -105,6 +113,14 @@ class Table
 	public function getTableFoot(): array
 	{
 		return $this->tableFoot;
+	}
+
+	/**
+	 * @param array $tableFoot
+	 */
+	public function setTableFoot(array $tableFoot): void
+	{
+		$this->tableFoot = $tableFoot;
 	}
 
 	/**
