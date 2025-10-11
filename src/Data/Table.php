@@ -87,6 +87,19 @@ class Table
 	}
 
 	/**
+	 * @param array $lines
+	 * @return self
+	 */
+	public function addTableLines(array $lines): self
+	{
+		foreach ($lines as $line) {
+			$this->tableBody[] = $line;
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getTableFoot(): array
