@@ -29,13 +29,14 @@ class CSVGenerator
 	 * @param string $filePath
 	 * @param array $data
 	 * @param string|null $title
+	 * @param array $defaultContext
 	 * @return bool
 	 */
-	public function generateFile(string $filePath, array $data, ?string $title=null): bool
+	public function generateFile(string $filePath, array $data, ?string $title=null, array $defaultContext=[]): bool
 	{
 		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
-		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder([CsvEncoder::DELIMITER_KEY => ';', CsvEncoder::OUTPUT_UTF8_BOM_KEY => true])]);
+		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder(array_merge([CsvEncoder::DELIMITER_KEY => ';', CsvEncoder::OUTPUT_UTF8_BOM_KEY => true], $defaultContext))]);
 
 		if (!empty($title)) {
 			$data = array_merge([[$title]], $data);
