@@ -29,22 +29,26 @@ class CSVGenerator
 	 * @param string $filePath
 	 * @param array $data
 	 * @param string|null $title
-	 * @param array $defaultContext
+	 * @param array $context
 	 * @return bool
 	 */
-	public function generateFile(string $filePath, array $data, ?string $title=null, array $defaultContext=[]): bool
+	public function generateFile(string $filePath, array $data, ?string $title=null, array $context=[]): bool
 	{
 		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
-		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder(array_merge([CsvEncoder::DELIMITER_KEY => ';', CsvEncoder::OUTPUT_UTF8_BOM_KEY => true], $defaultContext))]);
+		$serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder([CsvEncoder::DELIMITER_KEY => ';', CsvEncoder::OUTPUT_UTF8_BOM_KEY => true])]);
 
 		if (!empty($title)) {
 			$data = array_merge([[$title]], $data);
 		}
 
-		$str = $serializer->encode($data, 'csv');
+		$str = $serializer->encode($data, 'csv', $context);
 		$str = substr($str, strpos($str, "\n")+strlen("\n"));
-		$str = chr(0xEF).chr(0xBB).chr(0xBF).$str; // UTF-8 BOM pour forcer l'UTF8 sur Excel
+
+		if ($context[CsvEncoder::OUTPUT_UTF8_BOM_KEY] ?? true) {
+			$str = chr(0xEF).chr(0xBB).chr(0xBF).$str; // UTF-8 BOM pour forcer l'UTF8 sur Excel
+		}
+
 		$nbBytes = file_put_contents($filePath, $str, FILE_APPEND);
 
 		if (false === $nbBytes) {
