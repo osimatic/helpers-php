@@ -91,6 +91,40 @@ class Duration
 		return $durationInSeconds%60;
 	}
 
+	// ========== Affichage des durées (format texte) ==========
+
+	public static function formatAsText(int $durationInSeconds, bool $withSeconds=true, bool $withMinutes=true, bool $withMinuteLabel=true, bool $fullLabel=false, bool $hideHourIfZeroHour=false): string
+	{
+		$durationInSeconds = (int) abs($durationInSeconds);
+
+		$str = '';
+
+		// Heures
+		$nbHours = self::getNbHours($durationInSeconds);
+		if (!$hideHourIfZeroHour || $nbHours > 0) {
+			$str .= $nbHours;
+			$str .= $fullLabel ? ' '.\Osimatic\Text\Str::pluralize('{heure|heures}', $nbHours) : 'h';
+		}
+
+		// Minutes
+		if ($withMinutes) {
+			$nbMinutes = self::getNbMinutesRemaining($durationInSeconds);
+			$str .= ' ' . str_pad($nbMinutes, 2, '0', STR_PAD_LEFT);
+			if ($withMinuteLabel) {
+				$str .= $fullLabel ? ' '.\Osimatic\Text\Str::pluralize('{minute|minutes}', $nbMinutes) : 'min';
+			}
+		}
+
+		// Secondes
+		if ($withSeconds) {
+			$nbSeconds = self::getNbSecondsRemaining($durationInSeconds);
+			$str .= ' ' . str_pad($nbSeconds, 2, '0', STR_PAD_LEFT);
+			$str .= $fullLabel ? ' '.\Osimatic\Text\Str::pluralize('{seconde|secondes}', $nbSeconds) : 's';
+		}
+
+		return trim($str);
+	}
+
 	// ========== Affichage des durées (format chronomètre) ==========
 
 	/**
