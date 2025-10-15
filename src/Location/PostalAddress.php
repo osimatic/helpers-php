@@ -2,6 +2,11 @@
 
 namespace Osimatic\Location;
 
+use CommerceGuys\Addressing\Address;
+use CommerceGuys\Addressing\Formatter\DefaultFormatter;
+use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
+use CommerceGuys\Addressing\Country\CountryRepository;
+use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -67,11 +72,53 @@ class PostalAddress
 	 * @param PostalAddressInterface $postalAddress
 	 * @param bool $withAttention
 	 * @param string|null $separator
+	 * @param string|null $locale
 	 * @return string|null
+	 * @link https://github.com/commerceguys/addressing
 	 */
-	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
+	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>', ?string $locale=null): ?string
 	{
-		return (new PostalAddressFormatter())->format($postalAddress, [], $separator, $withAttention);
+		//return (new PostalAddressFormatter())->format($postalAddress, [], $separator, $withAttention);
+
+		$addressFormatRepository = new AddressFormatRepository();
+		$countryRepository = new CountryRepository();
+		$subdivisionRepository = new SubdivisionRepository();
+		$formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository, ['locale' => $locale ?? \Locale::getDefault()]);
+		// Options passed to the constructor or format() allow turning off
+		// html rendering, customizing the wrapper element and its attributes.
+
+		if (null === $postalAddress->getCountryCode()) {
+			return null;
+		}
+
+		$address = new Address();
+		$address = $address->withCountryCode($postalAddress->getCountryCode());
+		if (null !== $postalAddress->getCity()) {
+			$address = $address->withLocality($postalAddress->getCity());
+		}
+		if (null !== $postalAddress->getPostcode()) {
+			$address = $address->withPostalCode($postalAddress->getPostcode());
+		}
+		if (null !== $postalAddress->getRoad()) {
+			$address = $address->withAddressLine1($postalAddress->getRoad());
+		}
+		if (null !== $postalAddress->getState()) {
+			$address = $address->withAdministrativeArea($postalAddress->getState());
+		}
+		if ($withAttention) {
+			if (null !== $postalAddress->getAttention()) {
+				$address = $address->withFamilyName($postalAddress->getAttention());
+			}
+		}
+
+		try {
+			$formattedAddress = $formatter->format($address, ['html' => false]);
+			$formattedAddress = str_replace("\n", $separator, $formattedAddress);
+			return $formattedAddress;
+		}
+		catch (\ReflectionException) {}
+
+		return null;
 	}
 
 	/**
@@ -137,6 +184,30 @@ class PostalAddress
 	public static function formatFromTwig(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
 	{
 		return self::format($postalAddress, $withAttention, $separator);
+	}
+
+	/**
+	 * @deprecated use format instead
+	 * @param PostalAddressInterface $postalAddress
+	 * @param bool $withAttention
+	 * @param string|null $separator
+	 * @return string|null
+	 */
+	public static function _format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>'): ?string
+	{
+		return (new PostalAddressFormatter())->format($postalAddress, [], $separator, $withAttention);
+	}
+
+	/**
+	 * @deprecated use formatInline instead
+	 * @param PostalAddressInterface $postalAddress
+	 * @param bool $withAttention
+	 * @param string|null $separator
+	 * @return string|null
+	 */
+	public static function _formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', '): ?string
+	{
+		return self::_format($postalAddress, $withAttention, $separator);
 	}
 
 }
