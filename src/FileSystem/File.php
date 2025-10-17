@@ -208,18 +208,18 @@ class File
 	/**
 	 * @param string $realPath
 	 * @param string $clientOriginalName
-	 * @param array $extensionsAllowed
+	 * @param array|null $extensionsAllowed
 	 * @param array|null $mimeTypesAllowed
 	 * @return bool
 	 */
-	public static function check(string $realPath, string $clientOriginalName, array $extensionsAllowed, ?array $mimeTypesAllowed=null): bool
+	public static function check(string $realPath, string $clientOriginalName, ?array $extensionsAllowed=null, ?array $mimeTypesAllowed=null): bool
 	{
 		if (empty($realPath) || !file_exists($realPath)) {
 			return false;
 		}
 
 		$extension = mb_strtolower('.'.pathinfo($clientOriginalName, PATHINFO_EXTENSION));
-		if (empty($extension) || !in_array($extension, $extensionsAllowed, true)) {
+		if (empty($extension) || (!empty($extensionsAllowed) && !in_array($extension, $extensionsAllowed, true))) {
 			return false;
 		}
 
