@@ -11,6 +11,12 @@ class InputFile
 	private ?string $uploadedFilePath;
 
 	/**
+	 * The full file path of the file, after upload.
+	 * @var string|null
+	 */
+	private ?string $path;
+
+	/**
 	 * The original filename of the uploaded file.
 	 * @var string|null
 	 */
@@ -89,10 +95,32 @@ class InputFile
 
 	/**
 	 * @param string|null $uploadedFilePath
+	 * @return self
 	 */
-	public function setUploadedFilePath(?string $uploadedFilePath): void
+	public function setUploadedFilePath(?string $uploadedFilePath): self
 	{
 		$this->uploadedFilePath = $uploadedFilePath;
+
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getPath(): ?string
+	{
+		return $this->path;
+	}
+
+	/**
+	 * @param string|null $path
+	 * @return self
+	 */
+	public function setPath(?string $path): self
+	{
+		$this->path = $path;
+
+		return $this;
 	}
 
 	/**
@@ -105,10 +133,13 @@ class InputFile
 
 	/**
 	 * @param string|null $originalFileName
+	 * @return self
 	 */
-	public function setOriginalFileName(?string $originalFileName): void
+	public function setOriginalFileName(?string $originalFileName): self
 	{
 		$this->originalFileName = $originalFileName;
+
+		return $this;
 	}
 
 	/**
@@ -121,10 +152,13 @@ class InputFile
 
 	/**
 	 * @param string|null $data
+	 * @return self
 	 */
-	public function setData(?string $data): void
+	public function setData(?string $data): self
 	{
 		$this->data = $data;
+
+		return $this;
 	}
 
 	/**
@@ -137,10 +171,13 @@ class InputFile
 
 	/**
 	 * @param string|null $base64EncodedData
+	 * @return self
 	 */
-	public function setBase64EncodedData(?string $base64EncodedData): void
+	public function setBase64EncodedData(?string $base64EncodedData): self
 	{
 		$this->base64EncodedData = $base64EncodedData;
+
+		return $this;
 	}
 
 	/**
@@ -153,10 +190,13 @@ class InputFile
 
 	/**
 	 * @param string|null $mimeType
+	 * @return self
 	 */
-	public function setMimeType(?string $mimeType): void
+	public function setMimeType(?string $mimeType): self
 	{
 		$this->mimeType = $mimeType;
+
+		return $this;
 	}
 
 }
