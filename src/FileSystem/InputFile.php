@@ -8,37 +8,43 @@ class InputFile
 	 * The full file path of the uploaded file.
 	 * @var string|null
 	 */
-	private ?string $uploadedFilePath;
+	private ?string $uploadedFilePath = null;
 
 	/**
 	 * The full file path of the file, after upload.
 	 * @var string|null
 	 */
-	private ?string $path;
+	private ?string $path = null;
 
 	/**
 	 * The original filename of the uploaded file.
 	 * @var string|null
 	 */
-	private ?string $originalFileName;
+	private ?string $originalFileName = null;
 
 	/**
 	 * Binary data of the file (if data sent directly instead of uploaded file)
 	 * @var string|null
 	 */
-	private ?string $data;
+	private ?string $data = null;
 
 	/**
 	 * Base64 encoded data of the file (if data sent directly instead of uploaded file)
 	 * @var string|null
 	 */
-	private ?string $base64EncodedData;
+	private ?string $base64EncodedData = null;
 
 	/**
 	 * Mime Type of the file (if data sent directly instead of uploaded file)
 	 * @var string|null
 	 */
-	private ?string $mimeType;
+	private ?string $mimeType = null;
+
+	/**
+	 * Size of the file
+	 * @var int|null
+	 */
+	private ?int $fileSize = null;
 
 	/**
 	 * @param array|null $uploadedFileInfos
@@ -195,6 +201,25 @@ class InputFile
 	public function setMimeType(?string $mimeType): self
 	{
 		$this->mimeType = $mimeType;
+
+		return $this;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public function getFileSize(): ?int
+	{
+		return $this->fileSize;
+	}
+
+	/**
+	 * @param int|null $fileSize
+	 * @return self
+	 */
+	public function setFileSize(?int $fileSize): self
+	{
+		$this->fileSize = $fileSize;
 
 		return $this;
 	}
