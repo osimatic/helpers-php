@@ -50,6 +50,68 @@ class UserAgent implements \JsonSerializable
 		return new UserAgent($userAgent);
 	}
 
+	public function getInfosDisplay($separator=' — '): string
+	{
+		$userAgentData = $this->getData();
+
+		$components = [];
+		if (null !== $userAgentData['os']) {
+			$components[] = $userAgentData['os'];
+		}
+		if (null !== $userAgentData['browser']) {
+			$components[] = $userAgentData['browser'];
+		}
+		if (null !== $userAgentData['device']) {
+			$components[] = $userAgentData['device'];
+		}
+		return implode($separator, $components);
+	}
+
+	public function getData(): array
+	{
+		$os = null;
+		if (null !== $this->osName) {
+			$os = $this->osName;
+			if (null !== $this->osVersion) {
+				$os .= ' ' . $this->osVersion;
+			}
+
+			$os = trim($os);
+		}
+
+		$browser = null;
+		if (isset($this->browserName)) {
+			$browser = $this->browserName;
+
+			if (isset($this->browserVersion)) {
+				$browser .= ' ' . $this->browserVersion;
+			}
+
+			$browser = trim($browser);
+		}
+
+		$device = null;
+		if (isset($this->deviceType)) {
+			$device = $this->deviceType->getLabel();
+
+			if (isset($this->deviceManufacturer)) {
+				$device .= ' ' . $this->deviceManufacturer;
+			}
+
+			if (isset($this->deviceModel)) {
+				$device .= ' ' . $this->deviceModel;
+			}
+
+			$device = trim($device);
+		}
+
+		return [
+			'os' => !empty($os ?? null) ? $os : null,
+			'browser' => !empty($browser) ? $browser : null,
+			'device' => !empty($device) ? $device : null,
+		];
+	}
+
 	/**
 	 * @inheritDoc
 	 */

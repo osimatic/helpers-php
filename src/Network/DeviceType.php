@@ -30,4 +30,34 @@ enum DeviceType: string
 	case BOT 				= 'bot';
 	case PROJECTOR 			= 'projector';
 
+	public function getLabel(): string
+	{
+		return match ($this) {
+			self::DESKTOP => 'Ordinateur',
+			self::MOBILE => 'Mobile',
+			self::PDA => 'PDA',
+			self::DECT => 'Dect',
+			self::TABLET => 'Tablette',
+			self::GAMING => 'Console',
+			self::EREADER => 'Liseuse',
+			self::MEDIA => 'Média',
+			self::HEADSET => 'Casque',
+			self::WATCH => 'Montre',
+			self::EMULATOR => 'Émulateur',
+			self::TELEVISION => 'TV',
+			self::MONITOR => 'Écran',
+			self::CAMERA => 'Appareil photo',
+			self::PRINTER => 'Imprimante',
+			self::SIGNAGE => 'Dispositif d’affichage digital',
+			self::WHITEBOARD => 'Tableau interactif',
+			self::DEVBOARD => 'Module de développement',
+			self::INFLIGHT => 'Divertissement en vol',
+			self::APPLIANCE => 'Application matérielle',
+			self::GPS => 'GPS',
+			self::CAR => 'Véhicule',
+			self::POS => 'Point de vente',
+			self::BOT => 'Bot',
+			self::PROJECTOR => 'Vidéo projecteur',
+		};
+	}
 }
