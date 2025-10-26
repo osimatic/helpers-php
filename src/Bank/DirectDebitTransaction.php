@@ -76,7 +76,7 @@ class DirectDebitTransaction
 		}
 
 		$nbTransactions = count($listTransactions);
-		$totalAmount = array_sum(array_map(fn(DirectDebitTransactionInterface $transaction) => $transaction->getAmount(), $listTransactions));
+		$totalAmount = array_sum(array_map(static fn(DirectDebitTransactionInterface $transaction) => $transaction->getAmount(), $listTransactions));
 
 		$xml = [
 			'CstmrDrctDbtInitn' => [

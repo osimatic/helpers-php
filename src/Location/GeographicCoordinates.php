@@ -20,7 +20,7 @@ class GeographicCoordinates
 	 */
 	public static function getCoordinatesFromLatitudeAndLongitude(float $latitude, float $longitude): string
 	{
-		$cleanLatOrLng = fn(string $latOrLng) => str_replace([' ', ','], ['', '.'], $latOrLng);
+		$cleanLatOrLng = static fn(string $latOrLng) => str_replace([' ', ','], ['', '.'], $latOrLng);
 		return $cleanLatOrLng((string) $latitude).','.$cleanLatOrLng((string) $longitude);
 	}
 

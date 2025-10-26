@@ -179,9 +179,9 @@ class Color
 	 */
 	public static function getRandomColor(): array
 	{
-		$red = mt_rand(0, 255);
-		$green = mt_rand(0, 255);
-		$blue = mt_rand(0, 255);
+		$red = random_int(0, 255);
+		$green = random_int(0, 255);
+		$blue = random_int(0, 255);
 		return [$red, $green, $blue];
 	}
 
@@ -190,7 +190,7 @@ class Color
 	 */
 	public static function getRandomBlackAndWhiteColor(): array
 	{
-		$red = mt_rand(0, 255);
+		$red = random_int(0, 255);
 		$green = $red;
 		$blue = $red;
 		return [$red, $green, $blue];

@@ -89,7 +89,7 @@ class DatePeriod
 	 */
 	public static function getListOfDaysOfTheMonth(\DateTime $periodStart, \DateTime $periodEnd, ?array $weekDays=null, string $dateFormat='Y-m-d'): array
 	{
-		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateDaysOfTheMonth($periodStart, $periodEnd, $weekDays));
+		return array_map(static fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateDaysOfTheMonth($periodStart, $periodEnd, $weekDays));
 	}
 
 	// ========== Semaines ==========
@@ -146,7 +146,7 @@ class DatePeriod
 	 */
 	public static function getListOfWeeks(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-W'): array
 	{
-		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateWeeks($periodStart, $periodEnd));
+		return array_map(static fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateWeeks($periodStart, $periodEnd));
 	}
 
 	/**
@@ -205,7 +205,7 @@ class DatePeriod
 	 */
 	public static function getListOfMonths(\DateTime $periodStart, \DateTime $periodEnd, string $dateFormat='Y-n'): array
 	{
-		return array_map(fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateMonths($periodStart, $periodEnd));
+		return array_map(static fn(\DateTime $date) => $date->format($dateFormat), self::getListOfDateMonths($periodStart, $periodEnd));
 	}
 
 	/**

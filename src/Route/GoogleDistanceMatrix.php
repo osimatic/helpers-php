@@ -90,7 +90,7 @@ class GoogleDistanceMatrix
 		}
 
 		if (TravelMode::TRANSIT === $travelMode && !empty($transitModes = $parameters->getTransitModes())) {
-			$params['transit_mode'] = implode('|', array_values(array_filter(array_map(fn(TransitTravelMode $transitMode) => match ($travelMode) {
+			$params['transit_mode'] = implode('|', array_values(array_filter(array_map(static fn(TransitTravelMode $transitMode) => match ($travelMode) {
 				TransitTravelMode::BUS => 'bus',
 				TransitTravelMode::SUBWAY => 'subway',
 				TransitTravelMode::TRAIN => 'train',

@@ -117,7 +117,7 @@ class Arr
 	public static function getRandomValue(array $array): mixed
 	{
 		$values = array_values($array);
-		return $values[mt_rand(0, count($values) - 1)];
+		return $values[random_int(0, count($values) - 1)];
 		// return $array[array_rand($array)];
 	}
 
@@ -128,7 +128,7 @@ class Arr
 	public static function getRandomKey(array $array): string|int
 	{
 		$keys = array_keys($array);
-		return $keys[mt_rand(0, count($keys) - 1)];
+		return $keys[random_int(0, count($keys) - 1)];
 	}
 
 	/**

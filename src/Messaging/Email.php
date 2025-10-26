@@ -438,7 +438,7 @@ class Email
 	 */
 	public function getListToEmails(): array
 	{
-		return array_filter(array_map(fn($email) => $email[0] ?? null, $this->listTo));
+		return array_filter(array_map(static fn($email) => $email[0] ?? null, $this->listTo));
 	}
 
 	/**
@@ -456,7 +456,7 @@ class Email
 	 */
 	public function getListCcEmails(): array
 	{
-		return array_filter(array_map(fn($email) => $email[0] ?? null, $this->listCc));
+		return array_filter(array_map(static fn($email) => $email[0] ?? null, $this->listCc));
 	}
 
 	/**
@@ -474,7 +474,7 @@ class Email
 	 */
 	public function getListBccEmails(): array
 	{
-		return array_filter(array_map(fn($email) => $email[0] ?? null, $this->listBcc));
+		return array_filter(array_map(static fn($email) => $email[0] ?? null, $this->listBcc));
 	}
 
 	/**

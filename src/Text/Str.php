@@ -1099,7 +1099,7 @@ class Str
 	 */
 	public static function mb_unserialize(string $string): ?array
 	{
-		$array = unserialize(preg_replace_callback('!s:(\d+):"(.*?)";!s', fn($m) => 's:' .strlen($m[2]).':"'.$m[2].'";', $string));
+		$array = unserialize(preg_replace_callback('!s:(\d+):"(.*?)";!s', static fn($m) => 's:' .strlen($m[2]).':"'.$m[2].'";', $string));
 		return $array !== false ? $array : null;
 	}
 
@@ -1132,7 +1132,7 @@ class Str
 	public static function getRandomPronounceableWord(int $nbChar, ?string $listeConsonnes=null, ?string $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
 	{
 		if ($premiereLettreConsonneAleatoire) {
-			$pair = (mt_rand(0, 1) === 0);
+			$pair = (random_int(0, 1) === 0);
 		}
 		else {
 			$pair = ($premiereLettreConsonne);
@@ -1150,10 +1150,10 @@ class Str
 		$motPrononcable = '';
 		for ($i=0; $i<$nbChar; $i++) {
 			if ($pair === true) {
-				$motPrononcable .= $listeConsonnes[mt_rand(0, $nbConsonnes-1)];
+				$motPrononcable .= $listeConsonnes[random_int(0, $nbConsonnes-1)];
 			}
 			else {
-				$motPrononcable .= $listeVoyelles[mt_rand(0, $nbVoyelles-1)];
+				$motPrononcable .= $listeVoyelles[random_int(0, $nbVoyelles-1)];
 			}
 
 			$pair = !$pair;
@@ -1173,7 +1173,7 @@ class Str
 		$strRand = '';
 		$nbLettres = strlen($listeChar);
 		for ($i=0; $i<$nbChar; $i++) {
-			$charRand = $listeChar[mt_rand(0, $nbLettres-1)];
+			$charRand = $listeChar[random_int(0, $nbLettres-1)];
 			$strRand .= $charRand;
 		}
 		return $strRand;
@@ -1197,10 +1197,10 @@ class Str
 
 		$suiteCaractereAlphabetique = '';
 		for ($i=0; $i<$nbChar; $i++) {
-			$caractereAlphabetique = $listeLettres[mt_rand(0, $nbLettres-1)];
+			$caractereAlphabetique = $listeLettres[random_int(0, $nbLettres-1)];
 
 			if ($lowercaseEnabled && $uppercaseEnabled) {
-				if (mt_rand(0, 1) === 1) {
+				if (random_int(0, 1) === 1) {
 					$caractereAlphabetique = strtoupper($caractereAlphabetique);
 				}
 			}
@@ -1227,7 +1227,7 @@ class Str
 
 		$suiteCaractereNumerique = '';
 		for ($i=0; $i<$nbChar; $i++) {
-			$caractereNumerique = $listeChiffres[mt_rand(0, $nbChiffres-1)];
+			$caractereNumerique = $listeChiffres[random_int(0, $nbChiffres-1)];
 
 			if (false === $startWith0 && 0 === $i && '0' === $caractereNumerique) {
 				$i--;
@@ -1266,7 +1266,7 @@ class Str
 				}
 
 				$caractereAlphanumerique = null;
-				$typeCaractere = mt_rand(1, $nbTypeCaractere);
+				$typeCaractere = random_int(1, $nbTypeCaractere);
 				switch ($typeCaractere) {
 					case 1 :
 						$caractereAlphanumerique = self::getRandomNumericString(1);

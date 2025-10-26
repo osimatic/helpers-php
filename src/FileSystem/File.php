@@ -457,7 +457,7 @@ class File
 	 */
 	private static function formatExtensionsAndMimeTypes(array $extensionsAndMimeTypes): array
 	{
-		return array_values(array_map(fn($extensionsAndMimeTypesOfFormat) => [array_map(fn($extension) => str_starts_with($extension, '.') ? substr($extension, 1) : $extension, $extensionsAndMimeTypesOfFormat[0]), $extensionsAndMimeTypesOfFormat[1]], $extensionsAndMimeTypes));
+		return array_values(array_map(static fn($extensionsAndMimeTypesOfFormat) => [array_map(static fn($extension) => str_starts_with($extension, '.') ? substr($extension, 1) : $extension, $extensionsAndMimeTypesOfFormat[0]), $extensionsAndMimeTypesOfFormat[1]], $extensionsAndMimeTypes));
 	}
 
 	/**
