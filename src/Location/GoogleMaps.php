@@ -362,7 +362,6 @@ class GoogleMaps
 			return null;
 		}
 
-		// var_dump($json);
 		return $result['results'];
 	}
 

@@ -2,6 +2,8 @@
 
 namespace Osimatic\Location;
 
+use Osimatic\Number\Distance;
+
 class GeographicCoordinates
 {
 	/**
@@ -30,12 +32,22 @@ class GeographicCoordinates
 	 */
 	public static function parse(?string $coordinates): ?string
 	{
-		if (empty($coordinates) || 'NaN,NaN' === $coordinates) {
+		if (null === ($point = Point::parse($coordinates))) {
 			return null;
 		}
-
-		$coordinatesComponents = array_map(trim(...), explode(',', $coordinates));
-		return implode(',', $coordinatesComponents);
+		return implode(',', $point);
 	}
+
+	/**
+	 * @param string $coordinates coordonnées à tester
+	 * @param array $geoJSONList tableau de GeoJSON (GeoJSON Point ou GeoJSON Polygon)
+	 * @param float $radius tolérance en mètres pour comparer un point (0 = égalité stricte)
+	 * @return bool
+	 */
+	public static function isCoordinatesInsidePlaces(string $coordinates, array $geoJSONList, float $radius = 0.): bool
+	{
+		return Point::isPointInsidePlaces(Point::parse($coordinates), $geoJSONList, $radius);
+	}
+
 
 }

@@ -27,12 +27,26 @@ class Distance
 	 * @param string $originCoordinates
 	 * @param string $destinationCoordinates
 	 * @param int $decimals
+	 * @return float|null
+	 */
+	public static function calculate(string $originCoordinates, string $destinationCoordinates, int $decimals=2): ?float
+	{
+		if (null === ($originPoint = \Osimatic\Location\GeographicCoordinates::parseToPoint($originCoordinates)) || null === ($destinationPoint = \Osimatic\Location\GeographicCoordinates::parseToPoint($originCoordinates))) {
+			return null;
+		}
+		return self::calculateBetweenPoints($originPoint, $destinationPoint, $decimals);
+	}
+
+	/**
+	 * @param float[] $originPoint
+	 * @param float[] $destinationPoint
+	 * @param int $decimals
 	 * @return float
 	 */
-	public static function calculate(string $originCoordinates, string $destinationCoordinates, int $decimals=2): float
+	public static function calculateBetweenPoints(array $originPoint, array $destinationPoint, int $decimals=2): float
 	{
-		[$originLatitude, $originLongitude] = explode(',', $originCoordinates);
-		[$destinationLatitude, $destinationLongitude] = explode(',', $destinationCoordinates);
+		[$originLatitude, $originLongitude] = $originPoint;
+		[$destinationLatitude, $destinationLongitude] = $destinationPoint;
 		return self::calculateBetweenLatitudeAndLongitude((float) $originLatitude, (float) $originLongitude, (float) $destinationLatitude, (float) $destinationLongitude, $decimals);
 	}
 

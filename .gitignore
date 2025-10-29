@@ -1,5 +1,6 @@
 .idea/
 vendor/
 composer.lock
-test.php
+tests/test_postal_address.php
+tests/test.php
 todo.txt
