@@ -3,6 +3,7 @@
 namespace Osimatic\Number;
 
 use Osimatic\Location\PlaceInterface;
+use Osimatic\Location\Point;
 
 class Distance
 {
@@ -31,7 +32,7 @@ class Distance
 	 */
 	public static function calculate(string $originCoordinates, string $destinationCoordinates, int $decimals=2): ?float
 	{
-		if (null === ($originPoint = \Osimatic\Location\GeographicCoordinates::parseToPoint($originCoordinates)) || null === ($destinationPoint = \Osimatic\Location\GeographicCoordinates::parseToPoint($originCoordinates))) {
+		if (null === ($originPoint = \Osimatic\Location\Point::parse($originCoordinates)) || null === ($destinationPoint = \Osimatic\Location\Point::parse($originCoordinates))) {
 			return null;
 		}
 		return self::calculateBetweenPoints($originPoint, $destinationPoint, $decimals);
