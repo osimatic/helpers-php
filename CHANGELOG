@@ -48,3 +48,4 @@ Version du 23/08/2025 :
 
 Version du 01/10/2025 :
 - ImageResizer::resize() -> $imageResizer->resize()
+- Duration::getDurationOfIntersectionBetweenTwoTimeSlot() -> Duration::getIntersectionDurationBetweenTimestampSlots()

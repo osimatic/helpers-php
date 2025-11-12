@@ -7,13 +7,19 @@ class Duration
 	// ========== Calcul entre 2 plages horaires ==========
 
 	/**
+	 * Calculates the duration (in seconds) of the intersection between two time slots.
 	 * @param int $timeSlot1StartTimestamp
 	 * @param int $timeSlotEnd1Timestamp
 	 * @param int $timeSlot2StartTimestamp
 	 * @param int $timeSlotEnd2Timestamp
 	 * @return int
 	 */
-	public static function getDurationOfIntersectionBetweenTwoTimeSlot(int $timeSlot1StartTimestamp, int $timeSlotEnd1Timestamp, int $timeSlot2StartTimestamp, int $timeSlotEnd2Timestamp): int
+	public static function getIntersectionDurationBetweenTimestampSlots(
+		int $timeSlot1StartTimestamp,
+		int $timeSlotEnd1Timestamp,
+		int $timeSlot2StartTimestamp,
+		int $timeSlotEnd2Timestamp
+	): int
 	{
 		$timestampCalcStart = ($timeSlot1StartTimestamp > $timeSlot2StartTimestamp ? $timeSlot1StartTimestamp : $timeSlot2StartTimestamp);
 		$timestampCalcEnd = ($timeSlotEnd1Timestamp < $timeSlotEnd2Timestamp ? $timeSlotEnd1Timestamp : $timeSlotEnd2Timestamp);
@@ -21,6 +27,63 @@ class Duration
 			return $timestampCalcEnd - $timestampCalcStart;
 		}
 		return 0;
+	}
+
+	/**
+	 * Calculates the duration (in seconds) of the intersection between two time slots.
+	 * @param \DateTimeInterface $slot1Start
+	 * @param \DateTimeInterface $slot1End
+	 * @param \DateTimeInterface $slot2Start
+	 * @param \DateTimeInterface $slot2End
+	 * @return int Duration of the intersection in seconds
+	 */
+	public static function getIntersectionDurationBetweenTimeSlots(
+		\DateTimeInterface $slot1Start,
+		\DateTimeInterface $slot1End,
+		\DateTimeInterface $slot2Start,
+		\DateTimeInterface $slot2End
+	): int
+	{
+		// Determine the later of the two start times
+		$calcStart = $slot1Start > $slot2Start ? $slot1Start : $slot2Start;
+		// Determine the earlier of the two end times
+		$calcEnd = $slot1End < $slot2End ? $slot1End : $slot2End;
+
+		// If there is an intersection
+		if ($calcEnd > $calcStart) {
+			return self::getDurationInSeconds($calcStart, $calcEnd);
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Returns the duration between two DateTime objects in seconds,
+	 * correctly handling daylight saving time transitions.
+	 *
+	 * @param \DateTimeInterface $start
+	 * @param \DateTimeInterface $end
+	 * @param bool $inverse
+	 * @return int Duration in seconds (always positive)
+	 */
+	public static function getDurationInSeconds(\DateTimeInterface $start, \DateTimeInterface $end, bool $inverse=false): int
+	{
+		// Ensure $end is after $start
+		if ($end < $start) {
+			if (!$inverse) {
+				return 0;
+			}
+
+			[$start, $end] = [$end, $start];
+		}
+
+		return $end->getTimestamp() - $start->getTimestamp();
+
+		/*$interval = $start->diff($end);
+		return $interval->days * 86400
+			+ $interval->h * 3600
+			+ $interval->i * 60
+			+ $interval->s;*/
 	}
 
 	// ========== Calcul de nombres d'élément ==========
@@ -384,4 +447,13 @@ class Duration
 
 		return $strMinute.$strSeconde;
 	}
+
+	/**
+	 * @deprecated use getIntersectionDurationBetweenTimestampSlots instead
+	 */
+	public static function getDurationOfIntersectionBetweenTwoTimeSlot(int $timeSlot1StartTimestamp, int $timeSlotEnd1Timestamp, int $timeSlot2StartTimestamp, int $timeSlotEnd2Timestamp): int
+	{
+		return self::getIntersectionDurationBetweenTimestampSlots($timeSlot1StartTimestamp, $timeSlotEnd1Timestamp, $timeSlot2StartTimestamp, $timeSlotEnd2Timestamp);
+	}
+
 }
