@@ -34,8 +34,8 @@ class GeoJSON
 			return null;
 		}
 
-		[$lon, $lat] = $obj['coordinates'];
-		return [(float) $lat, (float) $lon];
+		[$long, $lat] = $obj['coordinates'];
+		return [(float) $lat, (float) $long];
 	}
 
 	/**
@@ -67,8 +67,8 @@ class GeoJSON
 				if (!is_array($pt) || count($pt) < 2) {
 					continue;
 				}
-				[$lon, $lat] = $pt;
-				$ringOut[] = [(float) $lat, (float) $lon];
+				[$long, $lat] = $pt;
+				$ringOut[] = [(float) $lat, (float) $long];
 			}
 
 			if (count($ringOut) >= 3) {

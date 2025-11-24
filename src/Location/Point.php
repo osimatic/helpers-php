@@ -23,11 +23,23 @@ class Point
 			return null;
 		}
 
-		[$lat, $lon] = array_map(trim(...), explode(',', $coordinates, 2));
-		if (!is_numeric($lat) || !is_numeric($lon)) {
+		[$lat, $long] = array_map(trim(...), explode(',', $coordinates, 2));
+		if (!is_numeric($lat) || !is_numeric($long)) {
 			return null;
 		}
-		return [(float) $lat, (float) $lon];
+		return [(float) $lat, (float) $long];
+	}
+
+	/**
+	 * @param string $coordinates
+	 * @return float[]|null
+	 */
+	public static function convertToGeoJsonCoordinates(string $coordinates): ?array
+	{
+		if (null === ([$lat, $long] = self::parse($coordinates))) {
+			return null;
+		}
+		return [$long, $lat];
 	}
 
 	/**
