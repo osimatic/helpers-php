@@ -155,7 +155,7 @@ class Name
 			}
 
 			$mainNameDays = [];
-			while (($firstNameData = fgetcsv($handle, 1000, ';')) !== false) {
+			while (($firstNameData = fgetcsv($handle, 1000, separator: ';', escape: "")) !== false) {
 				if (count($firstNameData) < 4) {
 					continue;
 				}

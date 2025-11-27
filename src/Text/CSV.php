@@ -83,7 +83,7 @@ class CSV
 			return null;
 		}
 
-		while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
+		while (($row = fgetcsv($handle, 1000, separator: $delimiter, escape: "")) !== false) {
 			if (!$header) {
 				$header = $row;
 			}
