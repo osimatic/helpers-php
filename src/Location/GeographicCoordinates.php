@@ -2,8 +2,6 @@
 
 namespace Osimatic\Location;
 
-use Osimatic\Number\Distance;
-
 class GeographicCoordinates
 {
 	/**
@@ -32,7 +30,7 @@ class GeographicCoordinates
 	 */
 	public static function parse(?string $coordinates): ?string
 	{
-		if (null === ($point = Point::parse($coordinates))) {
+		if (null === $coordinates || null === ($point = Point::parse($coordinates))) {
 			return null;
 		}
 		return implode(',', $point);

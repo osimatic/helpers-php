@@ -3,7 +3,6 @@
 namespace Osimatic\Number;
 
 use Osimatic\Location\PlaceInterface;
-use Osimatic\Location\Point;
 
 class Distance
 {
