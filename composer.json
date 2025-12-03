@@ -48,7 +48,8 @@
 	"autoload": {
 		"psr-4": {
 			"Osimatic\\": "src/"
-		}
+		},
+        "files": [ "src/functions.php" ]
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^12.4"

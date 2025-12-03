@@ -164,6 +164,7 @@ class File
 				return null;
 			}
 
+			$logger?->info('Uploaded file size: '.$uploadedFile->getSize());
 			return $uploadedFile;
 		}
 
