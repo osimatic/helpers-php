@@ -4,7 +4,7 @@ namespace Osimatic\API;
 
 /**
  * Class Mantis
- * @package Osimatic\Helpers\API
+ * @package Osimatic\API
  */
 class Mantis
 {

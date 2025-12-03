@@ -4,7 +4,7 @@ namespace Osimatic\Messaging;
 
 /**
  * Class OutgoingCall
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 class OutgoingCall
 {

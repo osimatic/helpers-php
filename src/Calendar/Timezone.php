@@ -4,7 +4,7 @@ namespace Osimatic\Calendar;
 
 /**
  * Class Timezone
- * @package Osimatic\Helpers\Calendar
+ * @package Osimatic\Calendar
  */
 class Timezone
 {

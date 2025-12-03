@@ -4,7 +4,7 @@ namespace Osimatic\Messaging;
 
 /**
  * Class PhoneNumber
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 class PhoneNumber
 {

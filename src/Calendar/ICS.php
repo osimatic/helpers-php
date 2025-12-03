@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Cette classe contient des fonctions relatives au fichier ICS.
- * @package Osimatic\Helpers\Calendar
+ * @package Osimatic\Calendar
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  * @link https://en.wikipedia.org/wiki/ICalendar
  */

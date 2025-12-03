@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class HTTPRequest
- * @package Osimatic\Helpers\Network
+ * @package Osimatic\Network
  */
 class HTTPRequest
 {

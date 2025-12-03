@@ -9,7 +9,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Class Ekomi
- * @package Osimatic\Helpers\API
+ * @package Osimatic\API
  */
 class Ekomi
 {

@@ -4,7 +4,7 @@ namespace Osimatic\Person;
 
 /**
  * Class Name
- * @package Osimatic\Helpers\Person
+ * @package Osimatic\Person
  */
 class Name
 {

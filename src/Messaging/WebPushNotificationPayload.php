@@ -5,7 +5,7 @@ namespace Osimatic\Messaging;
 /**
  * Class WebPushNotification
  * Represent payload of a web push notification
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 class WebPushNotificationPayload
 {

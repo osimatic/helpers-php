@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\Person;
+namespace Osimatic\Security;
 
 use Symfony\Component\Validator\Constraints\PasswordStrength;
 

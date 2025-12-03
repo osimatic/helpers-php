@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\API;
+namespace Osimatic\Messaging;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -8,7 +8,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Class SendinBlue
- * @package Osimatic\Helpers\API
+ * @package Osimatic\API
  */
 class SendinBlue
 {

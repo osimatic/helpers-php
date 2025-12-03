@@ -4,7 +4,7 @@ namespace Osimatic\Person;
 
 /**
  * Class NameFormatter
- * @package Osimatic\Helpers\Person
+ * @package Osimatic\Person
  */
 class NameFormatter
 {

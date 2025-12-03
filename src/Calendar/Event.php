@@ -4,7 +4,7 @@ namespace Osimatic\Calendar;
 
 /**
  * Class Event
- * @package Osimatic\Helpers\Calendar
+ * @package Osimatic\Calendar
  */
 class Event
 {

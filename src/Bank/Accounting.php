@@ -7,7 +7,7 @@ use Osimatic\Text\CSVGenerator;
 
 /**
  * Class Accounting
- * @package Osimatic\Helpers\Bank
+ * @package Osimatic\Bank
  */
 class Accounting
 {

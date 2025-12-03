@@ -6,7 +6,7 @@ use Osimatic\FileSystem\File;
 
 /**
  * Class Email
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 class Email
 {

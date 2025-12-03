@@ -4,7 +4,7 @@ namespace Osimatic\Calendar;
 
 /**
  * Class DatePeriod
- * @package Osimatic\Helpers\Calendar
+ * @package Osimatic\Calendar
  */
 class DatePeriod
 {

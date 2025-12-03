@@ -5,7 +5,7 @@ namespace Osimatic\Messaging;
 /**
  * Interface WebPushNotificationSubscriptionInterface
  * Represent subscription of a web push notification
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 interface WebPushNotificationSubscriptionInterface
 {

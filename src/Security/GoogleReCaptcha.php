@@ -1,6 +1,6 @@
 <?php
 
-namespace Osimatic\API;
+namespace Osimatic\Security;
 
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
@@ -9,7 +9,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Class GoogleReCaptcha
- * @package Osimatic\Helpers\API
+ * @package Osimatic\Security
  */
 class GoogleReCaptcha
 {
@@ -19,7 +19,6 @@ class GoogleReCaptcha
 		private ?string $siteKey=null,
 		private ?string $secret=null,
 		LoggerInterface $logger=new NullLogger(),
-
 	) {
 		$this->httpClient = new HTTPClient($logger);
 	}

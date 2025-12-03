@@ -7,7 +7,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Class Bitly
- * @package Osimatic\Helpers\API
+ * @package Osimatic\API
  */
 class Bitly
 {

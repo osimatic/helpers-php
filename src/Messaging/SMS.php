@@ -4,7 +4,7 @@ namespace Osimatic\Messaging;
 
 /**
  * Class SMS
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 class SMS
 {

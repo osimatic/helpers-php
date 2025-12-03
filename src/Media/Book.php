@@ -4,7 +4,7 @@ namespace Osimatic\Media;
 
 /**
  * Class Book
- * @package Osimatic\Helpers\Media
+ * @package Osimatic\Media
  */
 class Book
 {

@@ -4,7 +4,7 @@ namespace Osimatic\Location;
 
 /**
  * Interface PlaceInterface
- * @package Osimatic\Helpers\Location
+ * @package Osimatic\Location
  */
 interface PlaceInterface
 {

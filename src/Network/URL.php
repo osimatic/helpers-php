@@ -4,7 +4,7 @@ namespace Osimatic\Network;
 
 /**
  * Class URL
- * @package Osimatic\Helpers\Network
+ * @package Osimatic\Network
  */
 class URL
 {

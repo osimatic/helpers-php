@@ -4,7 +4,7 @@ namespace Osimatic\ArrayList;
 
 /**
  * Class SimpleArray
- * @package Osimatic\Helpers\ArrayList
+ * @package Osimatic\ArrayList
  */
 class Arr
 {

@@ -4,7 +4,7 @@ namespace Osimatic\Messaging;
 
 /**
  * Class EmailAddress
- * @package Osimatic\Helpers\Messaging
+ * @package Osimatic\Messaging
  */
 class EmailAddress
 {

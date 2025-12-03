@@ -6,7 +6,7 @@ use Symfony\Component\Intl\Countries;
 
 /**
  * Class Country
- * @package Osimatic\Helpers\Location
+ * @package Osimatic\Location
  */
 class Country
 {

@@ -4,7 +4,7 @@ namespace Osimatic\Text;
 
 /**
  * Class UUID
- * @package Osimatic\Helpers\Text
+ * @package Osimatic\Text
  */
 class UUID
 {

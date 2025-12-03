@@ -6,7 +6,7 @@ use Osimatic\Location\PostalAddressInterface;
 
 /**
  * Interface OrganizationInterface
- * @package Osimatic\Helpers\Organization
+ * @package Osimatic\Organization
  */
 interface OrganizationInterface
 {

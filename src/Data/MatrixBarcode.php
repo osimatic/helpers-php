@@ -4,7 +4,7 @@ namespace Osimatic\Data;
 
 /**
  * Class MatrixBarcode
- * @package Osimatic\Helpers\Data
+ * @package Osimatic\Data
  */
 class MatrixBarcode
 {

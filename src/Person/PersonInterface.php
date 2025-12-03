@@ -8,7 +8,7 @@ use Osimatic\Organization\OrganizationInterface;
 
 /**
  * Interface PersonInterface
- * @package Osimatic\Helpers\Person
+ * @package Osimatic\Person
  */
 interface PersonInterface
 {
