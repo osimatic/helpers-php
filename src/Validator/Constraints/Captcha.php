@@ -6,7 +6,7 @@ use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 
 #[\Attribute]
-class GoogleRecaptcha extends Constraint
+class Captcha extends Constraint
 {
 	public string $message;
 
