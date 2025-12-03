@@ -10,18 +10,18 @@
 		"ext-fileinfo": "*",
 		"ext-zip": "*",
 		"ext-soap": "*",
-	  	"ext-curl": "*",
-	  	"ext-json": "*",
+		"ext-curl": "*",
+		"ext-json": "*",
 		"ext-calendar": "*",
 		"ext-ftp": "*",
-	  	"psr/log": "*",
-	  	"psr/http-message": "*",
-	  	"giggsey/libphonenumber-for-php": "^8",
-	  	"knplabs/knp-snappy": "^1",
-	  	"james-heinrich/getid3": "^1",
-	  	"google/apiclient": "^2",
-	  	"symfony/serializer": "^7",
-	  	"symfony/intl": "^7",
+		"psr/log": "*",
+		"psr/http-message": "*",
+		"giggsey/libphonenumber-for-php": "^8",
+		"knplabs/knp-snappy": "^1",
+		"james-heinrich/getid3": "^1",
+		"google/apiclient": "^2",
+		"symfony/serializer": "^7",
+		"symfony/intl": "^7",
 		"symfony/yaml": "^7",
 		"symfony/property-access": "^7",
 		"symfony/validator": "^7",
@@ -35,7 +35,7 @@
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3",
 		"commerceguys/addressing": "^2"
-    },
+	},
 	"license": "mit",
 	"authors": [
 		{
@@ -49,7 +49,7 @@
 		"psr-4": {
 			"Osimatic\\": "src/"
 		},
-        "files": [ "src/functions.php" ]
+		"files": [ "src/functions.php" ]
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^12.4"
