@@ -34,7 +34,8 @@
 		"minishlink/web-push": "^9",
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3",
-		"commerceguys/addressing": "^2"
+		"commerceguys/addressing": "^2",
+		"symfony/console": "^8.0"
 	},
 	"license": "mit",
 	"authors": [
