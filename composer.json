@@ -25,6 +25,7 @@
 		"symfony/yaml": "^7",
 		"symfony/property-access": "^7",
 		"symfony/validator": "^7",
+	  	"symfony/console": "^7",
 		"league/iso3166": "^4",
 		"mustache/mustache": "^2",
 		"whichbrowser/parser": "^2.1",
@@ -34,8 +35,7 @@
 		"minishlink/web-push": "^9",
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3",
-		"commerceguys/addressing": "^2",
-		"symfony/console": "^8.0"
+		"commerceguys/addressing": "^2"
 	},
 	"license": "mit",
 	"authors": [
