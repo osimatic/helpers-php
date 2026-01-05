@@ -813,16 +813,9 @@ class Email
 	public function addListAttachment(array $listAttachments): self
 	{
 		foreach ($listAttachments as $attachment) {
-			if (is_array($attachment)) {
-				$attachmentPath = $attachment[0] ?? '';
-				$attachmentName = $attachment[1] ?? '';
-			}
-			else {
-				$attachmentPath = $attachment;
-				$attachmentName = '';
-			}
+			$attachmentPath = is_array($attachment) ? $attachment[0] ?? null : $attachment;
 			if (!empty($attachmentPath)) {
-				$this->addAttachment($attachmentPath, $attachmentName);
+				$this->addAttachment($attachmentPath, is_array($attachment) ? $attachment[1] ?? null : null);
 			}
 		}
 
@@ -833,12 +826,12 @@ class Email
 	 * Add an attachment from a path on the filesystem.
 	 * Returns false if the file could not be found or read.
 	 * @param string $path Path to the attachment.
-	 * @param string $name Overrides the attachment name.
+	 * @param string|null $name Overrides the attachment name.
 	 * @param EmailEncoding $encoding File encoding.
-	 * @param string $type File extension (MIME) type.
+	 * @param string|null $mimeType File extension (MIME) type.
 	 * @return self
 	 */
-	public function addAttachment(string $path, string $name = '', EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
+	public function addAttachment(string $path, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
 		if (!@is_file($path)) {
 			//error('Could not access file: '.$path);
@@ -851,8 +844,8 @@ class Email
 		}
 
 		//If a MIME type is not specified, try to work it out from the file name
-		if (empty($type)) {
-			$type = File::getMimeTypeForFile($path);
+		if (empty($mimeType)) {
+			$mimeType = File::getMimeTypeForFile($path);
 		}
 
 		$filename = basename($path);
@@ -865,7 +858,7 @@ class Email
 			1 => $filename,
 			2 => $name,
 			3 => $encoding->value,
-			4 => $type,
+			4 => $mimeType,
 			5 => false, // isStringAttachment
 			6 => 'attachment', // disposition
 			7 => 0
@@ -881,14 +874,14 @@ class Email
 	 * @param string $string String attachment data.
 	 * @param string $filename Name of the attachment.
 	 * @param EmailEncoding $encoding File encoding.
-	 * @param string $type File extension (MIME) type.
+	 * @param string|null $mimeType File extension (MIME) type.
 	 * @return self
 	 */
-	public function addStringAttachment(string $string, string $filename, EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
+	public function addStringAttachment(string $string, string $filename, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
 		//If a MIME type is not specified, try to work it out from the file name
-		if (empty($type)) {
-			$type = File::getMimeTypeForFile($filename);
+		if (empty($mimeType)) {
+			$mimeType = File::getMimeTypeForFile($filename);
 		}
 		// Append to $attachment array
 		$this->listAttachments[] = array(
@@ -896,7 +889,7 @@ class Email
 			1 => $filename,
 			2 => basename($filename),
 			3 => $encoding->value,
-			4 => $type,
+			4 => $mimeType,
 			5 => true, // isStringAttachment
 			6 => 'attachment', // disposition
 			7 => 0
@@ -914,12 +907,12 @@ class Email
 	 * the HTML refers to using the $cid value.
 	 * @param string $path Path to the attachment.
 	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
-	 * @param string $name Overrides the attachment name.
+	 * @param string|null $name Overrides the attachment name.
 	 * @param EmailEncoding $encoding File encoding.
-	 * @param string $type File MIME type.
+	 * @param string|null $mimeType File MIME type.
 	 * @return self
 	 */
-	public function addEmbeddedImage(string $path, string $cid, string $name = '', EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
+	public function addEmbeddedImage(string $path, string $cid, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
 		if (!@is_file($path)) {
 			//error('Could not access file: '.$path);
@@ -932,8 +925,8 @@ class Email
 		}
 
 		//If a MIME type is not specified, try to work it out from the file name
-		if (empty($type)) {
-			$type = File::getMimeTypeForFile($path);
+		if (empty($mimeType)) {
+			$mimeType = File::getMimeTypeForFile($path);
 		}
 
 		$filename = basename($path);
@@ -947,7 +940,7 @@ class Email
 			1 => $filename,
 			2 => $name,
 			3 => $encoding->value,
-			4 => $type,
+			4 => $mimeType,
 			5 => false, // isStringAttachment
 			6 => 'inline', // disposition
 			7 => $cid
@@ -963,16 +956,16 @@ class Email
 	 * JPEG images use 'image/jpeg', GIF uses 'image/gif', PNG uses 'image/png'.
 	 * @param string $string The attachment binary data.
 	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
-	 * @param string $name
+	 * @param string|null $name
 	 * @param EmailEncoding $encoding File encoding.
-	 * @param string $type MIME type.
+	 * @param string|null $mimeType MIME type.
 	 * @return self
 	 */
-	public function addStringEmbeddedImage(string $string, string $cid, string $name = '', EmailEncoding $encoding = EmailEncoding::BASE64, string $type = ''): self
+	public function addStringEmbeddedImage(string $string, string $cid, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
 		//If a MIME type is not specified, try to work it out from the name
-		if (empty($type)) {
-			$type = File::getMimeTypeForFile($name);
+		if (empty($mimeType)) {
+			$mimeType = File::getMimeTypeForFile($name);
 		}
 
 		// Append to $attachment array
@@ -981,7 +974,7 @@ class Email
 			1 => $name,
 			2 => $name,
 			3 => $encoding->value,
-			4 => $type,
+			4 => $mimeType,
 			5 => true, // isStringAttachment
 			6 => 'inline', // disposition
 			7 => $cid
