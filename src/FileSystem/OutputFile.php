@@ -45,4 +45,14 @@ class OutputFile
 	{
 		$this->fileName = $fileName;
 	}
+
+	public function getExtension(): ?string
+	{
+		$path = $this->filePath ?? $this->fileName;
+		if (!$path) {
+			return null;
+		}
+
+		return strtolower(pathinfo($path, PATHINFO_EXTENSION)) ?: null;
+	}
 }
