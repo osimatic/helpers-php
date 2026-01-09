@@ -60,13 +60,17 @@ class AudioConverter
 			$destAudioFilePath = substr($destAudioFilePath, 0, strrpos($destAudioFilePath, '.')+1).'wav';
 		}
 
-		$params = ($fileFormat === Audio::MP3_FORMAT?'-t mp3 ':'').'"'.$srcAudioFilePath.'" -e a-law -c 1 -r 8000 "'.$destAudioFilePath.'"';
-		$commandLine = $this->soxBinaryPath.' '.$params;
+		$commandLine = escapeshellarg($this->soxBinaryPath) . ($fileFormat === Audio::MP3_FORMAT ? ' -t mp3' : '') . ' ' . escapeshellarg($srcAudioFilePath) . ' -e a-law -c 1 -r 8000 ' . escapeshellarg($destAudioFilePath);
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		system($commandLine);
-		//exec($commandLine, $output, $returnVar);
+		$returnCode = 0;
+		system($commandLine, $returnCode);
+
+		if ($returnCode !== 0) {
+			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			return false;
+		}
 
 		return true;
 	}
@@ -90,12 +94,17 @@ class AudioConverter
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
 		}
 
-		$commandLine = $this->soxBinaryPath.' -t wav -r 8000 -c 1 "'.$srcAudioFilePath.'" -t mp3 "'.$destAudioFilePath.'"';
+		$commandLine = escapeshellarg($this->soxBinaryPath) . ' -t wav -r 8000 -c 1 ' . escapeshellarg($srcAudioFilePath) . ' -t mp3 ' . escapeshellarg($destAudioFilePath);
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		system($commandLine);
-		//exec($commandLine, $output, $returnVar);
+		$returnCode = 0;
+		system($commandLine, $returnCode);
+
+		if ($returnCode !== 0) {
+			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			return false;
+		}
 
 		return true;
 	}
@@ -122,12 +131,17 @@ class AudioConverter
 			unlink($destAudioFilePath);
 		}
 
-		$commandLine = 'ffmpeg -i "'.$srcAudioFilePath.'" -ab 160k -ar 44100 "'.$destAudioFilePath.'"';
+		$commandLine = 'ffmpeg -i ' . escapeshellarg($srcAudioFilePath) . ' -ab 160k -ar 44100 ' . escapeshellarg($destAudioFilePath);
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		system($commandLine);
-		//exec($commandLine, $output, $returnVar);
+		$returnCode = 0;
+		system($commandLine, $returnCode);
+
+		if ($returnCode !== 0) {
+			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			return false;
+		}
 
 		return true;
 	}

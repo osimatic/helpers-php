@@ -150,7 +150,7 @@ class ICS
 				$eventList[] = $event;
 			}
 		} catch (\Exception $e) {
-			die($e);
+
 		}
 		return $eventList;
 	}

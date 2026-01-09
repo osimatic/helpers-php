@@ -61,7 +61,7 @@ class PDFMerger
 		$listPdfStringFormat = '';
 		$nbFile = 0;
 		while (($pdfPath = array_shift($listPdfPath)) !== null) {
-			$listPdfStringFormat .= '"'.$pdfPath.'" ';
+			$listPdfStringFormat .= escapeshellarg($pdfPath) . ' ';
 			$nbFile++;
 
 			// todo : faire en fonction de la taille des noms de fichier (la ligne de commande est limité à un certain nombre de caractère)
@@ -69,18 +69,22 @@ class PDFMerger
 				$filePathTemp = sys_get_temp_dir().'/'.uniqid(md5(mt_rand()), true).PDF::FILE_EXTENSION;
 				$this->mergeFiles($listPdfPath, $filePathTemp, $profondeur+1);
 
-				$listPdfStringFormat .= '"'.$filePathTemp.'" ';
+				$listPdfStringFormat .= escapeshellarg($filePathTemp) . ' ';
 				break;
 			}
 		}
 
-		$params = ' %s cat output "'.$newPdfPath.'" dont_ask';
-		$params = sprintf($params, $listPdfStringFormat);
-		$commandLine = $this->pdfToolkitBinaryPath.' '.$params;
+		$commandLine = escapeshellarg($this->pdfToolkitBinaryPath) . ' ' . $listPdfStringFormat . 'cat output ' . escapeshellarg($newPdfPath) . ' dont_ask';
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		system($commandLine);
+		$returnCode = 0;
+		system($commandLine, $returnCode);
+
+		if ($returnCode !== 0) {
+			$this->logger->error('La fusion a échoué avec le code de retour : ' . $returnCode);
+			return false;
+		}
 
 		return true;
 	}

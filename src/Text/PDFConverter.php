@@ -42,11 +42,17 @@ class PDFConverter
 	 */
 	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
 	{
-		$commandLine = $this->imagickConverterBinaryPath . ' "'.$imageFilePath.'" "'.$pdfFilePath.'"';
+		$commandLine = escapeshellarg($this->imagickConverterBinaryPath) . ' ' . escapeshellarg($imageFilePath) . ' ' . escapeshellarg($pdfFilePath);
 
 		// Envoi de la commande
 		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
-		system($commandLine);
+		$returnCode = 0;
+		system($commandLine, $returnCode);
+
+		if ($returnCode !== 0) {
+			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			return false;
+		}
 
 		/*try {
 			$pdf = new \Imagick([$imageFilePath]);
@@ -71,13 +77,16 @@ class PDFConverter
 			return false;
 		}
 
-		$optionQualiteDoc = '-quality 100 -density 150 ';
-
-		$args = $optionQualiteDoc . $pdfPath . ' ' . $imagePath;
-		$commandLine = $this->imagickConverterBinaryPath . ' ' . $args;
+		$commandLine = escapeshellarg($this->imagickConverterBinaryPath) . ' -quality 100 -density 150 ' . escapeshellarg($pdfPath) . ' ' . escapeshellarg($imagePath);
 
 		// Envoi de la ligne de commande
-		system($commandLine);
+		$returnCode = 0;
+		system($commandLine, $returnCode);
+
+		if ($returnCode !== 0) {
+			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			return false;
+		}
 
 		return true;
 	}
