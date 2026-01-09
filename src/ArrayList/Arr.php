@@ -151,7 +151,7 @@ class Arr
 	 */
 	public static function in_array_values(array $arrayNeedle, array $haystack): bool
 	{
-		return count(array_intersect(array_flip($arrayNeedle), $haystack)) > 0;
+		return !empty(array_intersect($arrayNeedle, $haystack));
 	}
 
 	/**

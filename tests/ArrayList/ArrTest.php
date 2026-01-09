@@ -5,6 +5,11 @@ namespace Tests\ArrayList;
 use Osimatic\ArrayList\Arr;
 use PHPUnit\Framework\TestCase;
 
+enum TestEnum {
+	case A;
+	case B;
+}
+
 final class ArrTest extends TestCase
 {
 	/* ===================== Comptage ===================== */
@@ -145,11 +150,6 @@ final class ArrTest extends TestCase
 
 	public function testEnumArrayUnique(): void
 	{
-		enum TestEnum {
-			case A;
-			case B;
-		}
-
 		$values = [TestEnum::A, TestEnum::B, TestEnum::A, TestEnum::B];
 		$result = Arr::enum_array_unique($values);
 

@@ -225,7 +225,9 @@ class MultidimensionalArray
 	{
 		ksort($array, $sort_flags);
 		foreach ($array as &$arr) {
-			self::ksortRecursive($arr, $sort_flags);
+			if (is_array($arr)) {
+				self::ksortRecursive($arr, $sort_flags);
+			}
 		}
 	}
 }
