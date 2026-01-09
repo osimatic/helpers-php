@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Location;
+
 use Osimatic\Location\GeoJSON;
 use Osimatic\Location\Point;
 use Osimatic\Location\Polygon;
@@ -47,7 +49,7 @@ JSON;
 		$this->assertNotNull($g);
 		// On vérifie bien la conversion [lon,lat] -> [lat,lon]
 		$this->assertEquals(
-			[[ [48.87,2.31],[48.87,2.314],[48.868,2.314],[48.868,2.31],[48.87,2.31] ]],
+			[[[48.87, 2.31], [48.87, 2.314], [48.868, 2.314], [48.868, 2.31], [48.87, 2.31]]],
 			$g
 		);
 	}
@@ -59,46 +61,45 @@ JSON;
 	}
 
 
-
 	/* ===================== Polygon ===================== */
 
 	public function testPointInPolygonBasicSquare(): void
 	{
 		// Carré simple (lat,lon)
 		$square = [[
-			[0,0], [0,1], [1,1], [1,0], [0,0]
+			[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]
 		]];
 
-		$this->assertTrue(Polygon::isPointInPolygon([0.5,0.5], $square)); // centre
-		$this->assertTrue(Polygon::isPointInPolygon([0,0.5],   $square)); // bord gauche (inclus)
-		$this->assertFalse(Polygon::isPointInPolygon([1.5,0.5], $square)); // dehors
+		$this->assertTrue(Polygon::isPointInPolygon([0.5, 0.5], $square)); // centre
+		$this->assertTrue(Polygon::isPointInPolygon([0, 0.5], $square)); // bord gauche (inclus)
+		$this->assertFalse(Polygon::isPointInPolygon([1.5, 0.5], $square)); // dehors
 	}
 
 	public function testPointInPolygonWithHole(): void
 	{
 		// Un anneau extérieur 0..1..1..0..0, et un trou au centre 0.4..0.6
 		$poly = [
-			[[0,0],[0,1],[1,1],[1,0],[0,0]],             // outer
-			[[0.4,0.4],[0.4,0.6],[0.6,0.6],[0.6,0.4],[0.4,0.4]] // hole
+			[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],             // outer
+			[[0.4, 0.4], [0.4, 0.6], [0.6, 0.6], [0.6, 0.4], [0.4, 0.4]] // hole
 		];
 
-		$this->assertTrue(Polygon::isPointInPolygon([0.2,0.2], $poly));   // dans outer, hors trou
-		$this->assertFalse(Polygon::isPointInPolygon([0.5,0.5], $poly));  // dans le trou
+		$this->assertTrue(Polygon::isPointInPolygon([0.2, 0.2], $poly));   // dans outer, hors trou
+		$this->assertFalse(Polygon::isPointInPolygon([0.5, 0.5], $poly));  // dans le trou
 		//$this->assertTrue(Polygon::isPointInPolygon([0.4,0.5], $poly));   // sur le bord du trou (inclus -> false ?)
 		// NB: Notre implémentation considère "sur le bord" comme inside au niveau anneau.
 		// Mais comme c'est un trou, "sur le bord du trou" => pointInRing retourne true,
 		// donc Polygon::pointInPolygon le considère "dans le trou" -> donc FALSE.
 		// Testons ce comportement explicitement :
-		$this->assertFalse(Polygon::isPointInPolygon([0.4,0.5], $poly));
+		$this->assertFalse(Polygon::isPointInPolygon([0.4, 0.5], $poly));
 	}
 
 	public function testPointOnEdgeIsInsideOuter(): void
 	{
 		$square = [[
-			[0,0], [0,1], [1,1], [1,0], [0,0]
+			[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]
 		]];
 		// Un point sur le bord est considéré "inside" pour l'outer ring
-		$this->assertTrue(Polygon::isPointInPolygon([0,0.3], $square));
+		$this->assertTrue(Polygon::isPointInPolygon([0, 0.3], $square));
 	}
 
 	/* ===================== Authorizer ===================== */

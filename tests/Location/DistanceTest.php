@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Location;
+
 use Osimatic\Number\Distance;
 use PHPUnit\Framework\TestCase;
 

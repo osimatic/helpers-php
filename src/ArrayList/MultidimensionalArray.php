@@ -72,7 +72,7 @@ class MultidimensionalArray
 	 * @param $keyAdded
 	 * @param $valueAdded
 	 */
-	public static function addKeyAndValue(array $array, $keyAdded, $valueAdded): void
+	public static function addKeyAndValue(array &$array, $keyAdded, $valueAdded): void
 	{
 		foreach ($array as $key => $tabGraph) {
 			$array[$key][$keyAdded] = $valueAdded;
