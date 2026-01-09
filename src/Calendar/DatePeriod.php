@@ -275,6 +275,26 @@ class DatePeriod
 		return (int) floor($nbSeconds / (3600*24*365.25));
 	}
 
+	/**
+	 * @param \DateTime $startDate
+	 * @param \DateTime $endDate
+	 * @return int|null
+	 */
+	public static function getYearFromStartDateAndEndDate(\DateTime $startDate, \DateTime $endDate): ?int
+	{
+		// Les deux dates doivent être dans la même année
+		if ($startDate->format('Y') !== $endDate->format('Y')) {
+			return null;
+		}
+
+		// La date de début doit être le 1er janvier & La date de fin doit être le 31 décembre
+		if ($startDate->format('m-d') !== '01-01' || $endDate->format('m-d') !== '12-31') {
+			return null;
+		}
+
+		return (int) $startDate->format('Y');
+	}
+
 
 	// ========== Interval ==========
 
