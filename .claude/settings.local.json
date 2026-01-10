@@ -4,7 +4,9 @@
       "Bash(grep:*)",
       "Bash(vendor/bin/phpunit:*)",
       "Bash(vendorbinphpunit:*)",
-      "Bash(php vendor/bin/phpunit:*)"
+      "Bash(php vendor/bin/phpunit:*)",
+      "Bash(php -r:*)",
+      "Bash(php test_vat_debug.php:*)"
     ]
   }
 }

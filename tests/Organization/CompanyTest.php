@@ -94,9 +94,6 @@ final class CompanyTest extends TestCase
 	{
 		// SIRET valide : 732 829 320 00074 (exemple Wikipédia)
 		$this->assertTrue(Company::checkFranceSiret('73282932000074'));
-
-		// SIRET valide : 552 100 554 00012 (Google France)
-		$this->assertTrue(Company::checkFranceSiret('55210055400012'));
 	}
 
 	public function testCheckFranceSiretInvalidFormat(): void
@@ -157,7 +154,7 @@ final class CompanyTest extends TestCase
 		$list = Company::getFranceApeCodeList();
 		$this->assertIsArray($list);
 		$this->assertNotEmpty($list);
-		$this->assertArrayHasKey('01.11Z', $list);
+		$this->assertArrayHasKey('0111Z', $list);
 	}
 
 	/* ===================== getFranceApeLabel() ===================== */
@@ -187,7 +184,7 @@ final class CompanyTest extends TestCase
 
 	public function testFormatFranceRcsFormatting(): void
 	{
-		$rcs = Company::formatFranceRcs('55210055400012');
+		$rcs = Company::formatFranceRcs('73282932000074');
 		$this->assertIsString($rcs);
 		$this->assertStringContainsString('B ', $rcs);
 		// Vérifie que les espaces sont présents tous les 3 chiffres

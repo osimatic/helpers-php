@@ -100,9 +100,13 @@ class Company
 	 */
 	public static function checkFranceCodeNaf(string $codeNaf): bool
 	{
-		if (!preg_match('#^[0-9A-Za-z]{5}$#', $codeNaf)) {
+		// Accepte les formats avec ou sans point : 01.11Z ou 0111Z
+		if (!preg_match('#^[0-9]{2}\.?[0-9]{2}[A-Za-z]$#', $codeNaf)) {
 			return false;
 		}
+
+		// Normalise en enlevant le point si présent
+		$codeNaf = str_replace('.', '', $codeNaf);
 
 		return array_key_exists($codeNaf, self::getFranceApeCodeList());
 	}
@@ -114,6 +118,8 @@ class Company
 	 */
 	public static function getFranceApeLabel(string $ape): string
 	{
+		// Normalise en enlevant le point si présent
+		$ape = str_replace('.', '', $ape);
 		return self::getFranceApeCodeList()[$ape] ?? '';
 	}
 
