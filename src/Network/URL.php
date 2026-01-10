@@ -8,6 +8,8 @@ namespace Osimatic\Network;
  */
 class URL
 {
+	const array VALID_SCHEMES = ['http', 'https', 'ftp', 'ftps', 'mailto', 'tel', 'ssh', 'sftp', 'file'];
+	
 	// ========== Check ==========
 
 	/**
@@ -15,10 +17,23 @@ class URL
 	 * @param string $url l'URL à vérifier
 	 * @return boolean true si l'URL est syntaxiquement correcte, false sinon
 	 */
-	public static function check(string $url): bool
+	public static function check(string $url, bool $checkScheme=false): bool
 	{
-		//return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED);
-		return filter_var($url, FILTER_VALIDATE_URL);
+		if (!filter_var($url, FILTER_VALIDATE_URL)) {
+			return false;
+		}
+		
+		$parsedUrl = parse_url($url);
+		if (false === $parsedUrl || !isset($parsedUrl['host'])) {
+			return false;
+		}
+
+		// Vérifie que le schéma est valide
+		if ($checkScheme && (!isset($parsedUrl['scheme']) || !in_array(strtolower($parsedUrl['scheme']), self::VALID_SCHEMES, true))) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	// ========== Affichage ==========
@@ -100,7 +115,7 @@ class URL
 	{
 		$host = self::getHost($url, false, true);
 
-		return DNS::getSld($host);
+		return DNS::getSld($host, $withTld);
 	}
 
 	/**
@@ -178,19 +193,18 @@ class URL
 	/**
 	 * Retourne le chemin contenu dans une URL, avec éventuellement l'ajout ou la suppression du caractère "/" au tout début
 	 * @param string $url l'URL dans laquelle récupérer le chemin
-	 * @param boolean $addSlashAtBeginning true pour ajouter (s'il n'est pas présent) le caractère "/" au début du chemin, false sinon (true par défaut)
-	 * @param boolean $deleteSlashAtBeginning true pour enlever (s'il est présent) le caractère "/" au début du chemin, false sinon (false par défaut)
+	 * @param boolean $slashAtBeginning true pour ajouter un slash au début du chemin, false pour l'enlever (true par défaut)
 	 * @return string le chemin contenu dans l'URL
 	 */
-	public static function getPath(string $url, bool $addSlashAtBeginning=true, bool $deleteSlashAtBeginning=false): string
+	public static function getPath(string $url, bool $slashAtBeginning=true): string
 	{
 		$tabInfosUrl = parse_url($url);
 		$path = $tabInfosUrl['path'] ?? '';
 
-		if ($addSlashAtBeginning && !str_starts_with($path, '/')) {
+		if ($slashAtBeginning && !str_starts_with($path, '/')) {
 			$path = '/'.$path;
 		}
-		if ($deleteSlashAtBeginning && str_starts_with($path, '/')) {
+		elseif (!$slashAtBeginning && str_starts_with($path, '/')) {
 			$path = substr($path, 1);
 		}
 		return $path;
