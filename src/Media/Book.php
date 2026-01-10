@@ -47,6 +47,10 @@ class Book
 	 */
 	private static function _checkIsbn(string $isbn, ?string $type=null): bool
 	{
+		if (empty($isbn)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();
@@ -63,6 +67,10 @@ class Book
 	 */
 	public static function checkIssn(string $issn): bool
 	{
+		if (empty($issn)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();

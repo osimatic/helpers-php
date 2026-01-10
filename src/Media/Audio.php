@@ -12,7 +12,7 @@ class Audio
 {
 	public const string MP3_FORMAT 			= 'mp3';
 	public const string MP3_EXTENSION 		= '.mp3';
-	public const array MP3_EXTENSIONS 		= ['.mpga', '.mp2', '.mp2a', '.mp3', '.m2a', '.m3a'];
+	public const array MP3_EXTENSIONS 		= ['.mp3', '.mpga', '.mp2', '.mp2a', '.m2a', '.m3a'];
 	public const array MP3_MIME_TYPES 		= ['audio/mpeg'];
 
 	public const string WAV_FORMAT 			= 'wav';
@@ -64,6 +64,10 @@ class Audio
 	 */
 	public static function getInfos(string $audioFilePath, ?LoggerInterface $logger=null): ?array
 	{
+		if (!file_exists($audioFilePath)) {
+			return null;
+		}
+
 		try {
 			$getID3 = new getID3();
 			return $getID3->analyze($audioFilePath);

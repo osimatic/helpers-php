@@ -45,7 +45,7 @@ class EmailAddress
 	public static function getTld(string $email, bool $withPoint=true): string
 	{
 		$host = self::getHost($email);
-		return \Osimatic\Network\URL::getTld($host, $withPoint);
+		return \Osimatic\Network\DNS::getTld($host, $withPoint);
 	}
 
 

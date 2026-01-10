@@ -372,7 +372,7 @@ class Email
 	 */
 	public function getReplyToEmail(): string
 	{
-		return $this->getReplyTo()[0] ?? '';
+		return $this->getReplyTo()[0][0] ?? '';
 	}
 
 	/**
@@ -398,7 +398,6 @@ class Email
 	{
 		$this->clearReplyTo();
 		$this->addEmailAddress(EmailAddressKind::replyTo, $emailAddress, $name);
-		// $this->replyTo = array(array($replyToEmail, $replyToName));
 
 		return $this;
 	}
@@ -612,7 +611,7 @@ class Email
 	 */
 	public function setCc(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->clearListTo();
+		$this->clearListCc();
 		$this->addEmailAddress(EmailAddressKind::listCc, $emailAddress, $name);
 
 		return $this;
@@ -626,7 +625,7 @@ class Email
 	 */
 	public function setBcc(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->clearListTo();
+		$this->clearListBcc();
 		$this->addEmailAddress(EmailAddressKind::listBcc, $emailAddress, $name);
 
 		return $this;
@@ -884,7 +883,7 @@ class Email
 			$mimeType = File::getMimeTypeForFile($filename);
 		}
 		// Append to $attachment array
-		$this->listAttachments[] = array(
+		$this->listAttachments[] = [
 			0 => $string,
 			1 => $filename,
 			2 => basename($filename),
@@ -893,7 +892,7 @@ class Email
 			5 => true, // isStringAttachment
 			6 => 'attachment', // disposition
 			7 => 0
-		);
+		];
 
 		return $this;
 	}

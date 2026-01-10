@@ -43,9 +43,9 @@ class SMS
 
 	/**
 	 * Date/heure de l'envoi du SMS. Permet d'envoyer le SMS en différé (null = envoi immédiat).
-	 * @var \DateTime
+	 * @var \DateTime|null
 	 */
-	private \DateTime $sendingDateTime;
+	private ?\DateTime $sendingDateTime;
 
 	/**
 	 *
