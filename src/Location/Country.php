@@ -34,7 +34,6 @@ class Country
 		'PL', // Pologne
 		'PT', // Portugal
 		'RO', // Roumanie
-		'GB', // Royaume-Uni
 		'SK', // Slovaquie
 		'SI', // Slovénie
 		'SE', // Suède
@@ -242,6 +241,9 @@ class Country
 	 */
 	public static function checkCountryCode(?string $countryIsoCode): bool
 	{
+		if (null === $countryIsoCode || '' === $countryIsoCode) {
+			return false;
+		}
 		return Countries::exists($countryIsoCode);
 	}
 
@@ -308,6 +310,9 @@ class Country
 	 */
 	public static function getCountryNumericCodeFromCountryCode(?string $countryIsoCode): ?int
 	{
+		if (null === $countryIsoCode || '' === $countryIsoCode) {
+			return null;
+		}
 		try {
 			$data = (new \League\ISO3166\ISO3166)->alpha2($countryIsoCode);
 			return $data['numeric'];
