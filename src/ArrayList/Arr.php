@@ -144,14 +144,23 @@ class Arr
 	}
 
 	/**
-	 * Equivalent de la fonction in_array mais en recherchant de multiples valeurs contenues dans un tableau
-	 * @param array $arrayNeedle Les valeurs recherchées.
+	 * @param array $needles Les valeurs recherchées.
 	 * @param array $haystack Le tableau
-	 * @return bool Retourne TRUE si une des valeurs dans arrayNeedle est trouvé dans le tableau, FALSE sinon.
+	 * @return bool Retourne TRUE si une des valeurs dans $needles est trouvé dans le tableau, FALSE sinon.
 	 */
-	public static function in_array_values(array $arrayNeedle, array $haystack): bool
+	public static function in_array_any(array $needles, array $haystack): bool
 	{
-		return !empty(array_intersect($arrayNeedle, $haystack));
+		return !empty(array_intersect($needles, $haystack));
+	}
+
+	/**
+	 * @param array $needles Les valeurs recherchées.
+	 * @param array $haystack Le tableau
+	 * @return bool Retourne TRUE si toutes les valeurs dans $needles sont trouvées dans le tableau, FALSE sinon.
+	 */
+	public static function in_array_all(array $needles, array $haystack): bool
+	{
+		return empty(array_diff($needles, $haystack));
 	}
 
 	/**
@@ -467,6 +476,14 @@ class Arr
 			return strcmp($val1, $val2); // Comparaison, sensible à la casse
 		}
 		return strcasecmp($val1, $val2); // Comparaison, insensible à la casse
+	}
+
+	/**
+	 * @deprecated use in_array_any instead
+	 */
+	public static function in_array_values(array $arrayNeedle, array $haystack): bool
+	{
+		return self::in_array_any($arrayNeedle, $haystack);
 	}
 
 }

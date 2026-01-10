@@ -11,6 +11,10 @@ class SqlDate
 	 */
 	public static function parse($date): ?string
 	{
+		if (empty($date)) {
+			return null;
+		}
+
 		if (is_array($date) && !empty($date['date'])) {
 			$date = substr($date['date'], 0, 10);
 		}
@@ -21,10 +25,26 @@ class SqlDate
 		}
 
 		//if (false === ($date = date('Y-m-d', strtotime($date.' 00:00:00')))) {
-		if (false === ($timestamp = strtotime($date.' 00:00:00')) || empty($date = date('Y-m-d', $timestamp))) {
+		if (false === ($timestamp = strtotime($date.' 00:00:00')) || empty($parsedDate = date('Y-m-d', $timestamp))) {
 			return null;
 		}
-		return $date;
+
+		// Vérifier que la date parsée est valide et correspond à l'entrée
+		if (!self::check($parsedDate)) {
+			return null;
+		}
+
+		// Vérifier que la date parsée correspond à l'entrée (éviter les conversions non voulues)
+		// Par exemple "invalid-date" pourrait être parsé comme une date relative
+		$originalDate = trim($date);
+		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $originalDate) && $parsedDate !== $originalDate) {
+			// Si l'entrée n'est pas au format ISO et que le résultat ne correspond pas, c'est probablement invalide
+			if (!str_contains($originalDate, '-') || count(explode('-', $originalDate)) !== 3) {
+				return null;
+			}
+		}
+
+		return $parsedDate;
 	}
 
 	/**
@@ -33,10 +53,13 @@ class SqlDate
 	 */
 	public static function check(?string $date): bool
 	{
+		if (empty($date)) {
+			return false;
+		}
 		$dateArr = explode('-', $date);
-		$year = ($dateArr[0]??null);
-		$month = ($dateArr[1]??null);
-		$day = ($dateArr[2]??null);
+		$year = (int) ($dateArr[0]??0);
+		$month = (int) ($dateArr[1]??0);
+		$day = (int) ($dateArr[2]??0);
 		return checkdate($month, $day, $year);
 	}
 

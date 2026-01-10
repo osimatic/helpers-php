@@ -9,14 +9,11 @@ class Number
 	/**
 	 * @param float|int $number
 	 * @param int $nbDigitMin
-	 * @param string|null $thousandsSeparator
 	 * @return string
 	 */
-	public static function addLeadingZero(float|int $number, int $nbDigitMin, ?string $thousandsSeparator=null): string
+	public static function addLeadingZero(float|int $number, int $nbDigitMin): string
 	{
-		$tmp = str_replace($thousandsSeparator ?? '.', '', $number);
-		$nbLeadingZero = $nbDigitMin - strlen((string) (int) $tmp);
-		return str_pad($number, $nbLeadingZero, '0', STR_PAD_LEFT);
+		return str_pad($number, $nbDigitMin, '0', STR_PAD_LEFT);
 	}
 
 	/**
@@ -120,7 +117,14 @@ class Number
 	 */
 	public static function floatToString(?float $str): string
 	{
-		return self::clean($str);
+		if ($str === null) {
+			return '0.0';
+		}
+		$result = (string) $str;
+		if (!str_contains($result, '.')) {
+			$result .= '.0';
+		}
+		return $result;
 	}
 
 	/**
@@ -131,6 +135,12 @@ class Number
 	 */
 	public static function checkFloat(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
+		// Check for multiple decimal separators before cleaning
+		$strCheck = str_replace([' ', ','], [' ', '.'], (string) $str);
+		if (substr_count($strCheck, '.') > 1) {
+			return false;
+		}
+
 		$str = self::clean((string) $str);
 
 		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
@@ -265,7 +275,7 @@ class Number
 	 */
 	public static function isInteger(float|int $val): bool
 	{
-		return ($val - round($val) === 0);
+		return fmod($val, 1) === 0.0;
 	}
 
 	/**
@@ -274,7 +284,7 @@ class Number
 	 */
 	public static function isFloat(float|int $val): bool
 	{
-		return ($val - round($val) !== 0);
+		return fmod($val, 1) !== 0.0;
 	}
 
 	/**
@@ -318,15 +328,22 @@ class Number
 			return 0;
 		}
 
-		$whole = floor($float);
-		$decimal = substr($float - $whole,2);
+		// Get decimal part as float
+		$whole = floor(abs($float));
+		$decimal = abs($float) - $whole;
 
-		// cette solution ne fonctione pas car le cast du float en string génère des problèmes en fonction de la locale
-		//$floatStr = str_replace(',', '.', (string) $float);
-		//[$whole, $decimal] = explode('.', $floatStr);
-		//[$whole, $decimal] = sscanf($floatStr, '%d.%d'); // identique à  ligne du dessus
+		// Convert to string and extract decimal digits
+		$decimalStr = (string) $decimal;
 
-		return (int) $decimal;
+		// Remove '0.' prefix if present
+		if (str_starts_with($decimalStr, '0.')) {
+			$decimalStr = substr($decimalStr, 2);
+		}
+
+		// Remove trailing zeros
+		$decimalStr = rtrim($decimalStr, '0');
+
+		return empty($decimalStr) ? 0 : (int) $decimalStr;
 	}
 
 	/**
@@ -335,6 +352,11 @@ class Number
 	 */
 	public static function checkLuhn(float|int $number): bool
 	{
+		// Reject 0 and negative numbers
+		if ($number <= 0) {
+			return false;
+		}
+
 		$somme = 0;
 		$strNumber = (string) $number;
 		$nbDigits = strlen($strNumber);
@@ -360,23 +382,27 @@ class Number
 	 * Génère un entier
 	 * @param int $min
 	 * @param int $max
-	 * @return int l'entier généré
+	 * @return int|false l'entier généré, false si une erreur survient
 	 */
-	public static function getRandomInt(int $min, int $max): int
+	public static function getRandomInt(int $min, int $max): int|false
 	{
+		if ($min > $max) {
+			return false;
+		}
+
 		try {
 			return random_int($min, $max);
 		} catch (\Exception) {}
-		return 0;
+		return false;
 	}
 
 	/**
 	 * @param float $min
 	 * @param float $max
 	 * @param int $round
-	 * @return float
+	 * @return float|false le flottant généré, false si une erreur survient
 	 */
-	public static function getRandomFloat(float $min, float $max, int $round=0): float
+	public static function getRandomFloat(float $min, float $max, int $round=0): float|false
 	{
 		if ($min > $max) {
 			return false;

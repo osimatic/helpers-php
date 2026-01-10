@@ -203,6 +203,11 @@ class DateTime
 	 */
 	public static function parseFromYearMonthDay(int $year, int $month, int $day): ?\DateTime
 	{
+		// Validate date components before creating DateTime
+		if (!checkdate($month, $day, $year)) {
+			return null;
+		}
+
 		try {
 			$d = new \DateTime();
 			$d->setDate($year, $month, $day);

@@ -41,10 +41,12 @@ class FileSystem
 	public static function dirname(string $filePath): string
 	{
 		$dirPath = self::formatPath($filePath);
-		if (substr($filePath, -1) !== DIRECTORY_SEPARATOR) {
-			$dirPath = dirname($dirPath).DIRECTORY_SEPARATOR;
+		// Si le chemin se termine déjà par un séparateur, c'est un répertoire, on le retourne tel quel
+		if (substr($dirPath, -1) === DIRECTORY_SEPARATOR) {
+			return $dirPath;
 		}
-		return $dirPath;
+		// Sinon c'est un fichier, on retourne le répertoire parent
+		return dirname($dirPath).DIRECTORY_SEPARATOR;
 	}
 
 	/**

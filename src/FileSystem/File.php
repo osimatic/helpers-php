@@ -18,10 +18,15 @@ class File
 		if (str_contains($data, 'base64,')) {
 			$data = explode('base64,', $data)[1] ?? '';
 		}
-		if (false === ($data = base64_decode($data)) || empty($data)) {
+		// Validate base64 with strict mode
+		if (false === ($decoded = base64_decode($data, true)) || empty($decoded)) {
 			return null;
 		}
-		return $data;
+		// Verify the decoded data can be re-encoded to the same value
+		if (base64_encode($decoded) !== $data) {
+			return null;
+		}
+		return $decoded;
 	}
 
 	/**
@@ -235,12 +240,29 @@ class File
 	}
 
 	/**
-	 * Retourne l'exension d'un fichier
+	 * Retourne l'extension d'un fichier
+	 * Gère les doubles extensions courantes comme .tar.gz, .tar.bz2, etc.
 	 * @param string $filePath
 	 * @return string
 	 */
 	public static function getExtension(string $filePath): string
 	{
+		$filename = basename($filePath);
+
+		// Liste des doubles extensions courantes
+		$doubleExtensions = [
+			'tar.gz', 'tar.bz2', 'tar.xz', 'tar.z', 'tar.lz',
+			'tar.zst', 'tar.lzma', 'tar.lzo', 'tar.bz'
+		];
+
+		// Vérifier si le fichier a une double extension
+		foreach ($doubleExtensions as $doubleExt) {
+			if (str_ends_with(mb_strtolower($filename), '.' . $doubleExt)) {
+				return $doubleExt;
+			}
+		}
+
+		// Sinon retourner l'extension simple
 		return pathinfo($filePath, PATHINFO_EXTENSION);
 	}
 
@@ -252,7 +274,14 @@ class File
 	public static function replaceExtension(string $filename, string $newExtension): string
 	{
 		$info = pathinfo($filename);
-		return ($info['dirname'] ? $info['dirname'] . DIRECTORY_SEPARATOR : '') . $info['filename'] . (!str_starts_with($newExtension, '.') ? '.' : '') . $newExtension;
+		$dirname = $info['dirname'] ?? '';
+
+		// Detect the separator used in the original path
+		$separator = str_contains($filename, '/') ? '/' : DIRECTORY_SEPARATOR;
+
+		// pathinfo() returns '.' for files without path, we should not include it
+		$prefix = ($dirname && $dirname !== '.') ? $dirname . $separator : '';
+		return $prefix . $info['filename'] . (!str_starts_with($newExtension, '.') ? '.' : '') . $newExtension;
 	}
 
 	/**

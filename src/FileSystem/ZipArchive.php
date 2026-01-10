@@ -8,11 +8,11 @@ class ZipArchive
 {
 	public const string FILE_EXTENSION = '.zip';
 	public const array MIME_TYPES = [
-		'application/x-rar',
-		'application/x-rar-compressed',
 		'application/zip',
 		'application/x-zip',
 		'application/x-zip-compressed',
+		'application/x-rar',
+		'application/x-rar-compressed',
 		'application/octet-stream',
 	];
 

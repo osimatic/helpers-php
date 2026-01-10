@@ -117,14 +117,43 @@ final class ArrTest extends TestCase
 		$this->assertFalse(Arr::in_array_i('grape', $array));
 	}
 
-	public function testInArrayValues(): void
+	public function testInArrayAny(): void
 	{
 		$haystack = ['apple', 'banana', 'orange'];
 		$needles1 = ['grape', 'melon'];
 		$needles2 = ['grape', 'apple'];
 
-		$this->assertFalse(Arr::in_array_values($needles1, $haystack));
-		$this->assertTrue(Arr::in_array_values($needles2, $haystack));
+		$this->assertFalse(Arr::in_array_any($needles1, $haystack));
+		$this->assertTrue(Arr::in_array_any($needles2, $haystack));
+	}
+
+	public function testInArrayAll(): void
+	{
+		$haystack = ['apple', 'banana', 'orange', 'grape'];
+
+		// Toutes les valeurs sont présentes
+		$needles1 = ['apple', 'banana'];
+		$this->assertTrue(Arr::in_array_all($needles1, $haystack));
+
+		// Une seule valeur présente
+		$needles2 = ['apple', 'melon'];
+		$this->assertFalse(Arr::in_array_all($needles2, $haystack));
+
+		// Aucune valeur présente
+		$needles3 = ['melon', 'kiwi'];
+		$this->assertFalse(Arr::in_array_all($needles3, $haystack));
+
+		// Tableau vide (tous les éléments d'un tableau vide sont dans n'importe quel tableau)
+		$needles4 = [];
+		$this->assertTrue(Arr::in_array_all($needles4, $haystack));
+
+		// Toutes les valeurs du haystack
+		$needles5 = ['apple', 'banana', 'orange', 'grape'];
+		$this->assertTrue(Arr::in_array_all($needles5, $haystack));
+
+		// Une valeur en trop
+		$needles6 = ['apple', 'banana', 'orange', 'grape', 'kiwi'];
+		$this->assertFalse(Arr::in_array_all($needles6, $haystack));
 	}
 
 	public function testArraySearchFunc(): void

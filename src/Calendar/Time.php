@@ -87,7 +87,19 @@ class Time
 	 */
 	public static function _parse(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?array
 	{
-		$timeArray = explode($separator, $enteredTime);
+		if (empty($enteredTime)) {
+			return null;
+		}
+
+		// Si le séparateur n'est pas standard, extraire tous les nombres
+		if (preg_match('/\d+[a-zA-Z]+\d+/', $enteredTime)) {
+			// Contient des séparateurs alphanumériques, extraire les nombres
+			preg_match_all('/\d+/', $enteredTime, $matches);
+			$timeArray = $matches[0];
+		} else {
+			$timeArray = explode($separator, $enteredTime);
+		}
+
 		--$hourPos;
 		--$minutePos;
 		--$secondPos;
