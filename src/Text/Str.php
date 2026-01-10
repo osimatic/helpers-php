@@ -135,10 +135,10 @@ class Str
 	// ========== Raccourcissement de chaîne ==========
 
 	/**
-	 * Coupe une chaîne de caractères avant un certains nombre de caractères, le début de la chaîne étant tronquée, et ajoute éventuellement une chaîne avant la coupure
+	 * Coupe une chaîne de caractères avant un certain nombre de caractères, le début de la chaîne étant tronquée, et ajoute éventuellement une chaîne avant la coupure
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (le début étant coupé)
-	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
+	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caractères maximum (true par défaut)
 	 * @param string $strAddingAtBeginning la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("…" par défaut)
 	 * @return string la chaîne coupée
 	 */
@@ -147,13 +147,15 @@ class Str
 		$space = ' ';
 		$stringTruncate = $string;
 
-		if (strlen($string) > $nbCharMax) {
-			$stringTruncate = substr($string, -$nbCharMax);
+		if (mb_strlen($string) > $nbCharMax) {
+			$ellipsisLength = mb_strlen($strAddingAtBeginning);
+			$maxTextLength = $nbCharMax - $ellipsisLength;
+			$stringTruncate = mb_substr($string, -$maxTextLength);
 
-			if ($dontCutInMiddleOfWord && $string[$nbCharMax-1] !== $space) {
+			if ($dontCutInMiddleOfWord && $stringTruncate[0] !== $space) {
 				$posSpace = strpos($stringTruncate, $space);
 				if ($posSpace !== false) {
-					$stringTruncate = substr($stringTruncate, $posSpace);
+					$stringTruncate = mb_substr($stringTruncate, $posSpace);
 				}
 			}
 
@@ -167,7 +169,7 @@ class Str
 	 * Coupe une chaîne de caractères après un certain nombre de caractères, la fin de la chaîne étant tronquée, et ajoute éventuellement une chaîne après la coupure
 	 * @param string $string la chaîne à couper
 	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (la fin étant coupé)
-	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caracètres maximum (true par défaut)
+	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caractères maximum (true par défaut)
 	 * @param string $strAddingAtEnd la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("…" par défaut)
 	 * @return string la chaîne coupée
 	 */
@@ -176,13 +178,15 @@ class Str
 		$space = ' ';
 		$stringTruncate = $string;
 
-		if (strlen($string) > $nbCharMax) {
-			$stringTruncate = substr($string, 0, $nbCharMax);
+		if (mb_strlen($string) > $nbCharMax) {
+			$ellipsisLength = mb_strlen($strAddingAtEnd);
+			$maxTextLength = $nbCharMax - $ellipsisLength;
+			$stringTruncate = mb_substr($string, 0, $maxTextLength);
 
-			if ($dontCutInMiddleOfWord && $string[$nbCharMax-1] !== $space) {
-				$posSpace = strrpos($stringTruncate, $space);
+			if ($dontCutInMiddleOfWord && mb_strlen($string) > $maxTextLength && $string[$maxTextLength] !== $space) {
+				$posSpace = mb_strrpos($stringTruncate, $space);
 				if ($posSpace !== false) {
-					$stringTruncate = substr($stringTruncate, 0, $posSpace);
+					$stringTruncate = mb_substr($stringTruncate, 0, $posSpace);
 				}
 			}
 
@@ -229,14 +233,17 @@ class Str
 			return $str;
 		}
 
-		$beg = substr($str, 0, floor($nbCharInFinalString * $whereEllipsisShouldAppear));
+		$ellipsisLength = strlen($ellipsis);
+		$availableLength = $nbCharInFinalString - $ellipsisLength;
+
+		$beg = substr($str, 0, floor($availableLength * $whereEllipsisShouldAppear));
 
 		$whereEllipsisShouldAppear = ($whereEllipsisShouldAppear > 1) ? 1 : $whereEllipsisShouldAppear;
 		if ($whereEllipsisShouldAppear === 1) {
-			$end = substr($str, 0, -($nbCharInFinalString - strlen($beg)));
+			$end = substr($str, 0, -($availableLength - strlen($beg)));
 		}
 		else {
-			$end = substr($str, -($nbCharInFinalString - strlen($beg)));
+			$end = substr($str, -($availableLength - strlen($beg)));
 		}
 
 		return $beg.$ellipsis.$end;
@@ -600,8 +607,10 @@ class Str
 	{
 		$charList = [',', '‚', ';', ':', '.', '…', '?', '!', '"', '\'', '(', ')', '[', ']', '{', '}', '‘', '’', '“', '”', '«', '»', '<', '>'];
 		foreach ($charList as $char) {
-			$str = preg_replace('#([\s]*)\\'.$char.'([\s]*)#', $replace, $str);
+			$str = preg_replace('#\\'.$char.'#', $replace, $str);
 		}
+		// Nettoie les doubles espaces qui peuvent être créés après suppression de la ponctuation
+		$str = preg_replace('#\s{2,}#', ' ', $str);
 		return $str;
 	}
 
