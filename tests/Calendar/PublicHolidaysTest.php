@@ -359,7 +359,7 @@ class PublicHolidaysTest extends TestCase
 		$hasGoodFriday = false;
 
 		foreach ($holidays as $holiday) {
-			if ($holiday->getKey() === 'vendredi_saint') {
+			if ($holiday->getKey() === 'vendredi_saint' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-29') {
 				$hasGoodFriday = true;
 				break;
 			}
@@ -374,7 +374,7 @@ class PublicHolidaysTest extends TestCase
 		$hasGoodFriday = false;
 
 		foreach ($holidays as $holiday) {
-			if ($holiday->getKey() === 'vendredi_saint') {
+			if ($holiday->getKey() === 'vendredi_saint' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-29') {
 				$hasGoodFriday = true;
 				break;
 			}
@@ -479,7 +479,7 @@ class PublicHolidaysTest extends TestCase
 		$hasMardiGras = false;
 
 		foreach ($holidays as $holiday) {
-			if ($holiday->getKey() === 'mardi_gras') {
+			if ($holiday->getKey() === 'mardi_gras' && date('Y-m-d', $holiday->getTimestamp()) === '2024-02-13') {
 				$hasMardiGras = true;
 				break;
 			}
@@ -513,14 +513,14 @@ class PublicHolidaysTest extends TestCase
 		$easter2024Timestamp = null;
 
 		foreach ($holidays2023 as $holiday) {
-			if ($holiday->getKey() === 'paques') {
+			if ($holiday->getKey() === 'paques' && date('Y-m-d', $holiday->getTimestamp()) === '2023-04-09') {
 				$easter2023Timestamp = $holiday->getTimestamp();
 				break;
 			}
 		}
 
 		foreach ($holidays2024 as $holiday) {
-			if ($holiday->getKey() === 'paques') {
+			if ($holiday->getKey() === 'paques' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-31') {
 				$easter2024Timestamp = $holiday->getTimestamp();
 				break;
 			}
