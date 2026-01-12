@@ -170,6 +170,10 @@ class Audio
 	 */
 	public static function checkIsmn(string $ismn): bool
 	{
+		if (empty($ismn)) {
+			return false;
+		}
+
 		// todo
 		return true;
 	}

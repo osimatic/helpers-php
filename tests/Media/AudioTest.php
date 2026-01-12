@@ -191,5 +191,6 @@ final class AudioTest extends TestCase
 		// TODO: This method is not implemented yet
 		$this->assertTrue(Audio::checkIsmn('M-2306-7118-7'));
 		$this->assertTrue(Audio::checkIsmn('invalid'));
+		$this->assertFalse(Audio::checkIsmn(''));
 	}
 }

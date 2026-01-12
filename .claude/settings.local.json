@@ -9,7 +9,8 @@
       "Bash(php test_vat_debug.php:*)",
       "Bash(php debug_truncate.php:*)",
       "Bash(php:*)",
-      "Bash(./vendor/bin/phpunit:*)"
+      "Bash(./vendor/bin/phpunit:*)",
+      "Bash(XDEBUG_MODE=coverage vendor/bin/phpunit:*)"
     ]
   }
 }

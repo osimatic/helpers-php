@@ -271,221 +271,277 @@ class PublicHolidaysTest extends TestCase
 	}
 
 	// ========================================
-	// Tests for specific countries and their holidays
+	// Tests by country - France
 	// ========================================
 
 	public function testFranceHasNewYear(): void
 	{
 		$holidays = PublicHolidays::getList('FR', 2024);
-		$hasNewYear = false;
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01') {
-				$hasNewYear = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasNewYear);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
 	}
 
 	public function testFranceHasBastilleDay(): void
 	{
 		$holidays = PublicHolidays::getList('FR', 2024);
-		$hasBastilleDay = false;
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Fête nationale') && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-14') {
-				$hasBastilleDay = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasBastilleDay);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête nationale') && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-14' && $holiday->getKey() === '07-14'));
 	}
 
-	public function testBelgiumHasArmistice(): void
+	public function testFranceHasVictoireDesAllies(): void
 	{
-		$holidays = PublicHolidays::getList('BE', 2024);
-		$hasArmistice = false;
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Armistice') && date('Y-m-d', $holiday->getTimestamp()) === '2024-11-11') {
-				$hasArmistice = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasArmistice);
+		$holidays = PublicHolidays::getList('FR', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Victoire des Alliés') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-08' && $holiday->getKey() === '05-08'));
 	}
 
-	public function testMoroccoHasIslamicHolidays(): void
+	public function testFranceHasArmistice(): void
 	{
-		$holidays = PublicHolidays::getList('MA', 2024);
-		$hasIslamicHoliday = false;
-
-		foreach ($holidays as $holiday) {
-			if ($holiday->getCalendar() === PublicHolidayCalendar::HIJRI) {
-				$hasIslamicHoliday = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasIslamicHoliday);
+		$holidays = PublicHolidays::getList('FR', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Armistice') && date('Y-m-d', $holiday->getTimestamp()) === '2024-11-11' && $holiday->getKey() === '11-11'));
 	}
 
-	public function testMauritiusHasIndianHolidays(): void
+	public function testFranceHasAssomption(): void
 	{
-		$holidays = PublicHolidays::getList('MU', 2024);
-		$hasIndianHoliday = false;
-
-		foreach ($holidays as $holiday) {
-			if ($holiday->getCalendar() === PublicHolidayCalendar::INDIAN) {
-				$hasIndianHoliday = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasIndianHoliday);
+		$holidays = PublicHolidays::getList('FR', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Assomption') && date('Y-m-d', $holiday->getTimestamp()) === '2024-08-15' && $holiday->getKey() === '08-15'));
 	}
-
-	// ========================================
-	// Tests for Alsace-specific holidays
-	// ========================================
 
 	public function testFranceAlsaceHasGoodFriday(): void
 	{
 		$holidays = PublicHolidays::getList('FR', 2024, ['alsace' => true]);
-		$hasGoodFriday = false;
-
-		foreach ($holidays as $holiday) {
-			if ($holiday->getKey() === 'vendredi_saint' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-29') {
-				$hasGoodFriday = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasGoodFriday);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'vendredi_saint' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-29'));
 	}
 
 	public function testFranceWithoutAlsaceNoGoodFriday(): void
 	{
 		$holidays = PublicHolidays::getList('FR', 2024);
-		$hasGoodFriday = false;
-
-		foreach ($holidays as $holiday) {
-			if ($holiday->getKey() === 'vendredi_saint' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-29') {
-				$hasGoodFriday = true;
-				break;
-			}
-		}
-
-		self::assertFalse($hasGoodFriday);
+		self::assertEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'vendredi_saint' && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-29'));
 	}
 
 	public function testFranceAlsaceHasSaintStephen(): void
 	{
 		$holidays = PublicHolidays::getList('FR', 2024, ['alsace' => true]);
-		$hasSaintStephen = false;
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Saint Étienne') && date('Y-m-d', $holiday->getTimestamp()) === '2024-12-26') {
-				$hasSaintStephen = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasSaintStephen);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Saint Étienne') && date('Y-m-d', $holiday->getTimestamp()) === '2024-12-26' && $holiday->getKey() === '12-26'));
 	}
 
 	// ========================================
-	// Tests for French territories
+	// Tests by country - Belgium
+	// ========================================
+
+	public function testBelgiumHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('BE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testBelgiumHasNationalDay(): void
+	{
+		$holidays = PublicHolidays::getList('BE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête nationale') && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-21' && $holiday->getKey() === '07-21'));
+	}
+
+	public function testBelgiumHasLabourDay(): void
+	{
+		$holidays = PublicHolidays::getList('BE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête du Travail') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-01' && $holiday->getKey() === '05-01'));
+	}
+
+	public function testBelgiumHasArmistice(): void
+	{
+		$holidays = PublicHolidays::getList('BE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Armistice') && date('Y-m-d', $holiday->getTimestamp()) === '2024-11-11' && $holiday->getKey() === '11-11'));
+	}
+
+	// ========================================
+	// Tests by country - Luxembourg
+	// ========================================
+
+	public function testLuxembourgHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('LU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testLuxembourgHasNationalDay(): void
+	{
+		$holidays = PublicHolidays::getList('LU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête nationale') && date('Y-m-d', $holiday->getTimestamp()) === '2024-06-23' && $holiday->getKey() === '06-23'));
+	}
+
+	public function testLuxembourgHasLabourDay(): void
+	{
+		$holidays = PublicHolidays::getList('LU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête du Travail') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-01' && $holiday->getKey() === '05-01'));
+	}
+
+	// ========================================
+	// Tests by country - Switzerland
+	// ========================================
+
+	public function testSwitzerlandHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('CH', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testSwitzerlandHasNationalDay(): void
+	{
+		$holidays = PublicHolidays::getList('CH', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête nationale') && date('Y-m-d', $holiday->getTimestamp()) === '2024-08-01' && $holiday->getKey() === '08-01'));
+	}
+
+	public function testSwitzerlandHasLabourDay(): void
+	{
+		$holidays = PublicHolidays::getList('CH', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête du Travail') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-01' && $holiday->getKey() === '05-01'));
+	}
+
+	// ========================================
+	// Tests by country - Mauritius
+	// ========================================
+
+	public function testMauritiusHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('MU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testMauritiusHasNationalDay(): void
+	{
+		$holidays = PublicHolidays::getList('MU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête nationale') && date('Y-m-d', $holiday->getTimestamp()) === '2024-03-12' && $holiday->getKey() === '03-12'));
+	}
+
+	public function testMauritiusHasAbolitionOfSlavery(): void
+	{
+		$holidays = PublicHolidays::getList('MU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Abolition de l’esclavage') && date('Y-m-d', $holiday->getTimestamp()) === '2024-02-01' && $holiday->getKey() === '02-01'));
+	}
+
+	public function testMauritiusHasIndianHolidays(): void
+	{
+		$holidays = PublicHolidays::getList('MU', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getCalendar() === PublicHolidayCalendar::INDIAN));
+	}
+
+	// ========================================
+	// Tests by country - Morocco
+	// ========================================
+
+	public function testMoroccoHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('MA', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testMoroccoHasIndependenceManifesto(): void
+	{
+		$holidays = PublicHolidays::getList('MA', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Manifeste de l’Indépendance') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-11' && $holiday->getKey() === '01-11'));
+	}
+
+	public function testMoroccoHasThroneDay(): void
+	{
+		$holidays = PublicHolidays::getList('MA', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête du Trône') && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-30' && $holiday->getKey() === '07-30'));
+	}
+
+	public function testMoroccoHasIslamicHolidays(): void
+	{
+		$holidays = PublicHolidays::getList('MA', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getCalendar() === PublicHolidayCalendar::HIJRI));
+	}
+
+	// ========================================
+	// Tests by country - Martinique
 	// ========================================
 
 	public function testMartiniqueHasAbolitionOfSlavery(): void
 	{
 		$holidays = PublicHolidays::getList('MQ', 2024);
-		$hasAbolitionOfSlavery = false;
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Abolition de l’esclavage') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-22') {
-				$hasAbolitionOfSlavery = true;
-				break;
-			}
-		}
-
-		self::assertTrue($hasAbolitionOfSlavery);
-	}
-
-	public function testMartiniqueAbolitionDateIsMay22(): void
-	{
-		$holidays = PublicHolidays::getList('MQ', 2024);
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Abolition de l’esclavage')) {
-				self::assertEquals('05-22', $holiday->getKey());
-				return;
-			}
-		}
-
-		self::fail('Abolition de l’esclavage not found in Martinique holidays');
-	}
-
-	public function testGuadeloupeAbolitionDateIsMay27(): void
-	{
-		$holidays = PublicHolidays::getList('GP', 2024);
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Abolition de l’esclavage')) {
-				self::assertEquals('05-27', $holiday->getKey());
-				return;
-			}
-		}
-
-		self::fail('Abolition de l’esclavage not found in Guadeloupe holidays');
-	}
-
-	public function testReunionAbolitionDateIsDecember20(): void
-	{
-		$holidays = PublicHolidays::getList('RE', 2024);
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Abolition de l’esclavage')) {
-				self::assertEquals('12-20', $holiday->getKey());
-				return;
-			}
-		}
-
-		self::fail('Abolition de l’esclavage not found in Réunion holidays');
-	}
-
-	public function testGuyaneAbolitionDateIsJune10(): void
-	{
-		$holidays = PublicHolidays::getList('GF', 2024);
-
-		foreach ($holidays as $holiday) {
-			if (str_contains($holiday->getName(), 'Abolition de l’esclavage')) {
-				self::assertEquals('06-10', $holiday->getKey());
-				return;
-			}
-		}
-
-		self::fail('Abolition de l’esclavage not found in Guyane holidays');
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Abolition de l’esclavage') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-22' && $holiday->getKey() === '05-22'));
 	}
 
 	public function testMartiniqueHasMardiGras(): void
 	{
 		$holidays = PublicHolidays::getList('MQ', 2024);
-		$hasMardiGras = false;
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'mardi_gras' && date('Y-m-d', $holiday->getTimestamp()) === '2024-02-13'));
+	}
 
-		foreach ($holidays as $holiday) {
-			if ($holiday->getKey() === 'mardi_gras' && date('Y-m-d', $holiday->getTimestamp()) === '2024-02-13') {
-				$hasMardiGras = true;
-				break;
-			}
-		}
+	public function testMartiniqueHasFeteVictorSchoelcher(): void
+	{
+		$holidays = PublicHolidays::getList('MQ', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête Victor Schœlcher') && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-21' && $holiday->getKey() === '07-21'));
+	}
 
-		self::assertTrue($hasMardiGras);
+	public function testMartiniqueHasDefunts(): void
+	{
+		$holidays = PublicHolidays::getList('MQ', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Défunts') && date('Y-m-d', $holiday->getTimestamp()) === '2024-11-02' && $holiday->getKey() === '11-02'));
+	}
+
+	// ========================================
+	// Tests by country - Guadeloupe
+	// ========================================
+
+	public function testGuadeloupeAbolitionDateIsMay27(): void
+	{
+		$holidays = PublicHolidays::getList('GP', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Abolition de l’esclavage') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-27' && $holiday->getKey() === '05-27'));
+	}
+
+	public function testGuadeloupeHasFeteVictorSchoelcher(): void
+	{
+		$holidays = PublicHolidays::getList('GP', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête Victor Schœlcher') && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-21' && $holiday->getKey() === '07-21'));
+	}
+
+	public function testGuadeloupeHasDefunts(): void
+	{
+		$holidays = PublicHolidays::getList('GP', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Défunts') && date('Y-m-d', $holiday->getTimestamp()) === '2024-11-02' && $holiday->getKey() === '11-02'));
+	}
+
+	// ========================================
+	// Tests by country - Reunion
+	// ========================================
+
+	public function testReunionAbolitionDateIsDecember20(): void
+	{
+		$holidays = PublicHolidays::getList('RE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Abolition de l’esclavage') && date('Y-m-d', $holiday->getTimestamp()) === '2024-12-20' && $holiday->getKey() === '12-20'));
+	}
+
+	public function testReunionHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('RE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testReunionHasLabourDay(): void
+	{
+		$holidays = PublicHolidays::getList('RE', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête du Travail') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-01' && $holiday->getKey() === '05-01'));
+	}
+
+	// ========================================
+	// Tests by country - Guyane
+	// ========================================
+
+	public function testGuyaneAbolitionDateIsJune10(): void
+	{
+		$holidays = PublicHolidays::getList('GF', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Abolition de l’esclavage') && date('Y-m-d', $holiday->getTimestamp()) === '2024-06-10' && $holiday->getKey() === '06-10'));
+	}
+
+	public function testGuyaneHasNewYear(): void
+	{
+		$holidays = PublicHolidays::getList('GF', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Jour de l’an') && date('Y-m-d', $holiday->getTimestamp()) === '2024-01-01' && $holiday->getKey() === '01-01'));
+	}
+
+	public function testGuyaneHasLabourDay(): void
+	{
+		$holidays = PublicHolidays::getList('GF', 2024);
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => str_contains($holiday->getName(), 'Fête du Travail') && date('Y-m-d', $holiday->getTimestamp()) === '2024-05-01' && $holiday->getKey() === '05-01'));
 	}
 
 	// ========================================
