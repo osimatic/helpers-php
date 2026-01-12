@@ -22,6 +22,9 @@ class JSON
 			'#/\*(.+)\*/\s*$#Us'
 		), '', $str);
 
+		// eliminate empty lines left by removed comments
+		$str = preg_replace('#^\s*\n#m', '', $str);
+
 		// eliminate extraneous space
 		return trim($str);
 	}

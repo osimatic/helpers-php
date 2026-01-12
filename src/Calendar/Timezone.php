@@ -17,11 +17,16 @@ class Timezone
 	 */
 	public static function check(string $timezone, ?string $countryCode=null): bool
 	{
+		if (empty($timezone)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();
 		$constraint = new \Symfony\Component\Validator\Constraints\Timezone();
 		$constraint->countryCode = $countryCode;
+		$constraint->zone = null !== $countryCode ? \DateTimeZone::PER_COUNTRY : \DateTimeZone::ALL;
 		return $validator->validate($timezone, $constraint)->count() === 0;
 	}
 
@@ -83,7 +88,15 @@ class Timezone
 	 */
 	public static function getListTimeZonesOfCountry(string $countryCode): array
 	{
-		return \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, $countryCode);
+		if (empty($countryCode) || strlen($countryCode) !== 2) {
+			return [];
+		}
+
+		try {
+			return \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, $countryCode);
+		} catch (\ValueError) {
+			return [];
+		}
 	}
 
 	/**

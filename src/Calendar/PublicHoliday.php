@@ -28,7 +28,7 @@ class PublicHoliday
 		$key ??= date('m-d', $timestamp);
 
 		// ajout jour de l'année dans le nom
-		if (preg_match('/((0[0-9])|(1[1-2]))-(([0-2][0-9])|(3[0-1]))/', $key) !== 0) {
+		if (preg_match('/((0[1-9])|(1[0-2]))-(([0-2][0-9])|(3[0-1]))/', $key) !== 0) {
 			if ($calendar === PublicHolidayCalendar::HIJRI) {
 				[, $hijriMonth, $hijriDay] = IslamicCalendar::convertTimestampToIslamicDate($timestamp);
 				$name .= ' ('.$hijriDay.(1 === $hijriDay ? 'er' : '').' '. IslamicCalendar::getMonthName($hijriMonth).')';
@@ -38,7 +38,8 @@ class PublicHoliday
 				$name .= ' ('.$indianDay.(1 === $indianDay ? 'er' : '').' '. IndianCalendar::getMonthName($indianMonth).')';
 			}
 			else {
-				$name .= ' ('.date('d', $timestamp). (1 === ((int)date('d', $timestamp)) ? 'er' : '').' '. Date::getMonthName(date('m', $timestamp)).')';
+				$day = (int)date('j', $timestamp);
+				$name .= ' ('.$day.(1 === $day ? 'er' : '').' '. mb_strtolower(Date::getMonthName(date('m', $timestamp))).')';
 			}
 		}
 
