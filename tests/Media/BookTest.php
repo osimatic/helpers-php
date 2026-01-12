@@ -42,10 +42,10 @@ final class BookTest extends TestCase
 
 	public function testCheckIsbn10WithValidIsbn10(): void
 	{
-		$this->assertTrue(Book::checkIsbn10('2-2070-3641-5'));
-		$this->assertTrue(Book::checkIsbn10('2207036415'));
 		$this->assertTrue(Book::checkIsbn10('0-306-40615-2'));
 		$this->assertTrue(Book::checkIsbn10('0306406152'));
+		$this->assertTrue(Book::checkIsbn10('0-684-84328-5'));
+		$this->assertTrue(Book::checkIsbn10('0684843285'));
 	}
 
 	public function testCheckIsbn10WithValidIsbn10WithX(): void
@@ -72,10 +72,10 @@ final class BookTest extends TestCase
 
 	public function testCheckIsbn13WithValidIsbn13(): void
 	{
-		$this->assertTrue(Book::checkIsbn13('978-2-207-03641-2'));
-		$this->assertTrue(Book::checkIsbn13('9782207036412'));
 		$this->assertTrue(Book::checkIsbn13('978-0-306-40615-7'));
 		$this->assertTrue(Book::checkIsbn13('9780306406157'));
+		$this->assertTrue(Book::checkIsbn13('978-3-16-148410-0'));
+		$this->assertTrue(Book::checkIsbn13('9783161484100'));
 	}
 
 	public function testCheckIsbn13WithInvalidIsbn13(): void
@@ -105,7 +105,7 @@ final class BookTest extends TestCase
 	public function testCheckIssnWithValidIssnWithX(): void
 	{
 		// ISSN can have 'X' as the last check digit
-		$this->assertTrue(Book::checkIssn('0028-084X'));
+		$this->assertTrue(Book::checkIssn('0003-004X'));
 	}
 
 	public function testCheckIssnWithInvalidIssn(): void

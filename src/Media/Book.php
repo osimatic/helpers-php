@@ -47,7 +47,7 @@ class Book
 	 */
 	private static function _checkIsbn(string $isbn, ?string $type=null): bool
 	{
-		if (empty($isbn)) {
+		if (empty($isbn) || $isbn === '0000000000') {
 			return false;
 		}
 
@@ -67,7 +67,7 @@ class Book
 	 */
 	public static function checkIssn(string $issn): bool
 	{
-		if (empty($issn)) {
+		if (empty($issn) || $issn === '00000000' || $issn === '0000-0000') {
 			return false;
 		}
 

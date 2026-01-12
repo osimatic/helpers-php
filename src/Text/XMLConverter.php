@@ -48,6 +48,10 @@ class XMLConverter
 	 */
 	public function convertToArray(string $xmlContent): ?array
 	{
+		if (empty($xmlContent)) {
+			return null;
+		}
+
 		try {
 			return XML2Array::createArray($xmlContent);
 		}

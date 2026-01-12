@@ -25,6 +25,10 @@ class BankCard
 	 */
 	public static function getExpirationDateFromYearAndMonth(int $year, int $month): ?\DateTime
 	{
+		if ($month < 1 || $month > 12) {
+			return null;
+		}
+
 		try {
 			return new \DateTime($year . '-' . $month . '-' .Date::getNumberOfDaysInMonth($year, $month).' 00:00:00');
 		} catch (\Exception) {}
@@ -38,6 +42,10 @@ class BankCard
 	 */
 	public static function checkCardNumber(string $cardNumber): bool
 	{
+		if (empty($cardNumber) || preg_match('/^0+$/', $cardNumber)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();
@@ -79,7 +87,7 @@ class BankCard
 			return Date::getMonthName((int) ($expirationDate->format('m'))).' '.$expirationDate->format('Y');
 		}
 
-		return \IntlDateFormatter::create(null, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE, null, null, 'MM/YYYY')?->format($expirationDate->getTimestamp());
+		return \IntlDateFormatter::create(null, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE, null, null, 'MM/yyyy')?->format($expirationDate);
 	}
 
 	/**

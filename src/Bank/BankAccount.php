@@ -12,7 +12,8 @@ class BankAccount
 	public static function formatIban(string $iban): string
 	{
 		$str = '';
-		for ($i=0; $i<27; $i++) {
+		$length = strlen($iban);
+		for ($i=0; $i<$length; $i++) {
 			if (in_array($i, [4, 8, 12, 16, 20, 24], true)) {
 				$str .= ' ';
 			}
@@ -27,6 +28,10 @@ class BankAccount
 	 */
 	public static function checkIban(string $iban): bool
 	{
+		if (empty($iban)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();
@@ -62,6 +67,10 @@ class BankAccount
 	 */
 	public static function checkBic(string $bic): bool
 	{
+		if (empty($bic)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();

@@ -12,7 +12,7 @@ class Color
 	 */
 	public static function checkHexaColor(string $hexaColor): bool
 	{
-		return preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $hexaColor) !== false;
+		return preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $hexaColor) === 1;
 	}
 
 	// ========== Méthodes de conversion ==========
@@ -63,7 +63,7 @@ class Color
 		}
 
 		if (strlen($hex) === 3) {
-			$hex .= $hex;
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
 		}
 
 		if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {

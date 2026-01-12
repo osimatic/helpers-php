@@ -42,6 +42,10 @@ class Currency
 	 */
 	public static function check(string $currencyCode): bool
 	{
+		if (empty($currencyCode)) {
+			return false;
+		}
+
 		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
 			->addMethodMapping('loadValidatorMetadata')
 			->getValidator();
