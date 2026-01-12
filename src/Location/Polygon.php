@@ -107,20 +107,31 @@ class Polygon
 
 	/**
 	 * Calcule le centroid (centre géométrique) d'un polygone
-	 * @param array $polygonData Tableau de points du polygone [[lat1, lng1], [lat2, lng2], ...]
+	 * @param array $polygon Tableau de rings [[[lat, lon], ...], [[lat, lon], ...]] ou simple ring [[lat, lon], ...]
 	 * @return array|null [latitude, longitude] du centroid ou null si le calcul échoue
 	 */
-	public static function getCentroid(array $polygonData): ?array
+	public static function getCentroid(array $polygon): ?array
 	{
-		if (empty($polygonData)) {
+		if (empty($polygon)) {
 			return null;
+		}
+
+		// Déterminer si c'est un polygone (tableau de rings) ou un simple ring (tableau de points)
+		$ring = $polygon;
+		if (isset($polygon[0]) && is_array($polygon[0])) {
+			// Si le premier élément est un tableau
+			if (isset($polygon[0][0]) && is_array($polygon[0][0])) {
+				// C'est un polygone (tableau de rings), on prend le ring extérieur
+				$ring = $polygon[0];
+			}
+			// Sinon c'est déjà un ring (tableau de points)
 		}
 
 		$latSum = 0;
 		$lngSum = 0;
 		$count = 0;
 
-		foreach ($polygonData as $point) {
+		foreach ($ring as $point) {
 			if (is_array($point) && count($point) >= 2) {
 				$latSum += $point[0];
 				$lngSum += $point[1];

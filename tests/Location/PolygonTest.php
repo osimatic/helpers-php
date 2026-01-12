@@ -329,4 +329,48 @@ final class PolygonTest extends TestCase
 		$this->assertEqualsWithDelta(0.5, $centroid[0], 0.0001);
 		$this->assertEqualsWithDelta(0.8, $centroid[1], 0.0001);
 	}
+
+	public function testGetCentroidWithPolygonFormat(): void
+	{
+		// Polygone au format [[[lat, lon], ...]] (tableau de rings)
+		$polygon = [[
+			[0.0, 0.0],
+			[0.0, 1.0],
+			[1.0, 1.0],
+			[1.0, 0.0]
+		]];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		$this->assertEqualsWithDelta(0.5, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(0.5, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidWithPolygonAndHoles(): void
+	{
+		// Polygone avec trous (le centroïde est calculé sur le ring extérieur uniquement)
+		$polygon = [
+			[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]], // outer ring
+			[[2, 2], [2, 4], [4, 4], [4, 2], [2, 2]]      // hole (ignoré)
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		// Centroïde du ring extérieur uniquement
+		$this->assertEqualsWithDelta(4.0, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(4.0, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidRealWorldPolygonFormat(): void
+	{
+		// Format polygone complet avec coordonnées GPS réelles
+		$polygon = [[
+			[48.8566, 2.3522], // Paris
+			[48.8766, 2.3522],
+			[48.8766, 2.3722],
+			[48.8566, 2.3722]
+		]];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		$this->assertEqualsWithDelta(48.8666, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(2.3622, $centroid[1], 0.0001);
+	}
 }
