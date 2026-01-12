@@ -194,4 +194,139 @@ final class PolygonTest extends TestCase
 		$this->assertFalse(Polygon::isPointInPolygon([2, 2], $poly)); // dans hole 1
 		$this->assertFalse(Polygon::isPointInPolygon([6, 6], $poly)); // dans hole 2
 	}
+
+	/* ===================== getCentroid() ===================== */
+
+	public function testGetCentroidEmptyArray(): void
+	{
+		$this->assertNull(Polygon::getCentroid([]));
+	}
+
+	public function testGetCentroidInvalidPoints(): void
+	{
+		// Tableau avec des points invalides (pas de coordonnées)
+		$polygon = [null, [], 'invalid'];
+		$this->assertNull(Polygon::getCentroid($polygon));
+	}
+
+	public function testGetCentroidSinglePoint(): void
+	{
+		$polygon = [[48.8566, 2.3522]]; // Paris
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		$this->assertEqualsWithDelta(48.8566, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(2.3522, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidTriangle(): void
+	{
+		// Triangle équilatéral centré sur l'origine
+		$polygon = [
+			[0.0, 1.0],
+			[-0.866, -0.5],
+			[0.866, -0.5]
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		// Le centroïde d'un triangle est la moyenne des sommets
+		$this->assertEqualsWithDelta(0.0, $centroid[0], 0.001);
+		$this->assertEqualsWithDelta(0.0, $centroid[1], 0.001);
+	}
+
+	public function testGetCentroidSquare(): void
+	{
+		// Carré centré sur (0.5, 0.5)
+		$polygon = [
+			[0.0, 0.0],
+			[0.0, 1.0],
+			[1.0, 1.0],
+			[1.0, 0.0]
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		$this->assertEqualsWithDelta(0.5, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(0.5, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidSquareClosed(): void
+	{
+		// Carré fermé (premier point répété à la fin)
+		$polygon = [
+			[0.0, 0.0],
+			[0.0, 1.0],
+			[1.0, 1.0],
+			[1.0, 0.0],
+			[0.0, 0.0] // Point fermant
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		// La moyenne inclut le point en double, donc légèrement différent
+		$this->assertEqualsWithDelta(0.4, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(0.4, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidNegativeCoordinates(): void
+	{
+		// Polygone avec coordonnées négatives
+		$polygon = [
+			[-1.0, -1.0],
+			[-1.0, 1.0],
+			[1.0, 1.0],
+			[1.0, -1.0]
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		$this->assertEqualsWithDelta(0.0, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(0.0, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidRealWorldCoordinates(): void
+	{
+		// Polygone autour de Paris
+		$polygon = [
+			[48.8566, 2.3522], // Centre de Paris
+			[48.8766, 2.3522],
+			[48.8766, 2.3722],
+			[48.8566, 2.3722]
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		$this->assertEqualsWithDelta(48.8666, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(2.3622, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidMixedValidInvalidPoints(): void
+	{
+		// Mélange de points valides et invalides
+		$polygon = [
+			[1.0, 2.0],
+			null,
+			[3.0, 4.0],
+			'invalid',
+			[5.0, 6.0],
+			[]
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		// Moyenne de (1,2), (3,4), (5,6)
+		$this->assertEqualsWithDelta(3.0, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(4.0, $centroid[1], 0.0001);
+	}
+
+	public function testGetCentroidIrregularPolygon(): void
+	{
+		// Polygone irrégulier
+		$polygon = [
+			[0.0, 0.0],
+			[1.0, 0.0],
+			[1.5, 1.0],
+			[0.5, 2.0],
+			[-0.5, 1.0]
+		];
+		$centroid = Polygon::getCentroid($polygon);
+		$this->assertNotNull($centroid);
+		// Moyenne arithmétique simple des coordonnées
+		$this->assertEqualsWithDelta(0.5, $centroid[0], 0.0001);
+		$this->assertEqualsWithDelta(0.8, $centroid[1], 0.0001);
+	}
 }

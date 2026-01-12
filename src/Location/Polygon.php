@@ -104,4 +104,34 @@ class Polygon
 		}
 		return $inside;
 	}
+
+	/**
+	 * Calcule le centroid (centre géométrique) d'un polygone
+	 * @param array $polygonData Tableau de points du polygone [[lat1, lng1], [lat2, lng2], ...]
+	 * @return array|null [latitude, longitude] du centroid ou null si le calcul échoue
+	 */
+	public static function getCentroid(array $polygonData): ?array
+	{
+		if (empty($polygonData)) {
+			return null;
+		}
+
+		$latSum = 0;
+		$lngSum = 0;
+		$count = 0;
+
+		foreach ($polygonData as $point) {
+			if (is_array($point) && count($point) >= 2) {
+				$latSum += $point[0];
+				$lngSum += $point[1];
+				$count++;
+			}
+		}
+
+		if ($count === 0) {
+			return null;
+		}
+
+		return [$latSum / $count, $lngSum / $count];
+	}
 }
