@@ -6,6 +6,12 @@ use Osimatic\Location\PlaceInterface;
 
 class Distance
 {
+	// Rayon de la Terre en mètres
+	private const int EARTH_RADIUS_METERS = 6378137;
+
+	// Coefficient de conversion mètres vers miles (note: traite les mètres comme des kilomètres pour compatibilité)
+	private const float METERS_TO_MILES = 0.621371192;
+
 	// ========== Distance sur une base orthonormée ==========
 
 	/**
@@ -61,7 +67,6 @@ class Distance
 	 */
 	public static function calculateBetweenLatitudeAndLongitude(float $originLatitude, float $originLongitude, float $destinationLatitude, float $destinationLongitude, int $decimals=2): float
 	{
-		$earth_radius = 6378137; // Terre = sphère de 6378km de rayon
 		$radLng1 = deg2rad($originLongitude);
 		$radLat1 = deg2rad($originLatitude);
 		$radLng2 = deg2rad($destinationLongitude);
@@ -70,7 +75,7 @@ class Distance
 		$diffLat = ($radLat2 - $radLat1) / 2;
 		$a = (sin($diffLat) * sin($diffLat)) + cos($radLat1) * cos($radLat2) * (sin($diffLng) * sin($diffLng));
 		$d = 2 * atan2(sqrt($a), sqrt(1 - $a));
-		$distance = $earth_radius * $d;
+		$distance = self::EARTH_RADIUS_METERS * $d;
 
 		/*
 		// Calcul de la distance en degrés
@@ -92,7 +97,7 @@ class Distance
 	 */
 	public static function calculateBetweenPlaces(PlaceInterface $originPlace, PlaceInterface $destinationPlace): float
 	{
-		return self::calculateBetweenLatitudeAndLongitude($originPlace->getLatitude(), $originPlace->getLongitude(), $destinationPlace->getLatitude(), $destinationPlace->getLongitude() );
+		return self::calculateBetweenLatitudeAndLongitude($originPlace->getLatitude(), $originPlace->getLongitude(), $destinationPlace->getLatitude(), $destinationPlace->getLongitude());
 	}
 
 	/**
@@ -102,7 +107,7 @@ class Distance
 	 */
 	public static function convertMetersToMiles(float $distance): float
 	{
-		return (float) ($distance * 0.621371192);
+		return $distance * self::METERS_TO_MILES;
 	}
 
 }

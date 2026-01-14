@@ -45,7 +45,7 @@ class SMS
 	 * Date/heure de l'envoi du SMS. Permet d'envoyer le SMS en différé (null = envoi immédiat).
 	 * @var \DateTime|null
 	 */
-	private ?\DateTime $sendingDateTime;
+	private ?\DateTime $sendingDateTime = null;
 
 	/**
 	 *
@@ -286,8 +286,8 @@ class SMS
 		$text = str_replace("’", "'", $text);
 		
 		// $text = addslashes($text);
-		if ($this->isTruncatedText() && strlen($text) > self::MESSAGE_NB_CHAR_MAX) {
-			$this->text = substr($text, 0, self::MESSAGE_NB_CHAR_MAX);
+		if ($this->isTruncatedText() && mb_strlen($text) > self::MESSAGE_NB_CHAR_MAX) {
+			$this->text = mb_substr($text, 0, self::MESSAGE_NB_CHAR_MAX);
 		}
 		else {
 			$this->text = $text;
@@ -304,14 +304,13 @@ class SMS
 	 */
 	public function setTextFromFile(string $filePath): self
 	{
-		//$fp = fopen($file, 'r');
-		//$text = '';
-		//while (!feof($fp)) {
-		//	$text .= fgets($fp, 2048);
-		//}
-		//fclose($fp);
+		if (!is_file($filePath)) {
+			return $this;
+		}
 
-		$text = file_get_contents($filePath);
+		if (false === ($text = file_get_contents($filePath))) {
+			return $this;
+		}
 
 		$this->setText($text);
 
@@ -409,9 +408,12 @@ class SMS
 	 */
 	private function addRecipientPhoneNumber(?string $mobileNumber): bool
 	{
+		if (empty($mobileNumber)) {
+			return false;
+		}
+
 		$mobileNumber = PhoneNumber::parse(trim($mobileNumber));
 		if (!PhoneNumber::isValid($mobileNumber)) {
-			//trace('Invalid number : '.$mobileNumber);
 			return false;
 		}
 

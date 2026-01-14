@@ -150,7 +150,6 @@ class Duration
 	 */
 	public static function getNbSecondsRemaining(int $durationInSeconds): int
 	{
-		//$nbSecondesRemaining = $durationInSeconds%60;
 		return $durationInSeconds%60;
 	}
 
@@ -215,7 +214,7 @@ class Duration
 	}
 
 	/**
-	 * @param int $durationInSeconds la durée en seconde à formatter
+	 * @param int $durationInSeconds la durée en seconde à formater
 	 * @param DurationDisplayMode $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
 	 * @return string la durée formatée pour l'affichage.
 	 */

@@ -98,7 +98,7 @@ class PhoneNumber
 
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
+				return \libphonenumber\PhoneNumberUtil::getInstance()->isPossibleNumber($phoneNumberObj);
 			}
 		}
 		catch (\libphonenumber\NumberParseException) {}
@@ -200,9 +200,6 @@ class PhoneNumber
 
 		try {
 			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				//if ($phoneNumberObj->getCountryCode() == 44) {
-				//	return 'UK'; // bug pour les numéros anglais...
-				//}
 				return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
 			}
 		}
@@ -225,10 +222,10 @@ class PhoneNumber
 		}
 
 		if (!str_starts_with($phoneNumber, '+33') && !str_starts_with($phoneNumber, '0')) {
-			if (strlen($phoneNumber) > 9) {
+			if (mb_strlen($phoneNumber) > 9) {
 				return '00'.$phoneNumber;
 			}
-			if (strlen($phoneNumber) === 9) {
+			if (mb_strlen($phoneNumber) === 9) {
 				return '0' . $phoneNumber;
 			}
 		}
@@ -246,7 +243,7 @@ class PhoneNumber
 		];
 		
 		foreach ($frenchOverseasCallingCodes as $callingCode) {
-			if (!str_starts_with($phoneNumber, '+33') && substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && strlen($phoneNumber) === 13) { // Guadeloupe
+			if (!str_starts_with($phoneNumber, '+33') && substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && mb_strlen($phoneNumber) === 13) { // Guadeloupe
 				$phoneNumber = '+'.substr($phoneNumber, 1);
 			}
 		}
@@ -271,7 +268,7 @@ class PhoneNumber
 		}
 		if (str_starts_with($phoneNumber, '0033')) {
 			$phoneNumber = substr($phoneNumber, 4);
-			if ($withTrunkCode && strlen($phoneNumber) > 5) {
+			if ($withTrunkCode && mb_strlen($phoneNumber) > 5) {
 				$phoneNumber = '0'.$phoneNumber;
 			}
 		}

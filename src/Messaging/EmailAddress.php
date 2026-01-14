@@ -17,7 +17,7 @@ class EmailAddress
 	 */
 	public static function check(string $email): bool
 	{
-		return filter_var($email, FILTER_VALIDATE_EMAIL);
+		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 	}
 
 	// ========== Get element ==========
@@ -29,7 +29,6 @@ class EmailAddress
 	 */
 	public static function getHost(string $email): ?string
 	{
-		// preg_replace('!^[a-z0-9._-]+@(.+)$!', '$1', $email)
 		if (!str_contains($email, '@')) {
 			return null;
 		}
@@ -40,11 +39,13 @@ class EmailAddress
 	 * Retourne le domaine de premier niveau contenu dans une adresse email, avec éventuellement le séparateur "."
 	 * @param string $email l'adresse email dans laquelle récupérer le domaine de premier niveau
 	 * @param boolean $withPoint true pour ajouter le séparateur "." avant le domaine de premier niveau, false sinon (true par défaut)
-	 * @return string le domaine de premier niveau contenu dans l'adresse email
+	 * @return string|null le domaine de premier niveau contenu dans l'adresse email
 	 */
-	public static function getTld(string $email, bool $withPoint=true): string
+	public static function getTld(string $email, bool $withPoint=true): ?string
 	{
-		$host = self::getHost($email);
+		if (null === ($host = self::getHost($email))) {
+			return null;
+		}
 		return \Osimatic\Network\DNS::getTld($host, $withPoint);
 	}
 
