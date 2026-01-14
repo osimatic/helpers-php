@@ -35,7 +35,7 @@ class Email
 	 * This will usually be turned into a Return-Path header by the receiver, and is the address that bounces will be sent to.
 	 * @type string|null
 	 */
-	protected ?string $sender = null;
+	private ?string $sender = null;
 
 	/**
 	 * The array of reply-to names and addresses.
@@ -121,7 +121,7 @@ class Email
 	 * Options: null (default), 1 = High, 3 = Normal, 5 = low.
 	 * @var int|null
 	 */
-	private ?int $priority;
+	private ?int $priority = null;
 
 	/**
 	 * The character set of the message.
@@ -180,7 +180,7 @@ class Email
 	 * private usage
 	 * @var array
 	 */
-	private array $allAdresses = [];
+	private array $allAddresses = [];
 
 
 	/**
@@ -482,7 +482,7 @@ class Email
 	 */
 	public function getAllRecipientAddresses(): array
 	{
-		return $this->allAdresses;
+		return $this->allAddresses;
 	}
 
 
@@ -494,7 +494,7 @@ class Email
 	 */
 	public function addTo(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::to, $emailAddress, $name);
 
 		return $this;
 	}
@@ -507,7 +507,7 @@ class Email
 	 */
 	public function addRecipient(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::to, $emailAddress, $name);
 
 		return $this;
 	}
@@ -520,7 +520,7 @@ class Email
 	 */
 	public function addCc(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress(EmailAddressKind::listCc, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::cc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -533,7 +533,7 @@ class Email
 	 */
 	public function addBcc(?string $emailAddress, ?string $name = ''): self
 	{
-		$this->addEmailAddress(EmailAddressKind::listBcc, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::bcc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -545,7 +545,7 @@ class Email
 	 */
 	public function addListTo(array $recipientList): self
 	{
-		$this->addEmailAddressList(EmailAddressKind::listTo, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::to, $recipientList);
 
 		return $this;
 	}
@@ -557,7 +557,7 @@ class Email
 	 */
 	public function addListCc(array $recipientList): self
 	{
-		$this->addEmailAddressList(EmailAddressKind::listCc, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::cc, $recipientList);
 
 		return $this;
 	}
@@ -569,7 +569,7 @@ class Email
 	 */
 	public function addListBcc(array $recipientList): self
 	{
-		$this->addEmailAddressList(EmailAddressKind::listBcc, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::bcc, $recipientList);
 
 		return $this;
 	}
@@ -584,7 +584,7 @@ class Email
 	public function setRecipient(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::to, $emailAddress, $name);
 
 		return $this;
 	}
@@ -598,7 +598,7 @@ class Email
 	public function setTo(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddress(EmailAddressKind::listTo, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::to, $emailAddress, $name);
 
 		return $this;
 	}
@@ -612,7 +612,7 @@ class Email
 	public function setCc(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListCc();
-		$this->addEmailAddress(EmailAddressKind::listCc, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::cc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -626,7 +626,7 @@ class Email
 	public function setBcc(?string $emailAddress, ?string $name = ''): self
 	{
 		$this->clearListBcc();
-		$this->addEmailAddress(EmailAddressKind::listBcc, $emailAddress, $name);
+		$this->addEmailAddress(EmailAddressKind::bcc, $emailAddress, $name);
 
 		return $this;
 	}
@@ -639,7 +639,7 @@ class Email
 	public function setListRecipients(array $recipientList): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddressList(EmailAddressKind::listTo, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::to, $recipientList);
 
 		return $this;
 	}
@@ -652,7 +652,7 @@ class Email
 	public function setListTo(array $recipientList): self
 	{
 		$this->clearListTo();
-		$this->addEmailAddressList(EmailAddressKind::listTo, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::to, $recipientList);
 
 		return $this;
 	}
@@ -665,7 +665,7 @@ class Email
 	public function setListCc(array $recipientList): self
 	{
 		$this->clearListCc();
-		$this->addEmailAddressList(EmailAddressKind::listCc, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::cc, $recipientList);
 
 		return $this;
 	}
@@ -678,7 +678,7 @@ class Email
 	public function setListBcc(array $recipientList): self
 	{
 		$this->clearListBcc();
-		$this->addEmailAddressList(EmailAddressKind::listBcc, $recipientList);
+		$this->addEmailAddressList(EmailAddressKind::bcc, $recipientList);
 
 		return $this;
 	}
@@ -706,8 +706,8 @@ class Email
 	public function clearListTo(): void
 	{
 		foreach ($this->listTo as $to) {
-			if (!empty($to[0]) && isset($this->allAdresses[mb_strtolower($to[0])])) {
-				unset($this->allAdresses[mb_strtolower($to[0])]);
+			if (!empty($to[0]) && isset($this->allAddresses[mb_strtolower($to[0])])) {
+				unset($this->allAddresses[mb_strtolower($to[0])]);
 			}
 		}
 		$this->listTo = [];
@@ -719,8 +719,8 @@ class Email
 	public function clearListCc(): void
 	{
 		foreach ($this->listCc as $cc) {
-			if (!empty($cc[0]) && isset($this->allAdresses[mb_strtolower($cc[0])])) {
-				unset($this->allAdresses[mb_strtolower($cc[0])]);
+			if (!empty($cc[0]) && isset($this->allAddresses[mb_strtolower($cc[0])])) {
+				unset($this->allAddresses[mb_strtolower($cc[0])]);
 			}
 		}
 		$this->listCc = [];
@@ -732,8 +732,8 @@ class Email
 	public function clearListBcc(): void
 	{
 		foreach ($this->listBcc as $bcc) {
-			if (!empty($bcc[0]) && isset($this->allAdresses[mb_strtolower($bcc[0])])) {
-				unset($this->allAdresses[mb_strtolower($bcc[0])]);
+			if (!empty($bcc[0]) && isset($this->allAddresses[mb_strtolower($bcc[0])])) {
+				unset($this->allAddresses[mb_strtolower($bcc[0])]);
 			}
 		}
 		$this->listBcc = [];
@@ -747,7 +747,7 @@ class Email
 		$this->listTo = [];
 		$this->listCc = [];
 		$this->listBcc = [];
-		$this->allAdresses = [];
+		$this->allAddresses = [];
 	}
 
 	/**
@@ -832,8 +832,7 @@ class Email
 	 */
 	public function addAttachment(string $path, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
-		if (!@is_file($path)) {
-			//error('Could not access file: '.$path);
+		if (!is_file($path)) {
 			return $this;
 		}
 
@@ -913,8 +912,7 @@ class Email
 	 */
 	public function addEmbeddedImage(string $path, string $cid, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
-		if (!@is_file($path)) {
-			//error('Could not access file: '.$path);
+		if (!is_file($path)) {
 			return $this;
 		}
 
@@ -994,8 +992,11 @@ class Email
 
 	// ========== Subject and text ==========
 
-	private static function formatText(string $str): string
+	private static function formatText(?string $str): string
 	{
+		if ($str === null) {
+			return '';
+		}
 		$str = str_replace("’", "'", $str);
 		return $str;
 	}
@@ -1258,21 +1259,19 @@ class Email
 			return false;
 		}
 
-		if (!array_key_exists(mb_strtolower($emailAddress), $this->allAdresses)) {
-			$key = $kind->value;
+		if (!array_key_exists(mb_strtolower($emailAddress), $this->allAddresses)) {
+			$key = match($kind) {
+				EmailAddressKind::to => 'listTo',
+				EmailAddressKind::cc => 'listCc',
+				EmailAddressKind::bcc => 'listBcc',
+				default => $kind->value,
+			};
 			$this->$key[] = [$emailAddress, $name];
-			$this->allAdresses[mb_strtolower($emailAddress)] = true;
+			$this->allAddresses[mb_strtolower($emailAddress)] = true;
 			return true;
 		}
 
 		return false;
 	}
 
-}
-
-enum EmailAddressKind: string {
-	case listTo = 'listTo';
-	case listCc = 'listCc';
-	case listBcc = 'listBcc';
-	case replyTo = 'replyTo';
 }

@@ -78,7 +78,7 @@ class EmailSender implements EmailSenderInterface
 		}
 
 		// Validation - Verify at least one recipient
-		if (!empty($email->getListTo()) || !empty($email->getListCc()) || !empty($email->getListBcc())) {
+		if (empty($email->getListTo()) && empty($email->getListCc()) && empty($email->getListBcc())) {
 			$this->logger->error('At least one recipient is required (To, Cc, or Bcc)');
 			throw new \Exception('At least one recipient is required (To, Cc, or Bcc)');
 		}

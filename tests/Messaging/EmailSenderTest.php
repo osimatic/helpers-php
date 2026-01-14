@@ -236,7 +236,7 @@ class EmailSenderTest extends TestCase
 		$email = $this->createBasicEmailMock(to: [], cc: [], bcc: []);
 
 		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage('At least one recipient is required');
+		$this->expectExceptionMessage('At least one recipient is required (To, Cc, or Bcc)');
 		$sender->send($email);
 	}
 
@@ -244,7 +244,7 @@ class EmailSenderTest extends TestCase
 
 	public function testSendThrowsExceptionWhenSmtpHostNotSet(): void
 	{
-		$logger = $this->createLoggerMock('SMTP host is required');
+		$logger = $this->createLoggerMock('SMTP host and port are required');
 
 		$sender = new EmailSender(
 			sendingMethod: EmailSendingMethod::SMTP,
@@ -254,13 +254,13 @@ class EmailSenderTest extends TestCase
 		$email = $this->createBasicEmailMock();
 
 		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage('SMTP host is required');
+		$this->expectExceptionMessage('SMTP host and port are required when using SMTP sending method');
 		$sender->send($email);
 	}
 
 	public function testSendThrowsExceptionWhenSmtpPortNotSet(): void
 	{
-		$logger = $this->createLoggerMock('SMTP port is required');
+		$logger = $this->createLoggerMock('SMTP host and port are required');
 
 		$sender = new EmailSender(
 			sendingMethod: EmailSendingMethod::SMTP,
@@ -271,7 +271,7 @@ class EmailSenderTest extends TestCase
 		$email = $this->createBasicEmailMock();
 
 		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage('SMTP port is required');
+		$this->expectExceptionMessage('SMTP host and port are required when using SMTP sending method');
 		$sender->send($email);
 	}
 
