@@ -4,3 +4,4 @@ composer.lock
 tests/test_postal_address.php
 tests/test.php
 todo.txt
+/.phpunit.cache

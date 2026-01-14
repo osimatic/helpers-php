@@ -35,7 +35,7 @@ class Input
 
 	public static function getBool(Request|InputInterface $input, string $key, bool $default=false): bool
 	{
-		return self::toBool(self::get($input, $key, $default));
+		return self::toBool(self::get($input, $key), $default);
 	}
 
 	private static function toBool(mixed $value, bool $default=false): bool

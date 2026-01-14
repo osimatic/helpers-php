@@ -9,5 +9,6 @@ enum PushNotificationSendingStatus: string
 	case TOKEN_EXPIRED = 'TOKEN_EXPIRED';
 	case HTTP = 'HTTP';
 	case TIMEOUT = 'TIMEOUT';
+	case QUOTA_EXCEEDED = 'QUOTA_EXCEEDED';
 	case UNKNOWN = 'UNKNOWN';
 }

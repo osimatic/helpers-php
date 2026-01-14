@@ -78,14 +78,10 @@ class NameFormatter
 	 */
 	public static function ucname(?string $string): string
 	{
-		$string = ucwords(mb_strtolower($string));
-		//$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
+		$string = mb_convert_case($string, MB_CASE_TITLE, 'UTF-8');
 		foreach (['-', '\''] as $delimiter) {
 			if (str_contains($string, $delimiter)) {
-				$string = implode($delimiter, array_map(mb_ucfirst(...), explode($delimiter, $string)));
-				//$string = implode($delimiter, array_map(function($value) {
-				//	return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
-				//}, explode($delimiter, $string)));
+				$string = implode($delimiter, array_map(fn($value) => mb_convert_case($value, MB_CASE_TITLE, 'UTF-8'), explode($delimiter, $string)));
 			}
 		}
 		return $string;

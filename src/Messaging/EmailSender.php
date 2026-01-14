@@ -7,39 +7,56 @@ use Psr\Log\NullLogger;
 
 class EmailSender implements EmailSenderInterface
 {
+	private ?string $plainTextAltBody = null;
+
 	public function __construct(
 		private EmailSendingMethod $sendingMethod = EmailSendingMethod::SMTP,
 		private LoggerInterface $logger = new NullLogger(),
 		private ?string $host = null,
 		private ?int $port = null,
 		private bool $smtpAuth = false,
-		private ?string $smtpAuthEncryption = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS,
+		private EmailSmtpEncryption $smtpAuthEncryption = EmailSmtpEncryption::STARTTLS,
 		private ?string $smtpAuthUsername = null,
 		private ?string $smtpAuthPassword = null,
 	) {}
 
-	public function setLogger(LoggerInterface $logger): void
+	public function setLogger(LoggerInterface $logger): self
 	{
 		$this->logger = $logger;
+
+		return $this;
 	}
 
-	public function setSendingMethod(EmailSendingMethod $sendingMethod): void
+	public function setSendingMethod(EmailSendingMethod $sendingMethod): self
 	{
 		$this->sendingMethod = $sendingMethod;
+
+		return $this;
 	}
 
-	public function setHost(string $host, int $port=25): void
+	public function setHost(string $host, int $port=25): self
 	{
 		$this->host = $host;
 		$this->port = $port;
+
+		return $this;
 	}
 
-	public function setSmtpAuth(string $username, string $password, string $encryption=\PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS): void
+	public function setSmtpAuth(string $username, string $password, EmailSmtpEncryption $encryption = EmailSmtpEncryption::STARTTLS): self
 	{
 		$this->smtpAuth = true;
 		$this->smtpAuthUsername = $username;
 		$this->smtpAuthPassword = $password;
 		$this->smtpAuthEncryption = $encryption;
+
+		return $this;
+	}
+
+	public function setPlainTextAltBody(?string $altBody): self
+	{
+		$this->plainTextAltBody = $altBody;
+
+		return $this;
 	}
 
 	/**
@@ -49,41 +66,57 @@ class EmailSender implements EmailSenderInterface
 	 */
 	public function send(Email $email): void
 	{
-		//$mail = new \PHPMailer;
+		// Validation - Verify from address is set and valid
+		$fromAddress = $email->getFromEmailAddress();
+		if (empty($fromAddress)) {
+			$this->logger->error('From email address is required');
+			throw new \Exception('From email address is required');
+		}
+		if (!EmailAddress::check($fromAddress)) {
+			$this->logger->error('From email address is invalid: ' . $fromAddress);
+			throw new \Exception('From email address is invalid: ' . $fromAddress);
+		}
+
+		// Validation - Verify at least one recipient
+		if (!empty($email->getListTo()) || !empty($email->getListCc()) || !empty($email->getListBcc())) {
+			$this->logger->error('At least one recipient is required (To, Cc, or Bcc)');
+			throw new \Exception('At least one recipient is required (To, Cc, or Bcc)');
+		}
+
+		// Validation - Verify SMTP configuration when using SMTP
+		if (EmailSendingMethod::SMTP === $this->sendingMethod) {
+			if (empty($this->host) || empty($this->port)) {
+				$this->logger->error('SMTP host and port are required when using SMTP sending method');
+				throw new \Exception('SMTP host and port are required when using SMTP sending method');
+			}
+		}
+
 		$mail = new \PHPMailer\PHPMailer\PHPMailer();
 		$mail->Debugoutput = $this->logger;
 
-		if (EmailSendingMethod::SMTP === $this->sendingMethod) {
-			$mail->isSMTP();
-			$mail->SMTPAuth 	= $this->smtpAuth;
-			$mail->SMTPSecure 	= $this->smtpAuthEncryption;
-			$mail->Username 	= $this->smtpAuthUsername;
-			$mail->Password 	= $this->smtpAuthPassword;
+		if (EmailSendingMethod::PHP_MAIL === $this->sendingMethod) {
+			$mail->isMail();
 		}
-		if (EmailSendingMethod::SENDMAIL === $this->sendingMethod) {
+		elseif (EmailSendingMethod::SMTP === $this->sendingMethod) {
+			$mail->isSMTP();
+			$mail->SMTPAuth = $this->smtpAuth;
+			$mail->SMTPSecure = $this->smtpAuthEncryption->toPhpMailer();
+			$mail->Username = $this->smtpAuthUsername;
+			$mail->Password = $this->smtpAuthPassword;
+			$mail->Host = $this->host;
+			$mail->Port = $this->port;
+		}
+		elseif (EmailSendingMethod::SENDMAIL === $this->sendingMethod) {
 			$mail->isSendmail();
 		}
-		if (EmailSendingMethod::QMAIL === $this->sendingMethod) {
+		elseif (EmailSendingMethod::QMAIL === $this->sendingMethod) {
 			$mail->isQmail();
 		}
-
-		//$mail->SMTPDebug = 4;
-		//$mail->Timeout = 10;
-		$mail->Host 		= $this->host;
-		$mail->Port 		= $this->port;
-
-		// 17/02/2021 : désactivé ces lignes de code, à voir si cela change qqchose pour les mails en spam
-		//$mail->SMTPOptions = [
-		//	'ssl' => [
-		//		'verify_peer' => false,
-		//		'verify_peer_name' => false,
-		//		'allow_self_signed' => true
-		//	]
-		//];
 
 		try {
 			$mail->CharSet = $email->getCharSet()->value;
 			$mail->setFrom($email->getFromEmailAddress(), $email->getFromName());
+
 			foreach ($email->getReplyTo() as $replyTo) {
 				$replyTo = is_array($replyTo) ? $replyTo : [$replyTo];
 				$mail->addReplyTo(mb_strtolower($replyTo[0]), $replyTo[1] ?? '');
@@ -107,8 +140,9 @@ class EmailSender implements EmailSenderInterface
 			}
 			else {
 				$mail->Body = $email->getText();
-				$mail->AltBody = 'This is a plain-text message body';
+				$mail->AltBody = $this->plainTextAltBody ?? 'This is a plain-text message body';
 			}
+
 			foreach ($email->getListAttachments() as $attachment) {
 				$resAttachment = $mail->addAttachment($attachment[0], $attachment[1]);
 				$this->logger->debug('Fichier '.$attachment[0].' : '.($resAttachment?'ok':'not ok').'.');
@@ -121,8 +155,11 @@ class EmailSender implements EmailSenderInterface
 			}
 		}
 		catch (\Exception $e) {
-			$this->logger->error($e->getMessage());
-			throw new \Exception($e->getMessage(), $e->getCode());
+			// Only log if not already logged
+			if (!str_contains($e->getMessage(), 'Error during sending email') && !str_contains($e->getMessage(), 'email address')) {
+				$this->logger->error($e->getMessage());
+			}
+			throw $e;
 		}
 	}
 }
