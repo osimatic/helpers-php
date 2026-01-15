@@ -9,7 +9,6 @@ use Osimatic\Person\PersonInterface;
 
 /**
  * Interface EventInterface
- * @package Osimatic\Calendar
  */
 interface EventInterface
 {

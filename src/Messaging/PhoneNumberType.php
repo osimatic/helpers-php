@@ -2,19 +2,51 @@
 
 namespace Osimatic\Messaging;
 
+/**
+ * Represents different types of phone numbers.
+ * This enum wraps the libphonenumber library's phone number types and provides additional parsing capabilities for various string formats.
+ */
 enum PhoneNumberType: int
 {
+	/**
+	 * Mobile phone number type.
+	 */
 	case MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE;
+
+	/**
+	 * Fixed line (landline) phone number type.
+	 */
 	case FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE;
+
+	/**
+	 * Premium rate phone number type (e.g., audiotel services).
+	 */
 	case PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+
+	/**
+	 * Toll-free phone number type.
+	 */
 	case TOLL_FREE 		= \libphonenumber\PhoneNumberType::TOLL_FREE;
+
+	/**
+	 * Shared cost phone number type.
+	 */
 	case SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST;
+
+	/**
+	 * VoIP phone number type.
+	 */
 	case VOIP 			= \libphonenumber\PhoneNumberType::VOIP;
+
+	/**
+	 * Unknown phone number type.
+	 */
 	case UNKNOWN 		= \libphonenumber\PhoneNumberType::UNKNOWN;
 
 
 	/**
-	 * @return string
+	 * Get the string key representation of the phone number type.
+	 * @return string The uppercase string key for this phone number type
 	 */
 	public function getKey(): string
 	{
@@ -30,8 +62,10 @@ enum PhoneNumberType: int
 	}
 
 	/**
-	 * @param string|null $type
-	 * @return PhoneNumberType|null
+	 * Parse a string value into a PhoneNumberType enum case.
+	 * This method handles various string formats and aliases for phone number types, including multilingual variations and common alternative names.
+	 * @param string|null $type The phone number type string to parse (case-insensitive)
+	 * @return PhoneNumberType|null The corresponding PhoneNumberType case, or null if not recognized
 	 */
 	public static function parse(?string $type): ?PhoneNumberType
 	{

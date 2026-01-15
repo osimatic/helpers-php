@@ -4,7 +4,6 @@ namespace Osimatic\ArrayList;
 
 /**
  * Class AssociativeArray
- * @package Osimatic\ArrayList
  */
 class AssociativeArray
 {

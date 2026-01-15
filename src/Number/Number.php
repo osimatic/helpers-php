@@ -2,14 +2,19 @@
 
 namespace Osimatic\Number;
 
+/**
+ * Class Number
+ * Provides utilities for number formatting, validation, parsing, and mathematical operations
+ */
 class Number
 {
-	// ========== Affichage ==========
+	// ========== Display ==========
 
 	/**
-	 * @param float|int $number
-	 * @param int $nbDigitMin
-	 * @return string
+	 * Adds leading zeros to a number to reach a minimum number of digits
+	 * @param float|int $number the number to pad
+	 * @param int $nbDigitMin the minimum number of digits
+	 * @return string the padded number as a string
 	 */
 	public static function addLeadingZero(float|int $number, int $nbDigitMin): string
 	{
@@ -17,9 +22,10 @@ class Number
 	}
 
 	/**
-	 * @param float|int $number
-	 * @param int $decimals
-	 * @return string
+	 * Formats a number using locale-specific formatting with specified decimal places
+	 * @param float|int $number the number to format
+	 * @param int $decimals the number of decimal places (default: 2)
+	 * @return string the formatted number string
 	 */
 	public static function format(float|int $number, int $decimals=2): string
 	{
@@ -29,8 +35,9 @@ class Number
 	}
 
 	/**
-	 * @param float|int $number
-	 * @return string
+	 * Formats a number as an integer (no decimal places)
+	 * @param float|int $number the number to format
+	 * @return string the formatted integer string
 	 */
 	public static function formatInt(float|int $number): string
 	{
@@ -38,8 +45,9 @@ class Number
 	}
 
 	/**
-	 * @param float|int $number
-	 * @return string
+	 * Formats a number as an ordinal (e.g., 1st, 2nd, 3rd)
+	 * @param float|int $number the number to format
+	 * @return string the formatted ordinal string
 	 */
 	public static function formatOrdinal(float|int $number): string
 	{
@@ -48,9 +56,10 @@ class Number
 	}
 
 	/**
-	 * @param float|int $number
-	 * @param int $decimals
-	 * @return string
+	 * Formats a number in scientific notation
+	 * @param float|int $number the number to format
+	 * @param int $decimals the number of decimal places (default: 2)
+	 * @return string the formatted scientific notation string
 	 */
 	public static function formatScientific(float|int $number, int $decimals=2): string
 	{
@@ -60,9 +69,10 @@ class Number
 	}
 
 	/**
-	 * @param float|int $number
-	 * @param int $decimals
-	 * @return string
+	 * Formats a number as spelled out words (e.g., "twenty-three")
+	 * @param float|int $number the number to format
+	 * @param int $decimals the number of decimal places (default: 2)
+	 * @return string the formatted spelled-out string
 	 */
 	public static function formatSpellOut(float|int $number, int $decimals=2): string
 	{
@@ -72,12 +82,12 @@ class Number
 	}
 
 	/**
-	 * Format a string for display the binary string as hex bytes.
-	 * @param $hex
-	 * @return string
+	 * Formats a binary string for display as hex bytes
+	 * @param string $hex the binary string to format
+	 * @return string the formatted hex bytes string
 	 * @author paladin
 	 */
-	public static function formatHex($hex): string
+	public static function formatHex(string $hex): string
 	{
 		$ar = unpack('C*', $hex);
 		$str = '';
@@ -91,11 +101,12 @@ class Number
 		return $str;
 	}
 
-	// ========== Vérification ==========
+	// ========== Parsing and Validation ==========
 
 	/**
-	 * @param string|null $str
-	 * @return float
+	 * Parses a string to a float value
+	 * @param string|null $str the string to parse
+	 * @return float the parsed float value
 	 */
 	public static function parseFloat(?string $str): float
 	{
@@ -103,8 +114,9 @@ class Number
 	}
 
 	/**
-	 * @param string|null $str
-	 * @return int
+	 * Parses a string to an integer value
+	 * @param string|null $str the string to parse
+	 * @return int the parsed integer value
 	 */
 	public static function parseInt(?string $str): int
 	{
@@ -112,8 +124,9 @@ class Number
 	}
 
 	/**
-	 * @param float|null $str
-	 * @return string
+	 * Converts a float to a string representation with at least one decimal place
+	 * @param float|null $str the float value to convert
+	 * @return string the string representation of the float
 	 */
 	public static function floatToString(?float $str): string
 	{
@@ -128,10 +141,11 @@ class Number
 	}
 
 	/**
-	 * @param mixed $str
-	 * @param bool $negativeAllowed
-	 * @param bool $positiveAllowed
-	 * @return bool
+	 * Validates if a string represents a valid float number
+	 * @param mixed $str the value to check
+	 * @param bool $negativeAllowed whether negative values are allowed (default: true)
+	 * @param bool $positiveAllowed whether positive values are allowed (default: true)
+	 * @return bool true if valid float, false otherwise
 	 */
 	public static function checkFloat(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
@@ -147,7 +161,7 @@ class Number
 			return false;
 		}
 
-		// mise en commentaire pour autoriser aussi la saisie des entiers
+		// Commented out to also allow integer input
 		//if (strpos($str, '.') === false) {
 		//	return false;
 		//}
@@ -156,10 +170,11 @@ class Number
 	}
 
 	/**
-	 * @param mixed $str
-	 * @param bool $negativeAllowed
-	 * @param bool $positiveAllowed
-	 * @return bool
+	 * Validates if a string represents a valid integer number
+	 * @param mixed $str the value to check
+	 * @param bool $negativeAllowed whether negative values are allowed (default: true)
+	 * @param bool $positiveAllowed whether positive values are allowed (default: true)
+	 * @return bool true if valid integer, false otherwise
 	 */
 	public static function checkInt(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
@@ -177,19 +192,20 @@ class Number
 	}
 
 	/**
-	 * @param mixed $str
-	 * @param bool $negativeAllowed
-	 * @param bool $positiveAllowed
-	 * @return bool
+	 * Internal validation for numeric strings
+	 * @param mixed $str the value to check
+	 * @param bool $negativeAllowed whether negative values are allowed
+	 * @param bool $positiveAllowed whether positive values are allowed
+	 * @return bool true if valid, false otherwise
 	 */
 	private static function check(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
-		// négatif interdit
+		// Negative not allowed
 		if (false === $negativeAllowed && str_contains($str, '-')) {
 			return false;
 		}
 
-		// positif interdit
+		// Positive not allowed
 		if (false === $positiveAllowed && !str_contains($str, '-')) {
 			return false;
 		}
@@ -203,9 +219,10 @@ class Number
 	}
 
 	/**
-	 * @param string|null $str
-	 * @param bool $addDecimalIfNotPresent
-	 * @return string
+	 * Cleans and normalizes a numeric string
+	 * @param string|null $str the string to clean
+	 * @param bool $addDecimalIfNotPresent whether to add .0 if no decimal point (default: true)
+	 * @return string the cleaned numeric string
 	 */
 	private static function clean(?string $str, bool $addDecimalIfNotPresent=true): string
 	{
@@ -219,7 +236,7 @@ class Number
 		}
 		$str = str_replace(' ', '', $str);
 
-		// formattage virgule
+		// Format comma as decimal separator
 		$str = str_replace(',', '.', $str);
 		if ($addDecimalIfNotPresent && substr_count($str, '.') === 0) {
 			$str .= '.0';
@@ -229,49 +246,50 @@ class Number
 	}
 
 
-	// ========== Arrondissement d'un nombre ==========
+	// ========== Number Rounding ==========
 
 	/**
-	 * Arrondi un flottant au plus petit flottant supérieur
-	 * @param float $nombre le flottant à arrondir
-	 * @param int $precision le nombre de chiffres après la virgule à garder
-	 * @return float le flottant arrondi au flottant supérieur
+	 * Rounds a float up to the next higher value
+	 * @param float $number the float to round
+	 * @param int $precision the number of decimal places to keep (default: 2)
+	 * @return float the rounded up float value
 	 * @link http://fr2.php.net/manual/fr/function.pow.php
 	 * @link http://fr2.php.net/manual/fr/function.ceil.php
 	 */
-	public static function floatRoundUp(float $nombre, int $precision=2): float
+	public static function floatRoundUp(float $number, int $precision=2): float
 	{
-		if (self::getNbDigitsOfInt(self::decimalPart($nombre)) === $precision) {
-			return $nombre;
+		if (self::getNbDigitsOfInt(self::decimalPart($number)) === $precision) {
+			return $number;
 		}
 
-		$e = pow(10, $precision);
-		return ceil($e * $nombre)/$e;
+		$multiplier = pow(10, $precision);
+		return ceil($multiplier * $number)/$multiplier;
 	}
 
 	/**
-	 * Arrondi un flottant au plus grand flottant inférieur
-	 * @param float $nombre le flottant à arrondir
-	 * @param int $precision le nombre de chiffres après la virgule à garder
-	 * @return float le flottant arrondi au flottant inférieur
+	 * Rounds a float down to the next lower value
+	 * @param float $number the float to round
+	 * @param int $precision the number of decimal places to keep (default: 2)
+	 * @return float the rounded down float value
 	 * @link http://fr2.php.net/manual/fr/function.pow.php
 	 * @link http://fr2.php.net/manual/fr/function.floor.php
 	 */
-	public static function floatRoundDown(float $nombre, int $precision=2): float
+	public static function floatRoundDown(float $number, int $precision=2): float
 	{
-		if (self::getNbDigitsOfInt(self::decimalPart($nombre)) === $precision) {
-			return $nombre;
+		if (self::getNbDigitsOfInt(self::decimalPart($number)) === $precision) {
+			return $number;
 		}
 
-		$e = pow(10, $precision);
-		return floor($e * $nombre)/$e;
+		$multiplier = pow(10, $precision);
+		return floor($multiplier * $number)/$multiplier;
 	}
 
-	// ========== Type / Composition d'un nombre ==========
+	// ========== Number Type and Composition ==========
 
 	/**
-	 * @param float|int $val
-	 * @return bool
+	 * Checks if a value is an integer (has no decimal part)
+	 * @param float|int $val the value to check
+	 * @return bool true if integer, false if has decimal part
 	 */
 	public static function isInteger(float|int $val): bool
 	{
@@ -279,8 +297,9 @@ class Number
 	}
 
 	/**
-	 * @param float|int $val
-	 * @return bool
+	 * Checks if a value has a decimal part (is not an integer)
+	 * @param float|int $val the value to check
+	 * @return bool true if has decimal part, false if integer
 	 */
 	public static function isFloat(float|int $val): bool
 	{
@@ -288,23 +307,23 @@ class Number
 	}
 
 	/**
-	 * Calcule le nombre de chiffres d'un entier.
-	 * @example cette fonction retourne l'entier 6 pour le nombre 112233
-	 * @param int $int l'entier pour lequel son nombre de chiffres est calculé
-	 * @return int le nombre de chiffres de l'entier
+	 * Calculates the number of digits in an integer
+	 * @example this function returns 6 for the number 112233
+	 * @param int $int the integer to count digits for
+	 * @return int the number of digits in the integer
 	 */
 	public static function getNbDigitsOfInt(int $int): int
 	{
 		return strlen((string) (int) $int);
 	}
 
-	// ========== Mathématiques ==========
+	// ========== Mathematics ==========
 
 	/**
-	 * Récupère la valeur numérique décimale d'un nombre sous forme de flottant
-	 * @example cette fonction retourne le flottant 0.3344 pour le nombre 1122.3344
-	 * @param float $float le nombre pour lequel la partie décimale est récupérée
-	 * @return float la partie décimale du nombre, sous forme de flottant
+	 * Gets the decimal part of a number as a float
+	 * @example this function returns 0.3344 for the number 1122.3344
+	 * @param float $float the number to extract the decimal part from
+	 * @return float the decimal part as a float
 	 */
 	public static function decimal(float $float): float
 	{
@@ -317,10 +336,10 @@ class Number
 	}
 
 	/**
-	 * Récupère la valeur numérique décimale d'un nombre sous forme d'entier
-	 * @example cette fonction retourne l'entier 3344 pour le nombre 1122.3344
-	 * @param float $float le nombre pour lequel la partie décimale est récupérée
-	 * @return int la partie décimale du nombre, sous forme d'entier
+	 * Gets the decimal part of a number as an integer
+	 * @example this function returns 3344 for the number 1122.3344
+	 * @param float $float the number to extract the decimal part from
+	 * @return int the decimal part as an integer
 	 */
 	public static function decimalPart(float $float): int
 	{
@@ -347,8 +366,9 @@ class Number
 	}
 
 	/**
-	 * @param float|int $number
-	 * @return bool
+	 * Validates a number using the Luhn algorithm (checksum validation)
+	 * @param float|int $number the number to validate
+	 * @return bool true if valid according to Luhn algorithm, false otherwise
 	 */
 	public static function checkLuhn(float|int $number): bool
 	{
@@ -357,7 +377,7 @@ class Number
 			return false;
 		}
 
-		$somme = 0;
+		$sum = 0;
 		$strNumber = (string) $number;
 		$nbDigits = strlen($strNumber);
 		$parity = $nbDigits%2;
@@ -371,18 +391,18 @@ class Number
 			if ($digit > 9) {
 				$digit -= 9;
 			}
-			$somme += $digit;
+			$sum += $digit;
 		}
-		return ($somme % 10) === 0;
+		return ($sum % 10) === 0;
 	}
 
-	// ========== Random ==========
+	// ========== Random Number Generation ==========
 
 	/**
-	 * Génère un entier
-	 * @param int $min
-	 * @param int $max
-	 * @return int|false l'entier généré, false si une erreur survient
+	 * Generates a random integer between min and max (inclusive)
+	 * @param int $min the minimum value
+	 * @param int $max the maximum value
+	 * @return int|false the generated integer, false if an error occurs
 	 */
 	public static function getRandomInt(int $min, int $max): int|false
 	{
@@ -397,10 +417,11 @@ class Number
 	}
 
 	/**
-	 * @param float $min
-	 * @param float $max
-	 * @param int $round
-	 * @return float|false le flottant généré, false si une erreur survient
+	 * Generates a random float between min and max
+	 * @param float $min the minimum value
+	 * @param float $max the maximum value
+	 * @param int $round the number of decimal places to round to (default: 0)
+	 * @return float|false the generated float, false if an error occurs
 	 */
 	public static function getRandomFloat(float $min, float $max, int $round=0): float|false
 	{

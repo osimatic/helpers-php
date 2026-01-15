@@ -2,17 +2,21 @@
 
 namespace Osimatic\Number;
 
+/**
+ * Class Duration
+ * Provides utilities for duration calculations, formatting, parsing, and validation
+ */
 class Duration
 {
-	// ========== Calcul entre 2 plages horaires ==========
+	// ========== Calculations Between Two Time Slots ==========
 
 	/**
-	 * Calculates the duration (in seconds) of the intersection between two time slots.
-	 * @param int $timeSlot1StartTimestamp
-	 * @param int $timeSlotEnd1Timestamp
-	 * @param int $timeSlot2StartTimestamp
-	 * @param int $timeSlotEnd2Timestamp
-	 * @return int
+	 * Calculates the duration (in seconds) of the intersection between two time slots
+	 * @param int $timeSlot1StartTimestamp start timestamp of first time slot
+	 * @param int $timeSlotEnd1Timestamp end timestamp of first time slot
+	 * @param int $timeSlot2StartTimestamp start timestamp of second time slot
+	 * @param int $timeSlotEnd2Timestamp end timestamp of second time slot
+	 * @return int the duration of the intersection in seconds, 0 if no intersection
 	 */
 	public static function getIntersectionDurationBetweenTimestampSlots(
 		int $timeSlot1StartTimestamp,
@@ -30,12 +34,12 @@ class Duration
 	}
 
 	/**
-	 * Calculates the duration (in seconds) of the intersection between two time slots.
-	 * @param \DateTimeInterface $slot1Start
-	 * @param \DateTimeInterface $slot1End
-	 * @param \DateTimeInterface $slot2Start
-	 * @param \DateTimeInterface $slot2End
-	 * @return int Duration of the intersection in seconds
+	 * Calculates the duration (in seconds) of the intersection between two time slots
+	 * @param \DateTimeInterface $slot1Start start of first time slot
+	 * @param \DateTimeInterface $slot1End end of first time slot
+	 * @param \DateTimeInterface $slot2Start start of second time slot
+	 * @param \DateTimeInterface $slot2End end of second time slot
+	 * @return int duration of the intersection in seconds, 0 if no intersection
 	 */
 	public static function getIntersectionDurationBetweenTimeSlots(
 		\DateTimeInterface $slot1Start,
@@ -58,13 +62,11 @@ class Duration
 	}
 
 	/**
-	 * Returns the duration between two DateTime objects in seconds,
-	 * correctly handling daylight saving time transitions.
-	 *
-	 * @param \DateTimeInterface $start
-	 * @param \DateTimeInterface $end
-	 * @param bool $inverse
-	 * @return int Duration in seconds (always positive)
+	 * Returns the duration between two DateTime objects in seconds, correctly handling daylight saving time transitions
+	 * @param \DateTimeInterface $start the start datetime
+	 * @param \DateTimeInterface $end the end datetime
+	 * @param bool $inverse if true, swap start and end if end is before start (default: false)
+	 * @return int duration in seconds (always positive), 0 if end is before start and inverse is false
 	 */
 	public static function getDurationInSeconds(\DateTimeInterface $start, \DateTimeInterface $end, bool $inverse=false): int
 	{
@@ -86,11 +88,12 @@ class Duration
 			+ $interval->s;*/
 	}
 
-	// ========== Calcul de nombres d'élément ==========
+	// ========== Element Count Calculations ==========
 
 	/**
-	 * @param int $durationInSeconds
-	 * @return int
+	 * Gets the number of complete days in a duration
+	 * @param int $durationInSeconds the duration in seconds
+	 * @return int the number of complete days
 	 */
 	public static function getNbDays(int $durationInSeconds): int
 	{
@@ -98,8 +101,9 @@ class Duration
 	}
 
 	/**
-	 * @param int $durationInSeconds
-	 * @return int
+	 * Gets the total number of complete hours in a duration
+	 * @param int $durationInSeconds the duration in seconds
+	 * @return int the total number of complete hours
 	 */
 	public static function getNbHours(int $durationInSeconds): int
 	{
@@ -107,8 +111,9 @@ class Duration
 	}
 
 	/**
-	 * @param int $durationInSeconds
-	 * @return int
+	 * Gets the total number of complete minutes in a duration
+	 * @param int $durationInSeconds the duration in seconds
+	 * @return int the total number of complete minutes
 	 */
 	public static function getNbMinutes(int $durationInSeconds): int
 	{
@@ -116,45 +121,52 @@ class Duration
 	}
 
 	/**
-	 * Retourne le nombre d'heures entières restantes (après avoir retiré les jours) dans une durée en secondes.
-	 * Par exemple, la durée "1 jour 2 heures 3 minutes et 4 secondes" correspond à 86400 + 7200 + 180 + 4 = 93784 secondes
-	 * Pour la durée 93784 secondes, cette fonction retournera 2.
-	 * @param int $durationInSeconds
-	 * @return int
+	 * Gets the number of complete hours remaining (after removing days) in a duration
+	 * @example for "1 day 2 hours 3 minutes and 4 seconds" (93784 seconds), this returns 2
+	 * @param int $durationInSeconds the duration in seconds
+	 * @return int the number of complete hours remaining
 	 */
 	public static function getNbHoursRemaining(int $durationInSeconds): int
 	{
-		$nbSecondesRemaining = $durationInSeconds%86400;
-		return self::getNbHours($nbSecondesRemaining);
+		$nbSecondsRemaining = $durationInSeconds%86400;
+		return self::getNbHours($nbSecondsRemaining);
 	}
 
 	/**
-	 * Retourne le nombre de minutes entières restantes (après avoir retiré les jours et les heures) dans une durée en secondes.
-	 * Par exemple, la durée "1 jour 2 heures et 3 minutes" correspond à 86400 + 7200 + 180 = 93780 secondes
-	 * Pour la durée 93784 secondes, cette fonction retournera 3.
-	 * @param int $durationInSeconds
-	 * @return int
+	 * Gets the number of complete minutes remaining (after removing days and hours) in a duration
+	 * @example for "1 day 2 hours and 3 minutes" (93780 seconds), this returns 3
+	 * @param int $durationInSeconds the duration in seconds
+	 * @return int the number of complete minutes remaining
 	 */
 	public static function getNbMinutesRemaining(int $durationInSeconds): int
 	{
-		$nbSecondesRemaining = $durationInSeconds%3600;
-		return self::getNbMinutes($nbSecondesRemaining);
+		$nbSecondsRemaining = $durationInSeconds%3600;
+		return self::getNbMinutes($nbSecondsRemaining);
 	}
 
 	/**
-	 * Retourne le nombre de secondes restantes (après avoir retiré les jours les heures et les minutes) dans une durée en secondes.
-	 * Par exemple, la durée "1 jour 2 heures et 3 minutes" correspond à 86400 + 7200 + 180 = 93780 secondes
-	 * Pour la durée 93784 secondes, cette fonction retournera 4.
-	 * @param int $durationInSeconds
-	 * @return int
+	 * Gets the number of seconds remaining (after removing days, hours and minutes) in a duration
+	 * @example for "1 day 2 hours 3 minutes and 4 seconds" (93784 seconds), this returns 4
+	 * @param int $durationInSeconds the duration in seconds
+	 * @return int the number of seconds remaining
 	 */
 	public static function getNbSecondsRemaining(int $durationInSeconds): int
 	{
 		return $durationInSeconds%60;
 	}
 
-	// ========== Affichage des durées (format texte) ==========
+	// ========== Duration Display (Text Format) ==========
 
+	/**
+	 * Formats a duration as text with hours, minutes, and seconds
+	 * @param int $durationInSeconds the duration in seconds
+	 * @param bool $withSeconds whether to include seconds (default: true)
+	 * @param bool $withMinutes whether to include minutes (default: true)
+	 * @param bool $withMinuteLabel whether to add minute label (default: true)
+	 * @param bool $fullLabel whether to use full labels (e.g., "hours" vs "h") (default: false)
+	 * @param bool $hideHourIfZeroHour whether to hide hours if zero (default: false)
+	 * @return string the formatted duration string
+	 */
 	public static function formatAsText(int $durationInSeconds, bool $withSeconds=true, bool $withMinutes=true, bool $withMinuteLabel=true, bool $fullLabel=false, bool $hideHourIfZeroHour=false): string
 	{
 		$durationInSeconds = (int) abs($durationInSeconds);
@@ -187,52 +199,54 @@ class Duration
 		return trim($str);
 	}
 
-	// ========== Affichage des durées (format chronomètre) ==========
+	// ========== Duration Display (Chrono Format) ==========
 
 	/**
-	 * Formate une durée en heure pour l'affichage sous la forme "10:20.3" ou "10:20'30" (mode chronomètre), à partir d'une durée en seconde passée en paramètre.
-	 * @param int $durationInSeconds la durée en seconde à formater
-	 * @param DurationDisplayMode $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
-	 * @param boolean $withSecondes true pour ajouter les secondes dans la durée formatée, false pour ne pas les ajouter (true par défaut)
-	 * @return string la durée formatée pour l'affichage.
+	 * Formats a duration in hours for display in chrono format (e.g., "10:20.03" or "10:20'03")
+	 * @param int $durationInSeconds the duration in seconds to format
+	 * @param DurationDisplayMode $displayMode display mode: STANDARD for "10:20.03", INPUT_TIME for "10:20:03", or CHRONO for "10:20'03" (default: STANDARD)
+	 * @param bool $withSecondes whether to include seconds in the formatted duration (default: true)
+	 * @return string the formatted duration string
 	 */
 	public static function formatNbHours(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD, bool $withSecondes=true): string
 	{
-		// Heures
-		$strHeure = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
+		// Hours
+		$strHour = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
 
 		// Minutes
 		$strMinute = self::getFormattedNbMinutes(self::getNbMinutesRemaining($durationInSeconds), $displayMode);
 
-		// Secondes
-		$strSeconde = '';
+		// Seconds
+		$strSecond = '';
 		if ($withSecondes) {
-			$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
+			$strSecond = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
 		}
 
-		return $strHeure.$strMinute.$strSeconde;
+		return $strHour.$strMinute.$strSecond;
 	}
 
 	/**
-	 * @param int $durationInSeconds la durée en seconde à formater
-	 * @param DurationDisplayMode $displayMode valeurs possibles : "standard" pour afficher sous la forme "10:20.03", "input_time" pour afficher sous la forme "10:20:03" ou "chrono" pour afficher sous la forme "10:20'03" (mode chronomètre)
-	 * @return string la durée formatée pour l'affichage.
+	 * Formats a duration in minutes for display in chrono format
+	 * @param int $durationInSeconds the duration in seconds to format
+	 * @param DurationDisplayMode $displayMode display mode: STANDARD for "10.03", INPUT_TIME for "10:03", or CHRONO for "10'03" (default: STANDARD)
+	 * @return string the formatted duration string
 	 */
 	public static function formatNbMinutes(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD): string
 	{
 		// Minutes
 		$strMinute = self::getFormattedNbMinutes(self::getNbMinutes($durationInSeconds), $displayMode);
 
-		// Secondes
-		$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
+		// Seconds
+		$strSecond = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
 
-		return $strMinute.$strSeconde;
+		return $strMinute.$strSecond;
 	}
 
 	/**
-	 * @param int $nbMinutes
-	 * @param DurationDisplayMode $displayMode
-	 * @return string
+	 * Formats the number of minutes according to display mode
+	 * @param int $nbMinutes the number of minutes
+	 * @param DurationDisplayMode $displayMode the display mode
+	 * @return string the formatted minutes string
 	 */
 	private static function getFormattedNbMinutes(int $nbMinutes, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD): string
 	{
@@ -240,9 +254,10 @@ class Duration
 	}
 
 	/**
-	 * @param int $nbSeconds
-	 * @param DurationDisplayMode $displayMode
-	 * @return string
+	 * Formats the number of seconds according to display mode
+	 * @param int $nbSeconds the number of seconds
+	 * @param DurationDisplayMode $displayMode the display mode
+	 * @return string the formatted seconds string
 	 */
 	private static function getFormattedNbSeconds(int $nbSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD): string
 	{
@@ -250,33 +265,33 @@ class Duration
 	}
 
 
-	// ========== Check ==========
+	// ========== Validation ==========
 
 	/**
-	 * Vérifie la validité d'une durée saisie dans un formulaire, via un champ text (saisie de int) ou un champ de type time (saisie de type hh:mm:ss)
-	 * Accepte donc des durées sous la forme "10:23:02" ou "1220" (secondes)
-	 * @param mixed $enteredDuration
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return bool
+	 * Validates a duration entered in a form field (text or time input)
+	 * Accepts durations in formats like "10:23:02" or "1220" (seconds)
+	 * @param mixed $enteredDuration the entered duration value
+	 * @param string $separator the separator character (default: ':')
+	 * @param int $hourPos the position of hours (default: 1)
+	 * @param int $minutePos the position of minutes (default: 2)
+	 * @param int $secondPos the position of seconds (default: 3)
+	 * @return bool true if valid duration, false otherwise
 	 */
 	public static function check(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
 		return (null !== self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos));
 	}
 
-	// ========== Parse ==========
+	// ========== Parsing ==========
 
 	/**
-	 * Parse une durée au format "entier" (nombre de secondes) ou format "string" (type hh:mm:ss) et retourne la durée en secondes
-	 * @param mixed $enteredDuration
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return int
+	 * Parses a duration in integer format (seconds) or string format (hh:mm:ss) and returns duration in seconds
+	 * @param mixed $enteredDuration the entered duration value
+	 * @param string $separator the separator character (default: ':')
+	 * @param int $hourPos the position of hours (default: 1)
+	 * @param int $minutePos the position of minutes (default: 2)
+	 * @param int $secondPos the position of seconds (default: 3)
+	 * @return int the duration in seconds, 0 if invalid
 	 */
 	public static function parse(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): int
 	{
@@ -287,12 +302,13 @@ class Duration
 	}
 
 	/**
-	 * @param mixed $enteredDuration
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return int|null
+	 * Internal parsing method
+	 * @param mixed $enteredDuration the entered duration value
+	 * @param string $separator the separator character
+	 * @param int $hourPos the position of hours
+	 * @param int $minutePos the position of minutes
+	 * @param int $secondPos the position of seconds
+	 * @return int|null the duration in seconds, null if invalid
 	 */
 	private static function _parse(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?int
 	{
@@ -307,36 +323,39 @@ class Duration
 		return ($timeArray[0] ?? 0) * 3600 + ($timeArray[1] ?? 0) * 60 + ($timeArray[2] ?? 0);
 	}
 
-	// ========== Conversion en durée décimales ==========
+	// ========== Conversion to Decimal Duration ==========
 
 	/**
-	 * @param int $duration (en secondes)
-	 * @return float
+	 * Converts a duration in seconds to decimal hours
+	 * @param int $duration the duration in seconds
+	 * @return float the duration in decimal hours (rounded to 2 decimals)
 	 */
 	public static function convertToNbDecimalHours(int $duration): float {
 		return round($duration / 3600, 2);
 	}
 
 	/**
-	 * @param int $duration (en secondes)
-	 * @return float
+	 * Converts a duration in seconds to decimal minutes
+	 * @param int $duration the duration in seconds
+	 * @return float the duration in decimal minutes (rounded to 2 decimals)
 	 */
 	public static function convertToNbDecimalMinutes(int $duration): float {
 		return round($duration / 60, 2);
 	}
 
-	// ========== Arrondissement ==========
+	// ========== Rounding ==========
 
 	/**
-	 * @param int $duration
-	 * @param int $precision
-	 * @param string|null $mode
-	 * @return int
+	 * Rounds a duration to a specified precision in minutes
+	 * @param int $duration the duration in seconds
+	 * @param int $precision the rounding precision in minutes (e.g., 5 for 5-minute increments)
+	 * @param string|null $mode the rounding mode: 'up', 'down', or 'close' (default: 'close')
+	 * @return int the rounded duration in seconds
 	 */
 	public static function round(int $duration, int $precision, ?string $mode=null): int
 	{
 		if ($precision <= 0) {
-			// pas d'arrondissement
+			// No rounding
 			return $duration;
 		}
 
@@ -350,17 +369,17 @@ class Duration
 		$seconds = $remainingDuration % 60;
 
 		$minutesRemaining = $minutes % $precision;
-		$minutesRemainingAndSecondsAsCentieme = $minutesRemaining + $seconds/60;
-		if ($minutesRemainingAndSecondsAsCentieme === 0) {
-			// pas d'arrondissement
+		$minutesRemainingAndSecondsAsDecimal = $minutesRemaining + $seconds/60;
+		if ($minutesRemainingAndSecondsAsDecimal === 0) {
+			// No rounding needed
 			return $duration;
 		}
 
 		$halfRoundPrecision = $precision / 2;
 		$hoursRounded = $hours;
 		$secondsRounded = 0;
-		if ($mode === 'up' || ($mode === 'close' && $minutesRemainingAndSecondsAsCentieme > $halfRoundPrecision)) {
-			// Arrondissement au-dessus
+		if ($mode === 'up' || ($mode === 'close' && $minutesRemainingAndSecondsAsDecimal > $halfRoundPrecision)) {
+			// Round up
 			if ($minutes > (60-$precision)) {
 				$minutesRounded = 0;
 				$hoursRounded++;
@@ -370,7 +389,7 @@ class Duration
 			}
 		}
 		else {
-			// Arrondissement au-dessous
+			// Round down
 			$minutesRounded = ($minutes-$minutesRemaining);
 		}
 		
@@ -378,13 +397,14 @@ class Duration
 	}
 
 
-	// ========== Vérification min/max ==========
+	// ========== Min/Max Validation ==========
 
 	/**
-	 * @param int $duration
-	 * @param int $durationMin
-	 * @param int $durationMax
-	 * @return bool
+	 * Checks if a duration is within specified min and max bounds
+	 * @param int $duration the duration to check (in seconds)
+	 * @param int $durationMin the minimum allowed duration (in seconds)
+	 * @param int $durationMax the maximum allowed duration (in seconds)
+	 * @return bool true if within bounds, false otherwise
 	 */
 	public static function checkMinAndMax(int $duration, int $durationMin, int $durationMax): bool
 	{
@@ -416,19 +436,19 @@ class Duration
 	{
 		$enumDisplayMode = DurationDisplayMode::parse($displayMode) ?? DurationDisplayMode::STANDARD;
 
-		// Heures
-		$strHeure = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
+		// Hours
+		$strHour = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
 
 		// Minutes
 		$strMinute = self::getFormattedNbMinutes(self::getNbMinutesRemaining($durationInSeconds), $enumDisplayMode);
 
-		// Secondes
-		$strSeconde = '';
+		// Seconds
+		$strSecond = '';
 		if ($withSecondes) {
-			$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
+			$strSecond = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
 		}
 
-		return $strHeure.$strMinute.$strSeconde;
+		return $strHour.$strMinute.$strSecond;
 	}
 
 	/**
@@ -441,10 +461,10 @@ class Duration
 		// Minutes
 		$strMinute = self::getFormattedNbMinutes(self::getNbMinutes($durationInSeconds), $enumDisplayMode);
 
-		// Secondes
-		$strSeconde = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
+		// Seconds
+		$strSecond = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
 
-		return $strMinute.$strSeconde;
+		return $strMinute.$strSecond;
 	}
 
 	/**

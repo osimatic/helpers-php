@@ -74,14 +74,14 @@ final class HTTPClientTest extends TestCase
 	/* ===================== Tests basiques de méthode HTTP ===================== */
 
 	/**
-	 * Test avec httpbin.org (service public de test HTTP)
-	 * Ce test nécessite une connexion Internet
+	 * Test with httpbin.org (public HTTP testing service)
+	 * This test requires an Internet connection
 	 *
 	 * @group integration
 	 */
 	public function testRequestGetWithRealHttpCall(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(HTTPMethod::GET, 'https://httpbin.org/get');
@@ -95,7 +95,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testRequestPostWithRealHttpCall(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(
@@ -113,7 +113,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testRequestWithQueryParameters(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(
@@ -134,7 +134,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testRequestWithHeaders(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(
@@ -154,7 +154,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testRequestWithJsonBody(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(
@@ -176,7 +176,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testRequestWithFormParams(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(
@@ -200,7 +200,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testJsonRequestReturnsArray(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$result = $client->jsonRequest(HTTPMethod::GET, 'https://httpbin.org/json');
@@ -226,7 +226,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testStringRequestReturnsString(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$result = $client->stringRequest(HTTPMethod::GET, 'https://httpbin.org/html');
@@ -253,7 +253,7 @@ final class HTTPClientTest extends TestCase
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects($this->once())
 			->method('error')
-			->with($this->stringContains('Erreur pendant la requête'));
+			->with($this->stringContains('Error during'));
 
 		$client = new HTTPClient($logger);
 		$result = $client->request(HTTPMethod::GET, 'invalid-url');
@@ -263,14 +263,14 @@ final class HTTPClientTest extends TestCase
 
 	public function testJsonRequestLogsErrorOnInvalidJson(): void
 	{
-		$this->markTestSkipped('Difficile à tester sans refactoring de la classe');
+		$this->markTestSkipped('Difficult to test without refactoring the class');
 	}
 
 	/* ===================== HTTPMethod enum tests ===================== */
 
 	public function testRequestWithDifferentHttpMethods(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 
@@ -298,7 +298,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testGetRequestAppendsQueryParamsToUrl(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 
@@ -320,7 +320,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testGetRequestAppendsQueryParamsToUrlWithExistingParams(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 
@@ -344,7 +344,7 @@ final class HTTPClientTest extends TestCase
 	 */
 	public function testRequestWithCustomOptions(): void
 	{
-		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
 
 		$client = new HTTPClient();
 		$response = $client->request(

@@ -101,15 +101,15 @@ final class DistanceTest extends TestCase
 
 	public function testConvertMetersToMiles(): void
 	{
-		// 1000 meters = ~0.621 miles (use assertions for float ranges)
+		// 1000 meters = ~0.621 miles
 		$miles = Distance::convertMetersToMiles(1000);
-		$this->assertGreaterThan(621.0, $miles);
-		$this->assertLessThan(622.0, $miles);
+		$this->assertGreaterThan(0.62, $miles);
+		$this->assertLessThan(0.63, $miles);
 
-		// 1 meter
+		// 1 meter = ~0.000621 miles
 		$miles = Distance::convertMetersToMiles(1);
-		$this->assertGreaterThan(0.6, $miles);
-		$this->assertLessThan(0.7, $miles);
+		$this->assertGreaterThan(0.0006, $miles);
+		$this->assertLessThan(0.0007, $miles);
 
 		// 0 meters
 		$miles = Distance::convertMetersToMiles(0);

@@ -6,37 +6,36 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class HTTPRequest
- * @package Osimatic\Network
+ * Provides utilities for executing HTTP requests using cURL
  */
 class HTTPRequest
 {
 	/**
-	 * Exécute une requête HTTP avec l'extension cURL de PHP.
-	 * @param HTTPMethod $method méthod utilisée pour exécuter la requête
-	 * @param string $url l'URL de la requête HTTP à exécuter
+	 * Executes an HTTP request using PHP's cURL extension.
+	 * @param HTTPMethod $method method used to execute the request
+	 * @param string $url the URL of the HTTP request to execute
 	 * @param array $queryParameters query parameter of request (key-value array)
 	 * @param array $headers list of HTTP header fields
-	 * @param array $options options :
-	 *                         - time_out : Temps (en secondes) maximum autorisé pour l'exécution de la requête
-	 *                         - user_agent : Chaîne de caractère "User-Agent" envoyée au serveur
-	 *                         - user_password :
-	 *                         - response_file :
+	 * @param array $options options:
+	 *                         - time_out: Maximum time (in seconds) allowed for request execution
+	 *                         - user_agent: "User-Agent" string sent to the server
+	 *                         - user_password: HTTP authentication credentials
+	 *                         - response_file: File handle to write response to
 	 * @param LoggerInterface|null $logger
-	 * @return string|bool la réponse renvoyée par la requête après son exécution
+	 * @return string|bool the response returned by the request after execution
 	 * @link http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 	 */
 	public static function execute(HTTPMethod $method, string $url, array $queryParameters=[], array $headers=[], array $options=[], ?LoggerInterface $logger=null): string|bool
 	{
-		//trace('URL : '.$url);
 		$ch = curl_init();
 
-		// Configuration de l'URL
+		// URL configuration
 		if (HTTPMethod::GET === $method) {
 			$url .= (!str_contains($url, '?') ? '?' : '') . '&' . http_build_query($queryParameters);
 		}
 		curl_setopt($ch, CURLOPT_URL, $url);
 
-		// Configuration du protocole
+		// Protocol configuration
 		$ssl = str_starts_with($url, 'https://');
 		if ($ssl) {
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -45,22 +44,22 @@ class HTTPRequest
 			curl_setopt($ch, CURLOPT_PORT, 443);
 		}
 
-		// Configuration de l'authentification HTTP
+		// HTTP authentication configuration
 		if (!empty($options['user_password'])) {
 			curl_setopt($ch, CURLOPT_USERPWD, $options['user_password']);
 		}
 
-		// Configuration de l'user-agent
+		// User-agent configuration
 		if (!empty($options['user_agent'])) {
 			curl_setopt($ch, CURLOPT_USERAGENT, $options['user_agent']);
 		}
 
-		// Configuration du timeout
+		// Timeout configuration
 		if (null !== ($options['time_out'] ?? null)) {
 			curl_setopt($ch, CURLOPT_TIMEOUT, $options['time_out']);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $options['time_out']);
 		}
-		// Configuration des variables POST
+		// POST variables configuration
 		if (HTTPMethod::GET !== $method) {
 			curl_setopt($ch, CURLOPT_POST, TRUE);
 			if ($ssl) {
@@ -71,12 +70,12 @@ class HTTPRequest
 			}
 		}
 
-		// Configuration des variables HEADER
+		// HEADER variables configuration
 		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
 
-		// Configuration des redirections
+		// Redirects configuration
 		// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 		// curl_setopt($ch, CURLOPT_MAXREDIRS, 20);
 
@@ -87,32 +86,32 @@ class HTTPRequest
 		//	curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
 		//}
 
-		// Configuration du corps de la requête
+		// Request body configuration
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-		// Configuration du fichier pour l'enregistrement de la réponse
+		// Response file configuration
 		if (null !== ($responseFile = $options['response_file'] ?? null)) {
 			curl_setopt($ch, CURLOPT_FILE, $responseFile);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 		}
 
-		// Exécution de la requête
+		// Execute the request
 		$data = curl_exec($ch);
 
-		// Récupération du code HTTP
+		// Get HTTP code
 		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-		// Récupération de l'éventuelle erreur
+		// Get potential error
 		$requestError = curl_error($ch);
 
-		// Fermeture de la connexion
+		// Close the connection
 		curl_close($ch);
 
 		$logger?->info('HTTP response code: '.$httpResponseCode.' ; Response size: '.(null === $responseFile ? ($data !== false ? strlen($data) : '<null>') : filesize($responseFile)));
 
-		// Récupération de l'éventuelle erreur
+		// Check for error
 		if ($data === false) {
-			$logger?->error('Erreur cURL request : '.$requestError);
+			$logger?->error('cURL request error: '.$requestError);
 			return false;
 		}
 

@@ -4,7 +4,6 @@ namespace Osimatic\Calendar;
 
 /**
  * Class IslamicCalendar
- * @package Osimatic\Calendar
  * @link https://www.islamicfinder.org/islamic-date-converter/?language=fr
  * @link https://github.com/khaled-alshamaa/ar-php
  * @link https://www.ar-php.org/ar-example-Mktime-php-arabic.html

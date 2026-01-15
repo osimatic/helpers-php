@@ -2,12 +2,17 @@
 
 namespace Osimatic\Messaging;
 
+/**
+ * Interface for email sending implementations.
+ * This interface must be implemented by any class that provides email sending functionality through various transport methods.
+ */
 interface EmailSenderInterface
 {
 	/**
-	 * @param Email $email
+	 * Send an email message.
+	 * @param Email $email The email message to send
 	 * @return void
-	 * @throw \Exception
+	 * @throws \Exception If the email fails to send
 	 */
 	public function send(Email $email): void;
 }

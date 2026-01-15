@@ -3,17 +3,18 @@
 namespace Osimatic\Messaging;
 
 /**
- * Class EmailAddress
- * @package Osimatic\Messaging
+ * Utility class for email address validation and parsing.
+ * This class provides static methods for working with email addresses, including validation and extraction of host and TLD information.
  */
 class EmailAddress
 {
 
-	// ========== Vérification ==========
+	// ========== Validation ==========
 
 	/**
-	 * @param string $email l'adresse email à vérifier
-	 * @return bool
+	 * Check if an email address is valid using PHP's built-in email validation.
+	 * @param string $email The email address to validate
+	 * @return bool True if the email address is valid, false otherwise
 	 */
 	public static function check(string $email): bool
 	{
@@ -23,9 +24,9 @@ class EmailAddress
 	// ========== Get element ==========
 
 	/**
-	 * Retourne le nom de domaine (fournisseur) contenu dans une adresse email
-	 * @param string $email l'adresse email dans laquelle récupérer le nom de domaine (fournisseur)
-	 * @return string|null le nom de domaine (fournisseur) contenu dans l'adresse email
+	 * Get the host (domain) part of an email address.
+	 * @param string $email The email address to extract the host from
+	 * @return string|null The host/domain part of the email address (e.g., "example.com"), or null if no @ symbol is found
 	 */
 	public static function getHost(string $email): ?string
 	{
@@ -36,10 +37,10 @@ class EmailAddress
 	}
 
 	/**
-	 * Retourne le domaine de premier niveau contenu dans une adresse email, avec éventuellement le séparateur "."
-	 * @param string $email l'adresse email dans laquelle récupérer le domaine de premier niveau
-	 * @param boolean $withPoint true pour ajouter le séparateur "." avant le domaine de premier niveau, false sinon (true par défaut)
-	 * @return string|null le domaine de premier niveau contenu dans l'adresse email
+	 * Get the top-level domain (TLD) from an email address.
+	 * @param string $email The email address to extract the TLD from
+	 * @param boolean $withPoint Whether to include the dot separator before the TLD (default: true)
+	 * @return string|null The TLD (e.g., ".com" or "com"), or null if it cannot be extracted
 	 */
 	public static function getTld(string $email, bool $withPoint=true): ?string
 	{

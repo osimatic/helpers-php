@@ -5,10 +5,17 @@ namespace Osimatic\Network;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class FTP
+ * Provides FTP/FTPS client functionality for file and directory operations
+ */
 class FTP
 {
 	private const string START_LOG = 'FTP - ';
-	
+
+	/**
+	 * @param LoggerInterface $logger
+	 */
 	public function __construct(
 		private LoggerInterface $logger=new NullLogger(),
 	) {
@@ -27,13 +34,14 @@ class FTP
 	}
 
 	/**
-	 * @param string $host Retirer slash final et ne doit pas être préfixé par ftp://.
-	 * @param string $username
-	 * @param string $password
-	 * @param int $port
-	 * @param int $timeout
-	 * @param bool $isSsl
-	 * @return \FTP\Connection|null
+	 * Connects to an FTP server
+	 * @param string $host FTP server hostname (remove trailing slash and must not be prefixed by ftp://)
+	 * @param string $username FTP username
+	 * @param string $password FTP password
+	 * @param int $port FTP port (default: 21)
+	 * @param int $timeout connection timeout in seconds (default: 2)
+	 * @param bool $isSsl use FTPS (FTP over SSL) if true, plain FTP if false (default: true)
+	 * @return \FTP\Connection|null FTP connection resource, null if connection failed
 	 */
 	public function connect(string $host, string $username, string $password, int $port=21, int $timeout=2, bool $isSsl=true): ?\FTP\Connection
 	{
@@ -61,10 +69,11 @@ class FTP
 	}
 
 	/**
-	 * @param FTPParams $ftpParams
-	 * @param int $timeout
-	 * @param bool $isSsl
-	 * @return \FTP\Connection|null
+	 * Connects to an FTP server using FTPParams object
+	 * @param FTPParams $ftpParams FTP connection parameters
+	 * @param int $timeout connection timeout in seconds (default: 2)
+	 * @param bool $isSsl use FTPS (FTP over SSL) if true, plain FTP if false (default: true)
+	 * @return \FTP\Connection|null FTP connection resource, null if connection failed
 	 */
 	public function connectWithParams(FTPParams $ftpParams, int $timeout=2, bool $isSsl=true): ?\FTP\Connection
 	{
@@ -72,18 +81,19 @@ class FTP
 	}
 
 	/**
-	 * Teste si la connexion au serveur FTP est toujours active.
-	 * @param \FTP\Connection $ftpConnection
-	 * @return boolean true si la connexion est toujours active, false sinon.
+	 * Tests if the FTP server connection is still active
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @return boolean true if the connection is still active, false otherwise
 	 */
 	public function isConnected(\FTP\Connection $ftpConnection): bool
 	{
-		return ftp_systype($ftpConnection);
+		return ftp_systype($ftpConnection) !== false;
 	}
 
 	/**
-	 * Se connecte du serveur FTP.
-	 * @param \FTP\Connection $ftpConnection
+	 * Disconnects from the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @return void
 	 */
 	public function disconnect(\FTP\Connection $ftpConnection): void
 	{
@@ -99,9 +109,10 @@ class FTP
 
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
+	 * Checks if connected to FTP server, throws exception if not
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
 	 * @return void
-	 * @throws \Exception
+	 * @throws \Exception if not connected to server
 	 */
 	public function checkConnection(\FTP\Connection $ftpConnection): void
 	{
@@ -111,9 +122,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param bool $isPassiveMode
-	 * @return bool
+	 * Sets passive mode for FTP connection
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param bool $isPassiveMode true to enable passive mode, false to disable (default: true)
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function setPassiveMode(\FTP\Connection $ftpConnection, bool $isPassiveMode=true): bool
 	{
@@ -130,9 +143,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $cmd
-	 * @return bool
+	 * Executes a raw FTP command
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $cmd the FTP command to execute
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function executeCommand(\FTP\Connection $ftpConnection, string $cmd): bool
 	{
@@ -149,12 +164,13 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @return bool
+	 * Changes to the parent directory
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function changeParentDirectory(\FTP\Connection $ftpConnection): bool
 	{
-		//$this->logger->info(self::START_LOG.'Back to parent directory.');
 		$this->checkConnection($ftpConnection);
 
 		if (false === ftp_cdup($ftpConnection)) {
@@ -166,13 +182,14 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $directory
-	 * @return bool
+	 * Changes the current directory
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $directory the directory to change to
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function changeDirectory(\FTP\Connection $ftpConnection, string $directory): bool
 	{
-		//$this->logger->info(self::START_LOG.'Change current directory to "'.$directory.'".');
 		$this->checkConnection($ftpConnection);
 
 		// Try and change into another directory
@@ -185,8 +202,9 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @return string|null
+	 * Gets the current directory path
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @return string|null current directory path, null on failure
 	 */
 	public function getCurrentDirectory(\FTP\Connection $ftpConnection): ?string
 	{
@@ -200,9 +218,10 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $fileName
-	 * @return string|null
+	 * Converts a relative file path to an absolute path
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $fileName file or directory name (relative or absolute)
+	 * @return string|null absolute path, null on failure
 	 */
 	public function getAbsolutePath(\FTP\Connection $ftpConnection, string $fileName): ?string
 	{
@@ -218,14 +237,16 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $remoteFileName
-	 * @param string $localFileName
-	 * @param bool $deleteSiExiste
-	 * @param int $mode
-	 * @return bool
+	 * Uploads a local file to the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $remoteFileName remote file name/path on the FTP server
+	 * @param string $localFileName local file name/path to upload
+	 * @param bool $deleteIfExists if true, delete existing remote file before upload (default: true)
+	 * @param int $mode transfer mode (FTP_BINARY or FTP_ASCII, default: FTP_BINARY)
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
-	public function upload(\FTP\Connection $ftpConnection, string $remoteFileName, string $localFileName, bool $deleteSiExiste=true, int $mode=FTP_BINARY): bool
+	public function upload(\FTP\Connection $ftpConnection, string $remoteFileName, string $localFileName, bool $deleteIfExists=true, int $mode=FTP_BINARY): bool
 	{
 		$this->logger->info(self::START_LOG.'Upload local file "'.$localFileName.'" to remote file (FTP server) "'.$remoteFileName.'".');
 		$this->checkConnection($ftpConnection);
@@ -233,7 +254,7 @@ class FTP
 		$mode = self::getModeTransmission($mode);
 
 		if ($this->fileExist($ftpConnection, $remoteFileName)) {
-			if (!$deleteSiExiste) {
+			if (!$deleteIfExists) {
 				$this->logger->error(self::START_LOG.'File '.$this->getAbsolutePath($ftpConnection, $remoteFileName).' already exists.');
 				return false;
 			}
@@ -250,11 +271,13 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $localFileName
-	 * @param string $remoteFileName
-	 * @param int $mode
-	 * @return bool
+	 * Downloads a file from the FTP server to local system
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $localFileName local file name/path to save the downloaded file
+	 * @param string $remoteFileName remote file name/path on the FTP server
+	 * @param int $mode transfer mode (FTP_BINARY or FTP_ASCII, default: FTP_BINARY)
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function download(\FTP\Connection $ftpConnection, string $localFileName, string $remoteFileName, int $mode=FTP_BINARY): bool
 	{
@@ -282,10 +305,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string|null $dirName
-	 * @param bool $includeDirectories
-	 * @return string[]|null
+	 * Gets the list of files in a directory (alias of getContentDirectory)
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string|null $dirName directory name/path (null for current directory)
+	 * @param bool $includeDirectories if true, include subdirectories in the list (default: true)
+	 * @return string[]|null array of file/directory names, null on failure
 	 */
 	public function getListFiles(\FTP\Connection $ftpConnection, ?string $dirName=null, bool $includeDirectories=true): ?array
 	{
@@ -293,10 +317,12 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string|null $dirName
-	 * @param bool $includeDirectories
-	 * @return string[]|null
+	 * Gets the contents of a directory
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string|null $dirName directory name/path (null for current directory)
+	 * @param bool $includeDirectories if true, include subdirectories in the list (default: true)
+	 * @return string[]|null array of file/directory names, null on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function getContentDirectory(\FTP\Connection $ftpConnection, ?string $dirName=null, bool $includeDirectories=true): ?array
 	{
@@ -310,7 +336,7 @@ class FTP
 		}
 
 		// Get directory content
-		$remoteFiles = @ftp_nlist($ftpConnection, $dirName);
+		$remoteFiles = ftp_nlist($ftpConnection, $dirName);
 		if (false === $remoteFiles || !is_array($remoteFiles)) {
 			$this->logger->error(self::START_LOG.'Could not list content of directory "'.$this->getAbsolutePath($ftpConnection, $dirName).'".');
 			return null;
@@ -331,9 +357,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $dirName
-	 * @return bool
+	 * Creates a new directory on the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $dirName directory name/path to create
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function createDir(\FTP\Connection $ftpConnection, string $dirName): bool
 	{
@@ -361,10 +389,12 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $oldDirName
-	 * @param string $newDirName
-	 * @return bool
+	 * Renames a directory on the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $oldDirName current directory name/path
+	 * @param string $newDirName new directory name/path
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function renameDir(\FTP\Connection $ftpConnection, string $oldDirName, string $newDirName): bool
 	{
@@ -385,9 +415,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $dirName
-	 * @return bool
+	 * Deletes a directory and all its contents from the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $dirName directory name/path to delete
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function deleteDir(\FTP\Connection $ftpConnection, string $dirName): bool
 	{
@@ -422,9 +454,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $fileName
-	 * @return bool
+	 * Checks if the specified path is a file (not a directory)
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $fileName file name/path to check
+	 * @return bool true if it's a file, false if it's a directory or doesn't exist
+	 * @throws \Exception if not connected to server
 	 */
 	public function isFile(\FTP\Connection $ftpConnection, string $fileName): bool
 	{
@@ -447,9 +481,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $fileName
-	 * @return bool
+	 * Checks if a file or directory exists on the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $fileName file or directory name/path to check
+	 * @return bool true if exists, false otherwise
+	 * @throws \Exception if not connected to server
 	 */
 	public function fileExist(\FTP\Connection $ftpConnection, string $fileName): bool
 	{
@@ -470,10 +506,12 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $oldFileName
-	 * @param string $newFileName
-	 * @return bool
+	 * Renames a file on the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $oldFileName current file name/path
+	 * @param string $newFileName new file name/path
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function renameFile(\FTP\Connection $ftpConnection, string $oldFileName, string $newFileName): bool
 	{
@@ -494,9 +532,11 @@ class FTP
 	}
 
 	/**
-	 * @param \FTP\Connection $ftpConnection
-	 * @param string $fileName
-	 * @return bool
+	 * Deletes a file from the FTP server
+	 * @param \FTP\Connection $ftpConnection FTP connection resource
+	 * @param string $fileName file name/path to delete
+	 * @return bool true on success, false on failure
+	 * @throws \Exception if not connected to server
 	 */
 	public function deleteFile(\FTP\Connection $ftpConnection, string $fileName): bool
 	{

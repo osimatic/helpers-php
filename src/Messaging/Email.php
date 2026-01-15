@@ -5,8 +5,8 @@ namespace Osimatic\Messaging;
 use Osimatic\FileSystem\File;
 
 /**
- * Class Email
- * @package Osimatic\Messaging
+ * Represents an email message with all its components (recipients, attachments, content, etc.).
+ * This class provides a comprehensive API for building and managing email messages before sending them through various transport methods.
  */
 class Email
 {
@@ -81,10 +81,8 @@ class Email
 
 	/**
 	 * The array of attachments.
-	 * An attachment element is an array containing :
-	 * [0] => String si la pièce jointe est une string à la place d'un fichier ou
-	 * Chemin complet vers le fichier si la pièce jointe est un fichier ou
-	 * Chemin complet vers l'image si la pièce jointe est une embedded image
+	 * An attachment element is an array containing:
+	 * [0] => String if attachment is a string instead of a file, or full path to the file if attachment is a file, or full path to the image if attachment is an embedded image
 	 * [1] => Filename of attachment
 	 * [2] => Filename of attachment displayed in the email
 	 * [3] => Filename encoding (default "base64")
@@ -177,14 +175,15 @@ class Email
 	private ?\DateTime $sendingDateTime = null;
 
 	/**
-	 * private usage
+	 * Internal array to track all added recipient addresses to prevent duplicates.
 	 * @var array
 	 */
 	private array $allAddresses = [];
 
 
 	/**
-	 * Email constructor.
+	 * Construct a new Email instance.
+	 * Initializes the sending date time to the current date and time.
 	 */
 	public function __construct()
 	{
@@ -194,7 +193,8 @@ class Email
 
 
 	/**
-	 * @return string|null
+	 * Get the email identifier.
+	 * @return string|null The identifier, or null if not set
 	 */
 	public function getIdentifier(): ?string
 	{
@@ -202,7 +202,8 @@ class Email
 	}
 
 	/**
-	 * @param string|null $identifier
+	 * Set the email identifier.
+	 * @param string|null $identifier The identifier to set
 	 */
 	public function setIdentifier(?string $identifier): void
 	{
@@ -211,11 +212,11 @@ class Email
 
 
 
-	// ========== Expéditeur ==========
+	// ========== Sender ==========
 
 	/**
-	 * Return the From email address for the message.
-	 * @return string|null
+	 * Get the From email address for the message.
+	 * @return string|null The sender's email address, or null if not set
 	 */
 	public function getFromEmailAddress(): ?string
 	{
@@ -223,9 +224,9 @@ class Email
 	}
 
 	/**
-	 * Sets the From email address for the message.
-	 * @param string|null $emailAddress
-	 * @return self
+	 * Set the From email address for the message.
+	 * @param string|null $emailAddress The sender's email address to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFromEmailAddress(?string $emailAddress): self
 	{
@@ -246,8 +247,8 @@ class Email
 	}
 
 	/**
-	 * Return the From name of the message.
-	 * @return string|null
+	 * Get the From name of the message.
+	 * @return string|null The sender's display name, or null if not set
 	 */
 	public function getFromName(): ?string
 	{
@@ -255,9 +256,9 @@ class Email
 	}
 
 	/**
-	 * Sets the From name of the message.
-	 * @param string|null $name
-	 * @return self
+	 * Set the From name of the message.
+	 * @param string|null $name The sender's display name to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFromName(?string $name): self
 	{
@@ -273,11 +274,11 @@ class Email
 	}
 
 	/**
-	 * Set the fromEmailAddress and fromName properties.
-	 * @param string $emailAddress
-	 * @param string|null $name
-	 * @param bool $auto Whether to also set the Sender address, defaults to true
-	 * @return self
+	 * Set both the From email address and From name.
+	 * @param string $emailAddress The sender's email address
+	 * @param string|null $name The sender's display name (optional)
+	 * @param bool $auto Whether to also set the envelope sender address (default: true)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFrom(string $emailAddress, ?string $name = '', bool $auto = true): self
 	{
@@ -292,8 +293,9 @@ class Email
 	}
 
 	/**
-	 * @param string|null $emailAddress
-	 * @return self
+	 * Set the envelope sender email address.
+	 * @param string|null $emailAddress The envelope sender address (used for bounce handling)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSender(?string $emailAddress): self
 	{
@@ -303,7 +305,8 @@ class Email
 	}
 
 	/**
-	 * @return string|null
+	 * Get the envelope sender email address.
+	 * @return string|null The envelope sender address, or null if not set
 	 */
 	public function getSender(): ?string
 	{
@@ -312,8 +315,8 @@ class Email
 
 
 	/**
-	 * Return The email address that a reading confirmation should be sent to, also known as read receipt.
-	 * @return string|null
+	 * Get the email address that a reading confirmation should be sent to (read receipt).
+	 * @return string|null The read receipt email address, or null if not set
 	 */
 	public function getConfirmReadingTo(): ?string
 	{
@@ -321,9 +324,9 @@ class Email
 	}
 
 	/**
-	 * Sets the email address that a reading confirmation should be sent to, also known as read receipt.
-	 * @param string|null $emailAddress
-	 * @return self
+	 * Set the email address that a reading confirmation should be sent to (read receipt).
+	 * @param string|null $emailAddress The read receipt email address
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setConfirmReadingTo(?string $emailAddress): self
 	{
@@ -355,11 +358,11 @@ class Email
 
 
 
-	// ========== Répondre à ==========
+	// ========== Reply-To ==========
 
 	/**
-	 * Return all "Reply-To" addresses.
-	 * @return array
+	 * Get all "Reply-To" addresses.
+	 * @return array Array of Reply-To addresses, each containing [email, name]
 	 */
 	public function getReplyTo(): array
 	{
@@ -367,8 +370,8 @@ class Email
 	}
 
 	/**
-	 * Return the first "Reply-To" email address.
-	 * @return string
+	 * Get the first "Reply-To" email address.
+	 * @return string The first Reply-To email address, or empty string if none set
 	 */
 	public function getReplyToEmail(): string
 	{
@@ -377,9 +380,9 @@ class Email
 
 	/**
 	 * Add a "Reply-To" address.
-	 * @param string|null $emailAddress
-	 * @param string|null $name
-	 * @return self
+	 * @param string|null $emailAddress The Reply-To email address
+	 * @param string|null $name The Reply-To display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addReplyTo(?string $emailAddress, ?string $name = ''): self
 	{
@@ -389,10 +392,10 @@ class Email
 	}
 
 	/**
-	 * Sets the "Reply-To" address.
-	 * @param string|null $emailAddress
-	 * @param string|null $name
-	 * @return self
+	 * Set the "Reply-To" address (replaces any existing Reply-To addresses).
+	 * @param string|null $emailAddress The Reply-To email address
+	 * @param string|null $name The Reply-To display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setReplyTo(?string $emailAddress, ?string $name = ''): self
 	{
@@ -403,7 +406,7 @@ class Email
 	}
 
 	/**
-	 * Clear all ReplyTo recipients.
+	 * Clear all Reply-To recipients.
 	 */
 	public function clearReplyTo(): void
 	{
@@ -411,8 +414,9 @@ class Email
 	}
 
 	/**
-	 * @param string $separator
-	 * @return string
+	 * Format all Reply-To addresses as a string with a specified separator.
+	 * @param string $separator The separator to use between addresses (default: ' ; ')
+	 * @return string The formatted Reply-To addresses string
 	 */
 	public function formatReplyTo(string $separator=' ; '): string
 	{
@@ -420,11 +424,11 @@ class Email
 	}
 
 
-	// ========== Destinataires ==========
+	// ========== Recipients ==========
 
 	/**
-	 * Return the array of 'to' names and addresses.
-	 * @return array
+	 * Get the array of 'to' names and addresses.
+	 * @return array Array of To recipients, each containing [email, name]
 	 */
 	public function getListTo(): array
 	{
@@ -432,8 +436,8 @@ class Email
 	}
 
 	/**
-	 * Return all 'to' email addresses.
-	 * @return array
+	 * Get all 'to' email addresses only.
+	 * @return array Array of To email addresses (without names)
 	 */
 	public function getListToEmails(): array
 	{
@@ -441,8 +445,8 @@ class Email
 	}
 
 	/**
-	 * The array of 'cc' names and addresses.
-	 * @return array
+	 * Get the array of 'cc' names and addresses.
+	 * @return array Array of Cc recipients, each containing [email, name]
 	 */
 	public function getListCc(): array
 	{
@@ -450,8 +454,8 @@ class Email
 	}
 
 	/**
-	 * Return all 'cc' email addresses.
-	 * @return array
+	 * Get all 'cc' email addresses only.
+	 * @return array Array of Cc email addresses (without names)
 	 */
 	public function getListCcEmails(): array
 	{
@@ -459,8 +463,8 @@ class Email
 	}
 
 	/**
-	 * The array of 'bcc' names and addresses.
-	 * @return array
+	 * Get the array of 'bcc' names and addresses.
+	 * @return array Array of Bcc recipients, each containing [email, name]
 	 */
 	public function getListBcc(): array
 	{
@@ -468,8 +472,8 @@ class Email
 	}
 
 	/**
-	 * Return all 'bcc' email addresses.
-	 * @return array
+	 * Get all 'bcc' email addresses only.
+	 * @return array Array of Bcc email addresses (without names)
 	 */
 	public function getListBccEmails(): array
 	{
@@ -477,8 +481,8 @@ class Email
 	}
 
 	/**
-	 * Return all recipient email addresses ('to', 'cc' and 'bcc').
-	 * @return array
+	 * Get all recipient email addresses combined ('to', 'cc' and 'bcc').
+	 * @return array Array of all recipient email addresses
 	 */
 	public function getAllRecipientAddresses(): array
 	{
@@ -487,10 +491,10 @@ class Email
 
 
 	/**
-	 * Add a "To" address.
-	 * @param string|null $emailAddress The email address to send to
-	 * @param string|null $name
-	 * @return self
+	 * Add a "To" recipient.
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addTo(?string $emailAddress, ?string $name = ''): self
 	{
@@ -500,10 +504,10 @@ class Email
 	}
 
 	/**
-	 * Add a "To" address.
-	 * @param string|null $emailAddress The email address to send to
-	 * @param string|null $name
-	 * @return self
+	 * Add a "To" recipient (alias for addTo).
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addRecipient(?string $emailAddress, ?string $name = ''): self
 	{
@@ -513,10 +517,10 @@ class Email
 	}
 
 	/**
-	 * Add a "CC" address.
-	 * @param string|null $emailAddress The email address to send to
-	 * @param string|null $name
-	 * @return self
+	 * Add a "Cc" recipient.
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addCc(?string $emailAddress, ?string $name = ''): self
 	{
@@ -526,10 +530,10 @@ class Email
 	}
 
 	/**
-	 * Add a "BCC" address.
-	 * @param string|null $emailAddress The email address to send to
-	 * @param string|null $name
-	 * @return self
+	 * Add a "Bcc" recipient.
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addBcc(?string $emailAddress, ?string $name = ''): self
 	{
@@ -539,9 +543,9 @@ class Email
 	}
 
 	/**
-	 * Add "To" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Add multiple "To" recipients.
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addListTo(array $recipientList): self
 	{
@@ -551,9 +555,9 @@ class Email
 	}
 
 	/**
-	 * Add "CC" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Add multiple "Cc" recipients.
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addListCc(array $recipientList): self
 	{
@@ -563,9 +567,9 @@ class Email
 	}
 
 	/**
-	 * Add "BCC" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Add multiple "Bcc" recipients.
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addListBcc(array $recipientList): self
 	{
@@ -576,10 +580,10 @@ class Email
 
 
 	/**
-	 * Sets the "To" address.
-	 * @param string|null $emailAddress
-	 * @param string|null $name
-	 * @return self
+	 * Set the "To" recipient (replaces any existing To recipients).
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setRecipient(?string $emailAddress, ?string $name = ''): self
 	{
@@ -590,10 +594,10 @@ class Email
 	}
 
 	/**
-	 * Sets the "To" address.
-	 * @param string|null $emailAddress
-	 * @param string|null $name
-	 * @return self
+	 * Set the "To" recipient (replaces any existing To recipients, alias for setRecipient).
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTo(?string $emailAddress, ?string $name = ''): self
 	{
@@ -604,10 +608,10 @@ class Email
 	}
 
 	/**
-	 * Sets the "CC" address.
-	 * @param string|null $emailAddress
-	 * @param string|null $name
-	 * @return self
+	 * Set the "Cc" recipient (replaces any existing Cc recipients).
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCc(?string $emailAddress, ?string $name = ''): self
 	{
@@ -618,10 +622,10 @@ class Email
 	}
 
 	/**
-	 * Sets the "BCC" address.
-	 * @param string|null $emailAddress
-	 * @param string|null $name
-	 * @return self
+	 * Set the "Bcc" recipient (replaces any existing Bcc recipients).
+	 * @param string|null $emailAddress The recipient's email address
+	 * @param string|null $name The recipient's display name (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setBcc(?string $emailAddress, ?string $name = ''): self
 	{
@@ -632,9 +636,9 @@ class Email
 	}
 
 	/**
-	 * Sets "To" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Set multiple "To" recipients (replaces any existing To recipients).
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setListRecipients(array $recipientList): self
 	{
@@ -645,9 +649,9 @@ class Email
 	}
 
 	/**
-	 * Sets "To" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Set multiple "To" recipients (replaces any existing To recipients, alias for setListRecipients).
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setListTo(array $recipientList): self
 	{
@@ -658,9 +662,9 @@ class Email
 	}
 
 	/**
-	 * Sets "CC" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Set multiple "Cc" recipients (replaces any existing Cc recipients).
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setListCc(array $recipientList): self
 	{
@@ -671,9 +675,9 @@ class Email
 	}
 
 	/**
-	 * Sets "BCC" addresses.
-	 * @param array $recipientList
-	 * @return self
+	 * Set multiple "Bcc" recipients (replaces any existing Bcc recipients).
+	 * @param array $recipientList Array of recipients, each containing [email, name]
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setListBcc(array $recipientList): self
 	{
@@ -685,16 +689,31 @@ class Email
 
 
 
+	/**
+	 * Format all "To" recipients as a string with a specified separator.
+	 * @param string $separator The separator to use between addresses (default: ' ; ')
+	 * @return string The formatted To recipients string
+	 */
 	public function formatListTo(string $separator=' ; '): string
 	{
 		return implode($separator, self::formatEmailList($this->getListTo()));
 	}
 
+	/**
+	 * Format all "Cc" recipients as a string with a specified separator.
+	 * @param string $separator The separator to use between addresses (default: ' ; ')
+	 * @return string The formatted Cc recipients string
+	 */
 	public function formatListCc(string $separator=' ; '): string
 	{
 		return implode($separator, self::formatEmailList($this->getListCc()));
 	}
 
+	/**
+	 * Format all "Bcc" recipients as a string with a specified separator.
+	 * @param string $separator The separator to use between addresses (default: ' ; ')
+	 * @return string The formatted Bcc recipients string
+	 */
 	public function formatListBcc(string $separator=' ; '): string
 	{
 		return implode($separator, self::formatEmailList($this->getListBcc()));
@@ -758,11 +777,11 @@ class Email
 		$this->clearRecipients();
 	}
 
-	// ========== Attachement ==========
+	// ========== Attachments ==========
 
 	/**
-	 * Return the array of attachments.
-	 * @return array
+	 * Get the array of all attachments.
+	 * @return array Array of attachments
 	 */
 	public function getAttachments(): array
 	{
@@ -770,7 +789,8 @@ class Email
 	}
 
 	/**
-	 * @return array
+	 * Get the array of all attachments.
+	 * @return array Array of attachments
 	 */
 	public function getListAttachments(): array
 	{
@@ -778,8 +798,8 @@ class Email
 	}
 
 	/**
-	 * Check if an attachment (non-inline) is present.
-	 * @return bool
+	 * Check if a regular attachment (non-inline) is present.
+	 * @return bool True if at least one attachment exists, false otherwise
 	 */
 	public function attachmentExists(): bool
 	{
@@ -792,8 +812,8 @@ class Email
 	}
 
 	/**
-	 * Check if an inline attachment is present.
-	 * @return bool
+	 * Check if an inline attachment (embedded image) is present.
+	 * @return bool True if at least one inline image exists, false otherwise
 	 */
 	public function inlineImageExists(): bool
 	{
@@ -806,8 +826,9 @@ class Email
 	}
 
 	/**
-	 * @param array $listAttachments
-	 * @return self
+	 * Add multiple attachments from an array.
+	 * @param array $listAttachments Array of attachments to add
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addListAttachment(array $listAttachments): self
 	{
@@ -822,13 +843,13 @@ class Email
 	}
 
 	/**
-	 * Add an attachment from a path on the filesystem.
-	 * Returns false if the file could not be found or read.
-	 * @param string $path Path to the attachment.
-	 * @param string|null $name Overrides the attachment name.
-	 * @param EmailEncoding $encoding File encoding.
-	 * @param string|null $mimeType File extension (MIME) type.
-	 * @return self
+	 * Add an attachment from a file path on the filesystem.
+	 * The attachment will be skipped if the file doesn't exist or exceeds the maximum file size.
+	 * @param string $path Full path to the attachment file
+	 * @param string|null $name Display name for the attachment (optional, defaults to filename)
+	 * @param EmailEncoding $encoding File encoding method (default: base64)
+	 * @param string|null $mimeType MIME type of the file (auto-detected if not provided)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addAttachment(string $path, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
@@ -867,13 +888,12 @@ class Email
 
 	/**
 	 * Add a string or binary attachment (non-filesystem).
-	 * This method can be used to attach ascii or binary data,
-	 * such as a BLOB record from a database.
-	 * @param string $string String attachment data.
-	 * @param string $filename Name of the attachment.
-	 * @param EmailEncoding $encoding File encoding.
-	 * @param string|null $mimeType File extension (MIME) type.
-	 * @return self
+	 * This method can be used to attach ASCII or binary data, such as a BLOB record from a database.
+	 * @param string $string The attachment data as a string
+	 * @param string $filename The display name of the attachment
+	 * @param EmailEncoding $encoding The encoding method (default: base64)
+	 * @param string|null $mimeType MIME type of the attachment (auto-detected if not provided)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addStringAttachment(string $string, string $filename, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
@@ -898,17 +918,14 @@ class Email
 
 	/**
 	 * Add an embedded (inline) attachment from a file.
-	 * This can include images, sounds, and just about any other document type.
-	 * These differ from 'regular' attachments in that they are intended to be
-	 * displayed inline with the message, not just attached for download.
-	 * This is used in HTML messages that embed the images
-	 * the HTML refers to using the $cid value.
-	 * @param string $path Path to the attachment.
-	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
-	 * @param string|null $name Overrides the attachment name.
-	 * @param EmailEncoding $encoding File encoding.
-	 * @param string|null $mimeType File MIME type.
-	 * @return self
+	 * These differ from regular attachments as they are displayed inline with the message content.
+	 * This is commonly used in HTML messages to embed images referenced by the content ID.
+	 * @param string $path Full path to the embedded file
+	 * @param string $cid Content ID used to reference this resource in HTML (e.g., <img src="cid:value">)
+	 * @param string|null $name Display name for the embedded resource (optional, defaults to filename)
+	 * @param EmailEncoding $encoding The encoding method (default: base64)
+	 * @param string|null $mimeType MIME type of the file (auto-detected if not provided)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addEmbeddedImage(string $path, string $cid, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
@@ -947,16 +964,15 @@ class Email
 	}
 
 	/**
-	 * Add an embedded stringified attachment.
-	 * This can include images, sounds, and just about any other document type.
-	 * Be sure to set the $type to an image type for images:
-	 * JPEG images use 'image/jpeg', GIF uses 'image/gif', PNG uses 'image/png'.
-	 * @param string $string The attachment binary data.
-	 * @param string $cid Content ID of the attachment; Use this to reference the content when using an embedded image in HTML.
-	 * @param string|null $name
-	 * @param EmailEncoding $encoding File encoding.
-	 * @param string|null $mimeType MIME type.
-	 * @return self
+	 * Add an embedded attachment from a string.
+	 * This can include images, sounds, and other document types as binary data.
+	 * Be sure to set the correct MIME type (e.g., 'image/jpeg', 'image/gif', 'image/png' for images).
+	 * @param string $string The binary data of the embedded resource
+	 * @param string $cid Content ID used to reference this resource in HTML (e.g., <img src="cid:value">)
+	 * @param string|null $name Display name for the embedded resource (optional)
+	 * @param EmailEncoding $encoding The encoding method (default: base64)
+	 * @param string|null $mimeType MIME type of the resource (auto-detected if not provided)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addStringEmbeddedImage(string $string, string $cid, ?string $name = null, EmailEncoding $encoding = EmailEncoding::BASE64, ?string $mimeType = null): self
 	{
@@ -981,8 +997,7 @@ class Email
 	}
 
 	/**
-	 * Clear all filesystem, string, and binary attachments.
-	 * @return void
+	 * Clear all attachments (filesystem, string, binary, and inline).
 	 */
 	public function clearAttachments(): void
 	{
@@ -992,6 +1007,11 @@ class Email
 
 	// ========== Subject and text ==========
 
+	/**
+	 * Format text by replacing special characters.
+	 * @param string|null $str The text to format
+	 * @return string The formatted text
+	 */
 	private static function formatText(?string $str): string
 	{
 		if ($str === null) {
@@ -1002,8 +1022,8 @@ class Email
 	}
 
 	/**
-	 * Return the subject of the message.
-	 * @return string
+	 * Get the subject of the message.
+	 * @return string The email subject
 	 */
 	public function getSubject(): string
 	{
@@ -1011,9 +1031,9 @@ class Email
 	}
 
 	/**
-	 * Sets the subject of the message.
-	 * @param string|null $subject
-	 * @return self
+	 * Set the subject of the message.
+	 * @param string|null $subject The email subject to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSubject(?string $subject): self
 	{
@@ -1023,8 +1043,8 @@ class Email
 	}
 
 	/**
-	 * Return true if the message type is HTML, false if plain.
-	 * @return bool
+	 * Check if the message content type is HTML.
+	 * @return bool True if HTML format, false if plain text
 	 */
 	public function isHTML(): bool
 	{
@@ -1032,8 +1052,8 @@ class Email
 	}
 
 	/**
-	 * Sets message type to HTML or plain.
-	 * @return self
+	 * Set message content type to HTML format.
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setHtmlFormat(): self
 	{
@@ -1043,8 +1063,8 @@ class Email
 	}
 
 	/**
-	 * Sets message type to plain.
-	 * @return self
+	 * Set message content type to plain text format.
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTextFormat(): self
 	{
@@ -1054,9 +1074,9 @@ class Email
 	}
 
 	/**
-	 * Sets MIME type of the message.
-	 * @param EmailContentType|string $contentType
-	 * @return self
+	 * Set the MIME content type of the message.
+	 * @param EmailContentType|string $contentType The content type to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setContentType(EmailContentType|string $contentType): self
 	{
@@ -1066,9 +1086,9 @@ class Email
 	}
 
 	/**
-	 * Sets message type to HTML or plain.
-	 * @param bool $isHtml
-	 * @return self
+	 * Set message content type to HTML or plain text based on a boolean flag.
+	 * @param bool $isHtml True for HTML format, false for plain text
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setIsHTML(bool $isHtml): self
 	{
@@ -1083,8 +1103,8 @@ class Email
 	}
 
 	/**
-	 * Return the character set of the message.
-	 * @return EmailCharset
+	 * Get the character set of the message.
+	 * @return EmailCharset The character encoding set
 	 */
 	public function getCharSet(): EmailCharset
 	{
@@ -1092,9 +1112,9 @@ class Email
 	}
 
 	/**
-	 * Sets the character set of the message.
-	 * @param EmailCharset|string $charSet
-	 * @return self
+	 * Set the character set of the message.
+	 * @param EmailCharset|string $charSet The character encoding to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCharSet(EmailCharset|string $charSet): self
 	{
@@ -1108,8 +1128,8 @@ class Email
 	}
 
 	/**
-	 * Return the HTML or plain text message body.
-	 * @return string texte du mail.
+	 * Get the HTML or plain text message body.
+	 * @return string The message body content
 	 */
 	public function getText(): string
 	{
@@ -1117,9 +1137,9 @@ class Email
 	}
 
 	/**
-	 * Sets the HTML or plain text message body.
-	 * @param string|null $text
-	 * @return self
+	 * Set the HTML or plain text message body.
+	 * @param string|null $text The message body content to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setText(?string $text): self
 	{
@@ -1131,7 +1151,8 @@ class Email
 	// ========== Sending options ==========
 
 	/**
-	 * Return the sending date time of the message.
+	 * Get the sending date and time of the message.
+	 * @return \DateTime|null The sending date and time, or null if not set
 	 */
 	public function getSendingDateTime(): ?\DateTime
 	{
@@ -1139,9 +1160,9 @@ class Email
 	}
 
 	/**
-	 * Sets the sending date time of the message.
-	 * @param \DateTime|null $sendingDateTime
-	 * @return self
+	 * Set the sending date and time of the message.
+	 * @param \DateTime|null $sendingDateTime The sending date and time to set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSendingDateTime(?\DateTime $sendingDateTime): self
 	{
@@ -1151,10 +1172,10 @@ class Email
 	}
 
 
-	// ========== Réinitialiser ==========
+	// ========== Reset ==========
 
 	/**
-	 * Clear everything.
+	 * Clear all email properties (sender, recipients, attachments, etc.).
 	 */
 	public function clear(): void
 	{
@@ -1176,13 +1197,14 @@ class Email
 
 
 
-	// ========== format for display ==========
+	// ========== Format for display ==========
 
 	/**
-	 * @param string $email
-	 * @param string|null $name
-	 * @param bool $formatHtml
-	 * @return string
+	 * Format an email address and name for display.
+	 * @param string $email The email address
+	 * @param string|null $name The display name (optional)
+	 * @param bool $formatHtml If true, use HTML entities for angle brackets (default: true)
+	 * @return string The formatted email address string
 	 */
 	public static function formatEmailAndName(string $email, ?string $name=null, bool $formatHtml=true): string
 	{
@@ -1193,8 +1215,9 @@ class Email
 	}
 
 	/**
-	 * @param array $emailList
-	 * @return array
+	 * Format an array of email addresses for display.
+	 * @param array $emailList Array of email addresses, each containing [email, name]
+	 * @return array Array of formatted email address strings
 	 */
 	private static function formatEmailList(array $emailList): array
 	{
@@ -1209,11 +1232,12 @@ class Email
 
 
 
-	// ========== private ==========
+	// ========== Private methods ==========
 
 	/**
-	 * @param EmailAddressKind $kind
-	 * @param array $emailList
+	 * Add multiple email addresses to a recipient list.
+	 * @param EmailAddressKind $kind The type of recipient list to add to
+	 * @param array $emailList Array of email addresses to add
 	 */
 	private function addEmailAddressList(EmailAddressKind $kind, array $emailList): void
 	{
@@ -1233,13 +1257,12 @@ class Email
 	}
 
 	/**
-	 * Adds an address to one of the recipient arrays
-	 * Addresses that have been added already return false, but do not throw exceptions
-	 * @param EmailAddressKind $kind One of 'listTo', 'listCc', 'listBcc', 'replyTo'
-	 * @param string $emailAddress The email address to send to
-	 * @param string $name
-	 * @return boolean true on success, false if address already used or invalid in some way
-	 * @access private
+	 * Add an email address to one of the recipient arrays.
+	 * Addresses that have been added already return false, but do not throw exceptions.
+	 * @param EmailAddressKind $kind The type of recipient (to, cc, bcc, or replyTo)
+	 * @param string $emailAddress The email address to add
+	 * @param string $name The display name (optional)
+	 * @return bool True on success, false if address is already added or invalid
 	 */
 	private function addEmailAddress(EmailAddressKind $kind, string $emailAddress, string $name = ''): bool
 	{

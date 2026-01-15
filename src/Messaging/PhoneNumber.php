@@ -3,15 +3,16 @@
 namespace Osimatic\Messaging;
 
 /**
- * Class PhoneNumber
- * @package Osimatic\Messaging
+ * Utility class for phone number validation, parsing, and formatting.
+ * This class wraps the libphonenumber library to provide convenient static methods for working with phone numbers.
  */
 class PhoneNumber
 {
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return string|null
+	 * Format a phone number in national format (e.g., "01 23 45 67 89" for France).
+	 * @param string|null $phoneNumber The phone number to format
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
 	public static function formatNational(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
@@ -19,9 +20,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return string|null
+	 * Format a phone number in international format (e.g., "+33 1 23 45 67 89").
+	 * @param string|null $phoneNumber The phone number to format
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
 	public static function formatInternational(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
@@ -29,10 +31,11 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param int $numberFormat
-	 * @param string $defaultCountry
-	 * @return string|null
+	 * Format a phone number using a specific format.
+	 * @param string|null $phoneNumber The phone number to format
+	 * @param int $numberFormat The libphonenumber format constant (NATIONAL, INTERNATIONAL, E164, etc.)
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
 	public static function format(?string $phoneNumber, int $numberFormat, string $defaultCountry='FR'): ?string
 	{
@@ -50,9 +53,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return string|null
+	 * Parse a phone number and return it in E.164 format (e.g., "+33123456789").
+	 * @param string|null $phoneNumber The phone number to parse
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return string|null The parsed phone number in E.164 format, or the original value if parsing fails, or null if input is null
 	 */
 	public static function parse(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
@@ -70,9 +74,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string[] $phoneNumbers
-	 * @param string $defaultCountry
-	 * @return string[]
+	 * Parse an array of phone numbers and return them in E.164 format.
+	 * @param string[] $phoneNumbers Array of phone numbers to parse
+	 * @param string $defaultCountry The ISO country code to use if phone numbers don't include a country code (default: 'FR')
+	 * @return string[] Array of parsed phone numbers in E.164 format, with invalid entries filtered out
 	 */
 	public static function parseList(array $phoneNumbers, string $defaultCountry='FR'): array
 	{
@@ -85,10 +90,11 @@ class PhoneNumber
 	}
 
 	/**
-	 * quickly guesses whether a number is a possible phone number by using only the length information, much faster than a full validation.
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return bool
+	 * Quickly check if a number is a possible phone number using only length information.
+	 * This is much faster than full validation but less accurate.
+	 * @param string|null $phoneNumber The phone number to check
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return bool True if the number is possibly valid based on length, false otherwise
 	 */
 	public static function isPossible(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
@@ -106,10 +112,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * full validation of a phone number for a region using length and prefix information.
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return bool
+	 * Perform full validation of a phone number using length and prefix information.
+	 * @param string|null $phoneNumber The phone number to validate
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return bool True if the phone number is valid, false otherwise
 	 */
 	public static function isValid(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
@@ -127,10 +133,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * gets the type of the number based on the number itself; able to distinguish Fixed-line, Mobile, Toll-free, Premium Rate, Shared Cost, VoIP, Personal Numbers, UAN, Pager, and Voicemail (whenever feasible).
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return PhoneNumberType|null
+	 * Get the type of phone number (mobile, fixed-line, toll-free, premium rate, etc.).
+	 * @param string|null $phoneNumber The phone number to analyze
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return PhoneNumberType|null The phone number type, or null if it cannot be determined
 	 */
 	public static function getType(?string $phoneNumber, string $defaultCountry='FR'): ?PhoneNumberType
 	{
@@ -148,9 +154,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return bool
+	 * Check if a phone number is a mobile number.
+	 * @param string|null $phoneNumber The phone number to check
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return bool True if the number is a mobile number, false otherwise
 	 */
 	public static function isMobile(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
@@ -158,9 +165,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return bool
+	 * Check if a phone number is a fixed-line (landline) number.
+	 * @param string|null $phoneNumber The phone number to check
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return bool True if the number is a fixed-line number, false otherwise
 	 */
 	public static function isFixedLine(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
@@ -168,9 +176,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return bool
+	 * Check if a phone number is a premium rate number.
+	 * @param string|null $phoneNumber The phone number to check
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return bool True if the number is a premium rate number, false otherwise
 	 */
 	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
@@ -178,9 +187,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return bool
+	 * Check if a phone number is a toll-free number.
+	 * @param string|null $phoneNumber The phone number to check
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return bool True if the number is a toll-free number, false otherwise
 	 */
 	public static function isTollFree(?string $phoneNumber, string $defaultCountry='FR'): bool
 	{
@@ -188,9 +198,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param string $defaultCountry
-	 * @return string|null
+	 * Get the ISO country code for a phone number.
+	 * @param string|null $phoneNumber The phone number to analyze
+	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @return string|null The ISO country code (e.g., 'FR', 'US'), or null if it cannot be determined
 	 */
 	public static function getCountryIsoCode(?string $phoneNumber, string $defaultCountry='FR'): ?string
 	{
@@ -208,8 +219,10 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @return string|null
+	 * Format a phone number from IVR system format to standard format.
+	 * Handles special cases like anonymous numbers and French overseas territories.
+	 * @param string|null $phoneNumber The phone number from the IVR system
+	 * @return string|null The formatted phone number, or empty string for anonymous numbers, or null if input is null
 	 */
 	public static function formatFromIvr(?string $phoneNumber): ?string
 	{
@@ -230,20 +243,20 @@ class PhoneNumber
 			}
 		}
 
-		// Cas numéro France DOM-TOM avec un 0 à la place du 00
+		// Handle French overseas territories numbers with '0' instead of '00'
 		$frenchOverseasCallingCodes = [
-			'262', // La Réunion / Mayotte
-			'508', // Saint-Pierre-et-Miquelon
+			'262', // Reunion / Mayotte
+			'508', // Saint Pierre and Miquelon
 			'590', // Guadeloupe
 			'596', // Martinique
-			'594', // Guyane
-			'687', // Nouvelle-Calédonie
-			'689', // Polynésie Française
-			'681', // Wallis-et-Futuna
+			'594', // French Guiana
+			'687', // New Caledonia
+			'689', // French Polynesia
+			'681', // Wallis and Futuna
 		];
-		
+
 		foreach ($frenchOverseasCallingCodes as $callingCode) {
-			if (!str_starts_with($phoneNumber, '+33') && substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && mb_strlen($phoneNumber) === 13) { // Guadeloupe
+			if (!str_starts_with($phoneNumber, '+33') && substr($phoneNumber, 0, 7) === '0'.$callingCode.$callingCode && mb_strlen($phoneNumber) === 13) {
 				$phoneNumber = '+'.substr($phoneNumber, 1);
 			}
 		}
@@ -252,9 +265,11 @@ class PhoneNumber
 	}
 
 	/**
-	 * @param string|null $phoneNumber
-	 * @param bool $withTrunkCode
-	 * @return string|null
+	 * Format a phone number for IVR system usage.
+	 * Converts international format to a format compatible with the IVR system.
+	 * @param string|null $phoneNumber The phone number to format
+	 * @param bool $withTrunkCode Whether to include the trunk code (leading '0') for national numbers (default: true)
+	 * @return string|null The formatted phone number for IVR, or null if input is null
 	 */
 	public static function formatForIvr(?string $phoneNumber, bool $withTrunkCode=true): ?string
 	{
@@ -262,7 +277,7 @@ class PhoneNumber
 			return null;
 		}
 
-		// code provisoire car le svi ne sait pas appeler des numéros commencant par 0033
+		// Temporary code because the IVR system cannot dial numbers starting with 0033
 		if (str_starts_with($phoneNumber, '+')) {
 			$phoneNumber = '00'.substr($phoneNumber, 1);
 		}

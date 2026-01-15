@@ -7,12 +7,17 @@ use Psr\Log\NullLogger;
 
 /**
  * Class Bitly
- * @package Osimatic\API
+ * Client for the Bit.ly URL shortening service
  */
 class Bitly
 {
 	private HTTPClient $httpClient;
 
+	/**
+	 * @param string|null $login Bit.ly login username
+	 * @param string|null $key Bit.ly API key
+	 * @param LoggerInterface $logger
+	 */
 	public function __construct(
 		private ?string $login=null,
 		private ?string $key=null,
@@ -22,7 +27,8 @@ class Bitly
 	}
 
 	/**
-	 * @param string $login
+	 * Sets the Bit.ly login username
+	 * @param string $login the Bit.ly login username
 	 * @return self
 	 */
 	public function setLogin(string $login): self
@@ -33,7 +39,8 @@ class Bitly
 	}
 
 	/**
-	 * @param string $key
+	 * Sets the Bit.ly API key
+	 * @param string $key the Bit.ly API key
 	 * @return self
 	 */
 	public function setKey(string $key): self
@@ -44,9 +51,9 @@ class Bitly
 	}
 
 	/**
-	 * Utilise l'API de Bit.ly afin de raccourcir une url passée en paramètre.
-	 * @param string $url à raccourcir.
-	 * @return string|null Url raccourcie, null si une erreur est survenue.
+	 * Uses the Bit.ly API to shorten a URL
+	 * @param string $url the URL to shorten
+	 * @return string|null shortened URL, null if an error occurred
 	 */
 	public function shorten(string $url): ?string
 	{

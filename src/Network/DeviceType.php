@@ -2,6 +2,10 @@
 
 namespace Osimatic\Network;
 
+/**
+ * Enum DeviceType
+ * Represents different types of devices (desktop, mobile, tablet, etc.)
+ */
 enum DeviceType: string
 {
 	case DESKTOP 			= 'desktop';
@@ -30,6 +34,10 @@ enum DeviceType: string
 	case BOT 				= 'bot';
 	case PROJECTOR 			= 'projector';
 
+	/**
+	 * Returns a human-readable label for the device type
+	 * @return string the label in French
+	 */
 	public function getLabel(): string
 	{
 		return match ($this) {

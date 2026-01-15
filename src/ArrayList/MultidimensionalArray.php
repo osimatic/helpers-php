@@ -4,7 +4,6 @@ namespace Osimatic\ArrayList;
 
 /**
  * Class MultidimensionalArray
- * @package Osimatic\ArrayList
  */
 class MultidimensionalArray
 {

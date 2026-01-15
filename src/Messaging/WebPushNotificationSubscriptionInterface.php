@@ -3,39 +3,44 @@
 namespace Osimatic\Messaging;
 
 /**
- * Interface WebPushNotificationSubscriptionInterface
- * Represent subscription of a web push notification
- * @package Osimatic\Messaging
+ * Interface for web push notification subscriptions.
+ * This interface represents a subscription for web push notifications, containing the endpoint and encryption keys required to send notifications to a web browser.
  */
 interface WebPushNotificationSubscriptionInterface
 {
 	/**
-	 * @return string
+	 * Get the subscription endpoint URL.
+	 * @return string The push service endpoint URL where notifications should be sent
 	 */
 	public function getEndpoint() : string;
 
 	/**
-	 * @return array
+	 * Get the subscription encryption keys.
+	 * @return array Array containing the public key and authentication token
 	 */
 	public function getSubscriptionKeys() : array;
 
 	/**
-	 * @return string
+	 * Get the public key for message encryption.
+	 * @return string The public key used to encrypt notification payloads
 	 */
 	public function getPublicKey() : string;
 
 	/**
-	 * @return string
+	 * Get the authentication token.
+	 * @return string The authentication token used to verify the subscription
 	 */
 	public function getAuthToken() : string;
 
 	/**
-	 * @return int|null
+	 * Get the subscription expiration timestamp.
+	 * @return int|null The Unix timestamp when the subscription expires, or null if it doesn't expire
 	 */
 	public function getExpirationTimestamp() : ?int;
 
 	/**
-	 * @return string|null
+	 * Get the content encoding method.
+	 * @return string|null The content encoding algorithm (e.g., 'aes128gcm', 'aesgcm'), or null if not specified
 	 */
 	public function getContentEncoding() : ?string;
 

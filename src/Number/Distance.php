@@ -4,22 +4,27 @@ namespace Osimatic\Number;
 
 use Osimatic\Location\PlaceInterface;
 
+/**
+ * Class Distance
+ * Provides utilities for distance calculations (orthonormal and geographic)
+ */
 class Distance
 {
-	// Rayon de la Terre en mètres
+	// Earth radius in meters
 	private const int EARTH_RADIUS_METERS = 6378137;
 
-	// Coefficient de conversion mètres vers miles (note: traite les mètres comme des kilomètres pour compatibilité)
-	private const float METERS_TO_MILES = 0.621371192;
+	// Conversion coefficient meters to miles (note: treats meters as kilometers for compatibility)
+	private const float METERS_TO_MILES = 0.000621371192;
 
-	// ========== Distance sur une base orthonormée ==========
+	// ========== Distance in Orthonormal Basis ==========
 
 	/**
-	 * @param float $abscissa1
-	 * @param float $ordinate1
-	 * @param float $abscissa2
-	 * @param float $ordinate2
-	 * @return float
+	 * Calculates the Euclidean distance between two points in an orthonormal coordinate system
+	 * @param float $abscissa1 the x-coordinate of the first point
+	 * @param float $ordinate1 the y-coordinate of the first point
+	 * @param float $abscissa2 the x-coordinate of the second point
+	 * @param float $ordinate2 the y-coordinate of the second point
+	 * @return float the distance between the two points
 	 */
 	public static function calculateInOrthonormalBasis(float $abscissa1, float $ordinate1, float $abscissa2, float $ordinate2): float
 	{
@@ -27,13 +32,14 @@ class Distance
 	}
 
 
-	// ========== Distance géographique ==========
+	// ========== Geographic Distance ==========
 
 	/**
-	 * @param string $originCoordinates
-	 * @param string $destinationCoordinates
-	 * @param int $decimals
-	 * @return float|null
+	 * Calculates the geographic distance between two coordinate strings
+	 * @param string $originCoordinates the origin coordinates as a string
+	 * @param string $destinationCoordinates the destination coordinates as a string
+	 * @param int $decimals the number of decimal places to round to (default: 2)
+	 * @return float|null the distance in meters, null if coordinates are invalid
 	 */
 	public static function calculate(string $originCoordinates, string $destinationCoordinates, int $decimals=2): ?float
 	{
@@ -44,10 +50,11 @@ class Distance
 	}
 
 	/**
-	 * @param float[] $originPoint
-	 * @param float[] $destinationPoint
-	 * @param int $decimals
-	 * @return float
+	 * Calculates the geographic distance between two point arrays [latitude, longitude]
+	 * @param float[] $originPoint the origin point [latitude, longitude]
+	 * @param float[] $destinationPoint the destination point [latitude, longitude]
+	 * @param int $decimals the number of decimal places to round to (default: 2)
+	 * @return float the distance in meters
 	 */
 	public static function calculateBetweenPoints(array $originPoint, array $destinationPoint, int $decimals=2): float
 	{
@@ -57,13 +64,13 @@ class Distance
 	}
 
 	/**
-	 * Retourne distance en mètre
-	 * @param float $originLatitude
-	 * @param float $originLongitude
-	 * @param float $destinationLatitude
-	 * @param float $destinationLongitude
-	 * @param int $decimals
-	 * @return float
+	 * Calculates the geographic distance between two latitude/longitude coordinates using the Haversine formula
+	 * @param float $originLatitude the origin latitude in degrees
+	 * @param float $originLongitude the origin longitude in degrees
+	 * @param float $destinationLatitude the destination latitude in degrees
+	 * @param float $destinationLongitude the destination longitude in degrees
+	 * @param int $decimals the number of decimal places to round to (default: 2)
+	 * @return float the distance in meters
 	 */
 	public static function calculateBetweenLatitudeAndLongitude(float $originLatitude, float $originLongitude, float $destinationLatitude, float $destinationLongitude, int $decimals=2): float
 	{
@@ -78,22 +85,22 @@ class Distance
 		$distance = self::EARTH_RADIUS_METERS * $d;
 
 		/*
-		// Calcul de la distance en degrés
+		// Alternative calculation using degrees
 		$degrees = rad2deg(acos((sin(deg2rad($originLatitude))*sin(deg2rad($destinationLatitude))) + (cos(deg2rad($originLatitude))*cos(deg2rad($destinationLatitude))*cos(deg2rad($originLongitude-$destinationLongitude)))));
 
-		// Conversion de la distance en degrés à l'unité mètre
-		$distance = $degrees * 111133.84; // 1 degré = 111.133,84 mètres, sur base du diamètre moyen de la Terre (12735 km)
+		// Convert distance in degrees to meters
+		$distance = $degrees * 111133.84; // 1 degree = 111,133.84 meters, based on Earth's mean diameter (12735 km)
 		*/
 
-		// Arrondissement
+		// Round to specified decimal places
 		return round($distance, $decimals);
 	}
 
 	/**
-	 * Retourne distance en mètre
-	 * @param PlaceInterface $originPlace
-	 * @param PlaceInterface $destinationPlace
-	 * @return float
+	 * Calculates the geographic distance between two Place objects
+	 * @param PlaceInterface $originPlace the origin place
+	 * @param PlaceInterface $destinationPlace the destination place
+	 * @return float the distance in meters
 	 */
 	public static function calculateBetweenPlaces(PlaceInterface $originPlace, PlaceInterface $destinationPlace): float
 	{
@@ -101,9 +108,9 @@ class Distance
 	}
 
 	/**
-	 * Retourne distance en miles
-	 * @param float $distance
-	 * @return float
+	 * Converts a distance from meters to miles
+	 * @param float $distance the distance in meters
+	 * @return float the distance in miles
 	 */
 	public static function convertMetersToMiles(float $distance): float
 	{

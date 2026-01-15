@@ -7,7 +7,8 @@ use Psr\Log\NullLogger;
 
 /**
  * Class GoogleContact
- * @package Osimatic\API
+ * Provides functionality to retrieve and parse contacts from Google Contacts API.
+ * This class handles OAuth authentication, API requests, and contact data normalization.
  */
 class GoogleContact
 {
@@ -15,10 +16,11 @@ class GoogleContact
 
 	/**
 	 * GoogleContact constructor.
-	 * @param string|null $clientId
-	 * @param string|null $secret
-	 * @param string|null $appName
-	 * @param LoggerInterface $logger
+	 * Initializes the Google API client with contacts scope and online access type.
+	 * @param string|null $clientId The OAuth 2.0 client ID
+	 * @param string|null $secret The OAuth 2.0 client secret
+	 * @param string|null $appName The application name to identify requests
+	 * @param LoggerInterface $logger The PSR-3 logger instance (default: NullLogger)
 	 */
 	public function __construct(
 		?string $clientId=null,
@@ -44,8 +46,9 @@ class GoogleContact
 	}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the PSR-3 logger instance for error and debug logging.
+	 * @param LoggerInterface $logger The logger instance to use
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -55,8 +58,9 @@ class GoogleContact
 	}
 
 	/**
-	 * @param string $clientId
-	 * @return self
+	 * Sets the OAuth 2.0 client ID.
+	 * @param string $clientId The client ID from Google Cloud Console
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setClientId(string $clientId): self
 	{
@@ -66,8 +70,9 @@ class GoogleContact
 	}
 
 	/**
-	 * @param string $secret
-	 * @return self
+	 * Sets the OAuth 2.0 client secret.
+	 * @param string $secret The client secret from Google Cloud Console
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSecret(string $secret): self
 	{
@@ -77,8 +82,9 @@ class GoogleContact
 	}
 
 	/**
-	 * @param string $appName
-	 * @return self
+	 * Sets the application name to identify API requests.
+	 * @param string $appName The application name
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setApplicationName(string $appName): self
 	{
@@ -88,8 +94,9 @@ class GoogleContact
 	}
 
 	/**
-	 * @param string $uri
-	 * @return self
+	 * Sets the OAuth redirect URI where users will be redirected after authorization.
+	 * @param string $uri The redirect URI (must match the one configured in Google Cloud Console)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setRedirectUri(string $uri): self
 	{
@@ -99,7 +106,9 @@ class GoogleContact
 	}
 
 	/**
-	 * @return string
+	 * Gets the OAuth authorization URL.
+	 * Redirect users to this URL to begin the OAuth flow.
+	 * @return string The authorization URL
 	 */
 	public function getUrl(): string
 	{
@@ -107,9 +116,11 @@ class GoogleContact
 	}
 
 	/**
-	 * @param string|null $code
-	 * @param bool $simplified
-	 * @return array|null
+	 * Retrieves and parses contacts from Google Contacts API.
+	 * Fetches up to 150 contacts and normalizes the data into a standardized format.
+	 * @param string|null $code The OAuth authorization code received after user authorization
+	 * @param bool $simplified Whether to return simplified contact data (single email/phone) or detailed data (default: true)
+	 * @return array|null Array of contacts or null on failure
 	 */
 	public function getContacts(?string $code, bool $simplified=true): ?array
 	{
@@ -199,8 +210,10 @@ class GoogleContact
 	}
 
 	/**
-	 * @param array $data
-	 * @return string|null
+	 * Parses a phone number from Google Contacts data.
+	 * Extracts the phone number from the URI field and removes formatting characters.
+	 * @param array $data The phone number data array from Google Contacts API
+	 * @return string|null The parsed phone number or null if not found
 	 */
 	public static function parsePhoneNumber(array $data): ?string
 	{
@@ -212,8 +225,10 @@ class GoogleContact
 	}
 
 	/**
-	 * @param array $data
-	 * @return string|null
+	 * Extracts the relationship type from Google Contacts data.
+	 * Parses the 'rel' field to determine if the data is for 'home', 'work', 'mobile', 'other', etc.
+	 * @param array $data The data array containing a 'rel' field
+	 * @return string|null The relationship type (e.g., 'home', 'work', 'mobile') or null if not found
 	 */
 	public static function getDataRelType(array $data): ?string
 	{
@@ -224,8 +239,10 @@ class GoogleContact
 	}
 
 	/**
-	 * @param string|null $code
-	 * @return string|null
+	 * Exchanges the OAuth authorization code for an access token.
+	 * This is a private method used internally to authenticate API requests.
+	 * @param string|null $code The OAuth authorization code
+	 * @return string|null The access token or null on failure
 	 */
 	private function getAccessToken(?string $code): ?string
 	{

@@ -2,23 +2,40 @@
 
 namespace Osimatic\Network;
 
+/**
+ * Class UserAgent
+ * Parses and provides information about HTTP User-Agent strings
+ */
 class UserAgent implements \JsonSerializable
 {
+	/** @var object WhichBrowser parser object */
 	public object $parser;
 
+	/** @var string Human-readable representation of the user agent */
 	public string $readableRepresentation;
 
+	/** @var string|null Browser name */
 	public ?string $browserName;
+	/** @var string|null Browser version */
 	public ?string $browserVersion;
 
+	/** @var string|null Operating system name */
 	public ?string $osName;
+	/** @var string|null Operating system version */
 	public ?string $osVersion;
 
+	/** @var bool True if the device is mobile */
 	public bool $deviceIsMobile;
+	/** @var DeviceType|null Device type (desktop, mobile, tablet, etc.) */
 	public ?DeviceType $deviceType;
+	/** @var string|null Device manufacturer */
 	public ?string $deviceManufacturer;
+	/** @var string|null Device model */
 	public ?string $deviceModel;
 
+	/**
+	 * @param string $userAgent the User-Agent string to parse
+	 */
 	public function __construct(string $userAgent)
 	{
 		$result = new \WhichBrowser\Parser($userAgent);
@@ -45,12 +62,22 @@ class UserAgent implements \JsonSerializable
 		$this->deviceModel = !empty($this->deviceModel) ? $this->deviceModel : null;
 	}
 
+	/**
+	 * Parses a User-Agent string (static factory method)
+	 * @param string $userAgent the User-Agent string to parse
+	 * @return UserAgent the parsed UserAgent object
+	 */
 	public static function parse(string $userAgent): UserAgent
 	{
 		return new UserAgent($userAgent);
 	}
 
-	public function getInfosDisplay($separator=' — '): string
+	/**
+	 * Returns a formatted string representation of the user agent information
+	 * @param string $separator separator between components (default: ' — ')
+	 * @return string formatted string with OS, browser, and device information
+	 */
+	public function getInfosDisplay(string $separator=' — '): string
 	{
 		$userAgentData = $this->getData();
 
@@ -67,6 +94,10 @@ class UserAgent implements \JsonSerializable
 		return implode($separator, $components);
 	}
 
+	/**
+	 * Returns user agent data as an associative array
+	 * @return array array with 'os', 'browser', and 'device' keys containing formatted strings
+	 */
 	public function getData(): array
 	{
 		$os = null;
@@ -106,7 +137,7 @@ class UserAgent implements \JsonSerializable
 		}
 
 		return [
-			'os' => !empty($os ?? null) ? $os : null,
+			'os' => !empty($os) ? $os : null,
 			'browser' => !empty($browser) ? $browser : null,
 			'device' => !empty($device) ? $device : null,
 		];

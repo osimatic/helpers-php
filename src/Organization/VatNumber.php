@@ -2,11 +2,17 @@
 
 namespace Osimatic\Organization;
 
+/**
+ * Class VatNumber
+ * Provides utilities for VAT number validation and formatting
+ */
 class VatNumber
 {
 	/**
-	 * @param string $vatNumber
-	 * @return string
+	 * Formats a VAT number for display
+	 * @param string $vatNumber the VAT number to format
+	 * @return string the formatted VAT number
+	 * @todo implement VAT number formatting logic
 	 */
 	public static function format(string $vatNumber): string
 	{
@@ -15,9 +21,10 @@ class VatNumber
 	}
 
 	/**
-	 * @param string $vatNumber
-	 * @param bool $checkValidity
-	 * @return bool
+	 * Validates a VAT number syntax and optionally checks validity via VIES
+	 * @param string $vatNumber the VAT number to check (including country code)
+	 * @param bool $checkValidity whether to verify with VIES service (default: true)
+	 * @return bool true if valid, false otherwise
 	 */
 	public static function check(string $vatNumber, bool $checkValidity=true): bool
 	{
@@ -29,16 +36,16 @@ class VatNumber
 		$countryCode = substr($vatNumber, 0, 2);
 		$vatNumber = substr($vatNumber, 2);
 
-		// Vérification de la syntaxe
+		// Syntax validation
 		if (!preg_match('/^[A-Z]{2}$/', $countryCode) || !preg_match('/^[0-9A-Za-z\+\*\.]{2,12}$/', $vatNumber)) {
 			return false;
 		}
 
-		// --- Vérification pour la France/Monaco ---
+		// --- France/Monaco specific validation ---
 		if ('FR' === $countryCode) {
 			// France
 			if (strlen($vatNumber) === 11) {
-				// Vérification du SIREN
+				// SIREN validation
 				$siren = substr($vatNumber, 2);
 				if (!Company::checkCompanyNumber('FR', $siren)) {
 					return false;
@@ -46,20 +53,20 @@ class VatNumber
 			}
 			// Monaco
 			elseif (strlen($vatNumber) === 9) {
-				// Vérification du n°SSEE
+				// SSEE number validation
 				$siren = substr($vatNumber, 2);
 			}
 			else {
 				return false;
 			}
 
-			// Vérification de la clef TVA
+			// VAT key validation
 			$vatKey = (int) substr($vatNumber, 0, 2);
 			$theoricalVatKey = ( ( ($siren % 97) * 3 ) + 12 ) % 97;
 			return ($vatKey === $theoricalVatKey);
 		}
 
-		// Vérification de la validité
+		// Validity check via VIES service
 		if ($checkValidity) {
 			return self::checkValidity($originalVatNumber);
 		}
@@ -67,6 +74,11 @@ class VatNumber
 		return true;
 	}
 
+	/**
+	 * Validates a VAT number using the EU VIES (VAT Information Exchange System) service
+	 * @param string $vatNumber the VAT number to validate (including country code)
+	 * @return bool true if valid according to VIES, false otherwise
+	 */
 	public static function checkValidity(string $vatNumber): bool
 	{
 		$countryCode = substr($vatNumber, 0, 2);
@@ -85,7 +97,7 @@ class VatNumber
 		return true;
 
 		/*
-		// Méthode API REST : non activé car pose pb de requete concurrente et renvoie de false au lieu de true 3 fois sur 4
+		// REST API method: disabled due to concurrent request issues and false negatives
 		$url = 'https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number';
 		$body = [
 			'countryCode' => $countryCode,

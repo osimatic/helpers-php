@@ -7,8 +7,15 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class HTTPClient
+ * HTTP client wrapper using Guzzle for making HTTP requests
+ */
 class HTTPClient
 {
+	/**
+	 * @param LoggerInterface $logger
+	 */
 	public function __construct(
 		private LoggerInterface $logger=new NullLogger(),
 	) {}
@@ -25,13 +32,14 @@ class HTTPClient
 	}
 
 	/**
-	 * @param HTTPMethod $method
-	 * @param string $url
-	 * @param array $queryData
-	 * @param array $headers
-	 * @param bool $jsonBody
-	 * @param array $options
-	 * @return ResponseInterface|null
+	 * Executes an HTTP request
+	 * @param HTTPMethod $method HTTP method to use
+	 * @param string $url target URL
+	 * @param array $queryData query parameters (for GET) or body data (for other methods)
+	 * @param array $headers HTTP headers
+	 * @param bool $jsonBody if true, send body as JSON; if false, send as form data (for non-GET requests)
+	 * @param array $options additional Guzzle options
+	 * @return ResponseInterface|null the HTTP response, null if request failed
 	 */
 	public function request(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): ?ResponseInterface
 	{
@@ -44,11 +52,11 @@ class HTTPClient
 
 			if (HTTPMethod::GET === $method) {
 				if (!empty($queryData)) {
-					$url .= (!str_contains($url, '?') ? '?' : '').'&'.http_build_query($queryData);
+					$url .= (!str_contains($url, '?') ? '?' : '&').http_build_query($queryData);
 				}
 			}
 			else {
-				if (true === $jsonBody) {
+				if ($jsonBody) {
 					$options['json'] = $queryData;
 				} else {
 					$options['form_params'] = $queryData;
@@ -58,19 +66,20 @@ class HTTPClient
 			return $client->request($method->value, $url, $options);
 		}
 		catch (\Exception | GuzzleException $e) {
-			$this->logger->error('Erreur pendant la requête '.($method->value).' vers l\'URL '.$url.'. Message d\'erreur : '.$e->getMessage());
+			$this->logger->error('Error during '.$method->value.' request to URL '.$url.'. Error message: '.$e->getMessage());
 		}
 		return null;
 	}
 
 	/**
-	 * @param HTTPMethod $method
-	 * @param string $url
-	 * @param array $queryData
-	 * @param array $headers
-	 * @param bool $jsonBody
-	 * @param array $options
-	 * @return mixed|null
+	 * Executes an HTTP request and returns the JSON-decoded response
+	 * @param HTTPMethod $method HTTP method to use
+	 * @param string $url target URL
+	 * @param array $queryData query parameters (for GET) or body data (for other methods)
+	 * @param array $headers HTTP headers
+	 * @param bool $jsonBody if true, send body as JSON; if false, send as form data (for non-GET requests)
+	 * @param array $options additional Guzzle options
+	 * @return mixed|null the JSON-decoded response, null if request failed or decoding failed
 	 */
 	public function jsonRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): mixed
 	{
@@ -82,19 +91,20 @@ class HTTPClient
 			return \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
 		}
 		catch (\Exception $e) {
-			$this->logger->error('Erreur pendant le décodage du résultat. Erreur : '.$e->getMessage());
+			$this->logger->error('Error during result decoding. Error: '.$e->getMessage());
 		}
 		return null;
 	}
 
 	/**
-	 * @param HTTPMethod $method
-	 * @param string $url
-	 * @param array $queryData
-	 * @param array $headers
-	 * @param bool $jsonBody
-	 * @param array $options
-	 * @return string|null
+	 * Executes an HTTP request and returns the response body as a string
+	 * @param HTTPMethod $method HTTP method to use
+	 * @param string $url target URL
+	 * @param array $queryData query parameters (for GET) or body data (for other methods)
+	 * @param array $headers HTTP headers
+	 * @param bool $jsonBody if true, send body as JSON; if false, send as form data (for non-GET requests)
+	 * @param array $options additional Guzzle options
+	 * @return string|null the response body as string, null if request failed
 	 */
 	public function stringRequest(HTTPMethod $method, string $url, array $queryData = [], array $headers = [], bool $jsonBody = false, array $options = []): ?string
 	{

@@ -5,10 +5,18 @@ namespace Osimatic\Network;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class VPNAPI
+ * Client for the VPNAPI.io service to detect VPN usage
+ */
 class VPNAPI
 {
 	private HTTPClient $httpClient;
 
+	/**
+	 * @param string|null $key API key for VPNAPI.io
+	 * @param LoggerInterface $logger
+	 */
 	public function __construct(
 		private ?string $key=null,
 		LoggerInterface $logger=new NullLogger(),
@@ -17,7 +25,8 @@ class VPNAPI
 	}
 
 	/**
-	 * @param LoggerInterface $logger
+	 * Sets the logger instance
+	 * @param LoggerInterface $logger the logger to use
 	 * @return self
 	 */
 	public function setLogger(LoggerInterface $logger): self
@@ -28,7 +37,8 @@ class VPNAPI
 	}
 
 	/**
-	 * @param string $key
+	 * Sets the API key for VPNAPI.io
+	 * @param string $key the API key
 	 * @return self
 	 */
 	public function setKey(string $key): self
@@ -39,8 +49,9 @@ class VPNAPI
 	}
 
 	/**
-	 * @param string $ipAddress
-	 * @return null|array
+	 * Retrieves information about an IP address from VPNAPI.io
+	 * @param string $ipAddress the IP address to check
+	 * @return array|null array containing IP information, null if request failed
 	 */
 	public function getIpInfos(string $ipAddress): ?array
 	{
@@ -52,11 +63,21 @@ class VPNAPI
 		return $data;
 	}
 
+	/**
+	 * Checks if the IP address is using a VPN based on API result
+	 * @param array $result the result array from getIpInfos()
+	 * @return bool true if VPN is detected, false otherwise
+	 */
 	public static function isVpn(array $result): bool
 	{
 		return $result['security']['vpn'] ?? false;
 	}
 
+	/**
+	 * Extracts the country code from API result
+	 * @param array $result the result array from getIpInfos()
+	 * @return string|null country code in uppercase, null if not found
+	 */
 	public static function getCountryCode(array $result): ?string
 	{
 		if (empty($countryCode = $result['location']['country_code'] ?? null)) {

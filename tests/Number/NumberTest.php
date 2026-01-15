@@ -264,17 +264,17 @@ final class NumberTest extends TestCase
 
 	public function testDecimal(): void
 	{
-		// Extract decimal part as float (use larger delta due to float precision issues)
-		$this->assertEquals(0.3344, Number::decimal(1122.3344), '', 0.001);
-		$this->assertEquals(0.5, Number::decimal(3.5), '', 0.0001);
-		$this->assertEquals(0.14, Number::decimal(3.14), '', 0.001);
+		// Extract decimal part as float (use delta due to float precision limits)
+		$this->assertEqualsWithDelta(0.3344, Number::decimal(1122.3344), 0.0001);
+		$this->assertEqualsWithDelta(0.5, Number::decimal(3.5), 0.0001);
+		$this->assertEqualsWithDelta(0.14, Number::decimal(3.14), 0.0001);
 
 		// Integer returns 0
 		$this->assertEquals(0.0, Number::decimal(42));
 		$this->assertEquals(0.0, Number::decimal(0));
 
 		// Negative numbers
-		$this->assertEquals(0.5, Number::decimal(-3.5), '', 0.0001);
+		$this->assertEqualsWithDelta(0.5, Number::decimal(-3.5), 0.0001);
 	}
 
 	public function testDecimalPart(): void

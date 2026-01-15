@@ -4,7 +4,6 @@ namespace Osimatic\Calendar;
 
 /**
  * Class GoogleCalendar
- * @package Osimatic\API
  */
 class GoogleCalendar
 {

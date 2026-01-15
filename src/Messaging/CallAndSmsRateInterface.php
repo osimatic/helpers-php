@@ -4,71 +4,81 @@ namespace Osimatic\Messaging;
 
 use Osimatic\Location\Continent;
 
+/**
+ * Interface for call and SMS rate information.
+ * This interface must be implemented by any class that stores pricing information for calls and SMS messages by country.
+ */
 interface CallAndSmsRateInterface
 {
 	/**
-	 * @return Continent
+	 * Get the continent.
+	 * @return Continent The continent for these rates
 	 */
 	public function getContinent(): Continent;
 
 	/**
-	 * @param Continent $continent
+	 * Set the continent.
+	 * @param Continent $continent The continent to set
 	 */
 	public function setContinent(Continent $continent): void;
 
 	/**
-	 * @return string
+	 * Get the country code.
+	 * @return string The ISO country code
 	 */
 	public function getCountryCode(): string;
 
 	/**
-	 * @param string $countryCode
+	 * Set the country code.
+	 * @param string $countryCode The ISO country code to set
 	 */
 	public function setCountryCode(string $countryCode): void;
 
 	/**
-	 * @return string
+	 * Get the currency.
+	 * @return string The ISO currency code
 	 */
 	public function getCurrency(): string;
 
 	/**
-	 * @param string $currency
+	 * Set the currency.
+	 * @param string $currency The ISO currency code to set
 	 */
 	public function setCurrency(string $currency): void;
 
 	/**
-	 * en centimes
-	 * @return float
+	 * Get the landline call rate per minute (in cents).
+	 * @return float The rate per minute in cents
 	 */
 	public function getLandlineRatePerMinute(): float;
 
 	/**
-	 * en centimes
-	 * @param float $landlineRatePerMinute
+	 * Set the landline call rate per minute (in cents).
+	 * @param float $landlineRatePerMinute The rate per minute in cents
 	 */
 	public function setLandlineRatePerMinute(float $landlineRatePerMinute): void;
 
 	/**
-	 * en centimes
-	 * @return float
+	 * Get the mobile call rate per minute (in cents).
+	 * @return float The rate per minute in cents
 	 */
 	public function getMobileRatePerMinute(): float;
 
 	/**
-	 * en centimes
-	 * @param float $mobileRatePerMinute
+	 * Set the mobile call rate per minute (in cents).
+	 * @param float $mobileRatePerMinute The rate per minute in cents
 	 */
 	public function setMobileRatePerMinute(float $mobileRatePerMinute): void;
 
 	/**
-	 * en centimes
-	 * @return float
+	 * Get the SMS rate (in cents).
+	 * @return float The rate per SMS in cents
 	 */
 	public function getSmsRate(): float;
 
 	/**
-	 * en centimes
-	 * @param float $smsRate
+	 * Set the SMS rate (in cents).
+	 * @param float $smsRate The rate per SMS in cents
 	 */
 	public function setSmsRate(float $smsRate): void;
 }

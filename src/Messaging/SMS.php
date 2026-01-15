@@ -3,12 +3,14 @@
 namespace Osimatic\Messaging;
 
 /**
- * Class SMS
- * @package Osimatic\Messaging
+ * Represents an SMS message with recipients, text content, and sending options.
+ * This class provides a complete API for building and managing SMS messages before sending them through various SMS gateway providers.
  */
 class SMS
 {
-	// Nombre de caractères maximum dans un SMS.
+	/**
+	 * Maximum number of characters allowed in a single SMS message.
+	 */
 	public const int MESSAGE_NB_CHAR_MAX = 160;
 
 	/**
@@ -18,49 +20,56 @@ class SMS
 	private ?string $identifier = null;
 
 	/**
-	 * Tableau contenant la liste des numéros de téléphone des destinataires du SMS.
+	 * Array containing the list of recipient phone numbers for the SMS.
 	 * @var array
 	 */
 	private array $recipients = [];
 
 	/**
-	 * Texte (message) du SMS.
+	 * The text message content of the SMS.
 	 * @var string
 	 */
 	private string $text = '';
 
 	/**
-	 * True pour couper le texte pour qu'il rentre sur un seul SMS, false pour laisser le texte entier même s'il dépasse la taille d'un SMS.
+	 * Whether to truncate the text to fit in a single SMS message.
+	 * True to cut the text to fit within MESSAGE_NB_CHAR_MAX characters, false to keep the full text even if it exceeds one SMS length.
 	 * @var boolean
 	 */
 	private bool $truncateText = false;
 
 	/**
-	 * Nom de l'expéditeur du SMS.
+	 * The sender name displayed to SMS recipients.
 	 * @var string|null
 	 */
 	private ?string $senderName = null;
 
 	/**
-	 * Date/heure de l'envoi du SMS. Permet d'envoyer le SMS en différé (null = envoi immédiat).
+	 * The date and time when the SMS should be sent.
+	 * Allows for scheduled/deferred sending (null = immediate sending).
 	 * @var \DateTime|null
 	 */
 	private ?\DateTime $sendingDateTime = null;
 
 	/**
-	 *
+	 * Whether the SMS contains adult content.
 	 * @var boolean
 	 */
 	private bool $adultContent = false;
 
 
+	/**
+	 * Construct a new SMS instance.
+	 * Initializes the sending date time to the current date and time.
+	 */
 	public function __construct()
 	{
 		$this->sendingDateTime = \Osimatic\Calendar\DateTime::getCurrentDateTime();
 	}
 
 	/**
-	 * @return string|null
+	 * Get the SMS identifier.
+	 * @return string|null The identifier, or null if not set
 	 */
 	public function getIdentifier(): ?string
 	{
@@ -68,7 +77,8 @@ class SMS
 	}
 
 	/**
-	 * @param string|null $identifier
+	 * Set the SMS identifier.
+	 * @param string|null $identifier The identifier to set
 	 */
 	public function setIdentifier(?string $identifier): void
 	{
@@ -79,7 +89,8 @@ class SMS
 	// ========== Sender ==========
 
 	/**
-	 * @return string|null
+	 * Get the sender name.
+	 * @return string|null The sender name, or null if not set
 	 */
 	public function getSenderName(): ?string
 	{
@@ -87,8 +98,9 @@ class SMS
 	}
 
 	/**
-	 * @param string|null $senderName
-	 * @return self
+	 * Set the sender name.
+	 * @param string|null $senderName The sender name to display to recipients
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSenderName(?string $senderName): self
 	{
@@ -97,11 +109,11 @@ class SMS
 		return $this;
 	}
 
-	// ========== Recipient ==========
+	// ========== Recipients ==========
 
 	/**
-	 * Récupère la liste des destinataires du SMS.
-	 * @return array un tableau contenant la liste des destinataires du SMS.
+	 * Get the list of all SMS recipients.
+	 * @return array Array containing the phone numbers of all recipients
 	 */
 	public function getListRecipients(): array
 	{
@@ -109,8 +121,8 @@ class SMS
 	}
 
 	/**
-	 * Récupère l'unique destinataires du SMS.
-	 * @return string|null le numéro de téléphone du destinataires du SMS.
+	 * Get the first SMS recipient.
+	 * @return string|null The phone number of the first recipient, or null if no recipients
 	 */
 	public function getRecipient(): ?string
 	{
@@ -118,7 +130,8 @@ class SMS
 	}
 
 	/**
-	 * @return array
+	 * Get the list of all recipient phone numbers (alias for getListRecipients).
+	 * @return array Array containing the phone numbers of all recipients
 	 */
 	public function getListPhoneNumbers(): array
 	{
@@ -126,7 +139,8 @@ class SMS
 	}
 
 	/**
-	 * @return string|null
+	 * Get the first recipient phone number (alias for getRecipient).
+	 * @return string|null The phone number of the first recipient, or null if no recipients
 	 */
 	public function getPhoneNumber(): ?string
 	{
@@ -134,7 +148,8 @@ class SMS
 	}
 
 	/**
-	 * @return int
+	 * Get the number of recipients.
+	 * @return int The total count of recipients
 	 */
 	public function getNbRecipients(): int
 	{
@@ -142,7 +157,8 @@ class SMS
 	}
 
 	/**
-	 * @return int
+	 * Get the number of phone numbers (alias for getNbRecipients).
+	 * @return int The total count of phone numbers
 	 */
 	public function getNbPhoneNumbers(): int
 	{
@@ -150,9 +166,9 @@ class SMS
 	}
 
 	/**
-	 * Ajoute un destinataire pour le SMS.
-	 * @param string|null $mobileNumber numéro de téléphone du destinataire.
-	 * @return self
+	 * Add a recipient for the SMS.
+	 * @param string|null $mobileNumber The recipient's phone number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addRecipient(?string $mobileNumber): self
 	{
@@ -162,9 +178,9 @@ class SMS
 	}
 
 	/**
-	 * Définit un unique destinataire pour le SMS.
-	 * @param string|null $mobileNumber le numéro de téléphone du destinataire.
-	 * @return self
+	 * Set a single recipient for the SMS (replaces any existing recipients).
+	 * @param string|null $mobileNumber The recipient's phone number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setRecipient(?string $mobileNumber): self
 	{
@@ -175,9 +191,9 @@ class SMS
 	}
 
 	/**
-	 * Ajoute une liste de destinataires pour le SMS.
-	 * @param array $listRecipient une liste de numéro de téléphone de plusieurs destinataires.
-	 * @return self
+	 * Add multiple recipients for the SMS.
+	 * @param array $listRecipient Array of phone numbers for multiple recipients
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addListRecipient(array $listRecipient): self
 	{
@@ -189,9 +205,9 @@ class SMS
 	}
 
 	/**
-	 * Définit une liste de destinataires pour le SMS (tous les anciens destinataires précédemment ajoutés seront supprimés).
-	 * @param array $listRecipient une liste de numéro de téléphone de plusieurs destinataires.
-	 * @return self
+	 * Set multiple recipients for the SMS (replaces any existing recipients).
+	 * @param array $listRecipient Array of phone numbers for multiple recipients
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setListRecipient(array $listRecipient): self
 	{
@@ -202,8 +218,9 @@ class SMS
 	}
 
 	/**
-	 * @param string|null $mobileNumber
-	 * @return self
+	 * Add a phone number (alias for addRecipient).
+	 * @param string|null $mobileNumber The recipient's phone number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addPhoneNumber(?string $mobileNumber): self
 	{
@@ -213,8 +230,9 @@ class SMS
 	}
 
 	/**
-	 * @param string|null $mobileNumber
-	 * @return self
+	 * Set a single phone number (alias for setRecipient).
+	 * @param string|null $mobileNumber The recipient's phone number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setPhoneNumber(?string $mobileNumber): self
 	{
@@ -224,8 +242,9 @@ class SMS
 	}
 
 	/**
-	 * @param array $listRecipient
-	 * @return self
+	 * Set multiple phone numbers (alias for setListRecipient).
+	 * @param array $listRecipient Array of phone numbers
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setListPhoneNumber(array $listRecipient): self
 	{
@@ -235,8 +254,9 @@ class SMS
 	}
 
 	/**
-	 * @param array $listRecipient
-	 * @return self
+	 * Add multiple phone numbers (alias for addListRecipient).
+	 * @param array $listRecipient Array of phone numbers
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addListPhoneNumber(array $listRecipient): self
 	{
@@ -247,7 +267,7 @@ class SMS
 
 
 	/**
-	 * Réinitialise la liste des destinataires.
+	 * Clear the list of all recipients.
 	 */
 	public function clearRecipients(): void
 	{
@@ -255,8 +275,9 @@ class SMS
 	}
 
 	/**
-	 * @param string $separator
-	 * @return string
+	 * Format all recipients as a string with a specified separator.
+	 * @param string $separator The separator to use between phone numbers (default: ' ; ')
+	 * @return string The formatted recipients string
 	 */
 	public function formatRecipients(string $separator=' ; '): string
 	{
@@ -267,8 +288,8 @@ class SMS
 	// ========== Message ==========
 
 	/**
-	 * Retourne le texte du SMS à envoyer.
-	 * @return string le texte du SMS.
+	 * Get the SMS text message to send.
+	 * @return string The SMS text content
 	 */
 	public function getText(): string
 	{
@@ -276,15 +297,15 @@ class SMS
 	}
 
 	/**
-	 * Affecte le texte du SMS à envoyer, à partir d'une chaine de caractère.
-	 * Si le nombre de caractères du texte est supérieur au nombre de caractères maximum autorisé dans un SMS, le reste du texte est ignoré.
-	 * @param string $text : texte du SMS.
-	 * @return self
+	 * Set the SMS text message to send from a string.
+	 * If the text length exceeds MESSAGE_NB_CHAR_MAX and truncation is enabled, the text will be truncated.
+	 * @param string $text The SMS text content
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setText(string $text): self
 	{
-		$text = str_replace("’", "'", $text);
-		
+		$text = str_replace("'", "'", $text);
+
 		// $text = addslashes($text);
 		if ($this->isTruncatedText() && mb_strlen($text) > self::MESSAGE_NB_CHAR_MAX) {
 			$this->text = mb_substr($text, 0, self::MESSAGE_NB_CHAR_MAX);
@@ -297,10 +318,10 @@ class SMS
 	}
 
 	/**
-	 * Affecte le texte du SMS à envoyer, à partir d'un fichier texte.
-	 * Cela ne fonctionne que si le fichier existe et si c'est un fichier texte avec du texte.
-	 * @param string $filePath le chemin complet (chemin absolu) vers le fichier texte contenant le texte du SMS.
-	 * @return self
+	 * Set the SMS text message from a text file.
+	 * This only works if the file exists and contains text.
+	 * @param string $filePath The absolute path to the text file containing the SMS text
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTextFromFile(string $filePath): self
 	{
@@ -318,7 +339,8 @@ class SMS
 	}
 
 	/**
-	 * @return bool
+	 * Check if the SMS contains adult content.
+	 * @return bool True if contains adult content, false otherwise
 	 */
 	public function isAdultContent(): bool
 	{
@@ -326,8 +348,9 @@ class SMS
 	}
 
 	/**
-	 * @param bool $isAdultContent
-	 * @return self
+	 * Set whether the SMS contains adult content.
+	 * @param bool $isAdultContent True if adult content, false otherwise
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setAdultContent(bool $isAdultContent=true): self
 	{
@@ -337,7 +360,8 @@ class SMS
 	}
 
 	/**
-	 * @return bool
+	 * Check if text truncation is enabled.
+	 * @return bool True if text will be truncated to fit in one SMS, false otherwise
 	 */
 	public function isTruncatedText(): bool
 	{
@@ -345,8 +369,9 @@ class SMS
 	}
 
 	/**
-	 * @param bool $truncateText
-	 * @return self
+	 * Set whether to truncate the text to fit in a single SMS message.
+	 * @param bool $truncateText True to enable truncation, false to allow multi-part SMS
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTruncateText(bool $truncateText=true): self
 	{
@@ -358,7 +383,8 @@ class SMS
 	// ========== Sending options ==========
 
 	/**
-	 * Get de la date et heure de l'envoi du SMS.
+	 * Get the sending date and time of the SMS.
+	 * @return \DateTime|null The scheduled sending date and time, or null for immediate sending
 	 */
 	public function getSendingDateTime(): ?\DateTime
 	{
@@ -366,9 +392,9 @@ class SMS
 	}
 
 	/**
-	 * Set de la date et heure de l'envoi du SMS.
-	 * @param \DateTime|null $sendingDateTime
-	 * @return self
+	 * Set the sending date and time of the SMS.
+	 * @param \DateTime|null $sendingDateTime The scheduled sending date and time, or null for immediate sending
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSendingDateTime(?\DateTime $sendingDateTime): self
 	{
@@ -383,8 +409,9 @@ class SMS
 	// ========== Format for display ==========
 
 	/**
-	 * @param array $phoneNumberList
-	 * @return array
+	 * Format an array of phone numbers for display in international format.
+	 * @param array $phoneNumberList Array of phone numbers to format
+	 * @return array Array of formatted phone numbers
 	 */
 	public static function formatPhoneNumberList(array $phoneNumberList): array
 	{
@@ -399,12 +426,13 @@ class SMS
 
 
 
-	// ========== private ==========
+	// ========== Private methods ==========
 
 	/**
-	 * Ajoute un destinataire pour le SMS.
-	 * @param string|null $mobileNumber numéro de téléphone du destinataire.
-	 * @return bool
+	 * Add a recipient phone number to the recipients list.
+	 * The phone number is validated and parsed before being added, and duplicates are prevented.
+	 * @param string|null $mobileNumber The recipient's phone number
+	 * @return bool True if the phone number was added successfully, false if invalid or already exists
 	 */
 	private function addRecipientPhoneNumber(?string $mobileNumber): bool
 	{

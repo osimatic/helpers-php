@@ -3,8 +3,10 @@
 namespace Osimatic\Person;
 
 /**
- * Cette classe contient des fonctions relatives au fichier VCard.
- * @package Osimatic\Person
+ * Class VCard
+ * This class provides functionality for creating, reading, and manipulating vCard files.
+ * vCard is a file format standard for electronic business cards supporting contact information exchange.
+ * Supports vCard version 3.0 with properties like names, addresses, phone numbers, emails, and more.
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  * @link https://en.wikipedia.org/wiki/VCard
  */
@@ -14,31 +16,31 @@ class VCard
 	public const string LN = "\r\n";
 
 	/**
-	 * Properties
+	 * Array of vCard properties to be included in the output.
 	 * @var array
 	 */
 	private array $properties = [];
 
 	/**
-	 * Default Charset
+	 * The character encoding for the vCard content.
 	 * @var string
 	 */
 	public string $charset = 'utf-8';
 
 	/**
-	 * definedElements
+	 * Tracks which elements have been defined to prevent duplicates (except for allowed multiples).
 	 * @var array
 	 */
 	private array $definedElements = [];
 
 	/**
-	 * Filename
+	 * The filename to use when saving or downloading the vCard.
 	 * @var string|null
 	 */
 	private ?string $filename = null;
 
 	/**
-	 * Multiple properties for element allowed
+	 * List of elements that can have multiple properties (e.g., multiple email addresses).
 	 * @var array
 	 */
 	private static array $multiplePropertiesForElementAllowed = [
@@ -49,8 +51,10 @@ class VCard
 	];
 
 	/**
-	 * @param PersonInterface $person
-	 * @return self
+	 * Populates the vCard from a PersonInterface object.
+	 * Extracts all relevant person data and adds it to the vCard.
+	 * @param PersonInterface $person The person object to extract data from
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFromPerson(PersonInterface $person): self
 	{
@@ -84,13 +88,15 @@ class VCard
 	}
 
 	/**
-	 * Add name
-	 * @param string $lastName [optional]
-	 * @param string $firstName [optional]
-	 * @param string $additional [optional]
-	 * @param string $prefix [optional]
-	 * @param string $suffix [optional]
-	 * @return self
+	 * Adds the person's name to the vCard.
+	 * Sets both the N (structured name) and FN (formatted name) properties.
+	 * Automatically sets the filename based on the provided name components.
+	 * @param string $lastName The last/family name (optional)
+	 * @param string $firstName The first/given name (optional)
+	 * @param string $additional Additional/middle names (optional)
+	 * @param string $prefix Name prefix (e.g., Mr., Dr.) (optional)
+	 * @param string $suffix Name suffix (e.g., Jr., III) (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addName(
 		string $lastName = '',
@@ -124,9 +130,9 @@ class VCard
 	}
 
 	/**
-	 * Add nickname
-	 * @param string $nickname
-	 * @return self
+	 * Adds a nickname to the vCard.
+	 * @param string $nickname The nickname to add
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addNickname(string $nickname): self
 	{
@@ -139,9 +145,10 @@ class VCard
 	}
 
 	/**
-	 * Add birthday
-	 * @param \DateTime $date
-	 * @return self
+	 * Adds a birthday to the vCard.
+	 * The date is formatted as Y-m-d according to vCard specifications.
+	 * @param \DateTime $date The birth date
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addBirthday(\DateTime $date): self
 	{
@@ -154,16 +161,17 @@ class VCard
 	}
 
 	/**
-	 * Add address
-	 * @param string $name [optional]
-	 * @param string $extended [optional]
-	 * @param string $street [optional]
-	 * @param string $city [optional]
-	 * @param string $region [optional]
-	 * @param string $zip [optional]
-	 * @param string $country [optional]
-	 * @param string $type $type may be DOM | INTL | POSTAL | PARCEL | HOME | WORK or any combination of these: e.g. "WORK,PARCEL,POSTAL" [optional]
-	 * @return self
+	 * Adds a postal address to the vCard.
+	 * Supports various address types (DOM, INTL, POSTAL, PARCEL, HOME, WORK).
+	 * @param string $name The name or PO Box (optional)
+	 * @param string $extended Extended address information (e.g., apartment number) (optional)
+	 * @param string $street The street address (optional)
+	 * @param string $city The city or locality (optional)
+	 * @param string $region The state or region (optional)
+	 * @param string $zip The postal/ZIP code (optional)
+	 * @param string $country The country (optional)
+	 * @param string $type The address type: DOM, INTL, POSTAL, PARCEL, HOME, WORK or combinations (e.g., "WORK,PARCEL,POSTAL") (optional, default: 'HOME')
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addAddress(
 		string $name = '',
@@ -188,9 +196,9 @@ class VCard
 	}
 
 	/**
-	 * Add a location (latitude and longitude)
-	 * @param string $coordinates latitude and longitude
-	 * @return self
+	 * Adds a geographic location (latitude and longitude) to the vCard.
+	 * @param string $coordinates The coordinates in latitude,longitude format (e.g., "37.386013,-122.082932")
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addLocation(string $coordinates): self
 	{
@@ -203,10 +211,11 @@ class VCard
 	}
 
 	/**
-	 * Add email
-	 * @param string $email The e-mail address
-	 * @param string $type The type of the email address. $type may be PREF | WORK | HOME | INTERNET or any combination of these: e.g. "PREF,WORK" [optional]
-	 * @return self
+	 * Adds an email address to the vCard.
+	 * Multiple email addresses can be added with different types.
+	 * @param string $email The email address
+	 * @param string $type The email type: PREF, WORK, HOME, INTERNET or combinations (e.g., "PREF,WORK") (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addEmail(string $email, string $type = ''): self
 	{
@@ -219,10 +228,11 @@ class VCard
 	}
 
 	/**
-	 * Add phone number
-	 * @param string $number
-	 * @param string $type Type may be PREF | WORK | HOME | VOICE | FAX | MSG | CELL | PAGER | BBS | CAR | MODEM | ISDN | VIDEO or any senseful combination, e.g. "PREF,WORK,VOICE" [optional]
-	 * @return self
+	 * Adds a phone number to the vCard.
+	 * Multiple phone numbers can be added with different types.
+	 * @param string $number The phone number
+	 * @param string $type The phone type: PREF, WORK, HOME, VOICE, FAX, MSG, CELL, PAGER, BBS, CAR, MODEM, ISDN, VIDEO or combinations (e.g., "PREF,WORK,VOICE") (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addPhoneNumber(string $number, string $type = ''): self
 	{
@@ -235,10 +245,11 @@ class VCard
 	}
 
 	/**
-	 * Add company
-	 * @param string $organizationName
-	 * @param string $organizationUnits [optional]
-	 * @return self
+	 * Adds a company/organization to the vCard.
+	 * Sets the ORG property and optionally sets the FN property if not already set.
+	 * @param string $organizationName The organization/company name
+	 * @param string $organizationUnits The organizational units/departments (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addCompany(string $organizationName, string $organizationUnits=''): self
 	{
@@ -269,9 +280,9 @@ class VCard
 	}
 
 	/**
-	 * Add role or occupation or business category
-	 * @param string $role The role or occupation or business category for the person.
-	 * @return self
+	 * Adds a role, occupation, or business category to the vCard.
+	 * @param string $role The role, occupation, or business category
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addRole(string $role): self
 	{
@@ -284,9 +295,9 @@ class VCard
 	}
 
 	/**
-	 * Add job title or functional position or function
-	 * @param string $jobTitle The job title or functional position or function for the person.
-	 * @return self
+	 * Adds a job title or functional position to the vCard.
+	 * @param string $jobTitle The job title or functional position
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addJobTitle(string $jobTitle): self
 	{
@@ -299,10 +310,11 @@ class VCard
 	}
 
 	/**
-	 * Add URL
-	 * @param string $url
-	 * @param string $type Type may be WORK | HOME [optional]
-	 * @return self
+	 * Adds a URL to the vCard.
+	 * Multiple URLs can be added with different types.
+	 * @param string $url The URL to add
+	 * @param string $type The URL type: WORK or HOME (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addURL(string $url, string $type = ''): self
 	{
@@ -315,10 +327,11 @@ class VCard
 	}
 
 	/**
-	 * Add Logo
-	 * @param string $url image url or filename
-	 * @param bool $include Include the image in our vcard?
-	 * @return self
+	 * Adds a logo to the vCard.
+	 * The logo can be embedded as base64 or referenced as a URL.
+	 * @param string $url The image URL or file path
+	 * @param bool $include Whether to embed the image as base64 in the vCard (default: false)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addLogo(string $url, bool $include = false): self
 	{
@@ -331,10 +344,11 @@ class VCard
 	}
 
 	/**
-	 * Add Photo
-	 * @param string $url image url or filename
-	 * @param bool $include Include the image in our vcard?
-	 * @return self
+	 * Adds a photo to the vCard.
+	 * The photo can be embedded as base64 or referenced as a URL.
+	 * @param string $url The image URL or file path
+	 * @param bool $include Whether to embed the image as base64 in the vCard (default: false)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addPhoto(string $url, bool $include = false): self
 	{
@@ -347,10 +361,11 @@ class VCard
 	}
 
 	/**
-	 * Add Sound
-	 * @param string $url image url or filename
-	 * @param bool $include Include the image in our vcard?
-	 * @return self
+	 * Adds a sound file to the vCard.
+	 * The sound can be embedded as base64 or referenced as a URL.
+	 * @param string $url The sound file URL or file path
+	 * @param bool $include Whether to embed the sound as base64 in the vCard (default: false)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addSound(string $url, bool $include = false): self
 	{
@@ -363,9 +378,9 @@ class VCard
 	}
 
 	/**
-	 * Add time zone
-	 * @param string $timeZone The time zone of the vCard object.
-	 * @return self
+	 * Adds a time zone to the vCard.
+	 * @param string $timeZone The time zone identifier (e.g., "America/New_York", "+05:00")
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addTimeZone(string $timeZone): self
 	{
@@ -378,9 +393,10 @@ class VCard
 	}
 
 	/**
-	 * Add a value that represents a persistent, globally unique identifier associated with the object
-	 * @param string $uid
-	 * @return self
+	 * Adds a unique identifier (UID) to the vCard.
+	 * The UID is a persistent, globally unique identifier associated with the vCard.
+	 * @param string $uid The unique identifier (typically a UUID)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addUniqueIdentifier(string $uid): self
 	{
@@ -393,9 +409,9 @@ class VCard
 	}
 
 	/**
-	 * Add a URL that can be used to get the latest version of this vCard.
-	 * @param string $source
-	 * @return self
+	 * Adds a source URL that can be used to retrieve the latest version of this vCard.
+	 * @param string $source The URL where the vCard can be retrieved
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addSource(string $source): self
 	{
@@ -408,10 +424,11 @@ class VCard
 	}
 
 	/**
-	 * Add lang
-	 * @param string $key
-	 * @param string $type
-	 * @return self
+	 * Adds a public key to the vCard.
+	 * Can be used for encryption or authentication purposes.
+	 * @param string $key The public key data
+	 * @param string $type The key type (optional)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addPublicKey(string $key, string $type=''): self
 	{
@@ -425,10 +442,9 @@ class VCard
 	}
 
 	/**
-	 * Add lang
-	 *
-	 * @param string $lang
-	 * @return self
+	 * Adds a language preference to the vCard.
+	 * @param string $lang The language code (e.g., "en", "fr", "es")
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addLang(string $lang): self
 	{
@@ -441,9 +457,9 @@ class VCard
 	}
 
 	/**
-	 * Add note
-	 * @param string $note
-	 * @return self
+	 * Adds a note or comment to the vCard.
+	 * @param string $note The note text
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addNote(string $note): self
 	{
@@ -456,8 +472,8 @@ class VCard
 	}
 
 	/**
-	 * Set charset
-	 * @param string $charset
+	 * Sets the character encoding for the vCard content.
+	 * @param string $charset The character set (e.g., "utf-8", "iso-8859-1")
 	 * @return void
 	 */
 	public function setCharset(string $charset): void
@@ -466,8 +482,8 @@ class VCard
 	}
 
 	/**
-	 * Get charset
-	 * @return string
+	 * Gets the current character encoding of the vCard.
+	 * @return string The character set
 	 */
 	public function getCharset(): string
 	{
@@ -475,8 +491,10 @@ class VCard
 	}
 
 	/**
-	 * Save to a file
-	 * @param string $path
+	 * Saves the vCard content to a file.
+	 * Creates the file and any necessary parent directories.
+	 * @param string $path The file path where the vCard should be saved
+	 * @return void
 	 */
 	public function build(string $path): void
 	{
@@ -486,8 +504,10 @@ class VCard
 	}
 
 	/**
-	 * Download a vcard or vcal file to the browser.
-	 * @param string|null $filename
+	 * Triggers a browser download of the vCard file.
+	 * Sets appropriate headers to prompt the user to download the vCard.
+	 * @param string|null $filename The filename for the download (default: 'vcard.vcf')
+	 * @return void
 	 */
 	public function download(?string $filename=null): void
 	{
@@ -503,8 +523,9 @@ class VCard
 	}
 
 	/**
-	 * Get output as string
-	 * @return string
+	 * Gets the complete vCard content as a string.
+	 * Generates the vCard file content in version 3.0 format with all added properties.
+	 * @return string The complete vCard content
 	 */
 	public function getContent(): string
 	{
@@ -531,10 +552,12 @@ class VCard
 
 
 	/**
-	 * Set filename
-	 * @param  mixed  $value
-	 * @param  bool   $overwrite [optional] Default overwrite is true
-	 * @param  string $separator [optional] Default separator is an underscore '_'
+	 * Sets the filename to use when saving or downloading the vCard.
+	 * Can accept a string or array of values which will be joined with a separator.
+	 * The filename is automatically URL-encoded and sanitized.
+	 * @param mixed $value The filename or array of filename components
+	 * @param bool $overwrite Whether to overwrite the existing filename or append to it (default: true)
+	 * @param string $separator The separator to use when joining array values (default: '_')
 	 * @return void
 	 */
 	public function setFilename(mixed $value, bool $overwrite = true, string $separator = '_'): void
@@ -558,8 +581,8 @@ class VCard
 	}
 
 	/**
-	 * Get file extension
-	 * @return string
+	 * Gets the vCard file extension.
+	 * @return string The file extension ('.vcf')
 	 */
 	public function getFileExtension(): string
 	{
@@ -567,8 +590,10 @@ class VCard
 	}
 
 	/**
-	 * @param string $filename
-	 * @return array|null
+	 * Parses a vCard from a file.
+	 * Reads the file and extracts vCard data into structured arrays.
+	 * @param string $filename The path to the vCard file
+	 * @return array|null Array of parsed vCard objects or null if file cannot be read
 	 */
 	public function parseFromFile(string $filename): ?array
 	{
@@ -579,10 +604,11 @@ class VCard
 	}
 
 	/**
-	 * Start the parsing process.
-	 * This method will populate the data object.
-	 * @param string $content
-	 * @return array|null
+	 * Parses vCard content from a string.
+	 * Extracts and decodes vCard properties into structured data arrays.
+	 * Supports multiple vCards in a single string.
+	 * @param string $content The vCard content to parse
+	 * @return array|null Array of parsed vCard objects or null on failure
 	 */
 	public function parse(string $content): ?array
 	{
@@ -704,14 +730,16 @@ class VCard
 		return $vcardObjects;
 	}
 
-	// ---------- private ----------
+	// ---------- Private Methods ----------
 
 	/**
-	 * Add a photo or logo (depending on property name)
-	 * @param string $property LOGO|PHOTO|SOUND
-	 * @param string $url image url or filename
-	 * @param bool $include Do we include the image in our vcard or not?
-	 * @return bool
+	 * Adds a media file (photo, logo, or sound) to the vCard.
+	 * The media can be embedded as base64 or referenced as a URL.
+	 * Handles MIME type detection and appropriate encoding.
+	 * @param string $property The property type: LOGO, PHOTO, or SOUND
+	 * @param string $url The media URL or file path
+	 * @param bool $include Whether to embed the media as base64 in the vCard (default: true)
+	 * @return bool True on success, false on failure
 	 */
 	private function addMedia(string $property, string $url, bool $include = true): bool
 	{
@@ -780,10 +808,11 @@ class VCard
 	}
 
 	/**
-	 * Fold a line according to RFC2425 section 5.8.1.
+	 * Folds a line according to RFC2425 section 5.8.1.
+	 * Splits long lines into chunks to comply with vCard line length restrictions.
 	 * @link http://tools.ietf.org/html/rfc2425#section-5.8.1
-	 * @param  string $text
-	 * @return array
+	 * @param string $text The text to fold
+	 * @return array Array of folded line segments
 	 */
 	private function fold(string $text): array
 	{
@@ -796,8 +825,9 @@ class VCard
 	}
 
 	/**
-	 * Get charset string
-	 * @return string
+	 * Gets the charset string for vCard properties.
+	 * Returns the CHARSET parameter if the charset is UTF-8.
+	 * @return string The charset parameter string or empty string
 	 */
 	private function getCharsetString(): string
 	{
@@ -809,8 +839,8 @@ class VCard
 	}
 
 	/**
-	 * Get properties
-	 * @return array
+	 * Gets all vCard properties.
+	 * @return array Array of properties with 'key' and 'value' elements
 	 */
 	private function getProperties(): array
 	{
@@ -818,9 +848,9 @@ class VCard
 	}
 
 	/**
-	 * Has property
-	 * @param  string $key
-	 * @return bool
+	 * Checks if a specific property has been set.
+	 * @param string $key The property key to check
+	 * @return bool True if property exists with a non-empty value, false otherwise
 	 */
 	private function hasProperty(string $key): bool
 	{
@@ -834,11 +864,11 @@ class VCard
 	}
 
 	/**
-	 * Set property
-	 *
-	 * @param  string $element The element name you want to set, f.e.: name, email, phoneNumber,…
-	 * @param  string $key
-	 * @param  string $value
+	 * Sets a vCard property.
+	 * Prevents duplicate properties unless they are in the allowed list.
+	 * @param string $element The element name (e.g., name, email, phoneNumber)
+	 * @param string $key The vCard property key
+	 * @param string $value The property value
 	 * @return void
 	 */
 	private function setProperty(string $element, string $key, string $value): void
@@ -856,8 +886,10 @@ class VCard
 	}
 
 	/**
-	 * @param string $value
-	 * @return object
+	 * Parses a name property from vCard format.
+	 * Extracts structured name components (lastname, firstname, additional, prefix, suffix).
+	 * @param string $value The semicolon-separated name value
+	 * @return object Object containing name components
 	 */
 	private function parseName(string $value): object
 	{
@@ -877,6 +909,11 @@ class VCard
 		];
 	}
 
+	/**
+	 * Parses a birthday value into a DateTime object.
+	 * @param string $value The birthday value from the vCard
+	 * @return \DateTime|null DateTime object or null if parsing fails
+	 */
 	private function parseBirthday($value): ?\DateTime
 	{
 		try {
@@ -887,8 +924,10 @@ class VCard
 	}
 
 	/**
-	 * @param string $value
-	 * @return object
+	 * Parses an address property from vCard format.
+	 * Extracts structured address components (name, extended, street, city, region, zip, country).
+	 * @param string $value The semicolon-separated address value
+	 * @return object Object containing address components
 	 */
 	private function parseAddress(string $value): object
 	{

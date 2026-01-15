@@ -6,239 +6,260 @@ use Osimatic\Location\PostalAddressInterface;
 
 /**
  * Interface OrganizationInterface
- * @package Osimatic\Organization
+ * Defines the contract for organization entities with properties following Schema.org standards
  */
 interface OrganizationInterface
 {
 
 	/**
-	 * The identifier property represents any kind of identifier.
-	 * @return string|null
+	 * Gets the identifier property representing any kind of identifier
+	 * @return string|null the organization identifier
 	 */
 	public function getIdentifier(): ?string;
 
 	/**
-	 * @param string|null $identifier
+	 * Sets the organization identifier
+	 * @param string|null $identifier the organization identifier
 	 */
 	public function setIdentifier(?string $identifier): void;
 
 	/**
-	 * The name of the organization.
-	 * @return string|null
+	 * Gets the name of the organization
+	 * @return string|null the organization name
 	 */
 	public function getName(): ?string;
 
 	/**
-	 * @param string|null $name
+	 * Sets the organization name
+	 * @param string|null $name the organization name
 	 */
 	public function setName(?string $name): void;
 
 	/**
-	 * The official name of the organization, e.g. the registered company name.
-	 * @return string|null
+	 * Gets the official legal name of the organization (e.g., registered company name)
+	 * @return string|null the legal name
 	 */
 	public function getLegalName(): ?string;
 
 	/**
-	 * @param string|null $legalName
+	 * Sets the legal name of the organization
+	 * @param string|null $legalName the legal name
 	 */
 	public function setLegalName(?string $legalName): void;
 
 	/**
-	 * A description of the organization.
-	 * @return string|null
+	 * Gets the description of the organization
+	 * @return string|null the description
 	 */
 	public function getDescription(): ?string;
 
 	/**
-	 * @param string|null $description
+	 * Sets the description of the organization
+	 * @param string|null $description the description
 	 */
 	public function setDescription(?string $description): void;
 
 	/**
-	 * An organization identifier that uniquely identifies a legal entity as defined in ISO 17442.
-	 * @return string|null
+	 * Gets the LEI code (Legal Entity Identifier as defined in ISO 17442)
+	 * @return string|null the LEI code
 	 */
 	public function getLeiCode(): ?string;
 
 	/**
-	 * @param string|null $leiCode
+	 * Sets the LEI code
+	 * @param string|null $leiCode the LEI code
 	 */
 	public function setLeiCode(?string $leiCode): void;
 
 	/**
-	 * The International Standard of Industrial Classification of All Economic Activities (ISIC), Revision 4 code.
-	 * @return string|null
+	 * Gets the ISIC v4 code (International Standard Industrial Classification, Revision 4)
+	 * @return string|null the ISIC v4 code
 	 */
 	public function getIsicV4(): ?string;
 
 	/**
-	 * @param string|null $isicV4
+	 * Sets the ISIC v4 code
+	 * @param string|null $isicV4 the ISIC v4 code
 	 */
 	public function setIsicV4(?string $isicV4): void;
 
 	/**
-	 * A relationship between an organization and a department of that organization, also described as an organization (allowing different urls, logos, opening hours).
-	 * @return OrganizationInterface|null
+	 * Gets a department of this organization (allowing different URLs, logos, opening hours)
+	 * @return OrganizationInterface|null the department organization
 	 */
 	public function getDepartment(): ?OrganizationInterface;
 
 	/**
-	 * @param OrganizationInterface|null $department
+	 * Sets the department organization
+	 * @param OrganizationInterface|null $department the department organization
 	 */
 	public function setDepartment(?OrganizationInterface $department): void;
 
 	/**
-	 * Physical address of the organization.
-	 * @return PostalAddressInterface|null
+	 * Gets the physical address of the organization
+	 * @return PostalAddressInterface|null the postal address
 	 */
 	public function getAddress(): ?PostalAddressInterface;
 
 	/**
-	 * @param PostalAddressInterface|null $address
+	 * Sets the physical address
+	 * @param PostalAddressInterface|null $address the postal address
 	 */
 	public function setAddress(?PostalAddressInterface $address): void;
 
 	/**
-	 * Telephone number of the organization.
-	 * @return string|null
+	 * Gets the telephone number of the organization
+	 * @return string|null the phone number
 	 */
 	public function getPhoneNumber(): ?string;
 
 	/**
-	 * @param string|null $phoneNumber
+	 * Sets the telephone number
+	 * @param string|null $phoneNumber the phone number
 	 */
 	public function setPhoneNumber(?string $phoneNumber): void;
 
 	/**
-	 * 	URL of the organization.
-	 * @return string|null
+	 * Gets the URL of the organization
+	 * @return string|null the URL
 	 */
 	public function getUrl(): ?string;
 
 	/**
-	 * @param string|null $url
+	 * Sets the URL
+	 * @param string|null $url the URL
 	 */
 	public function setUrl(?string $url): void;
 
 	/**
-	 * An associated logo.
-	 * @return string|null
+	 * Gets the associated logo URL or path
+	 * @return string|null the logo URL or path
 	 */
 	public function getLogo(): ?string;
 
 	/**
-	 * @param string|null $logo
+	 * Sets the logo URL or path
+	 * @param string|null $logo the logo URL or path
 	 */
 	public function setLogo(?string $logo): void;
 
 	/**
-	 * Email address.
-	 * @return string|null
+	 * Gets the email address of the organization
+	 * @return string|null the email address
 	 */
 	public function getEmail(): ?string;
 
 	/**
-	 * @param string|null $email
+	 * Sets the email address
+	 * @param string|null $email the email address
 	 */
 	public function setEmail(?string $email): void;
 
 	/**
-	 * The number of employees in an organization e.g. business.
-	 * @return int|null
+	 * Gets the number of employees in the organization
+	 * @return int|null the number of employees
 	 */
 	public function getNumberOfEmployees(): ?int;
 
 	/**
-	 * @param int|null $numberOfEmployees
+	 * Sets the number of employees
+	 * @param int|null $numberOfEmployees the number of employees
 	 */
 	public function setNumberOfEmployees(?int $numberOfEmployees): void;
 
 	/**
-	 * The Value-added Tax ID of the organization or person.
-	 * @return string|null
+	 * Gets the Value-Added Tax ID (VAT ID) of the organization
+	 * @return string|null the VAT ID
 	 */
 	public function getVatID(): ?string;
 
 	/**
-	 * @param string|null $vatID
+	 * Sets the VAT ID
+	 * @param string|null $vatID the VAT ID
 	 */
 	public function setVatID(?string $vatID): void;
 
 	/**
-	 * The legal form of the organization.
-	 * @return string|null
+	 * Gets the legal form of the organization (e.g., LLC, Corporation, etc.)
+	 * @return string|null the legal form
 	 */
 	public function getLegalForm(): ?string;
 
 	/**
-	 * @param string|null $legalForm
+	 * Sets the legal form
+	 * @param string|null $legalForm the legal form
 	 */
 	public function setLegalForm(?string $legalForm): void;
 
 	/**
-	 * The capital amount of the organization.
-	 * @return float|null
+	 * Gets the capital amount of the organization
+	 * @return float|null the capital amount
 	 */
 	public function getCapital(): ?float;
 
 	/**
-	 * @param float|null $capital
+	 * Sets the capital amount
+	 * @param float|null $capital the capital amount
 	 */
 	public function setCapital(?float $capital): void;
 
 	/**
-	 * The registration number of the organization.
-	 * @return string|null
+	 * Gets the registration number of the organization
+	 * @return string|null the registration number
 	 */
 	public function getRegistrationNumber(): ?string;
 
 	/**
-	 * @param string|null $registrationNumber
+	 * Sets the registration number
+	 * @param string|null $registrationNumber the registration number
 	 */
 	public function setRegistrationNumber(?string $registrationNumber): void;
 
 	/**
-	 * The city where the organization was registered.
-	 * @return string|null
+	 * Gets the city where the organization was registered
+	 * @return string|null the registration city
 	 */
 	public function getRegistrationCity(): ?string;
 
 	/**
-	 * @param string|null $registrationCity
+	 * Sets the registration city
+	 * @param string|null $registrationCity the registration city
 	 */
 	public function setRegistrationCity(?string $registrationCity): void;
 
 	/**
-	 * The country where the organization was registered.
-	 * @return string|null
+	 * Gets the country where the organization was registered
+	 * @return string|null the registration country
 	 */
 	public function getRegistrationCountry(): ?string;
 
 	/**
-	 * @param string|null $registrationCountry
+	 * Sets the registration country
+	 * @param string|null $registrationCountry the registration country
 	 */
 	public function setRegistrationCountry(?string $registrationCountry): void;
 
 	/**
-	 * The date that this organization was founded.
-	 * @return \DateTime|null
+	 * Gets the date this organization was founded
+	 * @return \DateTime|null the founding date
 	 */
 	public function getFoundingDate(): ?\DateTime;
 
 	/**
-	 * @param \DateTime|null $foundingDate
+	 * Sets the founding date
+	 * @param \DateTime|null $foundingDate the founding date
 	 */
 	public function setFoundingDate(?\DateTime $foundingDate): void;
 
 	/**
-	 * The date that this organization was dissolved.
-	 * @return \DateTime|null
+	 * Gets the date this organization was dissolved
+	 * @return \DateTime|null the dissolution date
 	 */
 	public function getDissolutionDate(): ?\DateTime;
 
 	/**
-	 * @param \DateTime|null $dissolutionDate
+	 * Sets the dissolution date
+	 * @param \DateTime|null $dissolutionDate the dissolution date
 	 */
 	public function setDissolutionDate(?\DateTime $dissolutionDate): void;
 

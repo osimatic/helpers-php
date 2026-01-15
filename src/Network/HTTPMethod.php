@@ -2,6 +2,10 @@
 
 namespace Osimatic\Network;
 
+/**
+ * Enum HTTPMethod
+ * Represents HTTP request methods
+ */
 enum HTTPMethod: string
 {
 	case GET = 'GET';

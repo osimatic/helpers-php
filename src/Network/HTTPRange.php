@@ -5,13 +5,18 @@ namespace Osimatic\Network;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class HTTPRange
+ * Parses HTTP Range headers for partial content requests (RFC 7233)
+ */
 class HTTPRange
 {
 	/**
-	 * @param Request $request
-	 * @param int|null $totalSize
-	 * @param LoggerInterface|null $logger
-	 * @return array|null
+	 * Extracts and parses the Range header from an HTTP request
+	 * @param Request $request the HTTP request containing the Range header
+	 * @param int|null $totalSize the total size of the resource (optional)
+	 * @param LoggerInterface|null $logger optional logger for error messages
+	 * @return array|null array with [start, end] byte positions, or null if no valid range
 	 */
 	public static function getRangeFromRequest(Request $request, ?int $totalSize=null, ?LoggerInterface $logger=null): ?array
 	{

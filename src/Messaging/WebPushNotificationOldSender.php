@@ -5,26 +5,38 @@ namespace Osimatic\Messaging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Legacy web push notification sender implementation.
+ * This class provides an older implementation of web push notification sending with manual VAPID handling and encryption.
+ * For new implementations, consider using WebPushNotificationSender instead.
+ */
 class WebPushNotificationOldSender
 {
+	/**
+	 * Maximum payload length for compatibility with all browsers and push services.
+	 */
 	const int MAX_COMPATIBILITY_PAYLOAD_LENGTH = 3052;
 
 	/**
+	 * The PSR-3 logger instance for debugging.
 	 * @var LoggerInterface
 	 */
 	private LoggerInterface $logger;
 
 	/**
+	 * VAPID authentication configuration array.
 	 * @var array
 	 */
 	private array $vapid = [];
 
 	/**
+	 * The web push notification subscription containing endpoint and encryption keys.
 	 * @var WebPushNotificationSubscriptionInterface
 	 */
 	private WebPushNotificationSubscriptionInterface $subscription;
 
 	/**
+	 * The web push notification payload to send.
 	 * @var WebPushNotificationPayload
 	 */
 	private WebPushNotificationPayload $webPushNotificationPayload;
@@ -312,7 +324,6 @@ class WebPushNotificationOldSender
 	 * Get headers for previous encrypted payload.
 	 * Already existing headers (e.g. the VAPID-signature) can be passed through the input param
 	 * and will be merged with the additional headers for the encryption
-	 *
 	 * @return array|null
 	 */
 	private function getHeaders() : ?array
@@ -458,7 +469,6 @@ class WebPushNotificationOldSender
 	 * See section 4.2 of
 	 * {@link https://tools.ietf.org/html/draft-ietf-httpbis-encryption-encoding-00}
 	 * From {@link https://github.com/GoogleChrome/push-encryption-node/blob/master/src/encrypt.js}.
-	 *
 	 * @return null|string
 	 */
 	private function createContext() : ?string
@@ -483,7 +493,6 @@ class WebPushNotificationOldSender
 	 * Returns an info record. See sections 3.2 and 3.3 of
 	 * {@link https://tools.ietf.org/html/draft-ietf-httpbis-encryption-encoding-00}
 	 * From {@link https://github.com/GoogleChrome/push-encryption-node/blob/master/src/encrypt.js}.
-	 *
 	 * @param string $strType The type of the info record
 	 * @param string|null $strContext The context for the record
 	 * @return string
@@ -525,12 +534,8 @@ class WebPushNotificationOldSender
 
 	/**
 	 * pad the payload.
-	 * Before we encrypt our payload, we need to define how much padding we wish toadd to
-	 * the front of the payload. The reason we’d want to add padding is that it prevents
-	 * the risk of eavesdroppers being able to determine “types” of messagesbased on the
-	 * payload size. We must add two bytes of padding to indicate the length of any
-	 * additionalpadding.
-	 *
+	 * Before we encrypt our payload, we need to define how much padding we wish toadd to the front of the payload.
+	 * The reason we’d want to add padding is that it prevents the risk of eavesdroppers being able to determine “types” of messagesbased on the payload size. We must add two bytes of padding to indicate the length of any additionalpadding.
 	 * @param string $strPayload
 	 * @param int $iMaxLengthToPad
 	 * @return string
@@ -552,22 +557,17 @@ class WebPushNotificationOldSender
 
 	/**
 	 * HMAC-based Extract-and-Expand Key Derivation Function (HKDF).
-	 *
 	 * This is used to derive a secure encryption key from a mostly-secure shared
 	 * secret.
-	 *
 	 * This is a partial implementation of HKDF tailored to our specific purposes.
 	 * In particular, for us the value of N will always be 1, and thus T always
 	 * equals HMAC-Hash(PRK, info | 0x01).
-	 *
 	 * See {@link https://www.rfc-editor.org/rfc/rfc5869.txt}
 	 * From {@link https://github.com/GoogleChrome/push-encryption-node/blob/master/src/encrypt.js}
-	 *
 	 * @param string $salt   A non-secret random value
 	 * @param string $ikm    Input keying material
 	 * @param string $info   Application-specific context
 	 * @param int    $length The length (in bytes) of the required output key
-	 *
 	 * @return string
 	 */
 	private static function hkdf(string $salt, string $ikm, string $info, int $length) : string

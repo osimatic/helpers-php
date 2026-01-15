@@ -157,7 +157,6 @@ class Revolut
 	 * @param string $requestUrl
 	 * @param array $payload
 	 * @param HTTPMethod $httpMethod
-	 *
 	 * @return RevolutResponse|null
 	 */
 	private function doRequest(string $requestUrl, array $payload, HTTPMethod $httpMethod): ?RevolutResponse

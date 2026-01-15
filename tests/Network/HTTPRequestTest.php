@@ -317,7 +317,7 @@ final class HTTPRequestTest extends TestCase
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects($this->once())
 			->method('error')
-			->with($this->stringContains('Erreur cURL request'));
+			->with($this->stringContains('cURL request error'));
 
 		$result = HTTPRequest::execute(
 			HTTPMethod::GET,

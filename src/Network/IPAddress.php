@@ -6,8 +6,15 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class IPAddress
+ * Provides utilities for IP address validation, parsing, and range checking
+ */
 class IPAddress
 {
+	/**
+	 * @param LoggerInterface $logger
+	 */
 	public function __construct(
 		private LoggerInterface $logger=new NullLogger(),
 	) {}
@@ -23,43 +30,43 @@ class IPAddress
 		return $this;
 	}
 
-	// ========== Vérification ==========
+	// ========== Validation ==========
 
 	/**
-	 * Vérifie la syntaxe d'une adresse IP V4
-	 * @param string $adresseIp l'adresse IP à vérifier
-	 * @return boolean true si l'adresse IP est syntaxiquement correcte, false sinon
+	 * Checks the syntax of an IPv4 address
+	 * @param string $ipAddress the IP address to check
+	 * @return boolean true if the IP address is syntactically correct, false otherwise
 	 */
-	public static function check(string $adresseIp): bool
+	public static function check(string $ipAddress): bool
 	{
-		return self::checkIpV4($adresseIp);
+		return self::checkIpV4($ipAddress);
 	}
 
 	/**
-	 * Vérifie la syntaxe d'une adresse IP V4
-	 * @param string $adresseIp l'adresse IP à vérifier
-	 * @return boolean true si l'adresse IP est syntaxiquement correcte, false sinon
+	 * Checks the syntax of an IPv4 address
+	 * @param string $ipAddress the IP address to check
+	 * @return boolean true if the IP address is syntactically correct, false otherwise
 	 */
-	public static function checkIpV4(string $adresseIp): bool
+	public static function checkIpV4(string $ipAddress): bool
 	{
-		return filter_var($adresseIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+		return filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
 	}
 
 	/**
-	 * Vérifie la syntaxe d'une adresse IP V6
-	 * @param string $adresseIp l'adresse IP à vérifier
-	 * @return boolean true si l'adresse IP est syntaxiquement correcte, false sinon
+	 * Checks the syntax of an IPv6 address
+	 * @param string $ipAddress the IP address to check
+	 * @return boolean true if the IP address is syntactically correct, false otherwise
 	 */
-	public static function checkIpV6(string $adresseIp): bool
+	public static function checkIpV6(string $ipAddress): bool
 	{
-		return filter_var($adresseIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
+		return filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
 	}
 
 	/**
-	 * Vérifie la syntaxe d'une page d'adresse IP V4
-	 * @param string $ipAddressRange
-	 * @param string $rangeSeparator
-	 * @return bool
+	 * Checks the syntax of an IPv4 address range
+	 * @param string $ipAddressRange the IP address range in format "start-end"
+	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
+	 * @return bool true if both start and end IPs are valid IPv4 addresses, false otherwise
 	 */
 	public static function checkRange(string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
@@ -72,10 +79,10 @@ class IPAddress
 	}
 
 	/**
-	 * Vérifie la syntaxe d'une page d'adresse IP V6
-	 * @param string $ipAddressRange
-	 * @param string $rangeSeparator
-	 * @return bool
+	 * Checks the syntax of an IPv6 address range
+	 * @param string $ipAddressRange the IP address range in format "start-end"
+	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
+	 * @return bool true if both start and end IPs are valid IPv6 addresses, false otherwise
 	 */
 	public static function checkRangeOfIpV6(string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
@@ -87,28 +94,30 @@ class IPAddress
 		return self::checkIpV6(trim($rangeStartIp)) && self::checkIpV6(trim($rangeEndIp));
 	}
 
-	// ========== Infos sur adresses IP ==========
+	// ========== IP Address Information ==========
 
 	/**
-	 * @param Request $request
-	 * @return string
+	 * Extracts the client IP address from an HTTP request
+	 * @param Request $request the HTTP request
+	 * @return string the client IP address, empty string if not found
 	 */
 	public function getFromRequest(Request $request): string
 	{
 		$ip = $request->getClientIp();
 		if (empty($ip) || 'unknown' === $ip) {
-			return $_SERVER['REMOTE_ADDR'];
+			return $_SERVER['REMOTE_ADDR'] ?? '';
 		}
 		return $ip;
 	}
 
-	// ========== Plages d'adresses IP ==========
+	// ========== IP Address Ranges ==========
 
 	/**
-	 * @param string $ipAddress
-	 * @param string $ipAddressRange
-	 * @param string $rangeSeparator
-	 * @return bool
+	 * Checks if an IP address is within a specified IP address range
+	 * @param string $ipAddress the IP address to check
+	 * @param string $ipAddressRange the IP address range in format "start-end"
+	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
+	 * @return bool true if the IP is within the range, false otherwise
 	 */
 	public static function isInRangeOfIpAddressRange(string $ipAddress, string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
@@ -120,10 +129,11 @@ class IPAddress
 	}
 
 	/**
-	 * @param string $ipAddress
-	 * @param string $ipAddressRangeBegin
-	 * @param string $ipAddressRangeEnd
-	 * @return bool
+	 * Checks if an IP address is between two IP addresses
+	 * @param string $ipAddress the IP address to check
+	 * @param string $ipAddressRangeBegin the start IP address of the range
+	 * @param string $ipAddressRangeEnd the end IP address of the range
+	 * @return bool true if the IP is within the range, false otherwise
 	 */
 	public static function isInRangeOfIpAddresses(string $ipAddress, string $ipAddressRangeBegin, string $ipAddressRangeEnd): bool
 	{
@@ -134,9 +144,10 @@ class IPAddress
 	}
 
 	/**
-	 * @param string $ipAddress
-	 * @param string $ipAddressCompare
-	 * @return bool
+	 * Checks if an IP address corresponds to a pattern (exact match or wildcard prefix with %)
+	 * @param string $ipAddress the IP address to check
+	 * @param string $ipAddressCompare the IP address pattern to compare (e.g., "192.168.%" for prefix matching)
+	 * @return bool true if the IP matches the pattern, false otherwise
 	 */
 	public static function correspondToIpAddress(string $ipAddress, string $ipAddressCompare): bool
 	{
@@ -145,8 +156,8 @@ class IPAddress
 		}
 
 		if (str_ends_with($ipAddressCompare, '%')) {
-			$debutAdresseIp = substr($ipAddressCompare, 0, -1);
-			if (str_starts_with($ipAddress, $debutAdresseIp)) {
+			$ipAddressPrefix = substr($ipAddressCompare, 0, -1);
+			if (str_starts_with($ipAddress, $ipAddressPrefix)) {
 				return true;
 			}
 		}
@@ -154,28 +165,39 @@ class IPAddress
 		return false;
 	}
 
-	// ========== Plages d'adresses IP (notation CIDR) ==========
+	// ========== IP Address Ranges (CIDR notation) ==========
 
 	/**
-	 * @param string $ip
-	 * @param string $range
-	 * @return bool
+	 * Checks if an IP address is within a CIDR notation range
+	 * @param string $ip the IP address to check
+	 * @param string $range the CIDR range (e.g., "192.168.1.0/24")
+	 * @return bool true if the IP is within the CIDR range, false otherwise
 	 */
 	public static function isInRangeOfIpAddressesCidr(string $ip, string $range): bool
 	{
-		[$subnet, $bits] = explode('/', $range);
+		if (!str_contains($range, '/')) {
+			return false;
+		}
+
+		[$subnet, $bits] = explode('/', $range, 2);
 		$intIp = ip2long($ip);
 		$subnet = ip2long($subnet);
-		$mask = -1 << (32 - $bits);
-		$subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+		$mask = -1 << (32 - (int) $bits);
+		$subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 		return ($intIp & $mask) === $subnet;
 	}
 
+	/**
+	 * Checks if an IP address is in a list of IP addresses, ranges, or hostnames
+	 * @param string $ipAddressToCheck the IP address to check
+	 * @param array $ipAddressList array of IP addresses, IP ranges, or DNS hostnames
+	 * @return bool true if the IP is found in the list, false otherwise
+	 */
 	public static function isIpAddressInListOfIpAddress(string $ipAddressToCheck, array $ipAddressList): bool
 	{
 		foreach ($ipAddressList as $ipAddress) {
 			if (self::checkRange($ipAddress)) {
-				// C'est une plage d'IP
+				// It's an IP range
 				if (self::isInRangeOfIpAddressRange($ipAddressToCheck, $ipAddress)) {
 					return true;
 				}
@@ -183,7 +205,7 @@ class IPAddress
 			}
 
 			if (!filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-				// c'est un DNS
+				// It's a DNS name
 				$ipAddress = gethostbyname($ipAddress);
 			}
 
@@ -204,9 +226,10 @@ class IPAddress
 	// deprecated
 
 	/**
+	 * Checks if an IP address is using a VPN (deprecated - use VPNAPI or Incolumitas directly)
 	 * @deprecated
-	 * @param string $ipAddress
-	 * @return bool
+	 * @param string $ipAddress the IP address to check
+	 * @return bool true if VPN detected, false otherwise
 	 */
 	public function isVpn(string $ipAddress): bool
 	{
