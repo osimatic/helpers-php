@@ -5,18 +5,33 @@ namespace Osimatic\Media;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class ImageResizer
+ * Provides intelligent image resizing capabilities with automatic sharpening, cropping, and transparency handling.
+ * Supports JPG, PNG, and GIF formats with optimized quality settings.
+ * Based on Smart Image Resizer by Joe Lencioni (http://shiftingpixel.com)
+ */
 class ImageResizer
 {
+	private const int MAX_DIMENSION_FALLBACK = 99999999;
+	private const int DEFAULT_QUALITY = 90;
+	private const int SHARPENING_CONSTANT_A = 52;
+	private const float SHARPENING_CONSTANT_B = -0.27810650887573124;
+	private const float SHARPENING_CONSTANT_C = 0.00047337278106508946;
+	private const float SHARPENING_SCALE_FACTOR = 750.0;
+
 	/**
-	 * @param LoggerInterface $logger
+	 * Constructor.
+	 * @param LoggerInterface $logger The logger instance for tracking operations
 	 */
 	public function __construct(
 		private LoggerInterface $logger=new NullLogger(),
 	) {}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Set the logger instance.
+	 * @param LoggerInterface $logger The logger instance to use
+	 * @return self Returns the current instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -26,17 +41,19 @@ class ImageResizer
 	}
 
 	/**
-	 * Resizes images, intelligently sharpens, crops based on width:height ratios, color fills transparent GIFs and PNGs, and caches variations for optimal performance
-	 * code from Smart Image Resizer 1.4.1
+	 * Resizes images with intelligent sharpening, aspect ratio cropping, and transparency handling.
+	 * Supports JPG, PNG, and GIF formats with automatic format conversion for GIFs.
+	 * The image is replaced in place at the original path.
+	 * Code from Smart Image Resizer 1.4.1.
 	 * @author Joe Lencioni (http://shiftingpixel.com)
 	 * @see http://veryraw.com/history/2005/03/image-resizing-with-php/
-	 * @param string $imagePath Le chemin vers l'image à redimensionner
-	 * @param int $maxWidth maximum width of final image in pixels, 0 pour la même largeur que l'original (false par défaut)
-	 * @param int $maxHeight maximum height of final image in pixels, 0 pour la même hauteur que l'original (false par défaut)
-	 * @param string|null $color background hex color for filling transparent PNGs, without # (default null)
-	 * @param int|null $quality quality of output image, between 0 and 100 (default null)
-	 * @param string|null $ratio ratio of width to height to crop final image (e.g. 1:1 or 3:2), false pour ne pas faire de recadrage (false par défaut)
-	 * @return bool
+	 * @param string $imagePath The path to the image to resize
+	 * @param int $maxWidth Maximum width of final image in pixels, 0 to keep original width (default 0)
+	 * @param int $maxHeight Maximum height of final image in pixels, 0 to keep original height (default 0)
+	 * @param int|null $quality Quality of output image, between 0 and 100 (default null, will use 90)
+	 * @param string|null $color Background hex color for filling transparent PNGs, without # (default null)
+	 * @param string|null $ratio Ratio of width to height to crop final image (e.g. 1:1 or 3:2), null to skip cropping (default null)
+	 * @return bool True if the image was resized successfully, false otherwise
 	 */
 	public function resize(string $imagePath, int $maxWidth=0, int $maxHeight=0, ?int $quality=null, ?string $color=null, ?string $ratio=null): bool
 	{
@@ -60,10 +77,10 @@ class ImageResizer
 		// If either a max width or max height are not specified, we default to something large so the unspecified dimension isn't a constraint on our resized image.
 		// If neither are specified but the color is, we aren't going to be resizing at all, just coloring.
 		if (0 === $maxWidth && 0 !== $maxHeight) {
-			$maxWidth	= 99999999999999;
+			$maxWidth	= self::MAX_DIMENSION_FALLBACK;
 		}
 		elseif (0 !== $maxWidth && 0 === $maxHeight) {
-			$maxHeight	= 99999999999999;
+			$maxHeight	= self::MAX_DIMENSION_FALLBACK;
 		}
 		// elseif ($color && !$maxWidth && !$maxHeight) {
 		elseif (0 === $maxWidth && 0 === $maxHeight) {
@@ -75,7 +92,7 @@ class ImageResizer
 		// if ((!$maxWidth && !$maxHeight) || (!$color && $maxWidth >= $width && $maxHeight >= $height)) {
 		if (!$color && !$ratio && $maxWidth >= $width && $maxHeight >= $height) {
 			$this->logger->error('No resize needed.');
-			// afficher éventuellement l'image
+			// possibly display the image
 			return true;
 		}
 
@@ -124,7 +141,7 @@ class ImageResizer
 
 		// Determine the quality of the output image
 		if ($quality === null) {
-			$quality = 90;
+			$quality = self::DEFAULT_QUALITY;
 		}
 
 		// Set up a blank canvas for our resized image (destination)
@@ -197,11 +214,8 @@ class ImageResizer
 			//	(2) the final size
 
 			// Code from Ryan Rud (http://adryrun.com)
-			$final	= $tnWidth * (750.0 / $width);
-			$a		= 52;
-			$b		= -0.27810650887573124;
-			$c		= .00047337278106508946;
-			$result = $a + $b * $final + $c * $final * $final;
+			$final	= $tnWidth * (self::SHARPENING_SCALE_FACTOR / $width);
+			$result = self::SHARPENING_CONSTANT_A + self::SHARPENING_CONSTANT_B * $final + self::SHARPENING_CONSTANT_C * $final * $final;
 			$sharpness	= max(round($result), 0);
 
 			$sharpenMatrix	= array(
@@ -221,7 +235,6 @@ class ImageResizer
 		ImageDestroy($src);
 		ImageDestroy($dst);
 
-		// afficher éventuellement l'image
 		return true;
 
 		/*

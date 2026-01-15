@@ -47,5 +47,41 @@ class GeographicCoordinates
 		return Point::isPointInsidePlaces(Point::parse($coordinates), $geoJSONList, $radius);
 	}
 
+	/**
+	 * Convert GPS coordinates from degrees/minutes/seconds format to decimal degrees.
+	 * Used for converting EXIF GPS data from photos to standard decimal format.
+	 * @param array $coordinate Array of three strings representing degrees, minutes, and seconds (e.g., ["40/1", "26/1", "46/1"])
+	 * @param string $hemisphere N, S, E, or W
+	 * @return float The coordinate in decimal degrees
+	 */
+	public static function gpsToDecimal(array $coordinate, string $hemisphere): float
+	{
+		$degrees = count($coordinate) > 0 ? self::gpsRationalToFloat($coordinate[0]) : 0;
+		$minutes = count($coordinate) > 1 ? self::gpsRationalToFloat($coordinate[1]) : 0;
+		$seconds = count($coordinate) > 2 ? self::gpsRationalToFloat($coordinate[2]) : 0;
+
+		$decimal = $degrees + ($minutes / 60) + ($seconds / 3600);
+
+		if ($hemisphere === 'S' || $hemisphere === 'W') {
+			$decimal *= -1;
+		}
+
+		return $decimal;
+	}
+
+	/**
+	 * Convert a GPS rational number (e.g., "40/1") to a float.
+	 * GPS coordinates in EXIF are stored as rational numbers (fractions).
+	 * @param string $rational The rational number as a string
+	 * @return float The float value
+	 */
+	public static function gpsRationalToFloat(string $rational): float
+	{
+		$parts = explode('/', $rational);
+		if (count($parts) !== 2 || $parts[1] == 0) {
+			return 0;
+		}
+		return (float)$parts[0] / (float)$parts[1];
+	}
 
 }

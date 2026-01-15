@@ -4,6 +4,11 @@ namespace Osimatic\Media;
 
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class Image
+ * Provides utilities for handling image files including validation, MIME type detection, EXIF data extraction, and HTTP output.
+ * Supports multiple image formats: JPG, PNG, GIF, SVG, BMP, WebP, and TIFF.
+ */
 class Image
 {
 	public const string JPG_EXTENSION 		= '.jpg';
@@ -30,7 +35,8 @@ class Image
 	public const array TIFF_MIME_TYPES 		= ['image/tiff'];
 
 	/**
-	 * @return array
+	 * Get all supported image extensions and their associated MIME types.
+	 * @return array Associative array mapping format names to arrays of extensions and MIME types
 	 */
 	public static function getExtensionsAndMimeTypes(): array
 	{
@@ -45,22 +51,25 @@ class Image
 		];
 	}
 
-	// ========== Vérification ==========
+	// ========== Validation ==========
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if an image file is valid based on extension and MIME type.
+	 * Supports JPG, PNG, GIF, SVG, BMP, WebP, and TIFF formats.
+	 * @param string $filePath The path to the image file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is valid, false otherwise
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
-		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, array_merge(self::JPG_EXTENSIONS, [self::PNG_EXTENSION], [self::GIF_EXTENSION]), array_merge(self::JPG_MIME_TYPES, self::PNG_MIME_TYPES, self::GIF_MIME_TYPES));
+		return \Osimatic\FileSystem\File::check($filePath, $clientOriginalName, array_merge(self::JPG_EXTENSIONS, [self::PNG_EXTENSION], [self::GIF_EXTENSION], [self::SVG_EXTENSION], [self::BMP_EXTENSION], [self::WEBP_EXTENSION], self::TIFF_EXTENSIONS), array_merge(self::JPG_MIME_TYPES, self::PNG_MIME_TYPES, self::GIF_MIME_TYPES, self::SVG_MIME_TYPES, self::BMP_MIME_TYPES, self::WEBP_MIME_TYPES, self::TIFF_MIME_TYPES));
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if an image file is a valid JPG file.
+	 * @param string $filePath The path to the image file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid JPG, false otherwise
 	 */
 	public static function checkJpgFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -68,9 +77,10 @@ class Image
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if an image file is a valid PNG file.
+	 * @param string $filePath The path to the image file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid PNG, false otherwise
 	 */
 	public static function checkPngFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -78,9 +88,10 @@ class Image
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if an image file is a valid GIF file.
+	 * @param string $filePath The path to the image file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid GIF, false otherwise
 	 */
 	public static function checkGifFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -88,8 +99,9 @@ class Image
 	}
 
 	/**
-	 * @param string $extension
-	 * @return string|null
+	 * Get the MIME type associated with an image file extension.
+	 * @param string $extension The file extension (e.g., '.jpg', '.png')
+	 * @return string|null The MIME type if found, null otherwise
 	 */
 	public static function getMimeTypeFromExtension(string $extension): ?string
 	{
@@ -97,20 +109,21 @@ class Image
 	}
 
 	/**
-	 * @param string $mimeType
-	 * @return string|null
+	 * Get the file extension associated with an image MIME type.
+	 * @param string $mimeType The MIME type (e.g., 'image/jpeg')
+	 * @return string|null The file extension if found, null otherwise
 	 */
 	public static function getExtensionFromMimeType(string $mimeType): ?string
 	{
 		return \Osimatic\FileSystem\File::getExtensionFromMimeType($mimeType, self::getExtensionsAndMimeTypes());
 	}
 
-	// ========== Récupération d'information ==========
+	// ========== Information Retrieval ==========
 
 	/**
-	 * Retourne la largeur de l'image.
-	 * @param string $imgPath le chemin complet vers l'image sur laquelle renvoyer la taille
-	 * @return int|null la largeur de l'image, false si une erreur survient lors de la lecture du fichier
+	 * Get the width of an image in pixels.
+	 * @param string $imgPath The complete path to the image file
+	 * @return int|null The width of the image in pixels, null if an error occurs while reading the file
 	 */
 	public static function getWidth(string $imgPath): ?int
 	{
@@ -121,9 +134,9 @@ class Image
 	}
 
 	/**
-	 * Retourne la hauteur de l'image.
-	 * @param string $imgPath le chemin complet vers l'image sur laquelle renvoyer la taille
-	 * @return int|null la hauteur de l'image, false si une erreur survient lors de la lecture du fichier
+	 * Get the height of an image in pixels.
+	 * @param string $imgPath The complete path to the image file
+	 * @return int|null The height of the image in pixels, null if an error occurs while reading the file
 	 */
 	public static function getHeight(string $imgPath): ?int
 	{
@@ -134,8 +147,9 @@ class Image
 	}
 
 	/**
-	 * @param string $imgPath
-	 * @return string|null
+	 * Get the MIME type of an image file.
+	 * @param string $imgPath The complete path to the image file
+	 * @return string|null The MIME type of the image, null if an error occurs while reading the file
 	 */
 	public static function getMimeType(string $imgPath): ?string
 	{
@@ -146,20 +160,46 @@ class Image
 	}
 
 	/**
-	 * @param string $imgPath
-	 * @return string|null
+	 * Get image information (width, height, MIME type) in a single call.
+	 * More efficient than calling getWidth(), getHeight(), and getMimeType() separately.
+	 * @param string $imgPath The complete path to the image file
+	 * @return array|null Associative array with keys 'width', 'height', and 'mime', null if an error occurs while reading the file
 	 */
-	public static function getEtag(string $imgPath): ?string
+	public static function getImageInfo(string $imgPath): ?array
 	{
-		if (($data = file_get_contents($imgPath)) === false) {
+		if (($size = getimagesize($imgPath)) === false) {
 			return null;
 		}
-		return md5($data);
+		return [
+			'width' => $size[0],
+			'height' => $size[1],
+			'mime' => $size['mime']
+		];
 	}
 
 	/**
-	 * @param string $imgPath
-	 * @return string|null
+	 * Generate an ETag for an image file based on file modification time and size.
+	 * More efficient than MD5 hashing the entire file content.
+	 * @param string $imgPath The complete path to the image file
+	 * @return string|null The ETag hash, null if an error occurs while reading the file
+	 */
+	public static function getEtag(string $imgPath): ?string
+	{
+		if (!file_exists($imgPath)) {
+			return null;
+		}
+		$mtime = filemtime($imgPath);
+		$size = filesize($imgPath);
+		if ($mtime === false || $size === false) {
+			return null;
+		}
+		return md5($mtime . '-' . $size);
+	}
+
+	/**
+	 * Get the last modified date of an image file formatted for HTTP headers.
+	 * @param string $imgPath The complete path to the image file
+	 * @return string|null The formatted date string (e.g., "Mon, 15 Jan 2026 10:30:00 GMT"), null if an error occurs
 	 */
 	public static function getLastModifiedString(string $imgPath): ?string
 	{
@@ -173,8 +213,10 @@ class Image
 	}
 
 	/**
-	 * @param string $photoPath
-	 * @return int|null
+	 * Get the timestamp when a photo was taken from EXIF data.
+	 * First tries to read DateTimeOriginal, then falls back to DateTime.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return int|null The Unix timestamp when the photo was taken, null if EXIF data is not available
 	 */
 	public static function getPhotoTimestamp(string $photoPath): ?int
 	{
@@ -190,9 +232,9 @@ class Image
 	}
 
 	/**
-	 * Retourne la marque de l'appareil photo avec lequel a été prise la photo.
-	 * @param string $photoPath le chemin complet vers la photo à analyser.
-	 * @return null|string la marque de l'appareil photo, null si une erreur survient lors de la lecture du fichier ou si la marque de l'appareil photo n'est pas renseigné.
+	 * Get the camera manufacturer name from EXIF data.
+	 * @param string $photoPath The complete path to the photo file to analyze
+	 * @return string|null The camera manufacturer name, null if an error occurs or if the information is not available
 	 */
 	public static function getCameraMake(string $photoPath): ?string
 	{
@@ -203,9 +245,9 @@ class Image
 	}
 
 	/**
-	 * Retourne le modèle de l'appareil photo avec lequel a été prise la photo.
-	 * @param string $photoPath le chemin complet vers la photo à analyser.
-	 * @return null|string le modèle de l'appareil photo, null si une erreur survient lors de la lecture du fichier ou si le modèle de l'appareil photo n'est pas renseigné.
+	 * Get the camera model name from EXIF data.
+	 * @param string $photoPath The complete path to the photo file to analyze
+	 * @return string|null The camera model name, null if an error occurs or if the information is not available
 	 */
 	public static function getCameraModel(string $photoPath): ?string
 	{
@@ -216,8 +258,10 @@ class Image
 	}
 
 	/**
-	 * @param string $photoPath
-	 * @return array|null
+	 * Read all EXIF data from a photo file.
+	 * Requires the EXIF PHP extension to be enabled.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return array|null An array containing all EXIF data sections, null if the EXIF extension is not available or if reading fails
 	 */
 	public static function readExifData(string $photoPath): ?array
 	{
@@ -229,11 +273,119 @@ class Image
 		return $exif !== false ? $exif : null;
 	}
 
-	// ========== Affichage d'image ==========
+	/**
+	 * Get common photo information from EXIF data in a single call.
+	 * More efficient than calling individual methods when multiple EXIF values are needed.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return array|null Associative array with keys: timestamp, cameraMake, cameraModel, iso, aperture, shutterSpeed, focalLength. Null if EXIF data is not available.
+	 */
+	public static function getPhotoInfo(string $photoPath): ?array
+	{
+		if (($exifData = self::readExifData($photoPath)) === null) {
+			return null;
+		}
+
+		$timestamp = null;
+		if (isset($exifData['EXIF']['DateTimeOriginal'])) {
+			$timestamp = strtotime($exifData['EXIF']['DateTimeOriginal']);
+		} elseif (isset($exifData['IFD0']['DateTime'])) {
+			$timestamp = strtotime($exifData['IFD0']['DateTime']);
+		}
+
+		return [
+			'timestamp' => $timestamp,
+			'cameraMake' => $exifData['IFD0']['Make'] ?? null,
+			'cameraModel' => $exifData['IFD0']['Model'] ?? null,
+			'iso' => $exifData['EXIF']['ISOSpeedRatings'] ?? null,
+			'aperture' => $exifData['COMPUTED']['ApertureFNumber'] ?? null,
+			'shutterSpeed' => $exifData['EXIF']['ExposureTime'] ?? null,
+			'focalLength' => $exifData['EXIF']['FocalLength'] ?? null,
+		];
+	}
 
 	/**
-	 * @param string $file
-	 * @param bool $withCache
+	 * Get the ISO speed rating from EXIF data.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return int|null The ISO speed rating, null if an error occurs or if the information is not available
+	 */
+	public static function getIso(string $photoPath): ?int
+	{
+		if (($exifData = self::readExifData($photoPath)) !== null) {
+			return $exifData['EXIF']['ISOSpeedRatings'] ?? null;
+		}
+		return null;
+	}
+
+	/**
+	 * Get the aperture f-number from EXIF data.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return string|null The aperture f-number (e.g., "f/2.8"), null if an error occurs or if the information is not available
+	 */
+	public static function getAperture(string $photoPath): ?string
+	{
+		if (($exifData = self::readExifData($photoPath)) !== null) {
+			return $exifData['COMPUTED']['ApertureFNumber'] ?? null;
+		}
+		return null;
+	}
+
+	/**
+	 * Get the shutter speed from EXIF data.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return string|null The shutter speed (e.g., "1/250"), null if an error occurs or if the information is not available
+	 */
+	public static function getShutterSpeed(string $photoPath): ?string
+	{
+		if (($exifData = self::readExifData($photoPath)) !== null) {
+			return $exifData['EXIF']['ExposureTime'] ?? null;
+		}
+		return null;
+	}
+
+	/**
+	 * Get the focal length from EXIF data.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return string|null The focal length (e.g., "50/1" for 50mm), null if an error occurs or if the information is not available
+	 */
+	public static function getFocalLength(string $photoPath): ?string
+	{
+		if (($exifData = self::readExifData($photoPath)) !== null) {
+			return $exifData['EXIF']['FocalLength'] ?? null;
+		}
+		return null;
+	}
+
+	/**
+	 * Get GPS coordinates from EXIF data.
+	 * @param string $photoPath The complete path to the photo file
+	 * @return array|null Associative array with keys 'latitude' and 'longitude' as decimal degrees, null if GPS data is not available
+	 */
+	public static function getGpsCoordinates(string $photoPath): ?array
+	{
+		if (($exifData = self::readExifData($photoPath)) === null) {
+			return null;
+		}
+
+		if (!isset($exifData['GPS']['GPSLatitude'], $exifData['GPS']['GPSLatitudeRef'], $exifData['GPS']['GPSLongitude'], $exifData['GPS']['GPSLongitudeRef'])) {
+			return null;
+		}
+
+		$latitude = \Osimatic\Location\GeographicCoordinates::gpsToDecimal($exifData['GPS']['GPSLatitude'], $exifData['GPS']['GPSLatitudeRef']);
+		$longitude = \Osimatic\Location\GeographicCoordinates::gpsToDecimal($exifData['GPS']['GPSLongitude'], $exifData['GPS']['GPSLongitudeRef']);
+
+		return [
+			'latitude' => $latitude,
+			'longitude' => $longitude,
+		];
+	}
+
+	// ========== Image Output ==========
+
+	/**
+	 * Output an image file to the browser with appropriate headers.
+	 * Supports HTTP caching with ETag and Last-Modified headers.
+	 * @param string $file The complete path to the image file
+	 * @param bool $withCache Whether to use HTTP caching (default true)
 	 */
 	public static function output(string $file, bool $withCache=true): void
 	{
@@ -241,9 +393,11 @@ class Image
 	}
 
 	/**
-	 * @param string $file
-	 * @param bool $withCache
-	 * @return Response
+	 * Get a Symfony HTTP Response object for an image file.
+	 * Supports HTTP caching with ETag and Last-Modified headers.
+	 * @param string $file The complete path to the image file
+	 * @param bool $withCache Whether to use HTTP caching (default true)
+	 * @return Response The Symfony Response object with appropriate headers and content
 	 */
 	public static function getHttpResponse(string $file, bool $withCache=true): Response
 	{
@@ -251,15 +405,16 @@ class Image
 	}
 
 	/**
-	 * @param string $file
-	 * @param bool $withCache
-	 * @param bool $sendResponse
-	 * @return Response|null
+	 * Internal method to handle image output either as direct output or as a Response object.
+	 * Implements HTTP caching with ETag and Last-Modified headers and returns 304 Not Modified when appropriate.
+	 * @param string $file The complete path to the image file
+	 * @param bool $withCache Whether to use HTTP caching (default true)
+	 * @param bool $sendResponse Whether to send the response directly (true) or return a Response object (false)
+	 * @return Response|null Response object if $sendResponse is false, null otherwise
 	 */
 	private static function _output(string $file, bool $withCache=true, bool $sendResponse=true): ?Response
 	{
-		if (($data = file_get_contents($file)) === false) {
-			//trace("Erreur : L'image n'existe pas.");
+		if (!file_exists($file)) {
 			if (!$sendResponse) {
 				return new Response('file_not_found', Response::HTTP_BAD_REQUEST);
 			}
@@ -316,16 +471,19 @@ class Image
 		}
 
 		$headers['Content-Type'] = $mime;
-		$headers['Content-Length'] = strlen($data);
+		$headers['Content-Length'] = filesize($file);
 
 		if (!$sendResponse) {
+			if (($data = file_get_contents($file)) === false) {
+				return new Response('file_read_error', Response::HTTP_INTERNAL_SERVER_ERROR);
+			}
 			return new Response($data, Response::HTTP_OK, $headers);
 		}
 
 		foreach ($headers as $key => $value) {
 			header($key.': '.$value);
 		}
-		echo $data;
+		readfile($file);
 		exit();
 	}
 }

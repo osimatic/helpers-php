@@ -248,4 +248,60 @@ final class ImageTest extends TestCase
 		$result = Image::readExifData('/non/existent/file.jpg');
 		$this->assertNull($result);
 	}
+
+	/* ===================== getImageInfo() ===================== */
+
+	public function testGetImageInfoWithNonExistentFile(): void
+	{
+		$result = Image::getImageInfo('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getPhotoInfo() ===================== */
+
+	public function testGetPhotoInfoWithNonExistentFile(): void
+	{
+		$result = Image::getPhotoInfo('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getIso() ===================== */
+
+	public function testGetIsoWithNonExistentFile(): void
+	{
+		$result = Image::getIso('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getAperture() ===================== */
+
+	public function testGetApertureWithNonExistentFile(): void
+	{
+		$result = Image::getAperture('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getShutterSpeed() ===================== */
+
+	public function testGetShutterSpeedWithNonExistentFile(): void
+	{
+		$result = Image::getShutterSpeed('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getFocalLength() ===================== */
+
+	public function testGetFocalLengthWithNonExistentFile(): void
+	{
+		$result = Image::getFocalLength('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getGpsCoordinates() ===================== */
+
+	public function testGetGpsCoordinatesWithNonExistentFile(): void
+	{
+		$result = Image::getGpsCoordinates('/non/existent/file.jpg');
+		$this->assertNull($result);
+	}
 }

@@ -5,10 +5,29 @@ namespace Osimatic\Messaging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Email sender implementation using PHPMailer library.
+ * This class provides email sending functionality through various transport methods (SMTP, PHP mail(), sendmail, qmail) with configuration options for authentication and logging.
+ */
 class EmailSender implements EmailSenderInterface
 {
+	/**
+	 * Alternative plain text body for HTML emails.
+	 * @var string|null
+	 */
 	private ?string $plainTextAltBody = null;
 
+	/**
+	 * Construct a new EmailSender instance.
+	 * @param EmailSendingMethod $sendingMethod The email sending method to use (default: SMTP)
+	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 * @param string|null $host The SMTP server hostname (required for SMTP method)
+	 * @param int|null $port The SMTP server port (required for SMTP method)
+	 * @param bool $smtpAuth Whether to use SMTP authentication (default: false)
+	 * @param EmailSmtpEncryption $smtpAuthEncryption The SMTP encryption method (default: STARTTLS)
+	 * @param string|null $smtpAuthUsername The SMTP authentication username
+	 * @param string|null $smtpAuthPassword The SMTP authentication password
+	 */
 	public function __construct(
 		private EmailSendingMethod $sendingMethod = EmailSendingMethod::SMTP,
 		private LoggerInterface $logger = new NullLogger(),
@@ -20,6 +39,11 @@ class EmailSender implements EmailSenderInterface
 		private ?string $smtpAuthPassword = null,
 	) {}
 
+	/**
+	 * Set the PSR-3 logger for debugging email sending.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
+	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
 		$this->logger = $logger;
@@ -27,6 +51,11 @@ class EmailSender implements EmailSenderInterface
 		return $this;
 	}
 
+	/**
+	 * Set the email sending method.
+	 * @param EmailSendingMethod $sendingMethod The sending method (SMTP, PHP mail, sendmail, or qmail)
+	 * @return self Returns this instance for method chaining
+	 */
 	public function setSendingMethod(EmailSendingMethod $sendingMethod): self
 	{
 		$this->sendingMethod = $sendingMethod;
@@ -34,6 +63,12 @@ class EmailSender implements EmailSenderInterface
 		return $this;
 	}
 
+	/**
+	 * Set the SMTP server host and port.
+	 * @param string $host The SMTP server hostname or IP address
+	 * @param int $port The SMTP server port (default: 25)
+	 * @return self Returns this instance for method chaining
+	 */
 	public function setHost(string $host, int $port=25): self
 	{
 		$this->host = $host;
@@ -42,6 +77,13 @@ class EmailSender implements EmailSenderInterface
 		return $this;
 	}
 
+	/**
+	 * Configure SMTP authentication credentials and encryption.
+	 * @param string $username The SMTP authentication username
+	 * @param string $password The SMTP authentication password
+	 * @param EmailSmtpEncryption $encryption The SMTP encryption method (default: STARTTLS)
+	 * @return self Returns this instance for method chaining
+	 */
 	public function setSmtpAuth(string $username, string $password, EmailSmtpEncryption $encryption = EmailSmtpEncryption::STARTTLS): self
 	{
 		$this->smtpAuth = true;
@@ -52,6 +94,11 @@ class EmailSender implements EmailSenderInterface
 		return $this;
 	}
 
+	/**
+	 * Set the alternative plain text body for HTML emails.
+	 * @param string|null $altBody The plain text alternative body
+	 * @return self Returns this instance for method chaining
+	 */
 	public function setPlainTextAltBody(?string $altBody): self
 	{
 		$this->plainTextAltBody = $altBody;
@@ -60,9 +107,11 @@ class EmailSender implements EmailSenderInterface
 	}
 
 	/**
-	 * @param Email $email
+	 * Send an email message.
+	 * This method validates the email, configures PHPMailer, and sends the email through the configured transport method.
+	 * @param Email $email The email message to send
 	 * @return void
-	 * @throws \Exception
+	 * @throws \Exception If validation fails, configuration is invalid, or sending fails
 	 */
 	public function send(Email $email): void
 	{

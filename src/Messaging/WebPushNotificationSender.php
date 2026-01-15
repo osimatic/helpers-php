@@ -5,8 +5,19 @@ namespace Osimatic\Messaging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Web Push notification sender using VAPID authentication.
+ * This class implements the WebPushNotificationSenderInterface and provides methods to send push notifications to web browsers using the Web Push Protocol with VAPID keys.
+ */
 class WebPushNotificationSender implements WebPushNotificationSenderInterface
 {
+	/**
+	 * Construct a new WebPushNotificationSender instance.
+	 * @param string|null $vapidPublicKey The VAPID public key for authentication
+	 * @param string|null $vapidPrivateKey The VAPID private key for signing requests
+	 * @param string|null $subject The subject (typically a mailto: or https: URL) for VAPID authentication
+	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 */
 	public function __construct(
 		private ?string $vapidPublicKey = null,
 		private ?string $vapidPrivateKey = null,
@@ -15,8 +26,9 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 	) {}
 
 	/**
-	 * @param string|null $vapidPublicKey
-	 * @return self
+	 * Set the VAPID public key.
+	 * @param string|null $vapidPublicKey The VAPID public key (base64 URL-safe encoded)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setVapidPublicKey(?string $vapidPublicKey): self
 	{
@@ -26,8 +38,9 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 	}
 
 	/**
-	 * @param string|null $vapidPrivateKey
-	 * @return self
+	 * Set the VAPID private key.
+	 * @param string|null $vapidPrivateKey The VAPID private key (base64 URL-safe encoded)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setVapidPrivateKey(?string $vapidPrivateKey): self
 	{
@@ -37,8 +50,9 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 	}
 
 	/**
-	 * @param string|null $subject
-	 * @return self
+	 * Set the VAPID subject.
+	 * @param string|null $subject The subject URL (e.g., "mailto:sender@example.com" or "https://example.com")
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSubject(?string $subject): self
 	{

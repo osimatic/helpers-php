@@ -9,7 +9,6 @@ use Psr\Log\NullLogger;
 
 /**
  * Class GoogleReCaptcha
- * @package Osimatic\Security
  */
 class GoogleReCaptcha
 {

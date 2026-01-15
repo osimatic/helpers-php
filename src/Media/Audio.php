@@ -8,6 +8,12 @@ use getid3_exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class Audio
+ * Provides utilities for handling audio files including format detection, validation, metadata extraction, and streaming playback.
+ * Supports multiple audio formats: MP3, WAV, OGG, AAC, AIFF, WMA, and WebM.
+ * Uses getID3 library for audio file analysis and metadata extraction.
+ */
 class Audio
 {
 	public const string MP3_FORMAT 			= 'mp3';
@@ -41,8 +47,13 @@ class Audio
 	public const string WEBM_EXTENSION 		= '.weba';
 	public const array WEBM_MIME_TYPES 		= ['audio/webm'];
 
+	private const int STREAM_BUFFER_SIZE 	= 1024 * 8; // 8 KB buffer for streaming
+
+	private static ?getID3 $getID3Instance = null;
+
 	/**
-	 * @return array
+	 * Get all supported audio file extensions and their corresponding MIME types.
+	 * @return array Associative array mapping format names to [extensions, mime_types] arrays
 	 */
 	public static function getExtensionsAndMimeTypes(): array
 	{
@@ -58,9 +69,24 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @param LoggerInterface|null $logger
-	 * @return array|null
+	 * Get or create the singleton getID3 instance.
+	 * @return getID3 The getID3 instance
+	 */
+	private static function getID3Instance(): getID3
+	{
+		if (self::$getID3Instance === null) {
+			self::$getID3Instance = new getID3();
+		}
+		return self::$getID3Instance;
+	}
+
+	/**
+	 * Get audio file information and metadata using getID3 library.
+	 * Returns detailed information including format, bitrate, duration, tags, and more.
+	 * Uses a singleton getID3 instance for better performance.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @param LoggerInterface|null $logger Optional logger to record errors
+	 * @return array|null Array containing audio file information, null if file doesn't exist or on error
 	 */
 	public static function getInfos(string $audioFilePath, ?LoggerInterface $logger=null): ?array
 	{
@@ -69,8 +95,7 @@ class Audio
 		}
 
 		try {
-			$getID3 = new getID3();
-			return $getID3->analyze($audioFilePath);
+			return self::getID3Instance()->analyze($audioFilePath);
 		} catch (getid3_exception $e) {
 			$logger?->info($e->getMessage());
 		}
@@ -78,33 +103,49 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @return string|null
+	 * Get the audio format of a file.
+	 * Supports detection of WAV, MP3, OGG, AAC, AIFF, WMA, and WebM formats.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return string|null The format identifier (e.g., WAV_FORMAT, MP3_FORMAT, OGG_FORMAT), null if format is not recognized
 	 */
 	public static function getFormat(string $audioFilePath): ?string
 	{
-		$fileInfos = self::getInfos($audioFilePath);
-
-		if (!empty($fileInfos['audio']['dataformat']) && mb_strtolower($fileInfos['audio']['dataformat']) === 'wav') {
-			return self::WAV_FORMAT;
+		if (empty($fileInfos = self::getInfos($audioFilePath))) {
+			return null;
 		}
 
-		if (!empty($fileInfos['audio']['dataformat']) && mb_strtolower($fileInfos['audio']['dataformat']) === 'mp3') {
-			return self::MP3_FORMAT;
+		// Check audio dataformat
+		if (!empty($fileInfos['audio']['dataformat'])) {
+			$dataFormat = mb_strtolower($fileInfos['audio']['dataformat']);
+
+			return match($dataFormat) {
+				'wav' => self::WAV_FORMAT,
+				'mp3' => self::MP3_FORMAT,
+				'aac' => self::AAC_FORMAT,
+				'aiff' => self::AIFF_FORMAT,
+				'wma', 'asf' => self::WMA_FORMAT,
+				default => null,
+			};
 		}
 
-		if (!empty($fileInfos['fileformat']) && mb_strtolower($fileInfos['fileformat']) === 'webm') {
-			return self::WEBM_FORMAT;
-		}
+		// Check file format for container formats
+		if (!empty($fileInfos['fileformat'])) {
+			$fileFormat = mb_strtolower($fileInfos['fileformat']);
 
-		// todo : autres format
+			return match($fileFormat) {
+				'webm' => self::WEBM_FORMAT,
+				'ogg' => self::OGG_FORMAT,
+				default => null,
+			};
+		}
 
 		return null;
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @return float
+	 * Get the duration of an audio file in seconds.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return float Duration in seconds, 0 if unable to determine duration
 	 */
 	public static function getDuration(string $audioFilePath): float
 	{
@@ -113,9 +154,114 @@ class Audio
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Get the bitrate of an audio file in bits per second.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return int|null Bitrate in bits per second, null if unable to determine
+	 */
+	public static function getBitrate(string $audioFilePath): ?int
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['audio']['bitrate'] ?? null;
+	}
+
+	/**
+	 * Get the sample rate of an audio file in Hz.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return int|null Sample rate in Hz, null if unable to determine
+	 */
+	public static function getSampleRate(string $audioFilePath): ?int
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['audio']['sample_rate'] ?? null;
+	}
+
+	/**
+	 * Get the number of audio channels.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return int|null Number of channels (1 for mono, 2 for stereo, etc.), null if unable to determine
+	 */
+	public static function getChannels(string $audioFilePath): ?int
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['audio']['channels'] ?? null;
+	}
+
+	/**
+	 * Get the artist name from audio file tags.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return string|null The artist name, null if not available
+	 */
+	public static function getArtist(string $audioFilePath): ?string
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['tags']['id3v2']['artist'][0] ?? $infos['tags']['id3v1']['artist'][0] ?? null;
+	}
+
+	/**
+	 * Get the track title from audio file tags.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return string|null The track title, null if not available
+	 */
+	public static function getTitle(string $audioFilePath): ?string
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['tags']['id3v2']['title'][0] ?? $infos['tags']['id3v1']['title'][0] ?? null;
+	}
+
+	/**
+	 * Get the album name from audio file tags.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return string|null The album name, null if not available
+	 */
+	public static function getAlbum(string $audioFilePath): ?string
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['tags']['id3v2']['album'][0] ?? $infos['tags']['id3v1']['album'][0] ?? null;
+	}
+
+	/**
+	 * Get the release year from audio file tags.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return string|null The release year, null if not available
+	 */
+	public static function getYear(string $audioFilePath): ?string
+	{
+		$infos = self::getInfos($audioFilePath);
+		return $infos['tags']['id3v2']['year'][0] ?? $infos['tags']['id3v1']['year'][0] ?? null;
+	}
+
+	/**
+	 * Get all audio tags (artist, title, album, year, etc.) in a single call.
+	 * More efficient than calling individual tag methods when multiple tags are needed.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return array Associative array with keys: artist, title, album, year, genre, comment, track_number
+	 */
+	public static function getTags(string $audioFilePath): array
+	{
+		$infos = self::getInfos($audioFilePath);
+		if ($infos === null) {
+			return [];
+		}
+
+		$tags = $infos['tags']['id3v2'] ?? $infos['tags']['id3v1'] ?? [];
+
+		return [
+			'artist' => $tags['artist'][0] ?? null,
+			'title' => $tags['title'][0] ?? null,
+			'album' => $tags['album'][0] ?? null,
+			'year' => $tags['year'][0] ?? null,
+			'genre' => $tags['genre'][0] ?? null,
+			'comment' => $tags['comment'][0] ?? null,
+			'track_number' => $tags['track_number'][0] ?? null,
+		];
+	}
+
+	/**
+	 * Check if an audio file is valid based on extension and format.
+	 * Validates MP3 and WAV files using extension, MIME type, and format detection.
+	 * @param string $filePath The path to the audio file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is valid, false otherwise
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -123,9 +269,11 @@ class Audio
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if an audio file is a valid MP3 file.
+	 * Validates using extension, MIME type, and format detection.
+	 * @param string $filePath The path to the audio file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid MP3, false otherwise
 	 */
 	public static function checkMp3File(string $filePath, string $clientOriginalName): bool
 	{
@@ -133,9 +281,11 @@ class Audio
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if an audio file is a valid WAV file.
+	 * Validates using extension, MIME type, and format detection.
+	 * @param string $filePath The path to the audio file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid WAV, false otherwise
 	 */
 	public static function checkWavFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -143,12 +293,13 @@ class Audio
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @param array|null $extensionsAllowed
-	 * @param array|null $mimeTypesAllowed
-	 * @param array|null $formatsAllowed
-	 * @return bool
+	 * Internal method to validate audio files by extension, MIME type, and format.
+	 * @param string $filePath The path to the audio file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @param array|null $extensionsAllowed List of allowed file extensions
+	 * @param array|null $mimeTypesAllowed List of allowed MIME types
+	 * @param array|null $formatsAllowed List of allowed audio formats
+	 * @return bool True if the file is valid, false otherwise
 	 */
 	private static function checkFileByType(string $filePath, string $clientOriginalName, ?array $extensionsAllowed, ?array $mimeTypesAllowed=null, ?array $formatsAllowed=null): bool
 	{
@@ -164,8 +315,20 @@ class Audio
 	}
 
 	/**
-	 * @param string $ismn
-	 * @return bool
+	 * Normalize an ISMN by removing hyphens and spaces.
+	 * @param string $ismn The ISMN number to normalize
+	 * @return string The normalized ISMN number
+	 */
+	public static function normalizeIsmn(string $ismn): string
+	{
+		return str_replace(['-', ' '], '', trim($ismn));
+	}
+
+	/**
+	 * Check if an ISMN (International Standard Music Number) is valid.
+	 * Validates ISMN-13 format (13 digits starting with 979-0).
+	 * @param string $ismn The ISMN number to check (with or without hyphens)
+	 * @return bool True if the ISMN is valid, false otherwise
 	 * @link https://en.wikipedia.org/wiki/International_Standard_Music_Number
 	 */
 	public static function checkIsmn(string $ismn): bool
@@ -174,13 +337,27 @@ class Audio
 			return false;
 		}
 
-		// todo
-		return true;
+		$ismn = self::normalizeIsmn($ismn);
+
+		// ISMN-13 must be 13 digits and start with 9790
+		if (!preg_match('/^9790\d{9}$/', $ismn)) {
+			return false;
+		}
+
+		// Validate check digit using ISBN-13 algorithm
+		$checksum = 0;
+		for ($i = 0; $i < 12; $i++) {
+			$checksum += (int)$ismn[$i] * (($i % 2 === 0) ? 1 : 3);
+		}
+		$checkDigit = (10 - ($checksum % 10)) % 10;
+
+		return (int)$ismn[12] === $checkDigit;
 	}
 
 	/**
-	 * @param string $extension
-	 * @return string|null
+	 * Get the MIME type associated with an audio file extension.
+	 * @param string $extension The file extension (e.g., '.mp3', '.wav')
+	 * @return string|null The MIME type if found, null otherwise
 	 */
 	public static function getMimeTypeFromExtension(string $extension): ?string
 	{
@@ -188,8 +365,9 @@ class Audio
 	}
 
 	/**
-	 * @param string $mimeType
-	 * @return string|null
+	 * Get the file extension associated with an audio MIME type.
+	 * @param string $mimeType The MIME type (e.g., 'audio/mpeg', 'audio/x-wav')
+	 * @return string|null The file extension if found, null otherwise
 	 */
 	public static function getExtensionFromMimeType(string $mimeType): ?string
 	{
@@ -197,8 +375,9 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @return string
+	 * Internal method to get the lowercase file extension from an audio file path.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @return string The lowercase file extension
 	 */
 	private static function getExtension(string $audioFilePath): string
 	{
@@ -207,10 +386,10 @@ class Audio
 	}
 
 	/**
-	 * Envoi au navigateur du client un fichier audio.
-	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param string $filePath le chemin complet vers le fichier audio
-	 * @param string|null $fileName le nom que prendra le fichier audio lorsque le client le téléchargera, ou null pour utiliser le nom actuel du fichier audio (null par défaut)
+	 * Send an audio file to the client browser for download.
+	 * No output should be performed before or after calling this function.
+	 * @param string $filePath The complete path to the audio file
+	 * @param string|null $fileName The name the audio file will have when the client downloads it, or null to use the current filename (default null)
 	 */
 	public static function output(string $filePath, ?string $fileName=null): void
 	{
@@ -219,9 +398,9 @@ class Audio
 	}
 
 	/**
-	 * Envoi au navigateur du client un fichier audio.
-	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param OutputFile $file
+	 * Send an audio file to the client browser for download using an OutputFile object.
+	 * No output should be performed before or after calling this function.
+	 * @param OutputFile $file The OutputFile object containing file information
 	 */
 	public static function outputFile(OutputFile $file): void
 	{
@@ -229,8 +408,10 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @param bool $asStream
+	 * Play an audio file by sending it to the client browser.
+	 * Supports both direct transfer and streaming with range requests.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @param bool $asStream Whether to use streaming mode with range requests support (default false)
 	 */
 	public static function play(string $audioFilePath, bool $asStream=false): void
 	{
@@ -238,7 +419,9 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
+	 * Play an audio file using streaming mode with range requests support.
+	 * Allows seeking and partial content delivery for audio players.
+	 * @param string $audioFilePath The complete path to the audio file
 	 */
 	public static function playStream(string $audioFilePath): void
 	{
@@ -246,9 +429,11 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @param bool $asStream
-	 * @return Response
+	 * Get an HTTP Response object for playing an audio file.
+	 * Useful for integrating with frameworks that expect Response objects.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @param bool $asStream Whether to use streaming mode with range requests support (default false)
+	 * @return Response The Symfony Response object containing the audio file
 	 */
 	public static function getHttpResponse(string $audioFilePath, bool $asStream=false): Response
 	{
@@ -256,10 +441,13 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @param bool $asStream
-	 * @param bool $sendResponse
-	 * @return Response|null
+	 * Internal method to handle audio playback either as direct output or as a Response object.
+	 * Supports both full file transfer and streaming with range requests.
+	 * Sets appropriate HTTP headers including Content-Type, Content-Length, and Cache-Control.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @param bool $asStream Whether to use streaming mode with range requests support
+	 * @param bool $sendResponse Whether to send the response directly (true) or return a Response object (false)
+	 * @return Response|null Response object if $sendResponse is false, null otherwise
 	 */
 	private static function _play(string $audioFilePath, bool $asStream=false, bool $sendResponse=true): ?Response
 	{
@@ -304,9 +492,37 @@ class Audio
 	}
 
 	/**
-	 * @param string $audioFilePath
-	 * @param bool $sendResponse
-	 * @return Response|null
+	 * Send a 416 Range Not Satisfiable response for invalid range requests.
+	 * @param array $headers The HTTP headers array
+	 * @param int $start The start byte
+	 * @param int $end The end byte
+	 * @param int $size The total file size
+	 * @param bool $sendResponse Whether to send the response directly (true) or return a Response object (false)
+	 * @return Response|null Response object if $sendResponse is false, null otherwise (will exit if sendResponse is true)
+	 */
+	private static function sendRangeNotSatisfiable(array $headers, int $start, int $end, int $size, bool $sendResponse): ?Response
+	{
+		$headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
+
+		if (!$sendResponse) {
+			return new Response(null, Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, $headers);
+		}
+
+		foreach ($headers as $key => $value) {
+			header($key.': '.$value);
+		}
+		header('HTTP/1.1 416 Requested Range Not Satisfiable');
+		exit();
+	}
+
+	/**
+	 * Internal method to stream an audio file with support for HTTP range requests.
+	 * Implements RFC 7233 partial content delivery for seeking and progressive download.
+	 * Supports byte-range requests with Accept-Ranges, Content-Range, and 206 Partial Content responses.
+	 * Handles invalid range requests with 416 Range Not Satisfiable responses.
+	 * @param string $audioFilePath The complete path to the audio file
+	 * @param bool $sendResponse Whether to send the response directly (true) or return a Response object (false)
+	 * @return Response|null Response object if $sendResponse is false, null otherwise
 	 */
 	private static function _playStream(string $audioFilePath, bool $sendResponse=true): ?Response
 	{
@@ -340,17 +556,7 @@ class Audio
 			$c_end = $end;
 			[, $range] = explode('=', $_SERVER['HTTP_RANGE'], 2);
 			if (str_contains($range, ',')) {
-				$headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
-
-				if (!$sendResponse) {
-					return new Response(null, Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, $headers);
-				}
-
-				foreach ($headers as $key => $value) {
-					header($key.': '.$value);
-				}
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				exit();
+				return self::sendRangeNotSatisfiable($headers, $start, $end, $size, $sendResponse);
 			}
 			if ($range === '-') {
 				$c_start = $size - substr($range, 1);
@@ -362,17 +568,7 @@ class Audio
 			}
 			$c_end = ($c_end > $end) ? $end : $c_end;
 			if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
-				$headers['Content-Range'] = 'bytes '.$start.'-'.$end.'/'.$size;
-
-				if (!$sendResponse) {
-					return new Response(null, Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, $headers);
-				}
-
-				foreach ($headers as $key => $value) {
-					header($key.': '.$value);
-				}
-				header('HTTP/1.1 416 Requested Range Not Satisfiable');
-				exit();
+				return self::sendRangeNotSatisfiable($headers, $start, $end, $size, $sendResponse);
 			}
 			$start = $c_start;
 			$end = $c_end;
@@ -393,7 +589,7 @@ class Audio
 		}
 
 		$data = '';
-		$buffer = 1024 * 8;
+		$buffer = self::STREAM_BUFFER_SIZE;
 		while(!feof($fp) && ($p = ftell($fp)) <= $end) {
 			if ($p + $buffer > $end) {
 				$buffer = $end - $p + 1;

@@ -2,6 +2,11 @@
 
 namespace Osimatic\Media;
 
+/**
+ * Class Video
+ * Provides utilities for handling video files, including validation, MIME type detection, and format support.
+ * Supports multiple video formats: MP4, MPG, AVI, WMV, FLV, OGG, WebM, 3GPP, and QuickTime.
+ */
 class Video
 {
 	public const string MP4_EXTENSION 			= '.mp4';
@@ -35,7 +40,8 @@ class Video
 	public const array QUICKTIME_MIME_TYPES 	= ['video/quicktime'];
 
 	/**
-	 * @return array
+	 * Get all supported video extensions and their associated MIME types.
+	 * @return array Associative array mapping format names to arrays of extensions and MIME types
 	 */
 	public static function getExtensionsAndMimeTypes(): array
 	{
@@ -53,12 +59,14 @@ class Video
 	}
 
 
-	// ========== Vérification ==========
+	// ========== Validation ==========
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is valid based on extension and MIME type.
+	 * Supports MP4, MPG, AVI, and WMV formats.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is valid, false otherwise
 	 */
 	public static function checkFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -66,9 +74,10 @@ class Video
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is a valid MP4 file.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid MP4, false otherwise
 	 */
 	public static function checkMp4File(string $filePath, string $clientOriginalName): bool
 	{
@@ -76,9 +85,10 @@ class Video
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is a valid MPG file.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid MPG, false otherwise
 	 */
 	public static function checkMpgFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -86,9 +96,10 @@ class Video
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is a valid AVI file.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid AVI, false otherwise
 	 */
 	public static function checkAviFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -96,9 +107,10 @@ class Video
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is a valid WMV file.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid WMV, false otherwise
 	 */
 	public static function checkWmvFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -106,9 +118,10 @@ class Video
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is a valid FLV file.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid FLV, false otherwise
 	 */
 	public static function checkFlvFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -116,9 +129,10 @@ class Video
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $clientOriginalName
-	 * @return bool
+	 * Check if a video file is a valid 3GPP file.
+	 * @param string $filePath The path to the video file to check
+	 * @param string $clientOriginalName The original filename from the client
+	 * @return bool True if the file is a valid 3GPP, false otherwise
 	 */
 	public static function check3GppFile(string $filePath, string $clientOriginalName): bool
 	{
@@ -126,8 +140,9 @@ class Video
 	}
 
 	/**
-	 * @param string $extension
-	 * @return string|null
+	 * Get the MIME type associated with a video file extension.
+	 * @param string $extension The file extension (e.g., '.mp4', '.avi')
+	 * @return string|null The MIME type if found, null otherwise
 	 */
 	public static function getMimeTypeFromExtension(string $extension): ?string
 	{
@@ -135,8 +150,9 @@ class Video
 	}
 
 	/**
-	 * @param string $mimeType
-	 * @return string|null
+	 * Get the file extension associated with a video MIME type.
+	 * @param string $mimeType The MIME type (e.g., 'video/mp4')
+	 * @return string|null The file extension if found, null otherwise
 	 */
 	public static function getExtensionFromMimeType(string $mimeType): ?string
 	{

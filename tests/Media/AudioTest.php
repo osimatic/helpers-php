@@ -184,13 +184,127 @@ final class AudioTest extends TestCase
 		$this->assertSame(0.0, $result);
 	}
 
+	/* ===================== normalizeIsmn() ===================== */
+
+	public function testNormalizeIsmnRemovesHyphens(): void
+	{
+		$this->assertSame('9790230671187', Audio::normalizeIsmn('979-0-2306-7118-7'));
+	}
+
+	public function testNormalizeIsmnRemovesSpaces(): void
+	{
+		$this->assertSame('9790230671187', Audio::normalizeIsmn('979 0 2306 7118 7'));
+	}
+
+	public function testNormalizeIsmnTrimsWhitespace(): void
+	{
+		$this->assertSame('9790230671187', Audio::normalizeIsmn('  979-0-2306-7118-7  '));
+	}
+
 	/* ===================== checkIsmn() ===================== */
 
-	public function testCheckIsmnAlwaysReturnsTrue(): void
+	public function testCheckIsmnWithValidIsmn(): void
 	{
-		// TODO: This method is not implemented yet
-		$this->assertTrue(Audio::checkIsmn('M-2306-7118-7'));
-		$this->assertTrue(Audio::checkIsmn('invalid'));
+		$this->assertTrue(Audio::checkIsmn('979-0-2306-7118-7'));
+		$this->assertTrue(Audio::checkIsmn('9790230671187'));
+		$this->assertTrue(Audio::checkIsmn('979-0-001-01234-8'));
+	}
+
+	public function testCheckIsmnWithInvalidIsmn(): void
+	{
+		$this->assertFalse(Audio::checkIsmn('invalid'));
+		$this->assertFalse(Audio::checkIsmn('123'));
+		$this->assertFalse(Audio::checkIsmn('9790000000000'));
+	}
+
+	public function testCheckIsmnWithEmptyString(): void
+	{
 		$this->assertFalse(Audio::checkIsmn(''));
+	}
+
+	public function testCheckIsmnWithWrongPrefix(): void
+	{
+		// ISMN must start with 9790
+		$this->assertFalse(Audio::checkIsmn('978-0-2306-7118-7'));
+		$this->assertFalse(Audio::checkIsmn('9780230671187'));
+	}
+
+	public function testCheckIsmnWithWrongLength(): void
+	{
+		$this->assertFalse(Audio::checkIsmn('97902306711'));
+		$this->assertFalse(Audio::checkIsmn('97902306711870'));
+	}
+
+	/* ===================== getBitrate() ===================== */
+
+	public function testGetBitrateWithNonExistentFile(): void
+	{
+		$result = Audio::getBitrate('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getSampleRate() ===================== */
+
+	public function testGetSampleRateWithNonExistentFile(): void
+	{
+		$result = Audio::getSampleRate('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getChannels() ===================== */
+
+	public function testGetChannelsWithNonExistentFile(): void
+	{
+		$result = Audio::getChannels('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getArtist() ===================== */
+
+	public function testGetArtistWithNonExistentFile(): void
+	{
+		$result = Audio::getArtist('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getTitle() ===================== */
+
+	public function testGetTitleWithNonExistentFile(): void
+	{
+		$result = Audio::getTitle('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getAlbum() ===================== */
+
+	public function testGetAlbumWithNonExistentFile(): void
+	{
+		$result = Audio::getAlbum('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getYear() ===================== */
+
+	public function testGetYearWithNonExistentFile(): void
+	{
+		$result = Audio::getYear('/non/existent/file.mp3');
+		$this->assertNull($result);
+	}
+
+	/* ===================== getTags() ===================== */
+
+	public function testGetTagsWithNonExistentFile(): void
+	{
+		$result = Audio::getTags('/non/existent/file.mp3');
+		$this->assertIsArray($result);
+		$this->assertEmpty($result);
+	}
+
+	public function testGetTagsStructure(): void
+	{
+		// Test that getTags returns the expected array structure even with non-existent file
+		$result = Audio::getTags('/non/existent/file.mp3');
+		$this->assertIsArray($result);
+		// Structure should be empty array when file doesn't exist
 	}
 }

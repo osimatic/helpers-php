@@ -166,4 +166,120 @@ final class GeographicCoordinatesTest extends TestCase
 	{
 		$this->assertFalse(GeographicCoordinates::isCoordinatesInsidePlaces('48.8584,2.2945', []));
 	}
+
+	/* ===================== gpsRationalToFloat() ===================== */
+
+	public function testGpsRationalToFloatWithValidRational(): void
+	{
+		$this->assertSame(40.0, GeographicCoordinates::gpsRationalToFloat('40/1'));
+		$this->assertSame(26.0, GeographicCoordinates::gpsRationalToFloat('26/1'));
+		$this->assertSame(46.0, GeographicCoordinates::gpsRationalToFloat('46/1'));
+	}
+
+	public function testGpsRationalToFloatWithFraction(): void
+	{
+		$this->assertSame(0.5, GeographicCoordinates::gpsRationalToFloat('1/2'));
+		$this->assertSame(0.25, GeographicCoordinates::gpsRationalToFloat('1/4'));
+		$this->assertSame(2.5, GeographicCoordinates::gpsRationalToFloat('5/2'));
+	}
+
+	public function testGpsRationalToFloatWithZeroDenominator(): void
+	{
+		$this->assertSame(0.0, GeographicCoordinates::gpsRationalToFloat('40/0'));
+		$this->assertSame(0.0, GeographicCoordinates::gpsRationalToFloat('100/0'));
+	}
+
+	public function testGpsRationalToFloatWithInvalidFormat(): void
+	{
+		$this->assertSame(0.0, GeographicCoordinates::gpsRationalToFloat('40'));
+		$this->assertSame(0.0, GeographicCoordinates::gpsRationalToFloat('invalid'));
+		$this->assertSame(0.0, GeographicCoordinates::gpsRationalToFloat('40/1/2'));
+	}
+
+	/* ===================== gpsToDecimal() ===================== */
+
+	public function testGpsToDecimalWithNorthernLatitude(): void
+	{
+		// 40°26'46" N = 40.446111°
+		$coordinate = ['40/1', '26/1', '46/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'N');
+		$this->assertEqualsWithDelta(40.446111, $result, 0.000001);
+	}
+
+	public function testGpsToDecimalWithSouthernLatitude(): void
+	{
+		// 33°51'35" S = -33.859722°
+		$coordinate = ['33/1', '51/1', '35/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'S');
+		$this->assertEqualsWithDelta(-33.859722, $result, 0.000001);
+	}
+
+	public function testGpsToDecimalWithEasternLongitude(): void
+	{
+		// 151°12'51" E = 151.214167°
+		$coordinate = ['151/1', '12/1', '51/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'E');
+		$this->assertEqualsWithDelta(151.214167, $result, 0.000001);
+	}
+
+	public function testGpsToDecimalWithWesternLongitude(): void
+	{
+		// 74°0'21" W = -74.005833°
+		$coordinate = ['74/1', '0/1', '21/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'W');
+		$this->assertEqualsWithDelta(-74.005833, $result, 0.000001);
+	}
+
+	public function testGpsToDecimalWithFractionalValues(): void
+	{
+		// Test with fractional degrees, minutes, and seconds
+		$coordinate = ['40/1', '26/1', '923/20']; // 46.15 seconds
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'N');
+		$this->assertEqualsWithDelta(40.446153, $result, 0.000001);
+	}
+
+	public function testGpsToDecimalWithZeroValues(): void
+	{
+		// 0°0'0" N = 0.0°
+		$coordinate = ['0/1', '0/1', '0/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'N');
+		$this->assertSame(0.0, $result);
+	}
+
+	public function testGpsToDecimalWithOnlyDegrees(): void
+	{
+		// Only degrees provided
+		$coordinate = ['48/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'N');
+		$this->assertSame(48.0, $result);
+	}
+
+	public function testGpsToDecimalWithDegreesAndMinutes(): void
+	{
+		// Degrees and minutes only, no seconds
+		$coordinate = ['48/1', '51/1'];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'N');
+		$this->assertSame(48.85, $result);
+	}
+
+	public function testGpsToDecimalWithEmptyArray(): void
+	{
+		$coordinate = [];
+		$result = GeographicCoordinates::gpsToDecimal($coordinate, 'N');
+		$this->assertSame(0.0, $result);
+	}
+
+	public function testGpsToDecimalRealWorldExample(): void
+	{
+		// Eiffel Tower GPS coordinates
+		// 48°51'29.6"N, 2°17'40.2"E
+		$latitude = ['48/1', '51/1', '296/10']; // 29.6 seconds
+		$longitude = ['2/1', '17/1', '402/10']; // 40.2 seconds
+
+		$lat = GeographicCoordinates::gpsToDecimal($latitude, 'N');
+		$lng = GeographicCoordinates::gpsToDecimal($longitude, 'E');
+
+		$this->assertEqualsWithDelta(48.858222, $lat, 0.000001);
+		$this->assertEqualsWithDelta(2.294500, $lng, 0.000001);
+	}
 }

@@ -5,8 +5,18 @@ namespace Osimatic\Messaging;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Firebase Cloud Messaging (FCM) client for sending push notifications to mobile devices.
+ * This class implements the MobilePushNotificationSenderInterface and provides methods to send push notifications through Google's Firebase Cloud Messaging service.
+ */
 class FirebaseMessaging implements MobilePushNotificationSenderInterface
 {
+	/**
+	 * Construct a new FirebaseMessaging client instance.
+	 * @param string|null $projectId The Firebase project ID
+	 * @param string|null $serviceKeyFile The path to the Firebase service account key JSON file
+	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 */
 	public function __construct(
 		private ?string $projectId = null,
 		private ?string $serviceKeyFile = null,
@@ -14,8 +24,9 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 	) {}
 
 	/**
-	 * @param string $projectId
-	 * @return self
+	 * Set the Firebase project ID.
+	 * @param string $projectId The Firebase project ID from the Firebase console
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setProjectId(string $projectId): self
 	{
@@ -25,8 +36,9 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 	}
 
 	/**
-	 * @param string $serviceKeyFile
-	 * @return self
+	 * Set the path to the Firebase service account key file.
+	 * @param string $serviceKeyFile The absolute path to the service account JSON key file
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setServiceKeyFile(string $serviceKeyFile): self
 	{
@@ -36,8 +48,9 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 	}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Set the PSR-3 logger for debugging push notification operations.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{

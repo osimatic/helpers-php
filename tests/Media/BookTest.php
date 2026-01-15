@@ -120,4 +120,174 @@ final class BookTest extends TestCase
 	{
 		$this->assertFalse(Book::checkIssn(''));
 	}
+
+	/* ===================== normalizeIsbn() ===================== */
+
+	public function testNormalizeIsbnRemovesHyphens(): void
+	{
+		$this->assertSame('0306406152', Book::normalizeIsbn('0-306-40615-2'));
+	}
+
+	public function testNormalizeIsbnRemovesSpaces(): void
+	{
+		$this->assertSame('0306406152', Book::normalizeIsbn('0306 40615 2'));
+	}
+
+	public function testNormalizeIsbnConvertsToUppercase(): void
+	{
+		$this->assertSame('043942089X', Book::normalizeIsbn('043942089x'));
+	}
+
+	public function testNormalizeIsbnTrimsWhitespace(): void
+	{
+		$this->assertSame('0306406152', Book::normalizeIsbn('  0-306-40615-2  '));
+	}
+
+	/* ===================== convertIsbn10ToIsbn13() ===================== */
+
+	public function testConvertIsbn10ToIsbn13WithValidIsbn10(): void
+	{
+		$this->assertSame('9780306406157', Book::convertIsbn10ToIsbn13('0-306-40615-2'));
+		$this->assertSame('9780306406157', Book::convertIsbn10ToIsbn13('0306406152'));
+	}
+
+	public function testConvertIsbn10ToIsbn13WithInvalidIsbn10(): void
+	{
+		$this->assertNull(Book::convertIsbn10ToIsbn13('invalid'));
+		$this->assertNull(Book::convertIsbn10ToIsbn13('123'));
+	}
+
+	public function testConvertIsbn10ToIsbn13WithIsbn13(): void
+	{
+		// Should return null for ISBN-13 input
+		$this->assertNull(Book::convertIsbn10ToIsbn13('978-0-306-40615-7'));
+	}
+
+	/* ===================== Invalid Pattern Detection ===================== */
+
+	public function testCheckIsbnRejectsAllIdenticalDigits(): void
+	{
+		$this->assertFalse(Book::checkIsbn('0000000000'));
+		$this->assertFalse(Book::checkIsbn('1111111111'));
+		$this->assertFalse(Book::checkIsbn('9999999999999'));
+	}
+
+	public function testCheckIsbnRejectsSequentialDigits(): void
+	{
+		$this->assertFalse(Book::checkIsbn('0123456789'));
+		$this->assertFalse(Book::checkIsbn('9876543210'));
+		$this->assertFalse(Book::checkIsbn('1234567890123'));
+	}
+
+	/* ===================== getIsbnPrefix() ===================== */
+
+	public function testGetIsbnPrefixWithIsbn13(): void
+	{
+		$this->assertSame('978', Book::getIsbnPrefix('978-0-306-40615-7'));
+		$this->assertSame('979', Book::getIsbnPrefix('979-10-90636-07-1'));
+	}
+
+	public function testGetIsbnPrefixWithIsbn10(): void
+	{
+		$this->assertNull(Book::getIsbnPrefix('0-306-40615-2'));
+	}
+
+	/* ===================== getIsbnRegistrationGroup() ===================== */
+
+	public function testGetIsbnRegistrationGroupWithIsbn13(): void
+	{
+		$this->assertSame('0', Book::getIsbnRegistrationGroup('978-0-306-40615-7'));
+		$this->assertSame('1', Book::getIsbnRegistrationGroup('978-1-234-56789-0'));
+		$this->assertSame('2', Book::getIsbnRegistrationGroup('978-2-207-03641-2'));
+		$this->assertSame('3', Book::getIsbnRegistrationGroup('978-3-16-148410-0'));
+	}
+
+	public function testGetIsbnRegistrationGroupWithIsbn10(): void
+	{
+		$this->assertNull(Book::getIsbnRegistrationGroup('0-306-40615-2'));
+	}
+
+	/* ===================== getIsbnCheckDigit() ===================== */
+
+	public function testGetIsbnCheckDigitWithIsbn10(): void
+	{
+		$this->assertSame('2', Book::getIsbnCheckDigit('0-306-40615-2'));
+		$this->assertSame('X', Book::getIsbnCheckDigit('043942089X'));
+	}
+
+	public function testGetIsbnCheckDigitWithIsbn13(): void
+	{
+		$this->assertSame('7', Book::getIsbnCheckDigit('978-0-306-40615-7'));
+		$this->assertSame('0', Book::getIsbnCheckDigit('978-3-16-148410-0'));
+	}
+
+	public function testGetIsbnCheckDigitWithInvalidLength(): void
+	{
+		$this->assertNull(Book::getIsbnCheckDigit('123'));
+	}
+
+	/* ===================== getIsbnInfo() ===================== */
+
+	public function testGetIsbnInfoWithValidIsbn10(): void
+	{
+		$info = Book::getIsbnInfo('0-306-40615-2');
+		$this->assertSame('isbn10', $info['type']);
+		$this->assertNull($info['prefix']);
+		$this->assertNull($info['registration_group']);
+		$this->assertSame('2', $info['check_digit']);
+		$this->assertTrue($info['is_valid']);
+	}
+
+	public function testGetIsbnInfoWithValidIsbn13(): void
+	{
+		$info = Book::getIsbnInfo('978-0-306-40615-7');
+		$this->assertSame('isbn13', $info['type']);
+		$this->assertSame('978', $info['prefix']);
+		$this->assertSame('0', $info['registration_group']);
+		$this->assertSame('7', $info['check_digit']);
+		$this->assertTrue($info['is_valid']);
+	}
+
+	public function testGetIsbnInfoWithInvalidIsbn(): void
+	{
+		$info = Book::getIsbnInfo('invalid');
+		$this->assertNull($info['type']);
+		$this->assertNull($info['prefix']);
+		$this->assertNull($info['registration_group']);
+		$this->assertNull($info['check_digit']);
+		$this->assertFalse($info['is_valid']);
+	}
+
+	/* ===================== getRegistrationGroupName() ===================== */
+
+	public function testGetRegistrationGroupNameWithCommonGroups(): void
+	{
+		$this->assertSame('English language', Book::getRegistrationGroupName('0'));
+		$this->assertSame('English language', Book::getRegistrationGroupName('1'));
+		$this->assertSame('French language', Book::getRegistrationGroupName('2'));
+		$this->assertSame('German language', Book::getRegistrationGroupName('3'));
+		$this->assertSame('Japan', Book::getRegistrationGroupName('4'));
+		$this->assertSame('Russian Federation', Book::getRegistrationGroupName('5'));
+		$this->assertSame('China', Book::getRegistrationGroupName('7'));
+	}
+
+	public function testGetRegistrationGroupNameWithTwoDigitGroups(): void
+	{
+		$this->assertSame('Spain', Book::getRegistrationGroupName('84'));
+		$this->assertSame('Italy', Book::getRegistrationGroupName('88'));
+		$this->assertSame('Netherlands', Book::getRegistrationGroupName('90'));
+	}
+
+	public function testGetRegistrationGroupNameWithThreeDigitGroups(): void
+	{
+		$this->assertSame('Finland', Book::getRegistrationGroupName('951'));
+		$this->assertSame('Greece', Book::getRegistrationGroupName('960'));
+		$this->assertSame('Mexico', Book::getRegistrationGroupName('970'));
+	}
+
+	public function testGetRegistrationGroupNameWithUnknownGroup(): void
+	{
+		$this->assertNull(Book::getRegistrationGroupName('999'));
+		$this->assertNull(Book::getRegistrationGroupName('unknown'));
+	}
 }

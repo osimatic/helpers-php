@@ -11,7 +11,6 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class PostalAddress
- * @package Osimatic\Location
  */
 class PostalAddress
 {

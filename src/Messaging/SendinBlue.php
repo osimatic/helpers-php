@@ -7,19 +7,25 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Class SendinBlue
- * @package Osimatic\API
+ * SendinBlue (Brevo) API client for managing contacts and lists.
+ * This class provides methods to interact with the SendinBlue (now Brevo) email marketing platform API.
  */
 class SendinBlue
 {
+	/**
+	 * Construct a new SendinBlue client instance.
+	 * @param string|null $apiKey The SendinBlue API key for authentication
+	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 */
 	public function __construct(
 		private ?string $apiKey = null,
 		private LoggerInterface $logger=new NullLogger(),
 	) {}
 
 	/**
-	 * @param string $apiKey
-	 * @return self
+	 * Set the SendinBlue API key.
+	 * @param string $apiKey The API key for authentication
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setApiKey(string $apiKey): self
 	{
@@ -29,8 +35,9 @@ class SendinBlue
 	}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Set the PSR-3 logger for debugging API interactions.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -40,13 +47,14 @@ class SendinBlue
 	}
 
 	/**
-	 * @param int $contactListId
-	 * @param string $email
-	 * @param string|null $firstName
-	 * @param string|null $lastName
-	 * @param string|null $companyName
-	 * @param string|null $mobileNumber
-	 * @return bool
+	 * Create or update a contact in a SendinBlue contact list.
+	 * @param int $contactListId The ID of the contact list
+	 * @param string $email The contact's email address
+	 * @param string|null $firstName The contact's first name (optional)
+	 * @param string|null $lastName The contact's last name (optional)
+	 * @param string|null $companyName The contact's company name (optional)
+	 * @param string|null $mobileNumber The contact's mobile phone number (optional)
+	 * @return bool True if the contact was created/updated successfully, false otherwise
 	 */
 	public function createContact(int $contactListId, string $email, ?string $firstName=null, ?string $lastName=null, ?string $companyName=null, ?string $mobileNumber=null): bool
 	{
