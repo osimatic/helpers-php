@@ -7,16 +7,16 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 class Str
 {
 
-	// ========== Remplacement de caractères ==========
+	// ========== Character Replacement ==========
 
 	/**
-	 * Remplace une série de caractères par un autre caractère dans une chaîne.
-	 * @param string $str la chaîne sur laquelle remplacer des caractères
-	 * @param array $replacements liste des caractères à remplacer (sensible à la casse) : en clé, le caractère à remplacer ; en valeur, le caractère de remplacement.
-	 * @param boolean $replaceUppercaseChar true pour remplacer également les caractères en majuscule, false sinon (false par défaut)
-	 * @param boolean $replaceLowercaseChar true pour remplacer également les caractères en minuscule, false sinon (false par défaut)
-	 * @param boolean $replaceBrutChar true pour remplacer les caractères tels quels, false sinon (true par défaut)
-	 * @return string la chaîne avec les caractères remplacés
+	 * Replaces a series of characters with other characters in a string.
+	 * @param string $str The string in which to replace characters
+	 * @param array $replacements List of characters to replace (case-sensitive): key is the character to replace, value is the replacement character
+	 * @param boolean $replaceUppercaseChar True to also replace uppercase characters, false otherwise (default: false)
+	 * @param boolean $replaceLowercaseChar True to also replace lowercase characters, false otherwise (default: false)
+	 * @param boolean $replaceBrutChar True to replace characters as-is, false otherwise (default: true)
+	 * @return string The string with replaced characters
 	 */
 	public static function replaceListChar(string $str, array $replacements, bool $replaceUppercaseChar=false, bool $replaceLowercaseChar=false, bool $replaceBrutChar=true): string
 	{
@@ -36,13 +36,13 @@ class Str
 	}
 
 	/**
-	 * Supprime une série de caractères dans une chaîne.
-	 * @param string $str la chaîne sur laquelle supprimer des caractères
-	 * @param array $charactersToRemove liste des caractères à supprimer (sensible à la casse).
-	 * @param boolean $replaceUppercaseChar true pour supprimer également les caractères en majuscule, false sinon (false par défaut)
-	 * @param boolean $replaceLowercaseChar true pour supprimer également les caractères en minuscule, false sinon (false par défaut)
-	 * @param boolean $replaceBrutChar true pour supprimer les caractères tels quels, false sinon (true par défaut)
-	 * @return string la chaîne avec les caractères supprimés
+	 * Removes a series of characters from a string.
+	 * @param string $str The string from which to remove characters
+	 * @param array $charactersToRemove List of characters to remove (case-sensitive)
+	 * @param boolean $replaceUppercaseChar True to also remove uppercase characters, false otherwise (default: false)
+	 * @param boolean $replaceLowercaseChar True to also remove lowercase characters, false otherwise (default: false)
+	 * @param boolean $replaceBrutChar True to remove characters as-is, false otherwise (default: true)
+	 * @return string The string with removed characters
 	 */
 	public static function removeListeChar(string $str, array $charactersToRemove, bool $replaceUppercaseChar=false, bool $replaceLowercaseChar=false, bool $replaceBrutChar=true): string
 	{
@@ -59,16 +59,16 @@ class Str
 	}
 
 
-	// ========== Comparaison de chaînes ==========
+	// ========== String Comparison ==========
 
 	/**
-	 * Calcule la distance Levenshtein entre deux chaînes.
-	 * La distance de Levenshtein mesure la similarité entre deux chaînes de caractères. Elle est égale au nombre minimal de caractères qu’il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre.
-	 * @param string $str1 Une des chaînes à évaluer.
-	 * @param string $str2 L'autre des chaînes à évaluer.
-	 * @return int la distance Levenshtein entre deux chaînes de caractères, ou -1 si l'un des deux arguments contient plus de 255 caractères.
-	 * @link http://fr.wikipedia.org/wiki/Distance_de_Levenshtein
-	 * @link http://fr.php.net/manual/fr/function.levenshtein.php
+	 * Calculates the Levenshtein distance between two strings.
+	 * The Levenshtein distance measures the similarity between two strings. It equals the minimum number of characters that must be deleted, inserted, or replaced to transform one string into the other.
+	 * @param string $str1 One of the strings to evaluate
+	 * @param string $str2 The other string to evaluate
+	 * @return int The Levenshtein distance between the two strings, or -1 if either argument contains more than 255 characters
+	 * @link https://en.wikipedia.org/wiki/Levenshtein_distance
+	 * @link https://www.php.net/manual/en/function.levenshtein.php
 	 */
 	public static function levenshtein(string $str1, string $str2): int
 	{
@@ -76,12 +76,12 @@ class Str
 	}
 
 	/**
-	 * Suggère un mot similaire tiré d'un dictionnaire à partir d'un mot de base passé en paramètre.
-	 * @param string $word le mot de base à comparer au dictionnaire.
-	 * @param array $dictionnary la liste des mots "autorisés" qui peuvent être retourné si l'un de ces mots est similaire au mot de base.
-	 * @param int $distanceMax distance de Levenshtein maximum désirée. Plus la distance maximum est importante, plus les mots suggérés seront éloignés, donc différents.
-	 * @return string|null le mot le plus proche du dictionnaire par rapport au mot de base (c'est-à-dire le mot le moins "distant" dans le dictionnaire), false si aucun mot du dictionnaire ne correspond au critère de distance.
-	 * @author : Jay Salvat (blog.jaysalvat.com)
+	 * Suggests a similar word from a dictionary based on a given input word.
+	 * @param string $word The base word to compare against the dictionary
+	 * @param array $dictionnary The list of "allowed" words that can be returned if one is similar to the base word
+	 * @param int $distanceMax Maximum desired Levenshtein distance. The higher the maximum distance, the more distant (different) the suggested words will be
+	 * @return string|null The closest dictionary word to the base word (i.e., the least "distant" word in the dictionary), or null if no dictionary word matches the distance criterion
+	 * @author Jay Salvat (blog.jaysalvat.com)
 	 * @link http://blog.jaysalvat.com/article/suggerez-des-orthographes-alternatives-en-php
 	 */
 	public static function suggest(string $word, array $dictionnary, int $distanceMax = 3): ?string
@@ -101,11 +101,12 @@ class Str
 	}
 
 	/**
-	 * @param $val1
-	 * @param $val2
-	 * @param bool $naturalOrder
-	 * @param bool $caseSensitive
-	 * @return int
+	 * Compares two values (numeric or string) with options for natural ordering and case sensitivity.
+	 * @param mixed $val1 The first value to compare
+	 * @param mixed $val2 The second value to compare
+	 * @param bool $naturalOrder If true, use natural order comparison (default: false)
+	 * @param bool $caseSensitive If true, perform case-sensitive comparison (default: false)
+	 * @return int Returns -1 if $val1 < $val2, 1 if $val1 > $val2, or 0 if they are equal
 	 */
 	public static function compare($val1, $val2, bool $naturalOrder=false, bool $caseSensitive=false): int
 	{
@@ -121,26 +122,26 @@ class Str
 
 		if ($naturalOrder) {
 			if ($caseSensitive) {
-				return strnatcmp($val1, $val2); // Comparaison ordre naturel, sensible à la casse
+				return strnatcmp($val1, $val2); // Natural order comparison, case-sensitive
 			}
-			return strnatcasecmp($val1, $val2); // Comparaison ordre naturel, insensible à la casse
+			return strnatcasecmp($val1, $val2); // Natural order comparison, case-insensitive
 		}
 
 		if ($caseSensitive) {
-			return strcmp($val1, $val2); // Comparaison, sensible à la casse
+			return strcmp($val1, $val2); // Comparison, case-sensitive
 		}
-		return strcasecmp($val1, $val2); // Comparaison, insensible à la casse
+		return strcasecmp($val1, $val2); // Comparison, case-insensitive
 	}
 
-	// ========== Raccourcissement de chaîne ==========
+	// ========== String Truncation ==========
 
 	/**
-	 * Coupe une chaîne de caractères avant un certain nombre de caractères, le début de la chaîne étant tronquée, et ajoute éventuellement une chaîne avant la coupure
-	 * @param string $string la chaîne à couper
-	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (le début étant coupé)
-	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caractères maximum (true par défaut)
-	 * @param string $strAddingAtBeginning la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("…" par défaut)
-	 * @return string la chaîne coupée
+	 * Truncates a string from the beginning before a certain number of characters and optionally adds a string before the truncation.
+	 * @param string $string The string to truncate
+	 * @param int $nbCharMax The maximum number of characters in the string (truncating from the beginning)
+	 * @param bool $dontCutInMiddleOfWord True to avoid cutting in the middle of a word (wait for word end), false to cut strictly at the maximum character count (default: true)
+	 * @param string $strAddingAtBeginning The string to add after truncation, if truncation occurred (default: "…")
+	 * @return string The truncated string
 	 */
 	public static function truncateTextAtBeginning(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtBeginning = '…'): string
 	{
@@ -166,12 +167,12 @@ class Str
 	}
 
 	/**
-	 * Coupe une chaîne de caractères après un certain nombre de caractères, la fin de la chaîne étant tronquée, et ajoute éventuellement une chaîne après la coupure
-	 * @param string $string la chaîne à couper
-	 * @param int $nbCharMax le nombre de caractères maximum de la chaîne (la fin étant coupé)
-	 * @param bool $dontCutInMiddleOfWord true pour ne pas couper la chaîne en plein mot (attendre la fin d'un mot avant de couper), false pour couper strictement au nombre de caractères maximum (true par défaut)
-	 * @param string $strAddingAtEnd la chaîne de caractères à ajouter après avoir coupé la chaîne, si coupure il y a eu ("…" par défaut)
-	 * @return string la chaîne coupée
+	 * Truncates a string after a certain number of characters and optionally adds a string after the truncation.
+	 * @param string $string The string to truncate
+	 * @param int $nbCharMax The maximum number of characters in the string (truncating from the end)
+	 * @param bool $dontCutInMiddleOfWord True to avoid cutting in the middle of a word (wait for word end), false to cut strictly at the maximum character count (default: true)
+	 * @param string $strAddingAtEnd The string to add after truncation, if truncation occurred (default: "…")
+	 * @return string The truncated string
 	 */
 	public static function truncateTextAtEnd(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingAtEnd = '…'): string
 	{
@@ -196,12 +197,13 @@ class Str
 	}
 
 	/**
-	 * TODO : prendre en compte le paramètre $dontCutInMiddleOfWord
-	 * @param string $string
-	 * @param int $nbCharMax
-	 * @param bool $dontCutInMiddleOfWord
-	 * @param string $strAddingInMiddle
-	 * @return string
+	 * Truncates a string in the middle, keeping the beginning and end.
+	 * TODO: Take into account the $dontCutInMiddleOfWord parameter
+	 * @param string $string The string to truncate
+	 * @param int $nbCharMax The maximum number of characters in the result
+	 * @param bool $dontCutInMiddleOfWord If true, avoid cutting in the middle of words (not yet implemented)
+	 * @param string $strAddingInMiddle The string to add in the middle where text was removed (default: "[…]")
+	 * @return string The truncated string
 	 */
 	public static function truncateTextInMiddle(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingInMiddle = '[…]'): string
 	{
@@ -250,39 +252,42 @@ class Str
 	}
 
 
-	// ========== Vérification ==========
+	// ========== Validation ==========
 
 	/**
-	 * @param string $string
-	 * @param bool $numericAllowed
-	 * @return bool
+	 * Checks if a string contains only lowercase characters.
+	 * @param string $string The string to check
+	 * @param bool $numericAllowed If true, allows numeric characters in the string
+	 * @return bool True if the string is all lowercase, false otherwise
 	 */
 	public static function checkLowercase(string $string, bool $numericAllowed=true): bool
 	{
 		if ($numericAllowed) {
-			$string = str_replace('/\d/', '', $string);
+			$string = preg_replace('/\d/', '', $string);
 		}
 		return ctype_lower($string);
 	}
 
 	/**
-	 * @param string $string
-	 * @param bool $numericAllowed
-	 * @return bool
+	 * Checks if a string contains only uppercase characters.
+	 * @param string $string The string to check
+	 * @param bool $numericAllowed If true, allows numeric characters in the string
+	 * @return bool True if the string is all uppercase, false otherwise
 	 */
 	public static function checkUppercase(string $string, bool $numericAllowed=true): bool
 	{
 		if ($numericAllowed) {
-			$string = str_replace('/\d/', '', $string);
+			$string = preg_replace('/\d/', '', $string);
 		}
 		return ctype_upper($string);
 	}
 
 	/**
-	 * @param string $string
-	 * @param int $nbCharMin
-	 * @param int $nbCharMax
-	 * @return bool
+	 * Checks if a string's length is within a specified range.
+	 * @param string $string The string to check
+	 * @param int $nbCharMin The minimum number of characters allowed
+	 * @param int $nbCharMax The maximum number of characters allowed
+	 * @return bool True if the string length is within range, false otherwise
 	 */
 	public static function checkLength(string $string, int $nbCharMin, int $nbCharMax): bool
 	{
@@ -298,10 +303,11 @@ class Str
 	}
 
 	/**
-	 * @param string $string
-	 * @param int $nbCharMin
-	 * @param int $nbCharMax
-	 * @return bool
+	 * Checks if a string contains only alphabetic characters and has a length within the specified range.
+	 * @param string $string The string to check
+	 * @param int $nbCharMin The minimum number of characters allowed
+	 * @param int $nbCharMax The maximum number of characters allowed
+	 * @return bool True if the string is all alphabetic and within length range, false otherwise
 	 */
 	public static function checkForAlphabeticCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
 	{
@@ -313,10 +319,11 @@ class Str
 	}
 
 	/**
-	 * @param string $string
-	 * @param int $nbCharMin
-	 * @param int $nbCharMax
-	 * @return bool
+	 * Checks if a string contains only alphanumeric characters and has a length within the specified range.
+	 * @param string $string The string to check
+	 * @param int $nbCharMin The minimum number of characters allowed
+	 * @param int $nbCharMax The maximum number of characters allowed
+	 * @return bool True if the string is all alphanumeric and within length range, false otherwise
 	 */
 	public static function checkForAlphanumericCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
 	{
@@ -328,11 +335,12 @@ class Str
 	}
 
 	/**
-	 * @param string $string
-	 * @param int $nbCharMin
-	 * @param int $nbCharMax
-	 * @param bool $canStartWithZero
-	 * @return bool
+	 * Checks if a string contains only numeric characters and has a length within the specified range.
+	 * @param string $string The string to check
+	 * @param int $nbCharMin The minimum number of characters allowed
+	 * @param int $nbCharMax The maximum number of characters allowed
+	 * @param bool $canStartWithZero If false, the string cannot start with '0' (default: true)
+	 * @return bool True if the string is all numeric and within length range, false otherwise
 	 */
 	public static function checkForNumericCharacters(string $string, int $nbCharMin, int $nbCharMax, bool $canStartWithZero=true): bool
 	{
@@ -348,21 +356,23 @@ class Str
 	}
 
 	/**
-	 * @param string $string
-	 * @return bool
+	 * Checks if a string contains both alphabetic and numeric characters (but not only numeric).
+	 * @param string $string The string to check
+	 * @return bool True if the string is alphanumeric and contains at least one letter, false otherwise
 	 */
 	public static function ctype_alpha_and_num(string $string): bool
 	{
 		return ctype_alnum($string) && !ctype_digit($string);
 	}
 
-	// ========== Comptage de caractère ==========
+	// ========== Character Counting ==========
 
 	/**
-	 * @param string $string
-	 * @param int $nbCharFormat
-	 * @param bool $addBlankInBeginning
-	 * @return string
+	 * Pads a string with spaces to reach a specified length.
+	 * @param string $string The string to pad
+	 * @param int $nbCharFormat The desired total length
+	 * @param bool $addBlankInBeginning If true, add spaces at the beginning; otherwise add at the end (default: false)
+	 * @return string The padded string
 	 */
 	public static function getStringWithBlank(string $string, int $nbCharFormat, bool $addBlankInBeginning=false): string
 	{
@@ -378,9 +388,10 @@ class Str
 	}
 
 	/**
-	 * @param string $char
-	 * @param int $nb
-	 * @return string
+	 * Creates a string by repeating the same character multiple times.
+	 * @param string $char The character to repeat
+	 * @param int $nb The number of times to repeat the character
+	 * @return string The resulting string
 	 */
 	public static function getStringWithSameChar(string $char, int $nb): string
 	{
@@ -388,10 +399,10 @@ class Str
 	}
 
 	/**
-	 * Retourne le nombre de caractères $char dans la chaine $str
-	 * @param string $str
-	 * @param string $char
-	 * @return int
+	 * Returns the number of occurrences of a specific character in a string.
+	 * @param string $str The string to search in
+	 * @param string $char The character to count
+	 * @return int The number of occurrences
 	 */
 	public static function getNumberOccurrencesOfPreciseChar(string $str, string $char): int
 	{
@@ -399,10 +410,10 @@ class Str
 	}
 
 	/**
-	 * Retourne le nombre de caractères présent dans le tableau/string $listChar dans la chaine $str
-	 * @param string $str
-	 * @param array|string $listChar
-	 * @return int
+	 * Returns the total number of occurrences of characters from a list in a string.
+	 * @param string $str The string to search in
+	 * @param array|string $listChar An array or string of characters to count
+	 * @return int The total number of occurrences of all specified characters
 	 */
 	public static function getNumberOccurrencesOfListChar(string $str, array|string $listChar): int
 	{
@@ -423,9 +434,9 @@ class Str
 	}
 
 	/**
-	 * Teste si la chaîne de caractère ne contient que le même caractère (un seul caractère utilisé)
-	 * @param string $str la chaîne de caractère à tester
-	 * @return bool true si la chaîne ne contient que le même caractère, false si la chaîne contient au moins 2 caractères différents
+	 * Tests if a string contains only the same character repeated.
+	 * @param string $str The string to test
+	 * @return bool True if the string contains only one unique character, false if it contains at least 2 different characters
 	 */
 	public static function containsOnlySameChar(string $str): bool
 	{
@@ -433,9 +444,9 @@ class Str
 	}
 
 	/**
-	 * Teste si la chaîne de caractère ne contient que des caractères différents (pas de caractère en double)
-	 * @param string $str la chaîne de caractère à tester
-	 * @return bool true si la chaîne ne contient que des caractères différents, false si elle contient au moins un même caractère présent au moins 2 fois
+	 * Tests if a string contains only different characters (no duplicates).
+	 * @param string $str The string to test
+	 * @return bool True if all characters are unique, false if any character appears at least twice
 	 */
 	public static function containsOnlyDifferentChar(string $str): bool
 	{
@@ -448,10 +459,10 @@ class Str
 	}
 
 	/**
-	 * Retourne true si $str contient au minimum $min caractères différents
-	 * @param string $str
-	 * @param int $min
-	 * @return bool
+	 * Checks if a string contains at least a minimum number of unique characters.
+	 * @param string $str The string to check
+	 * @param int $min The minimum number of unique characters required (default: 2)
+	 * @return bool True if the string contains at least $min unique characters, false otherwise
 	 */
 	public static function nbCharUniqueMinimum(string $str, int $min=2): bool
 	{
@@ -459,10 +470,10 @@ class Str
 	}
 
 	/**
-	 * Retourne true si $str contient au maximum $max caractères différents
-	 * @param string $str
-	 * @param int $max
-	 * @return bool
+	 * Checks if a string contains at most a maximum number of unique characters.
+	 * @param string $str The string to check
+	 * @param int $max The maximum number of unique characters allowed (default: 2)
+	 * @return bool True if the string contains at most $max unique characters, false otherwise
 	 */
 	public static function nbCharUniqueMaximum(string $str, int $max=2): bool
 	{
@@ -472,44 +483,45 @@ class Str
 	// ========== Transformation ==========
 
 	/**
-	 * Gère les singuliers/pluriels dans une chaîne de caractères en fonction d'un nombre
-	 * Utilisation : "{Aucun item|1 item|{#} items}"
-	 * @param string $string la chaîne de caractères à mettre au singulier ou au pluriel
-	 * @param int|float $nb le nombre d'éléments qui permet de savoir si la chaîne doit être au singulier ou au pluriel (1 par défaut)
-	 * @return string la chaîne de caractères mise au singulier ou au pluriel
+	 * Handles singular/plural forms in a string based on a number.
+	 * Usage: "{No items|1 item|{#} items}"
+	 * @param string $string The string to convert to singular or plural form
+	 * @param int|float $nb The number of elements that determines whether the string should be singular or plural
+	 * @return string The string in singular or plural form
 	 * @author Jay Salvat
 	 */
 	public static function pluralize(string $string, int|float $nb): string
 	{
-		// remplace {#} par le chiffre
+		// Replace {#} with the number
 		$string = str_replace('{#}', $nb, $string);
-		// cherche toutes les occurrences de {...}
+		// Find all occurrences of {...}
 		preg_match_all("/\{(.*?)\}/", $string, $matches);
 		foreach($matches[1] as $k=>$v) {
-			// on coupe l'occurrence à |
+			// Split the occurrence at |
 			$part = explode('|', $v);
-			// si aucun
+			// If zero
 			if ($nb === 0) {
 				$mod = (count($part) === 1) ? '' : $part[0];
 			}
-			// si singulier
+			// If singular
 			else if ($nb === 1) {
 				$mod = (count($part) === 1) ? '' : ((count($part) === 2) ? $part[0] : $part[1]);
 			}
-			// sinon pluriel
+			// Otherwise plural
 			else {
 				$mod = (count($part) === 1) ? $part[0] : ((count($part) === 2) ? $part[1] : $part[2]);
 			}
-			// remplace les occurrences trouvées par le bon résultat.
+			// Replace found occurrences with the correct result
 			$string = str_replace($matches[0][$k], $mod , $string);
 		}
 		return $string;
 	}
 
 	/**
-	 * Takes multiple words separated by spaces and underscores them
-	 * @param string $str
-	 * @return string
+	 * Converts a string with spaces to underscore-separated format.
+	 * Replaces all whitespace characters with underscores and converts to lowercase.
+	 * @param string $str The string to convert (e.g., "Hello World")
+	 * @return string The underscored string (e.g., "hello_world")
 	 */
 	public static function underscore(string $str): string
 	{
@@ -517,9 +529,10 @@ class Str
 	}
 
 	/**
-	 * Takes multiple words separated by underscores and changes them to spaces
-	 * @param string $str
-	 * @return string
+	 * Converts an underscore-separated string to a human-readable format.
+	 * Replaces underscores with spaces and capitalizes each word.
+	 * @param string $str The string to humanize (e.g., "hello_world")
+	 * @return string The humanized string (e.g., "Hello World")
 	 */
 	public static function humanize(string $str): string
 	{
@@ -527,9 +540,9 @@ class Str
 	}
 
 	/**
-	 *
-	 * @param string $str
-	 * @return string
+	 * Converts a string from CamelCase to snake_case.
+	 * @param string $str The string to convert
+	 * @return string The converted string in snake_case format
 	 */
 	public static function toSnakeCase(string $str): string
 	{
@@ -537,9 +550,10 @@ class Str
 	}
 
 	/**
-	 * Takes multiple words separated by spaces or underscores and camelizes them
-	 * @param string $str
-	 * @return string
+	 * Converts a string from snake_case or space-separated to camelCase.
+	 * Capitalizes the first letter of each word except the first one and removes separators.
+	 * @param string $str The string to convert (e.g., "hello_world" or "hello world")
+	 * @return string The converted string in camelCase format (e.g., "helloWorld")
 	 */
 	public static function toCamelCase(string $str): string
 	{
@@ -551,9 +565,10 @@ class Str
 	}
 
 	/**
-	 * @param string $str
-	 * @param string $replace
-	 * @return string
+	 * Removes all whitespace characters (spaces, tabs, newlines) from a string.
+	 * @param string $str The string from which to remove spaces
+	 * @param string $replace The replacement string for removed spaces (default: empty string)
+	 * @return string The string with all whitespace removed or replaced
 	 */
 	public static function removeSpaces(string $str, string $replace=''): string
 	{
@@ -564,21 +579,25 @@ class Str
 	}
 
 	/**
-	 * @param string $str
-	 * @return string
+	 * Removes non-breaking spaces from a string and replaces them with regular spaces.
+	 * Specifically handles narrow no-break space (U+202F).
+	 * @param string $str The string from which to remove non-breaking spaces
+	 * @return string The string with non-breaking spaces replaced by regular spaces
 	 */
 	public static function removeNonBreakingSpaces(string $str): string
 	{
-		// retrait de l'espace insécable
+		// Remove narrow no-break space (U+202F)
 		//$str = preg_replace("\u{00a0}", '', $str);
 		//$str = preg_replace("\u{0020}", '', $str);
 		return str_replace("\xE2\x80\xAF", ' ', $str);
 	}
 
 	/**
-	 * @param string $str
-	 * @param string $replace
-	 * @return string
+	 * Removes all line breaks from a string.
+	 * This is an alias for normalizeBreaks() with an empty replacement string.
+	 * @param string $str The string from which to remove line breaks
+	 * @param string $replace The replacement string for removed line breaks (default: empty string)
+	 * @return string The string with all line breaks removed or replaced
 	 */
 	public static function removeLineBreak(string $str, string $replace=''): string
 	{
@@ -589,9 +608,9 @@ class Str
 	 * Normalize line breaks in a string.
 	 * Converts UNIX LF, Mac CR and Windows CRLF line breaks into a single line break format.
 	 * Defaults to CRLF (for message bodies) and preserves consecutive breaks.
-	 * @param string $text
+	 * @param string $text The text to normalize
 	 * @param string $breakType What kind of line break to use, defaults to CRLF
-	 * @return string
+	 * @return string The string with all line breaks normalized to the specified format
 	 */
 	public static function normalizeBreaks(string $text, string $breakType = "\r\n"): string
 	{
@@ -599,9 +618,11 @@ class Str
 	}
 
 	/**
-	 * @param string $str
-	 * @param string $replace
-	 * @return string
+	 * Removes all punctuation characters from a string.
+	 * Handles common punctuation marks including quotes, brackets, and special characters.
+	 * @param string $str The string from which to remove punctuation
+	 * @param string $replace The replacement string for removed punctuation (default: empty string)
+	 * @return string The string with punctuation removed or replaced, with multiple spaces collapsed to single spaces
 	 */
 	public static function removePunctuation(string $str, string $replace=''): string
 	{
@@ -609,14 +630,16 @@ class Str
 		foreach ($charList as $char) {
 			$str = preg_replace('#\\'.$char.'#', $replace, $str);
 		}
-		// Nettoie les doubles espaces qui peuvent être créés après suppression de la ponctuation
+		// Clean up double spaces that may be created after punctuation removal
 		$str = preg_replace('#\s{2,}#', ' ', $str);
 		return $str;
 	}
 
 	/**
-	 * @param string $str
-	 * @return string
+	 * Replaces special Unicode characters with their ASCII equivalents or removes them.
+	 * Handles various Unicode spaces, zero-width characters, special quotation marks, dashes, and other typographic characters.
+	 * @param string $str The string to process
+	 * @return string The string with special characters replaced by standard ASCII equivalents
 	 */
 	public static function replaceAnnoyingChar(string $str): string
 	{
@@ -747,12 +770,12 @@ class Str
 	}
 
 	/**
-	 * Reduces multiple instances of a particular character.  Example:
-	 * Fred, Bill,, Joe, Jimmy becomes: Fred, Bill, Joe, Jimmy
-	 * @param string $str
-	 * @param string $character the character you wish to reduce
-	 * @param bool $trim true/false - whether to trim the character from the beginning/end
-	 * @return string
+	 * Reduces multiple consecutive instances of a particular character to a single instance.
+	 * Example: "Fred, Bill,, Joe, Jimmy" becomes "Fred, Bill, Joe, Jimmy"
+	 * @param string $str The string to process
+	 * @param string $character The character you wish to reduce (default: comma)
+	 * @param bool $trim Whether to trim the character from the beginning/end (default: false)
+	 * @return string The string with consecutive occurrences of the character reduced to single instances
 	 */
 	public static function reduceMultiples(string $str, string $character=',', bool $trim=false): string
 	{
@@ -764,11 +787,12 @@ class Str
 	}
 
 	/**
-	 * Add's _1 to a string or increment the ending number to allow _2, _3, etc
-	 * @param string $str required
-	 * @param string $separator What should the duplicate number be appended with
-	 * @param int $first Which number should be used for the first dupe increment
-	 * @return string
+	 * Adds or increments a numeric suffix to a string for versioning or duplicate handling.
+	 * Example: "file" becomes "file_1", "file_1" becomes "file_2", etc.
+	 * @param string $str The string to increment
+	 * @param string $separator The separator between the string and number (default: underscore)
+	 * @param int $first The starting number for first increment (default: 1)
+	 * @return string The string with an added or incremented numeric suffix
 	 */
 	public static function increment(string $str, string $separator = '_', int $first = 1): string
 	{
@@ -777,10 +801,10 @@ class Str
 	}
 
 	/**
-	 *
-	 * @param string $data
-	 * @param integer $num number of repeats
-	 * @return string
+	 * Repeats a string a specified number of times.
+	 * @param string $data The string to repeat
+	 * @param int $num Number of times to repeat the string (default: 1)
+	 * @return string The repeated string, or empty string if $num is less than or equal to 0
 	 */
 	public static function repeater(string $data, int $num = 1): string
 	{
@@ -788,11 +812,12 @@ class Str
 	}
 
 	/**
-	 * Supply a string and an array of disallowed words and any matched words will be converted to #### or to the replacement word you've submitted.
-	 * @param string $str the text string
-	 * @param array $censored the array of censoered words
-	 * @param string $replacement the optional replacement value
-	 * @return string
+	 * Censors disallowed words in a string by replacing them with a specified replacement.
+	 * Supports wildcard patterns (e.g., "bad*" matches "bad", "badword", etc.).
+	 * @param string $str The text string to censor
+	 * @param array $censored The array of words to censor
+	 * @param string $replacement The replacement value (default: "####")
+	 * @return string The text with censored words replaced by the specified replacement string
 	 */
 	public static function censorWord(string $str, array $censored, string $replacement='####'): string
 	{
@@ -817,10 +842,11 @@ class Str
 	}
 
 	/**
-	 * Wraps text at the specified character.  Maintains the integrity of words. Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor will URLs.
-	 * @param string $str the text string
-	 * @param int $charlim the number of characters to wrap at
-	 * @return string
+	 * Wraps text at the specified character. Maintains the integrity of words.
+	 * Anything placed between {unwrap}{/unwrap} will not be word wrapped, nor will URLs.
+	 * @param string $str The text string to wrap
+	 * @param int $charlim The number of characters to wrap at
+	 * @return string The word-wrapped text with line breaks inserted at appropriate positions
 	 */
 	public static function wrapWord(string $str, int $charlim): string
 	{
@@ -899,9 +925,11 @@ class Str
 	}
 
 	/**
+	 * Removes accents from characters and converts them to their ASCII equivalents.
+	 * Handles Latin-1, Latin Extended-A/B, Vietnamese, and Chinese Pinyin diacritics.
+	 * @param string $string The string from which to remove accents
+	 * @return string The string with all accented characters replaced by their ASCII equivalents
 	 * @link https://github.com/WordPress/WordPress/blob/a2693fd8602e3263b5925b9d799ddd577202167d/wp-includes/formatting.php#L1528
-	 * @param string $string
-	 * @return string
 	 */
 	public static function removeAccents(string $string): string
 	{
@@ -1089,8 +1117,10 @@ class Str
 	}
 
 	/**
-	 * @param string $str The input string
-	 * @return string The URL-friendly string (lower-cased, accent-stripped, spaces to dashes).
+	 * Converts a string to a URL-friendly format (slug).
+	 * Removes accents, converts to lowercase, replaces spaces with dashes, and removes special characters.
+	 * @param string $str The string to convert
+	 * @return string The URL-friendly string (e.g., "Hello World!" becomes "hello-world")
 	 */
 	public static function toURLFriendly(string $str): string
 	{
@@ -1101,10 +1131,10 @@ class Str
 	}
 
 	/**
-	 * Mulit-byte Unserialize
-	 * UTF-8 will screw up a serialized string
-	 * @param string $string
-	 * @return array|null
+	 * Unserializes a string that contains multi-byte UTF-8 characters.
+	 * Fixes string length issues in serialized data caused by multi-byte characters.
+	 * @param string $string The serialized string to unserialize
+	 * @return array|null The unserialized array, or null if unserialization fails
 	 */
 	public static function mb_unserialize(string $string): ?array
 	{
@@ -1113,9 +1143,10 @@ class Str
 	}
 
 	/**
-	 * Mulit-byte ucfirst
-	 * @param string $string
-	 * @return string
+	 * Multi-byte safe version of ucfirst().
+	 * Capitalizes the first character of a string while preserving multi-byte characters.
+	 * @param string $string The string to capitalize
+	 * @return string The string with the first character capitalized
 	 */
 	public static function mb_ucfirst(string $string): string
 	{
@@ -1124,182 +1155,43 @@ class Str
 
 	// ========== Random ==========
 
-	private const string VOYELLES 				= 'aeiouy';
-	private const string CONSONNES 				= 'bcdfghjklmnpqrstvwxz';
-	private const string LETTRES				= 'abcdefghijklmnopqrstuvwxyz';
-	private const string CHIFFRES				= '0123456789';
-
 	/**
-	 * Génère une chaîne de caractères prononcable (c'est-à-dire alternant les consonnes et les voyelles)
-	 * @param int $nbChar le nombre de caractères de la chaîne à générer
-	 * @param string|null $listeConsonnes la liste des consonnes possibles pour la génération de la chaîne, ou null prendre toutes les consonnes de l'alphabet (null par défaut)
-	 * @param string|null $listeVoyelles la liste des voyelles possibles pour la génération de la chaîne, ou null prendre toutes les voyelles de l'alphabet (null par défaut)
-	 * @param bool $premiereLettreConsonneAleatoire true pour choisir aléatoirement de commencer par une consonne ou une voyelle, false sinon (false par défaut)
-	 * @param bool $premiereLettreConsonne true pour commencer par une consonne, false pour commencer par une voyelle (true par défaut). Ce paramètre est pris en compte seulement si $premiereLettreConsonneAleatoire vaut false
-	 * @return string la chaîne générée
+	 * Alias of the StringGenerator::getRandomPronounceableWord() function
 	 */
-	public static function getRandomPronounceableWord(int $nbChar, ?string $listeConsonnes=null, ?string $listeVoyelles=null, bool $premiereLettreConsonneAleatoire=false, bool $premiereLettreConsonne=true): string
+	public static function getRandomPronounceableWord(int $length, ?string $consonantsList=null, ?string $vowelsList=null, bool $randomFirstLetter=false, bool $startWithConsonant=true): string
 	{
-		if ($premiereLettreConsonneAleatoire) {
-			$pair = (random_int(0, 1) === 0);
-		}
-		else {
-			$pair = ($premiereLettreConsonne);
-		}
-
-		if ($listeConsonnes === null) {
-			$listeConsonnes = self::CONSONNES;
-		}
-		if ($listeVoyelles === null) {
-			$listeVoyelles = self::VOYELLES;
-		}
-		$nbConsonnes = strlen($listeConsonnes);
-		$nbVoyelles = strlen($listeVoyelles);
-
-		$motPrononcable = '';
-		for ($i=0; $i<$nbChar; $i++) {
-			if ($pair === true) {
-				$motPrononcable .= $listeConsonnes[random_int(0, $nbConsonnes-1)];
-			}
-			else {
-				$motPrononcable .= $listeVoyelles[random_int(0, $nbVoyelles-1)];
-			}
-
-			$pair = !$pair;
-		}
-
-		return $motPrononcable;
+		return StringGenerator::getRandomPronounceableWord($length, $consonantsList, $vowelsList, $randomFirstLetter, $startWithConsonant);
 	}
 
 	/**
-	 * Génère une chaîne de caractères
-	 * @param int $nbChar le nombre de caractères de la chaîne à générer
-	 * @param string $listeChar la liste des caractères possibles pour la génération de la chaîne
-	 * @return string la chaîne générée
+	 * Alias of the StringGenerator::getRandomString() function
 	 */
-	public static function getRandomString(int $nbChar, string $listeChar): string
+	public static function getRandomString(int $length, string $charactersList): string
 	{
-		$strRand = '';
-		$nbLettres = strlen($listeChar);
-		for ($i=0; $i<$nbChar; $i++) {
-			$charRand = $listeChar[random_int(0, $nbLettres-1)];
-			$strRand .= $charRand;
-		}
-		return $strRand;
+		return StringGenerator::getRandomString($length, $charactersList);
 	}
 
 	/**
-	 * Génère une chaîne de caractères alphabétiques
-	 * @param int $nbChar le nombre de caractères de la chaîne à générer
-	 * @param bool $uppercaseEnabled true pour générer des caractères alphabétiques majuscules, false sinon (false par défaut)
-	 * @param bool $lowercaseEnabled true pour générer des caractères alphabétiques minuscules, false sinon (true par défaut)
-	 * @return string la chaîne générée
+	 * Alias of the StringGenerator::getRandomAlphaString() function
 	 */
-	public static function getRandomAlphaString(int $nbChar, bool $uppercaseEnabled=false, bool $lowercaseEnabled=true): string
+	public static function getRandomAlphaString(int $length, bool $uppercaseEnabled=false, bool $lowercaseEnabled=true): string
 	{
-		if (!$lowercaseEnabled && !$uppercaseEnabled) {
-			return '';
-		}
-
-		$listeLettres = self::LETTRES;
-		$nbLettres = strlen($listeLettres);
-
-		$suiteCaractereAlphabetique = '';
-		for ($i=0; $i<$nbChar; $i++) {
-			$caractereAlphabetique = $listeLettres[random_int(0, $nbLettres-1)];
-
-			if ($lowercaseEnabled && $uppercaseEnabled) {
-				if (random_int(0, 1) === 1) {
-					$caractereAlphabetique = strtoupper($caractereAlphabetique);
-				}
-			}
-			elseif ($uppercaseEnabled) {
-				$caractereAlphabetique = strtoupper($caractereAlphabetique);
-			}
-
-			$suiteCaractereAlphabetique .= $caractereAlphabetique;
-		}
-
-		return $suiteCaractereAlphabetique;
+		return StringGenerator::getRandomAlphaString($length, $uppercaseEnabled, $lowercaseEnabled);
 	}
 
 	/**
-	 * Génère une chaîne de caractères avec un certain nombre de chiffres.
-	 * @param int $nbChar le nombre de caractères de la chaîne à générer
-	 * @param bool $startWith0 true pour que la chaîne ne commence pas par le chiffre 0, false pour commencer par n'importe quel chiffre (false par défaut)
-	 * @return string la chaîne générée
+	 * Alias of the StringGenerator::getRandomNumericString() function
 	 */
-	public static function getRandomNumericString(int $nbChar, bool $startWith0=false): string
+	public static function getRandomNumericString(int $length, bool $startWith0=false): string
 	{
-		$listeChiffres = self::CHIFFRES;
-		$nbChiffres = strlen($listeChiffres);
-
-		$suiteCaractereNumerique = '';
-		for ($i=0; $i<$nbChar; $i++) {
-			$caractereNumerique = $listeChiffres[random_int(0, $nbChiffres-1)];
-
-			if (false === $startWith0 && 0 === $i && '0' === $caractereNumerique) {
-				$i--;
-			}
-			else {
-				$suiteCaractereNumerique .= $caractereNumerique;
-			}
-		}
-
-		return $suiteCaractereNumerique;
+		return StringGenerator::getRandomNumericString($length, $startWith0);
 	}
 
 	/**
-	 * Génère une chaîne de caractères alphabétiques et numériques ()
-	 * @param int $nbChar le nombre de caractères de la chaîne à générer
-	 * @param bool $uppercaseEnabled true pour générer des caractères alphabétiques majuscules, false sinon (false par défaut)
-	 * @param bool $lowercaseEnabled true pour générer des caractères alphabétiques minuscules, false sinon (true par défaut)
-	 * @return string la chaîne générée
+	 * Alias of the StringGenerator::getRandomAlphanumericString() function
 	 */
-	public static function getRandomAlphanumericString(int $nbChar, bool $uppercaseEnabled=false, bool $lowercaseEnabled=true): string
+	public static function getRandomAlphanumericString(int $length, bool $uppercaseEnabled=false, bool $lowercaseEnabled=true): string
 	{
-		$nbTypeCaractere = 1;
-		if ($uppercaseEnabled && $lowercaseEnabled) {
-			$nbTypeCaractere = 3;
-		}
-		elseif ($uppercaseEnabled || $lowercaseEnabled) {
-			$nbTypeCaractere = 2;
-		}
-
-		do {
-			$suiteCaractereAlphanumerique = '';
-			for ($i=0; $i<$nbChar; $i++) {
-				if (!$uppercaseEnabled && !$lowercaseEnabled) {
-					$suiteCaractereAlphanumerique .= self::getRandomNumericString(1);
-					continue;
-				}
-
-				$caractereAlphanumerique = null;
-				$typeCaractere = random_int(1, $nbTypeCaractere);
-				switch ($typeCaractere) {
-					case 1 :
-						$caractereAlphanumerique = self::getRandomNumericString(1);
-						break;
-
-					case 2 :
-						$caractereAlphanumerique = self::getRandomAlphaString(1);
-						if ($uppercaseEnabled && !$lowercaseEnabled) {
-							$caractereAlphanumerique = strtoupper(self::getRandomAlphaString(1));
-						}
-						break;
-
-					case 3 :
-						$caractereAlphanumerique = strtoupper(self::getRandomAlphaString(1));
-						break;
-				}
-
-				$suiteCaractereAlphanumerique .= $caractereAlphanumerique;
-			}
-		}
-		// Tant que la chaîne générée ne contient que des lettres ou que des chiffres, on recommence, car on doit retourner une chaîne comprenant à la fois des lettres et des chiffres.
-		while ($nbTypeCaractere > 1 && (ctype_digit($suiteCaractereAlphanumerique) || strpbrk($suiteCaractereAlphanumerique, self::CHIFFRES) === false));
-
-		return $suiteCaractereAlphanumerique;
+		return StringGenerator::getRandomAlphanumericString($length, $uppercaseEnabled, $lowercaseEnabled);
 	}
-
 }

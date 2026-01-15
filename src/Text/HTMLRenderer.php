@@ -5,39 +5,66 @@ namespace Osimatic\Text;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * HTML template renderer using Twig template engine.
+ * Provides a pre-configured Twig environment with custom filters for common formatting tasks.
+ */
 class HTMLRenderer
 {
-	/**
-	 * @var \Twig\Environment
-	 */
 	private \Twig\Environment $twig;
 
+	/**
+	 * Creates a new HTML renderer with Twig environment.
+	 * @param string $templateDir The directory containing template files
+	 * @param LoggerInterface $logger Optional logger for error reporting
+	 * @param array $twigOptions Optional Twig configuration options (cache, debug, etc.)
+	 */
 	public function __construct(
 		string $templateDir = __DIR__.'/../templates/',
 		private LoggerInterface $logger = new NullLogger(),
+		array $twigOptions = [],
 	) {
 		$loader = new \Twig\Loader\FilesystemLoader($templateDir);
-		$this->twig = new \Twig\Environment($loader);
+		$this->twig = new \Twig\Environment($loader, $twigOptions);
+
 		foreach (self::getTwigFilters() as $filter) {
 			$this->twig->addFilter($filter);
+		}
+
+		foreach (self::getTwigFunctions() as $function) {
+			$this->twig->addFunction($function);
+		}
+
+		foreach (self::getTwigTests() as $test) {
+			$this->twig->addTest($test);
 		}
 	}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the logger for error reporting.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
 		$this->logger = $logger;
-
 		return $this;
 	}
 
 	/**
-	 * @param string $templateFile
-	 * @param array $templateData
-	 * @return string|null
+	 * Gets the Twig environment for advanced configuration.
+	 * @return \Twig\Environment The Twig environment instance
+	 */
+	public function getTwig(): \Twig\Environment
+	{
+		return $this->twig;
+	}
+
+	/**
+	 * Renders a template file with the provided data.
+	 * @param string $templateFile The name of the template file to render
+	 * @param array $templateData Associative array of data to pass to the template
+	 * @return string|null The rendered HTML, or null on error
 	 */
 	public function render(string $templateFile, array $templateData=[]): ?string
 	{
@@ -45,7 +72,30 @@ class HTMLRenderer
 			return $this->twig->render($templateFile, $templateData);
 		}
 		catch (\Twig\Error\LoaderError | \Twig\Error\RuntimeError | \Twig\Error\SyntaxError $e) {
-			$this->logger->error($e->getMessage());
+			$this->logger->error('Twig rendering error: ' . $e->getMessage(), [
+				'template' => $templateFile,
+				'exception' => get_class($e),
+			]);
+		}
+		return null;
+	}
+
+	/**
+	 * Renders a template string with the provided data.
+	 * @param string $template The template string to render
+	 * @param array $templateData Associative array of data to pass to the template
+	 * @return string|null The rendered HTML, or null on error
+	 */
+	public function renderString(string $template, array $templateData=[]): ?string
+	{
+		try {
+			$twigTemplate = $this->twig->createTemplate($template);
+			return $twigTemplate->render($templateData);
+		}
+		catch (\Twig\Error\RuntimeError | \Twig\Error\SyntaxError $e) {
+			$this->logger->error('Twig string rendering error: ' . $e->getMessage(), [
+				'exception' => get_class($e),
+			]);
 		}
 		return null;
 	}
