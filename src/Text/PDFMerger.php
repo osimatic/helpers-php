@@ -46,6 +46,17 @@ class PDFMerger
 	}
 
 	/**
+	 * Gets the path to the PDFtk binary executable.
+	 * @param bool $trim Whether to remove surrounding quotes from the path (default: true)
+	 * @return string The full path to the PDFtk binary
+	 */
+	public function getPdfToolkitBinaryPath(bool $trim = true): string
+	{
+		$path = $this->pdfToolkitBinaryPath ?? 'pdftk';
+		return $trim ? trim($path, '\'"') : $path;
+	}
+
+	/**
 	 * Merges multiple PDF files into a single PDF document.
 	 * Handles large lists by splitting into multiple merge operations to avoid command line length limits.
 	 * @param array $listPdfPath Array of file paths to the PDF files to merge
@@ -87,7 +98,7 @@ class PDFMerger
 		}
 
 		return (new \Osimatic\System\Command($this->logger))->run(array_merge(
-			[$this->pdfToolkitBinaryPath],
+			[$this->getPdfToolkitBinaryPath()],
 				$pdfList,
 				[
 					'cat',

@@ -46,6 +46,17 @@ class PDFConverter
 	}
 
 	/**
+	 * Gets the path to the ImageMagick convert binary executable.
+	 * @param bool $trim Whether to remove surrounding quotes from the path (default: true)
+	 * @return string The full path to the ImageMagick convert binary
+	 */
+	public function getImagickConverterBinaryPath(bool $trim = true): string
+	{
+		$path = $this->imagickConverterBinaryPath ?? 'imagick';
+		return $trim ? trim($path, '\'"') : $path;
+	}
+
+	/**
 	 * Converts an image file to PDF format.
 	 * @param string $imageFilePath The path to the source image file
 	 * @param string $pdfFilePath The path where the PDF file will be created
@@ -54,7 +65,7 @@ class PDFConverter
 	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
 	{
 		return (new \Osimatic\System\Command($this->logger))->run([
-			$this->imagickConverterBinaryPath,
+			$this->getImagickConverterBinaryPath(),
 			$imageFilePath,
 			$pdfFilePath
 		]);
@@ -82,7 +93,7 @@ class PDFConverter
 		}
 
 		return (new \Osimatic\System\Command($this->logger))->run([
-			$this->imagickConverterBinaryPath,
+			$this->getImagickConverterBinaryPath(),
 			'-quality 100',
 			'-density 150',
 			$pdfPath,

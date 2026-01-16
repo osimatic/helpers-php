@@ -36,6 +36,17 @@ class AudioConverter
 	}
 
 	/**
+	 * Get the path to the SoX binary executable.
+	 * @param bool $trim Whether to remove surrounding quotes from the path (default: true)
+	 * @return string Path to the SoX binary
+	 */
+	public function getSoxBinaryPath(bool $trim = true): string
+	{
+		$path = $this->soxBinaryPath ?? 'sox';
+		return $trim ? trim($path, '\'"') : $path;
+	}
+
+	/**
 	 * Set the path to the FFmpeg binary executable.
 	 * @param string $ffmpegBinaryPath Path to the FFmpeg binary
 	 * @return self Returns the current instance for method chaining
@@ -45,6 +56,17 @@ class AudioConverter
 		$this->ffmpegBinaryPath = $ffmpegBinaryPath;
 
 		return $this;
+	}
+
+	/**
+	 * Get the path to the FFmpeg binary executable.
+	 * @param bool $trim Whether to remove surrounding quotes from the path (default: true)
+	 * @return string Path to the FFmpeg binary
+	 */
+	public function getFfmpegBinaryPath(bool $trim = true): string
+	{
+		$path = $this->ffmpegBinaryPath ?? 'ffmpeg';
+		return $trim ? trim($path, '\'"') : $path;
 	}
 
 	/**
@@ -85,7 +107,7 @@ class AudioConverter
 		}
 
 		return (new \Osimatic\System\Command($this->logger))->run([
-			$this->soxBinaryPath,
+			$this->getSoxBinaryPath(),
 			$fileFormat === Audio::MP3_FORMAT ? '-t mp3' : null,
 			$srcAudioFilePath,
 			'-e a-law',
@@ -118,7 +140,7 @@ class AudioConverter
 		}
 
 		return (new \Osimatic\System\Command($this->logger))->run([
-			$this->soxBinaryPath,
+			$this->getSoxBinaryPath(),
 			'-t wav',
 			'-r 8000',
 			'-c 1',
@@ -155,7 +177,7 @@ class AudioConverter
 		}
 
 		return (new \Osimatic\System\Command($this->logger))->run([
-			$this->ffmpegBinaryPath ?? 'ffmpeg',
+			$this->getFfmpegBinaryPath(),
 			'-i '.$srcAudioFilePath,
 			'-ab 160k',
 			'-ar 44100',

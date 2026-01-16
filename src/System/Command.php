@@ -211,7 +211,7 @@ class Command
 	private function createProcess(string|array $command, ?float $timeout = null): Process
 	{
 		$process = is_array($command)
-			? new Process($command, $this->workingDirectory, $this->environmentVariables)
+			? new Process(array_filter($command), $this->workingDirectory, $this->environmentVariables)
 			: Process::fromShellCommandline($command, $this->workingDirectory, $this->environmentVariables);
 
 		$process->setTimeout($timeout ?? $this->timeout);
