@@ -70,10 +70,10 @@ class PDFMerger
 		}
 
 		// Build the command line
-		$listPdfStringFormat = '';
+		$pdfList = [];
 		$nbFile = 0;
 		while (($pdfPath = array_shift($listPdfPath)) !== null) {
-			$listPdfStringFormat .= escapeshellarg($pdfPath) . ' ';
+			$pdfList[] = $pdfPath;
 			$nbFile++;
 
 			// TODO: base this on filename length (command line is limited to a certain number of characters)
@@ -81,24 +81,21 @@ class PDFMerger
 				$filePathTemp = sys_get_temp_dir().'/'.uniqid(md5(mt_rand()), true).PDF::FILE_EXTENSION;
 				$this->mergeFiles($listPdfPath, $filePathTemp, $profondeur+1);
 
-				$listPdfStringFormat .= escapeshellarg($filePathTemp) . ' ';
+				$pdfList[] = $filePathTemp;
 				break;
 			}
 		}
 
-		$commandLine = escapeshellarg($this->pdfToolkitBinaryPath) . ' ' . $listPdfStringFormat . 'cat output ' . escapeshellarg($newPdfPath) . ' dont_ask';
-
-		// Execute the command
-		$this->logger->info('Executed command line: '.$commandLine);
-		$returnCode = 0;
-		system($commandLine, $returnCode);
-
-		if ($returnCode !== 0) {
-			$this->logger->error('Merge failed with return code: ' . $returnCode);
-			return false;
-		}
-
-		return true;
+		return (new \Osimatic\System\Command($this->logger))->run(array_merge(
+			[$this->pdfToolkitBinaryPath],
+				$pdfList,
+				[
+					'cat',
+					'output',
+					$newPdfPath,
+					'dont_ask'
+				]
+		));
 	}
 
 }

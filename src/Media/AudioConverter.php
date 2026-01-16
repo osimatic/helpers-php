@@ -84,19 +84,15 @@ class AudioConverter
 			$destAudioFilePath = \Osimatic\FileSystem\File::replaceExtension($destAudioFilePath, 'wav');
 		}
 
-		$commandLine = escapeshellarg($this->soxBinaryPath) . ($fileFormat === Audio::MP3_FORMAT ? ' -t mp3' : '') . ' ' . escapeshellarg($srcAudioFilePath) . ' -e a-law -c 1 -r 8000 ' . escapeshellarg($destAudioFilePath);
-
-		// Execute the command
-		$this->logger->info('Command line executed: '.$commandLine);
-		$returnCode = 0;
-		system($commandLine, $returnCode);
-
-		if ($returnCode !== 0) {
-			$this->logger->error('Conversion failed with return code: ' . $returnCode);
-			return false;
-		}
-
-		return true;
+		return (new \Osimatic\System\Command($this->logger))->run([
+			$this->soxBinaryPath,
+			$fileFormat === Audio::MP3_FORMAT ? '-t mp3' : null,
+			$srcAudioFilePath,
+			'-e a-law',
+			'-c 1',
+			'-r 8000',
+			$destAudioFilePath
+		]);
 	}
 
 	/**
@@ -121,19 +117,15 @@ class AudioConverter
 			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
 		}
 
-		$commandLine = escapeshellarg($this->soxBinaryPath) . ' -t wav -r 8000 -c 1 ' . escapeshellarg($srcAudioFilePath) . ' -t mp3 ' . escapeshellarg($destAudioFilePath);
-
-		// Execute the command
-		$this->logger->info('Command line executed: '.$commandLine);
-		$returnCode = 0;
-		system($commandLine, $returnCode);
-
-		if ($returnCode !== 0) {
-			$this->logger->error('Conversion failed with return code: ' . $returnCode);
-			return false;
-		}
-
-		return true;
+		return (new \Osimatic\System\Command($this->logger))->run([
+			$this->soxBinaryPath,
+			'-t wav',
+			'-r 8000',
+			'-c 1',
+			$srcAudioFilePath,
+			' -t mp3',
+			$destAudioFilePath
+		]);
 	}
 
 	/**
@@ -162,18 +154,12 @@ class AudioConverter
 			unlink($destAudioFilePath);
 		}
 
-		$commandLine = escapeshellarg($this->ffmpegBinaryPath ?? 'ffmpeg') . ' -i ' . escapeshellarg($srcAudioFilePath) . ' -ab 160k -ar 44100 ' . escapeshellarg($destAudioFilePath);
-
-		// Execute the command
-		$this->logger->info('Command line executed: '.$commandLine);
-		$returnCode = 0;
-		system($commandLine, $returnCode);
-
-		if ($returnCode !== 0) {
-			$this->logger->error('Conversion failed with return code: ' . $returnCode);
-			return false;
-		}
-
-		return true;
+		return (new \Osimatic\System\Command($this->logger))->run([
+			$this->ffmpegBinaryPath ?? 'ffmpeg',
+			'-i '.$srcAudioFilePath,
+			'-ab 160k',
+			'-ar 44100',
+			$destAudioFilePath
+		]);
 	}
 }

@@ -53,17 +53,11 @@ class PDFConverter
 	 */
 	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
 	{
-		$commandLine = escapeshellarg($this->imagickConverterBinaryPath) . ' ' . escapeshellarg($imageFilePath) . ' ' . escapeshellarg($pdfFilePath);
-
-		// Execute the command
-		$this->logger->info('Executed command line: '.$commandLine);
-		$returnCode = 0;
-		system($commandLine, $returnCode);
-
-		if ($returnCode !== 0) {
-			$this->logger->error('Conversion failed with return code: ' . $returnCode);
-			return false;
-		}
+		return (new \Osimatic\System\Command($this->logger))->run([
+			$this->imagickConverterBinaryPath,
+			$imageFilePath,
+			$pdfFilePath
+		]);
 
 		/*try {
 			$pdf = new \Imagick([$imageFilePath]);
@@ -73,8 +67,6 @@ class PDFConverter
 			$this->logger->error($e->getMessage());
 			return false;
 		}*/
-
-		return true;
 	}
 
 	/**
@@ -89,18 +81,13 @@ class PDFConverter
 			return false;
 		}
 
-		$commandLine = escapeshellarg($this->imagickConverterBinaryPath) . ' -quality 100 -density 150 ' . escapeshellarg($pdfPath) . ' ' . escapeshellarg($imagePath);
-
-		// Execute the command line
-		$returnCode = 0;
-		system($commandLine, $returnCode);
-
-		if ($returnCode !== 0) {
-			$this->logger->error('Conversion failed with return code: ' . $returnCode);
-			return false;
-		}
-
-		return true;
+		return (new \Osimatic\System\Command($this->logger))->run([
+			$this->imagickConverterBinaryPath,
+			'-quality 100',
+			'-density 150',
+			$pdfPath,
+			$imagePath
+		]);
 	}
 
 }

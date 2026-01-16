@@ -47,11 +47,24 @@ class GeographicCoordinates
 	}
 
 	/**
-	 * Format coordinates with configurable precision.
-	 * @param float $latitude
-	 * @param float $longitude
-	 * @param int $precision Number of decimal places (default: 6)
-	 * @return string
+	 * Format latitude and longitude as a coordinate string with configurable precision.
+	 * Rounds coordinates to the specified number of decimal places and formats as "lat,lon" string.
+	 * Higher precision values provide more accuracy but longer strings.
+	 *
+	 * Precision guide:
+	 * - 0 decimal places: ~111 km accuracy (country/region level)
+	 * - 1 decimal place: ~11 km accuracy (large city level)
+	 * - 2 decimal places: ~1.1 km accuracy (village level)
+	 * - 3 decimal places: ~110 m accuracy (neighborhood level)
+	 * - 4 decimal places: ~11 m accuracy (individual street level)
+	 * - 5 decimal places: ~1.1 m accuracy (individual tree level)
+	 * - 6 decimal places: ~0.11 m accuracy (standard GPS precision)
+	 * - 7+ decimal places: centimeter-level precision (surveying)
+	 *
+	 * @param float $latitude The latitude value (-90 to +90)
+	 * @param float $longitude The longitude value (-180 to +180)
+	 * @param int $precision Number of decimal places (default: 6, which provides ~11cm accuracy)
+	 * @return string The formatted coordinate string (e.g., "48.856600,2.352200" for precision=6)
 	 */
 	public static function format(float $latitude, float $longitude, int $precision = 6): string
 	{
