@@ -47,6 +47,18 @@ class GeographicCoordinates
 	}
 
 	/**
+	 * Format coordinates with configurable precision.
+	 * @param float $latitude
+	 * @param float $longitude
+	 * @param int $precision Number of decimal places (default: 6)
+	 * @return string
+	 */
+	public static function format(float $latitude, float $longitude, int $precision = 6): string
+	{
+		return number_format($latitude, $precision, '.', '') . ',' . number_format($longitude, $precision, '.', '');
+	}
+
+	/**
 	 * Check if coordinates are contained within any of the provided geographic areas.
 	 * @param string $coordinates The coordinates to test (e.g., "48.8566, 2.3522")
 	 * @param array $geoJSONList Array of GeoJSON objects (Point or Polygon geometries)

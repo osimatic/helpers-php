@@ -63,12 +63,30 @@ class Polygon
 		}
 
 		// Point must not be inside any holes
-		for ($i = 1; $i < count($polygon); $i++) {
+		for ($i = 1, $iMax = count($polygon); $i < $iMax; $i++) {
 			if (self::isPointInRing($point, $polygon[$i])) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Check if a point is inside any polygon in a MultiPolygon geometry.
+	 * A MultiPolygon is a collection of multiple polygons (e.g., countries with islands).
+	 * Returns true if the point is inside at least one of the polygons.
+	 * @param float[] $point The point to test [latitude, longitude]
+	 * @param float[][][][] $multiPolygon Array of polygons, where each polygon is an array of rings
+	 * @return bool True if the point is inside any of the polygons
+	 */
+	public static function isPointInMultiPolygon(array $point, array $multiPolygon): bool
+	{
+		foreach ($multiPolygon as $polygon) {
+			if (self::isPointInPolygon($point, $polygon)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -125,15 +143,15 @@ class Polygon
 			return null;
 		}
 
-		// Déterminer si c'est un polygone (tableau de rings) ou un simple ring (tableau de points)
+		// Determine if it's a polygon (array of rings) or a single ring (array of points)
 		$ring = $polygon;
 		if (isset($polygon[0]) && is_array($polygon[0])) {
-			// Si le premier élément est un tableau
+			// If the first element is an array
 			if (isset($polygon[0][0]) && is_array($polygon[0][0])) {
-				// C'est un polygone (tableau de rings), on prend le ring extérieur
+				// It's a polygon (array of rings), take the outer ring
 				$ring = $polygon[0];
 			}
-			// Sinon c'est déjà un ring (tableau de points)
+			// Otherwise it's already a ring (array of points)
 		}
 
 		$latSum = 0;
@@ -153,5 +171,61 @@ class Polygon
 		}
 
 		return [$latSum / $count, $lngSum / $count];
+	}
+
+	/**
+	 * Calculate the area of a polygon using the Shoelace formula (also known as surveyor's formula).
+	 * Returns the area in square degrees. For area in square meters or kilometers, use additional conversion.
+	 * Note: This method works with the outer ring only. For polygons with holes, subtract the hole areas.
+	 * @param array $ring Array of [lat, lon] points forming a closed ring
+	 * @return float Area in square degrees (not square meters). Returns 0 for invalid polygons.
+	 */
+	public static function calculateArea(array $ring): float
+	{
+		$n = count($ring);
+		if ($n < 3) {
+			return 0.0;
+		}
+
+		// Ensure the ring is closed (first point = last point)
+		$isClosed = ($ring[0] === $ring[$n - 1]);
+		if (!$isClosed) {
+			$ring[] = $ring[0];
+			$n++;
+		}
+
+		$area = 0.0;
+		for ($i = 0; $i < $n - 1; $i++) {
+			$j = $i + 1;
+			// Using the shoelace formula: A = 0.5 * |Σ(x_i * y_(i+1) - x_(i+1) * y_i)|
+			// Here we use [lat, lon] so lat is y and lon is x
+			$area += $ring[$i][1] * $ring[$j][0]; // lon_i * lat_(i+1)
+			$area -= $ring[$j][1] * $ring[$i][0]; // lon_(i+1) * lat_i
+		}
+
+		return abs($area / 2.0);
+	}
+
+	/**
+	 * Calculate the area of a polygon with holes using the Shoelace formula.
+	 * The total area is the outer ring area minus the sum of all hole areas.
+	 * @param array $polygon Array of rings: [outer ring, hole1, hole2, ...] where each ring is [[lat, lon], ...]
+	 * @return float Total area in square degrees
+	 */
+	public static function calculateAreaWithHoles(array $polygon): float
+	{
+		if (empty($polygon)) {
+			return 0.0;
+		}
+
+		// Calculate outer ring area
+		$totalArea = self::calculateArea($polygon[0]);
+
+		// Subtract hole areas
+		for ($i = 1, $iMax = count($polygon); $i < $iMax; $i++) {
+			$totalArea -= self::calculateArea($polygon[$i]);
+		}
+
+		return max(0.0, $totalArea);
 	}
 }

@@ -89,6 +89,13 @@ class GoogleMaps
 	 */
 	public function geocoding(string $address): ?array
 	{
+		$cacheKey = 'geocode_' . md5($address);
+
+		// Check cache first
+		if ($this->isCacheValid($cacheKey)) {
+			return $this->cache[$cacheKey]['data'];
+		}
+
 		$address = str_replace(['’', '́', '+', ' '], ["'", "'", '%2B', '+'], $address);
 
 		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
@@ -97,7 +104,14 @@ class GoogleMaps
 			return null;
 		}
 
-		return $this->getResults($json);
+		$results = $this->getResults($json);
+
+		// Cache the results
+		if (null !== $results) {
+			$this->cacheSet($cacheKey, $results);
+		}
+
+		return $results;
 	}
 
 	/**
@@ -121,13 +135,28 @@ class GoogleMaps
 	 */
 	public function reverseGeocodingFromLatitudeAndLongitude(float $latitude, float $longitude): ?array
 	{
-		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($latitude, $longitude).'&key='.$this->apiKey;
+		$coordinates = GeographicCoordinates::getCoordinatesFromLatitudeAndLongitude($latitude, $longitude);
+		$cacheKey = 'reverse_' . md5($coordinates);
+
+		// Check cache first
+		if ($this->isCacheValid($cacheKey)) {
+			return $this->cache[$cacheKey]['data'];
+		}
+
+		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$coordinates.'&key='.$this->apiKey;
 
 		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
 			return null;
 		}
 
-		return $this->getResults($json);
+		$results = $this->getResults($json);
+
+		// Cache the results
+		if (null !== $results) {
+			$this->cacheSet($cacheKey, $results);
+		}
+
+		return $results;
 	}
 
 	/**
@@ -381,6 +410,44 @@ class GoogleMaps
 	}
 
 	// private
+
+	/**
+	 * Check if a cache entry is valid (exists and not expired).
+	 * @param string $key The cache key
+	 * @return bool True if cache is valid
+	 */
+	private function isCacheValid(string $key): bool
+	{
+		if (!isset($this->cache[$key])) {
+			return false;
+		}
+
+		$expiresAt = $this->cache[$key]['expires_at'];
+		return time() < $expiresAt;
+	}
+
+	/**
+	 * Store data in the cache with TTL.
+	 * @param string $key The cache key
+	 * @param array $data The data to cache
+	 * @return void
+	 */
+	private function cacheSet(string $key, array $data): void
+	{
+		$this->cache[$key] = [
+			'data' => $data,
+			'expires_at' => time() + $this->cacheTtl,
+		];
+	}
+
+	/**
+	 * Clear the entire cache.
+	 * @return void
+	 */
+	public function clearCache(): void
+	{
+		$this->cache = [];
+	}
 
 	/**
 	 * Process Google Maps API response and handle errors.

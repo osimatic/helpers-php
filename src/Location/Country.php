@@ -408,6 +408,100 @@ class Country
 		return \Locale::getDisplayLanguage($locale, \Locale::getDefault());
 	}
 
+	// ========== Regional Groups ==========
+
+	/**
+	 * Schengen Area member and associated countries.
+	 * @var string[]
+	 */
+	private const array SCHENGEN_AREA = [
+		'AT', 'BE', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
+		'IS', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL',
+		'PT', 'SK', 'SI', 'ES', 'SE', 'CH',
+	];
+
+	/**
+	 * Check if a country is in the Schengen Area.
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code
+	 * @return bool True if the country is in the Schengen Area
+	 */
+	public static function isSchengenArea(string $countryCode): bool
+	{
+		return in_array($countryCode, self::SCHENGEN_AREA, true);
+	}
+
+	/**
+	 * Get all countries for a specific continent.
+	 * @param Continent $continent The continent enum
+	 * @return string[] Array of ISO 3166-1 alpha-2 country codes
+	 */
+	public static function getCountriesByContinent(Continent $continent): array
+	{
+		return match($continent) {
+			Continent::EUROPE => [
+				'AL', 'AD', 'AT', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ',
+				'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT',
+				'XK', 'LV', 'LI', 'LT', 'LU', 'MT', 'MD', 'MC', 'ME', 'NL',
+				'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM', 'RS', 'SK', 'SI',
+				'ES', 'SE', 'CH', 'UA', 'GB', 'VA',
+			],
+			Continent::ASIA => [
+				'AF', 'AM', 'AZ', 'BH', 'BD', 'BT', 'BN', 'KH', 'CN', 'GE',
+				'IN', 'ID', 'IR', 'IQ', 'IL', 'JP', 'JO', 'KZ', 'KW', 'KG',
+				'LA', 'LB', 'MY', 'MV', 'MN', 'MM', 'NP', 'KP', 'OM', 'PK',
+				'PS', 'PH', 'QA', 'SA', 'SG', 'KR', 'LK', 'SY', 'TW', 'TJ',
+				'TH', 'TL', 'TR', 'TM', 'AE', 'UZ', 'VN', 'YE',
+			],
+			Continent::AFRICA => [
+				'DZ', 'AO', 'BJ', 'BW', 'BF', 'BI', 'CM', 'CV', 'CF', 'TD',
+				'KM', 'CG', 'CD', 'CI', 'DJ', 'EG', 'GQ', 'ER', 'ET', 'GA',
+				'GM', 'GH', 'GN', 'GW', 'KE', 'LS', 'LR', 'LY', 'MG', 'MW',
+				'ML', 'MR', 'MU', 'MA', 'MZ', 'NA', 'NE', 'NG', 'RW', 'ST',
+				'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 'SD', 'SZ', 'TZ', 'TG',
+				'TN', 'UG', 'ZM', 'ZW',
+			],
+			Continent::NORTH_AMERICA => [
+				'AG', 'BS', 'BB', 'BZ', 'CA', 'CR', 'CU', 'DM', 'DO', 'SV',
+				'GD', 'GT', 'HT', 'HN', 'JM', 'MX', 'NI', 'PA', 'KN', 'LC',
+				'VC', 'TT', 'US',
+			],
+			Continent::SOUTH_AMERICA => [
+				'AR', 'BO', 'BR', 'CL', 'CO', 'EC', 'GY', 'PY', 'PE', 'SR',
+				'UY', 'VE',
+			],
+			Continent::OCEANIA => [
+				'AU', 'FJ', 'KI', 'MH', 'FM', 'NR', 'NZ', 'PW', 'PG', 'WS',
+				'SB', 'TO', 'TV', 'VU',
+			],
+			Continent::MIDDLE_EAST => [
+				'BH', 'CY', 'EG', 'IR', 'IQ', 'IL', 'JO', 'KW', 'LB', 'OM',
+				'PS', 'QA', 'SA', 'SY', 'TR', 'AE', 'YE',
+			],
+			Continent::CARIBBEAN => [
+				'AG', 'BS', 'BB', 'CU', 'DM', 'DO', 'GD', 'HT', 'JM', 'KN',
+				'LC', 'VC', 'TT',
+			],
+			Continent::CENTRAL_AMERICA => [
+				'BZ', 'CR', 'SV', 'GT', 'HN', 'MX', 'NI', 'PA',
+			],
+		};
+	}
+
+	/**
+	 * Get the continent for a specific country.
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code
+	 * @return Continent|null The continent enum, or null if not found
+	 */
+	public static function getContinentByCountry(string $countryCode): ?Continent
+	{
+		foreach (Continent::cases() as $continent) {
+			if (in_array($countryCode, self::getCountriesByContinent($continent), true)) {
+				return $continent;
+			}
+		}
+		return null;
+	}
+
 	// ========== Flag ==========
 
 	/**
