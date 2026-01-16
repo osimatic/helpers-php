@@ -299,6 +299,14 @@ class PayBox
 		'00099' => 'Incohérence entre la question et la réponse. Refaire une nouvelle tentative ultérieurement',
 	];
 
+	/**
+	 * @param string $siteNumber
+	 * @param string $rang
+	 * @param string $identifier
+	 * @param string $httpPassword
+	 * @param string $secretKey
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 */
 	public function __construct(
 		/**
 		 */
@@ -441,7 +449,7 @@ class PayBox
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

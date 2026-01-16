@@ -17,6 +17,11 @@ class Ekomi
 
 	private HTTPClient $httpClient;
 
+	/**
+	 * @param string|null $interfaceId
+	 * @param string|null $interfacePassword
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 */
 	public function __construct(
 		private ?string $interfaceId=null,
 		private ?string $interfacePassword=null,
@@ -27,7 +32,7 @@ class Ekomi
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

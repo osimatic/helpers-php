@@ -2,203 +2,243 @@
 
 namespace Osimatic\Location;
 
+/**
+ * Interface for postal address objects.
+ * Defines getters and setters for all address components including street details, locality, region, and coordinates.
+ */
 interface PostalAddressInterface
 {
 
 	/**
-	 * @return string|null
+	 * Get the attention line (recipient name or care of).
+	 * @return string|null The attention line
 	 */
 	public function getAttention(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the attention line (recipient name or care of).
+	 * @param string|null $val The attention line
 	 * @return self|void
 	 */
 	public function setAttention(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the house number (street number).
+	 * @return string|null The house number
 	 */
 	public function getHouseNumber(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the house number (street number).
+	 * @param string|null $val The house number
 	 * @return self|void
 	 */
 	public function setHouseNumber(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the house name or building name.
+	 * @return string|null The house name
 	 */
 	public function getHouse(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the house name or building name.
+	 * @param string|null $val The house name
 	 * @return self|void
 	 */
 	public function setHouse(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the street address (road name and number).
+	 * @return string|null The street address
 	 */
 	public function getRoad(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the street address (road name and number).
+	 * @param string|null $val The street address
 	 * @return self|void
 	 */
 	public function setRoad(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the village name.
+	 * @return string|null The village name
 	 */
 	public function getVillage(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the village name.
+	 * @param string|null $val The village name
 	 * @return self|void
 	 */
 	public function setVillage(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the suburb or district name.
+	 * @return string|null The suburb name
 	 */
 	public function getSuburb(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the suburb or district name.
+	 * @param string|null $val The suburb name
 	 * @return self|void
 	 */
 	public function setSuburb(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the city or town name.
+	 * @return string|null The city name
 	 */
 	public function getCity(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the city or town name.
+	 * @param string|null $val The city name
 	 * @return self|void
 	 */
 	public function setCity(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the county name.
+	 * @return string|null The county name
 	 */
 	public function getCounty(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the county name.
+	 * @param string|null $val The county name
 	 * @return self|void
 	 */
 	public function setCounty(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the postal code or ZIP code.
+	 * @return string|null The postal code
 	 */
 	public function getPostcode(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the postal code or ZIP code.
+	 * @param string|null $val The postal code
 	 * @return self|void
 	 */
 	public function setPostcode(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the state district.
+	 * @return string|null The state district
 	 */
 	public function getStateDistrict(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the state district.
+	 * @param string|null $val The state district
 	 * @return self|void
 	 */
 	public function setStateDistrict(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the state or province name.
+	 * @return string|null The state name
 	 */
 	public function getState(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the state or province name.
+	 * @param string|null $val The state name
 	 * @return self|void
 	 */
 	public function setState(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the region name.
+	 * @return string|null The region name
 	 */
 	public function getRegion(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the region name.
+	 * @param string|null $val The region name
 	 * @return self|void
 	 */
 	public function setRegion(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the island name.
+	 * @return string|null The island name
 	 */
 	public function getIsland(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the island name.
+	 * @param string|null $val The island name
 	 * @return self|void
 	 */
 	public function setIsland(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the country name.
+	 * @return string|null The country name
 	 */
 	public function getCountry(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the country name.
+	 * @param string|null $val The country name
 	 * @return self|void
 	 */
 	public function setCountry(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the ISO 3166-1 alpha-2 country code.
+	 * @return string|null The country code (e.g., 'US', 'FR', 'GB')
 	 */
 	public function getCountryCode(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the ISO 3166-1 alpha-2 country code.
+	 * @param string|null $val The country code (e.g., 'US', 'FR', 'GB')
 	 * @return self|void
 	 */
 	public function setCountryCode(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the continent name.
+	 * @return string|null The continent name
 	 */
 	public function getContinent(): ?string;
 
 	/**
-	 * @param string|null $val
+	 * Set the continent name.
+	 * @param string|null $val The continent name
 	 * @return self|void
 	 */
 	public function setContinent(?string $val);
 
 	/**
-	 * @return string|null
+	 * Get the geographic coordinates in "latitude,longitude" format.
+	 * @return string|null The coordinates (e.g., "48.8566,2.3522")
 	 */
 	public function getCoordinates(): ?string;
 
 	/**
-	 * @param string|null $coordinates
+	 * Set the geographic coordinates in "latitude,longitude" format.
+	 * @param string|null $coordinates The coordinates (e.g., "48.8566,2.3522")
 	 * @return self|void
 	 */
 	public function setCoordinates(?string $coordinates);
 
 	/**
-	 * @return string|null
+	 * Get the full formatted address as a single string.
+	 * @return string|null The formatted address
 	 */
 	public function getFormattedAddress(): ?string;
 
 	/**
-	 * @param string|null $formattedAddress
+	 * Set the full formatted address as a single string.
+	 * @param string|null $formattedAddress The formatted address
 	 * @return self|void
 	 */
 	public function setFormattedAddress(?string $formattedAddress);

@@ -15,7 +15,7 @@ class AudioConverter
 	/**
 	 * @param string|null $soxBinaryPath Path to the SoX binary executable
 	 * @param string|null $ffmpegBinaryPath Path to the FFmpeg binary executable
-	 * @param LoggerInterface $logger Logger instance for recording conversion operations and errors
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
 		private ?string $soxBinaryPath = null,
@@ -49,7 +49,7 @@ class AudioConverter
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

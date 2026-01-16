@@ -20,7 +20,7 @@ class EmailSender implements EmailSenderInterface
 	/**
 	 * Construct a new EmailSender instance.
 	 * @param EmailSendingMethod $sendingMethod The email sending method to use (default: SMTP)
-	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 * @param string|null $host The SMTP server hostname (required for SMTP method)
 	 * @param int|null $port The SMTP server port (required for SMTP method)
 	 * @param bool $smtpAuth Whether to use SMTP authentication (default: false)
@@ -41,7 +41,7 @@ class EmailSender implements EmailSenderInterface
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

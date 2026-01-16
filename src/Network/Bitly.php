@@ -16,7 +16,7 @@ class Bitly
 	/**
 	 * @param string|null $login Bit.ly login username
 	 * @param string|null $key Bit.ly API key
-	 * @param LoggerInterface $logger
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
 		private ?string $login=null,

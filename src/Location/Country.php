@@ -5,10 +5,15 @@ namespace Osimatic\Location;
 use Symfony\Component\Intl\Countries;
 
 /**
- * Class Country
+ * Utility class for working with countries, locales, and geographic regions.
+ * Provides methods for country code validation, name resolution, locale management, and European Union membership checks.
  */
 class Country
 {
+	/**
+	 * List of European Union member states (ISO 3166-1 alpha-2 country codes).
+	 * @var string[]
+	 */
 	public const array EUROPEAN_UNION = [
 		'DE', // Allemagne
 		'AT', // Autriche
@@ -42,11 +47,13 @@ class Country
 	// ========== Locale ==========
 
 	/**
-	 * https://stackoverflow.com/questions/3191664/list-of-all-locales-and-their-short-codes
-	 * https://stackoverflow.com/questions/10175658/is-there-a-simple-way-to-get-the-language-code-from-a-country-code-in-php
-	 *
-	 * @param string $countryCode
-	 * @return string|null
+	 * Get a locale string (language_COUNTRY format) from a country code.
+	 * Searches through a list of known locales to find one matching the given country.
+	 * The list is shuffled to provide varied results when multiple locales exist for a country.
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US', 'GB')
+	 * @return string|null The locale string (e.g., 'fr_FR', 'en_US') or null if not found
+	 * @link https://stackoverflow.com/questions/3191664/list-of-all-locales-and-their-short-codes
+	 * @link https://stackoverflow.com/questions/10175658/is-there-a-simple-way-to-get-the-language-code-from-a-country-code-in-php
 	 */
 	public static function getLocaleByCountryCode(string $countryCode): ?string
 	{
@@ -219,9 +226,10 @@ class Country
 	// ========== Country code ==========
 
 	/**
-	 * Retourne code pays ISO ou null si non trouvé
-	 * @param string|null $country
-	 * @return string|null
+	 * Parse a country identifier (code or name) and return the ISO country code.
+	 * Accepts either a 2-letter ISO code or a full country name.
+	 * @param string|null $country The country code (e.g., 'FR') or country name (e.g., 'France')
+	 * @return string|null The ISO 3166-1 alpha-2 country code, or null if not found
 	 */
 	public static function parse(?string $country): ?string
 	{
@@ -235,8 +243,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $countryIsoCode
-	 * @return bool
+	 * Check if a string is a valid ISO 3166-1 alpha-2 country code.
+	 * @param string|null $countryIsoCode The country code to validate (e.g., 'FR', 'US', 'GB')
+	 * @return bool True if the code is valid, false otherwise
 	 */
 	public static function checkCountryCode(?string $countryIsoCode): bool
 	{
@@ -247,8 +256,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $locale
-	 * @return string|null
+	 * Extract the country code from a locale string.
+	 * @param string|null $locale The locale string (e.g., 'fr_FR', 'en_US'), or null to use the default locale
+	 * @return string|null The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US')
 	 */
 	public static function getCountryCodeFromLocale(?string $locale=null): ?string
 	{
@@ -259,8 +269,10 @@ class Country
 	}
 
 	/**
-	 * @param string|null $countryName
-	 * @return string|null
+	 * Get the ISO country code from a country name.
+	 * Performs a case-insensitive search through all known country names.
+	 * @param string|null $countryName The country name (e.g., 'France', 'United States')
+	 * @return string|null The ISO 3166-1 alpha-2 country code, or null if not found
 	 */
 	public static function getCountryCodeFromCountryName(?string $countryName): ?string
 	{
@@ -278,9 +290,11 @@ class Country
 	}
 
 	/**
-	 * @param string|null $countryIsoCode
-	 * @param string|null $zipCode
-	 * @return bool
+	 * Check if a country is a French overseas territory.
+	 * Checks both the country code (RE, GP, MQ, YT, GF) and the postal code (starts with '97').
+	 * @param string|null $countryIsoCode The ISO 3166-1 alpha-2 country code
+	 * @param string|null $zipCode Optional postal code to check (French overseas territories start with '97')
+	 * @return bool True if the country is a French overseas territory
 	 */
 	public static function isCountryInFranceOverseas(?string $countryIsoCode, ?string $zipCode=null): bool
 	{
@@ -295,8 +309,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $countryIsoCode
-	 * @return bool
+	 * Check if a country is a member of the European Union.
+	 * @param string|null $countryIsoCode The ISO 3166-1 alpha-2 country code
+	 * @return bool True if the country is an EU member state
 	 */
 	public static function isCountryInEuropeanUnion(?string $countryIsoCode): bool
 	{
@@ -304,8 +319,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $countryIsoCode
-	 * @return int|null
+	 * Get the ISO 3166-1 numeric country code from an alpha-2 country code.
+	 * @param string|null $countryIsoCode The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US')
+	 * @return int|null The ISO 3166-1 numeric code (e.g., 250 for France, 840 for USA), or null if not found
 	 */
 	public static function getCountryNumericCodeFromCountryCode(?string $countryIsoCode): ?int
 	{
@@ -324,8 +340,9 @@ class Country
 	// ========== Country name ==========
 
 	/**
-	 * @param string $countryCode
-	 * @return string|null
+	 * Get the country name from its ISO code in the current locale.
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US')
+	 * @return string|null The localized country name, or null if not found
 	 */
 	public static function getCountryNameFromCountryCode(string $countryCode): ?string
 	{
@@ -337,8 +354,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $locale
-	 * @return string|null
+	 * Extract the country name from a locale string.
+	 * @param string|null $locale The locale string (e.g., 'fr_FR', 'en_US'), or null to use the default locale
+	 * @return string|null The localized country name
 	 */
 	public static function getCountryNameFromLocale(?string $locale=null): ?string
 	{
@@ -349,8 +367,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $countryIsoCode
-	 * @return string
+	 * Format a country name from a country code for use in Twig templates.
+	 * @param string|null $countryIsoCode The ISO 3166-1 alpha-2 country code
+	 * @return string The localized country name, or empty string if code is null
 	 */
 	public static function formatCountryNameFromTwig(?string $countryIsoCode): string
 	{
@@ -363,8 +382,9 @@ class Country
 	// ========== Language ==========
 
 	/**
-	 * @param string $countryCode
-	 * @return string|null
+	 * Get the primary language name for a country.
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US')
+	 * @return string|null The localized language name (e.g., 'Français', 'English'), or null if not found
 	 */
 	public static function getLanguageFromCountryCode(string $countryCode): ?string
 	{
@@ -376,8 +396,9 @@ class Country
 	}
 
 	/**
-	 * @param string|null $locale
-	 * @return string|null
+	 * Extract the language name from a locale string.
+	 * @param string|null $locale The locale string (e.g., 'fr_FR', 'en_US'), or null to use the default locale
+	 * @return string|null The localized language name
 	 */
 	public static function getLanguageFromLocale(?string $locale=null): ?string
 	{
@@ -390,8 +411,11 @@ class Country
 	// ========== Flag ==========
 
 	/**
-	 * @param string|null $countryIsoCode
-	 * @return string|null
+	 * Get the country code to use for displaying a flag emoji or icon.
+	 * Maps territories and dependencies to their parent country for flag display purposes.
+	 * For example, French overseas territories use the French flag (FR).
+	 * @param string|null $countryIsoCode The ISO 3166-1 alpha-2 country code
+	 * @return string|null The country code to use for the flag display
 	 */
 	public static function getFlagCountryIsoCode(?string $countryIsoCode): ?string
 	{
@@ -428,39 +452,4 @@ class Country
 		return $countryIsoCode;
 	}
 
-
-
-
-
-	// ========== Deprecated ==========
-
-	/** @deprecated */
-	public static function getCountryCodeByLocale(?string $locale=null): ?string {
-		return self::getCountryCodeFromLocale($locale);
-	}
-
-	/** @deprecated */
-	public static function getCountryCodeByCountryName(?string $countryName): ?string {
-		return self::getCountryCodeFromCountryName($countryName);
-	}
-
-	/** @deprecated */
-	public static function getCountryNameByCountryCode(string $countryCode): ?string {
-		return self::getCountryNameFromCountryCode($countryCode);
-	}
-
-	/** @deprecated */
-	public static function getCountryNameByLocale(?string $locale=null): ?string {
-		return self::getCountryNameFromLocale($locale);
-	}
-
-	/** @deprecated */
-	public static function getLanguageByCountryCode(string $countryCode): ?string {
-		return self::getLanguageFromCountryCode($countryCode);
-	}
-
-	/** @deprecated */
-	public static function getLanguageByLocale(?string $locale=null): ?string {
-		return self::getLanguageFromLocale($locale);
-	}
 }

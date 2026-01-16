@@ -2,15 +2,20 @@
 
 namespace Osimatic\Location;
 
+/**
+ * Utility class for working with geographic polygons.
+ * Provides methods for point-in-polygon testing, centroid calculation, and geometric operations.
+ */
 class Polygon
 {
 	/**
-	 * Test si P est sur le segment AB (tolérance EPS)
-	 * @param float[] $P [lat,lon]
-	 * @param float[] $A [lat,lon]
-	 * @param float[] $B [lat,lon]
-	 * @param float $EPS tolérance
-	 * @return bool
+	 * Test if point P lies on line segment AB (within tolerance EPS).
+	 * Uses cross product for collinearity and dot product for bounding box projection.
+	 * @param float[] $P The point to test [latitude, longitude]
+	 * @param float[] $A First endpoint of the segment [latitude, longitude]
+	 * @param float[] $B Second endpoint of the segment [latitude, longitude]
+	 * @param float $EPS Tolerance for floating-point comparison (default: 1e-10)
+	 * @return bool True if P is on segment AB within tolerance
 	 */
 	public static function isPointOnSegment(array $P, array $A, array $B, float $EPS = 1e-10): bool
 	{
@@ -18,13 +23,13 @@ class Polygon
 		[$y1, $x1] = $A;
 		[$y2, $x2] = $B;
 
-		// Colinéarité via l'aire (cross product)
+		// Check collinearity using cross product
 		$cross = ($x - $x1)*($y2 - $y1) - ($y - $y1)*($x2 - $x1);
 		if (abs($cross) > $EPS) {
 			return false;
 		}
 
-		// Projection dans la boîte englobante
+		// Check if point is within bounding box using dot product
 		$dot = ($x - $x1)*($x2 - $x1) + ($y - $y1)*($y2 - $y1);
 		if ($dot < -$EPS) {
 			return false;
@@ -39,10 +44,12 @@ class Polygon
 	}
 
 	/**
-	 * Point-In-Polygon (ray casting). Retourne true si à l'intérieur ou sur le bord.
-	 * @param float[] $point [lat,lon]
-	 * @param float[][][] $polygon [[[lat,lon], ...], [[lat,lon], ...], ...]
-	 * @return bool
+	 * Check if a point is inside a polygon using ray casting algorithm.
+	 * Returns true if the point is inside or on the boundary.
+	 * Handles polygons with holes (outer ring and inner rings).
+	 * @param float[] $point The point to test [latitude, longitude]
+	 * @param float[][][] $polygon Array of rings: [outer ring, hole1, hole2, ...] where each ring is [[lat,lon], ...]
+	 * @return bool True if the point is inside the polygon or on its boundary
 	 */
 	public static function isPointInPolygon(array $point, array $polygon): bool
 	{
@@ -50,12 +57,12 @@ class Polygon
 			return false;
 		}
 
-		// doit être dans l’outer
+		// Point must be inside the outer ring
 		if (!self::isPointInRing($point, $polygon[0])) {
 			return false;
 		}
 
-		// pas dans un trou
+		// Point must not be inside any holes
 		for ($i = 1; $i < count($polygon); $i++) {
 			if (self::isPointInRing($point, $polygon[$i])) {
 				return false;
@@ -65,10 +72,11 @@ class Polygon
 	}
 
 	/**
-	 * Point-In-Polygon (ray casting). Retourne true si à l'intérieur ou sur le bord.
-	 * @param float[] $point [lat,lon]
-	 * @param float[][] $ring [[lat,lon], ...]
-	 * @return bool
+	 * Check if a point is inside a single polygon ring using ray casting algorithm.
+	 * Returns true if the point is inside or on the boundary.
+	 * @param float[] $point The point to test [latitude, longitude]
+	 * @param float[][] $ring Array of coordinates forming a closed ring [[lat,lon], ...]
+	 * @return bool True if the point is inside the ring or on its boundary
 	 */
 	public static function isPointInRing(array $point, array $ring): bool
 	{
@@ -77,20 +85,20 @@ class Polygon
 			return false;
 		}
 
-		// S'assurer que le polygone est "fermé" pour les tests de bord
+		// Ensure the polygon is "closed" for edge testing
 		if ($ring[0] !== $ring[$n - 1]) {
 			$ring[] = $ring[0];
 			$n++;
 		}
 
-		// Bord ?
+		// Check if point is on any edge
 		for ($i = 0; $i < $n - 1; $i++) {
 			if (self::isPointOnSegment($point, $ring[$i], $ring[$i+1])) {
-				return true; // Sur le bord = inside
+				return true; // On the boundary = inside
 			}
 		}
 
-		// Ray casting
+		// Ray casting algorithm
 		[$y, $x] = $point;
 		$inside = false;
 		for ($i = 0, $j = $n - 1; $i < $n; $j = $i++) {
@@ -106,9 +114,10 @@ class Polygon
 	}
 
 	/**
-	 * Calcule le centroid (centre géométrique) d'un polygone
-	 * @param array $polygon Tableau de rings [[[lat, lon], ...], [[lat, lon], ...]] ou simple ring [[lat, lon], ...]
-	 * @return array|null [latitude, longitude] du centroid ou null si le calcul échoue
+	 * Calculate the centroid (geometric center) of a polygon.
+	 * Uses the average of all points in the outer ring.
+	 * @param array $polygon Array of rings [[[lat, lon], ...], [[lat, lon], ...]] or single ring [[lat, lon], ...]
+	 * @return array|null [latitude, longitude] of the centroid, or null if calculation fails
 	 */
 	public static function getCentroid(array $polygon): ?array
 	{

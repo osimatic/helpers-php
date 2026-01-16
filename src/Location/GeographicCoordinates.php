@@ -2,11 +2,17 @@
 
 namespace Osimatic\Location;
 
+/**
+ * Utility class for working with geographic coordinates (latitude/longitude pairs).
+ * Provides validation, formatting, parsing, and EXIF GPS data conversion methods.
+ */
 class GeographicCoordinates
 {
 	/**
-	 * @param string $coordinates
-	 * @return bool
+	 * Validate if a string is a properly formatted coordinate pair.
+	 * Checks for valid latitude (-90 to +90) and longitude (-180 to +180) ranges.
+	 * @param string $coordinates The coordinate string to validate (e.g., "48.8566, 2.3522")
+	 * @return bool True if the coordinates are valid
 	 */
 	public static function check(string $coordinates): bool
 	{
@@ -14,9 +20,11 @@ class GeographicCoordinates
 	}
 
 	/**
-	 * @param float $latitude
-	 * @param float $longitude
-	 * @return string
+	 * Format latitude and longitude as a coordinate string "lat,lon".
+	 * Normalizes decimal separators and removes spaces.
+	 * @param float $latitude The latitude value
+	 * @param float $longitude The longitude value
+	 * @return string The formatted coordinate string (e.g., "48.8566,2.3522")
 	 */
 	public static function getCoordinatesFromLatitudeAndLongitude(float $latitude, float $longitude): string
 	{
@@ -25,8 +33,10 @@ class GeographicCoordinates
 	}
 
 	/**
-	 * @param string|null $coordinates
-	 * @return string|null
+	 * Parse and normalize a coordinate string.
+	 * Accepts various formats and returns a standardized "lat,lon" string.
+	 * @param string|null $coordinates The coordinate string to parse
+	 * @return string|null The normalized coordinate string, or null if invalid
 	 */
 	public static function parse(?string $coordinates): ?string
 	{
@@ -37,10 +47,11 @@ class GeographicCoordinates
 	}
 
 	/**
-	 * @param string $coordinates coordonnées à tester
-	 * @param array $geoJSONList tableau de GeoJSON (GeoJSON Point ou GeoJSON Polygon)
-	 * @param float $radius tolérance en mètres pour comparer un point (0 = égalité stricte)
-	 * @return bool
+	 * Check if coordinates are contained within any of the provided geographic areas.
+	 * @param string $coordinates The coordinates to test (e.g., "48.8566, 2.3522")
+	 * @param array $geoJSONList Array of GeoJSON objects (Point or Polygon geometries)
+	 * @param float $radius Tolerance radius in meters for Point comparison (0 = strict equality)
+	 * @return bool True if the coordinates are inside any of the provided areas
 	 */
 	public static function isCoordinatesInsidePlaces(string $coordinates, array $geoJSONList, float $radius = 0.): bool
 	{

@@ -16,7 +16,7 @@ class HTMLRenderer
 	/**
 	 * Creates a new HTML renderer with Twig environment.
 	 * @param string $templateDir The directory containing template files
-	 * @param LoggerInterface $logger Optional logger for error reporting
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 * @param array $twigOptions Optional Twig configuration options (cache, debug, etc.)
 	 */
 	public function __construct(
@@ -42,7 +42,7 @@ class HTMLRenderer
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

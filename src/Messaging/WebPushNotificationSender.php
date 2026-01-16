@@ -16,7 +16,7 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 	 * @param string|null $vapidPublicKey The VAPID public key for authentication
 	 * @param string|null $vapidPrivateKey The VAPID private key for signing requests
 	 * @param string|null $subject The subject (typically a mailto: or https: URL) for VAPID authentication
-	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
 		private ?string $vapidPublicKey = null,
@@ -63,7 +63,7 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

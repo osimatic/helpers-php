@@ -181,8 +181,8 @@ class CICPayment
 	}
 
 	/**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 */
 	public function setLogger(LoggerInterface $logger): void
 	{

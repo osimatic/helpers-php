@@ -12,6 +12,10 @@ use Psr\Log\NullLogger;
  */
 class PDFMerger
 {
+	/**
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param string|null $pdfToolkitBinaryPath
+	 */
 	public function __construct(
 		private LoggerInterface $logger = new NullLogger(),
 		private ?string $pdfToolkitBinaryPath = null,

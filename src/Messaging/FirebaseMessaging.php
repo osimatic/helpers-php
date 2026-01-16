@@ -15,7 +15,7 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 	 * Construct a new FirebaseMessaging client instance.
 	 * @param string|null $projectId The Firebase project ID
 	 * @param string|null $serviceKeyFile The path to the Firebase service account key JSON file
-	 * @param LoggerInterface $logger The PSR-3 logger instance for debugging (default: NullLogger)
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
 		private ?string $projectId = null,
@@ -49,7 +49,7 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

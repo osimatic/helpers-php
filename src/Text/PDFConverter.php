@@ -12,6 +12,10 @@ use Psr\Log\NullLogger;
  */
 class PDFConverter
 {
+	/**
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param string|null $imagickConverterBinaryPath
+	 */
 	public function __construct(
 		private LoggerInterface $logger = new NullLogger(),
 		private ?string $imagickConverterBinaryPath = null,
@@ -19,7 +23,7 @@ class PDFConverter
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

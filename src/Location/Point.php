@@ -2,12 +2,17 @@
 
 namespace Osimatic\Location;
 
+/**
+ * Utility class for working with geographic points (latitude/longitude coordinates).
+ * Provides methods for parsing coordinate strings, converting formats, and testing point containment within geographic areas.
+ */
 class Point
 {
 	/**
-	 * Parse "lat,lon" (ou avec espaces) -> [lat,lon] ; null si invalide
-	 * @param string $coordinates
-	 * @return float[]|null
+	 * Parse a coordinate string into a [latitude, longitude] array.
+	 * Accepts various formats: "lat,lon" or "lat;lon" with optional spaces.
+	 * @param string $coordinates The coordinate string to parse (e.g., "48.8566, 2.3522" or "48.8566;2.3522")
+	 * @return float[]|null Array [latitude, longitude] if valid, null if invalid
 	 */
 	public static function parse(string $coordinates): ?array {
 		$coordinates = trim($coordinates);
@@ -15,7 +20,7 @@ class Point
 			return null;
 		}
 
-		// remplace ; par , et espaces multiples par un seul
+		// Replace semicolons with commas and remove all whitespace
 		$coordinates = str_replace(';', ',', $coordinates);
 		$coordinates = preg_replace('/\s+/', '', $coordinates);
 
@@ -31,8 +36,10 @@ class Point
 	}
 
 	/**
-	 * @param string $coordinates
-	 * @return float[]|null
+	 * Convert standard [lat,lon] coordinates to GeoJSON format [lon,lat].
+	 * GeoJSON uses longitude-first ordering, while most systems use latitude-first.
+	 * @param string $coordinates The coordinate string to convert (e.g., "48.8566, 2.3522")
+	 * @return float[]|null Array [longitude, latitude] in GeoJSON format, or null if parsing fails
 	 */
 	public static function convertToGeoJsonCoordinates(string $coordinates): ?array
 	{
@@ -43,10 +50,12 @@ class Point
 	}
 
 	/**
-	 * @param float[] $point point [lat,lon] à tester
-	 * @param array $geoJSONList tableau de GeoJSON (GeoJSON Point ou GeoJSON Polygon)
-	 * @param float $radius tolérance en mètres pour comparer un point (0 = égalité stricte)
-	 * @return bool
+	 * Check if a point is contained within any of the provided geographic areas.
+	 * Supports both GeoJSON Point (with radius tolerance) and GeoJSON Polygon geometries.
+	 * @param float[] $point The point to test as [latitude, longitude]
+	 * @param array $geoJSONList Array of GeoJSON objects (Point or Polygon geometries)
+	 * @param float $radius Tolerance radius in meters for Point comparison (0 = strict equality)
+	 * @return bool True if the point is inside any of the provided areas
 	 */
 	public static function isPointInsidePlaces(array $point, array $geoJSONList, float $radius = 0.): bool
 	{
@@ -62,7 +71,7 @@ class Point
 					continue;
 				}
 
-				// égalité stricte (attention aux arrondis en pratique)
+				// Strict equality (watch out for floating-point rounding in practice)
 				if (abs($latitude - $placeLat) < 1e-12 && abs($longitude - $placeLon) < 1e-12) {
 					return true;
 				}

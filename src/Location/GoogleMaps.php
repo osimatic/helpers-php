@@ -7,20 +7,46 @@ use Osimatic\Network\HTTPMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Client for the Google Maps Geocoding API.
+ * Provides methods for geocoding (address to coordinates), reverse geocoding (coordinates to address),
+ * and populating PostalAddress objects from Google Maps API responses.
+ */
 class GoogleMaps
 {
 	private HTTPClient $httpClient;
 
+	/**
+	 * In-memory cache for API responses to reduce duplicate requests.
+	 * @var array<string, array>
+	 */
+	private array $cache = [];
+
+	/**
+	 * Cache TTL in seconds (default: 1 hour).
+	 * @var int
+	 */
+	private int $cacheTtl = 3600;
+
+	/**
+	 * Construct a new Google Maps API client.
+	 * @param string|null $apiKey The Google Maps API key for authentication
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param int $cacheTtl Cache time-to-live in seconds (default: 3600)
+	 */
 	public function __construct(
 		private ?string $apiKey=null,
 		private LoggerInterface $logger=new NullLogger(),
+		int $cacheTtl=3600,
 	) {
 		$this->httpClient = new HTTPClient($logger);
+		$this->cacheTtl = $cacheTtl;
 	}
 
 	/**
-	 * @param string $apiKey
-	 * @return self
+	 * Set the Google Maps API key.
+	 * @param string $apiKey The API key for authentication
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setApiKey(string $apiKey): self
 	{
@@ -31,7 +57,7 @@ class GoogleMaps
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
@@ -43,8 +69,9 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param string $coordinates
-	 * @return string
+	 * Generate a Google Maps URL for the given coordinates.
+	 * @param string $coordinates The coordinate string in "lat,lon" format
+	 * @return string The Google Maps URL for viewing the location
 	 */
 	public static function getUrl(string $coordinates): string
 	{
@@ -55,8 +82,10 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param string $address
-	 * @return null|array
+	 * Convert an address string to geographic coordinates using Google Maps Geocoding API.
+	 * Returns an array of possible results, ordered by relevance.
+	 * @param string $address The address to geocode (e.g., "10 Downing Street, London, UK")
+	 * @return array|null Array of geocoding results from Google Maps API, or null on error
 	 */
 	public function geocoding(string $address): ?array
 	{
@@ -72,8 +101,10 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param string $coordinates
-	 * @return array|null
+	 * Convert geographic coordinates to an address using Google Maps Reverse Geocoding API.
+	 * Returns an array of possible addresses at or near the given coordinates.
+	 * @param string $coordinates The coordinates to reverse geocode in "lat,lon" format (e.g., "48.8566,2.3522")
+	 * @return array|null Array of reverse geocoding results from Google Maps API, or null on error
 	 */
 	public function reverseGeocoding(string $coordinates): ?array
 	{
@@ -82,9 +113,11 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param float $latitude
-	 * @param float $longitude
-	 * @return array|null
+	 * Convert latitude and longitude to an address using Google Maps Reverse Geocoding API.
+	 * Returns an array of possible addresses at or near the given coordinates.
+	 * @param float $latitude The latitude value
+	 * @param float $longitude The longitude value
+	 * @return array|null Array of reverse geocoding results from Google Maps API, or null on error
 	 */
 	public function reverseGeocodingFromLatitudeAndLongitude(float $latitude, float $longitude): ?array
 	{
@@ -98,9 +131,11 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param string $address
-	 * @return bool
+	 * Populate a PostalAddress object with data from geocoding an address string.
+	 * Sets road, postcode, city, country code, coordinates, and formatted address on the object.
+	 * @param PostalAddressInterface $postalAddress The postal address object to populate
+	 * @param string $address The address string to geocode
+	 * @return bool True if successful, false on error
 	 */
 	public function initPostalAddressDataFromAddress(PostalAddressInterface $postalAddress, string $address): bool
 	{
@@ -112,8 +147,9 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param string $address
-	 * @return string|null
+	 * Get geographic coordinates from an address string.
+	 * @param string $address The address to geocode
+	 * @return string|null The coordinates in "lat,lon" format, or null if not found
 	 */
 	public function getCoordinatesFromAddress(string $address): ?string
 	{
@@ -125,8 +161,10 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param string $address
-	 * @return string|null
+	 * Get a formatted address string from an address query.
+	 * Returns Google's standardized formatted address.
+	 * @param string $address The address to geocode
+	 * @return string|null The formatted address string, or null if not found
 	 */
 	public function getFormattedAddressFromAddress(string $address): ?string
 	{
@@ -139,9 +177,11 @@ class GoogleMaps
 
 
 	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param string $defaultCountryCode
-	 * @return string|null
+	 * Get coordinates from a PostalAddress object by geocoding its address components.
+	 * Tries multiple address combinations in order of specificity until one succeeds.
+	 * @param PostalAddressInterface $postalAddress The postal address object
+	 * @param string $defaultCountryCode The default country code if not set in the address (default: 'FR')
+	 * @return string|null The coordinates in "lat,lon" format, or null if geocoding fails
 	 */
 	public function getCoordinatesFromPostalAddress(PostalAddressInterface $postalAddress, string $defaultCountryCode='FR'): ?string
 	{
@@ -175,9 +215,11 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param string $coordinates
-	 * @return bool
+	 * Populate a PostalAddress object with data from reverse geocoding coordinates.
+	 * Sets road, postcode, city, country code, coordinates, and formatted address on the object.
+	 * @param PostalAddressInterface $postalAddress The postal address object to populate
+	 * @param string $coordinates The coordinates in "lat,lon" format
+	 * @return bool True if successful, false on error
 	 */
 	public function initPostalAddressDataFromCoordinates(PostalAddressInterface $postalAddress, string $coordinates): bool
 	{
@@ -198,8 +240,10 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param string $coordinates
-	 * @return string|null
+	 * Get a formatted address string from geographic coordinates using reverse geocoding.
+	 * Returns Google's standardized formatted address.
+	 * @param string $coordinates The coordinates to reverse geocode in "lat,lon" format
+	 * @return string|null The formatted address string, or null if not found
 	 */
 	public function getFormattedAddressFromCoordinates(string $coordinates): ?string
 	{
@@ -211,8 +255,10 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param array|null $result
-	 * @return array|null
+	 * Extract and normalize address components from a Google Maps API result.
+	 * Converts Google's address_components structure into a simplified array with keys like 'street', 'locality', 'postal_code', etc.
+	 * @param array|null $result A single result from the Google Maps Geocoding API response
+	 * @return array|null Associative array of address components, or null if parsing fails
 	 */
 	public static function getAddressComponentsFromResult(?array $result): ?array
 	{
@@ -258,7 +304,7 @@ class GoogleMaps
 		$addressComponents['street_number'] ??= '';
 		$addressComponents['route'] ??= '';
 
-		// on génère la ligne numéro/rue depuis le champ "formatted_address", car la ligne numéro/rue n'est pas disponible dans le champ "address_components"
+		// Generate the street address line from the "formatted_address" field, since it's not available in the "address_components" field
 		//$result['formatted_address'] = '131, Avenue Charles de Gaulle, 92200 Neuilly-sur-Seine, France';
 		$streetAddress = $result['formatted_address'] ?? '';
 		if (!empty($addressComponents['route']) && false !== ($pos = strpos($streetAddress, ',', strpos($streetAddress, $addressComponents['route'])))) {
@@ -271,8 +317,8 @@ class GoogleMaps
 			$addressComponents['street'] = $streetAddress;
 		}
 		else {
-			// si on n'arrive pas à la récupérer depuis le champ "formatted_address", on concatène simplement le numéro et rue récupéré dans le champ "address_components"
-			// on ne fais pas ceci directement, car selon les pays le numéro de la rue se trouve à la fin, au début, précédé de "No.", etc.
+			// If we can't extract it from the "formatted_address" field, simply concatenate the street number and route from "address_components"
+			// We don't do this directly because in some countries the street number appears at the end, at the beginning, preceded by "No.", etc.
 			$addressComponents['street'] = trim($addressComponents['street_number'].' '.$addressComponents['route']);
 		}
 
@@ -280,8 +326,9 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param array|null $result
-	 * @return string|null
+	 * Extract coordinates from a Google Maps API result.
+	 * @param array|null $result A single result from the Google Maps Geocoding API response
+	 * @return string|null The coordinates in "lat,lon" format, or null if not found
 	 */
 	public static function getCoordinatesFromResult(?array $result): ?string
 	{
@@ -294,8 +341,9 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param array|null $result
-	 * @return string|null
+	 * Extract the formatted address string from a Google Maps API result.
+	 * @param array|null $result A single result from the Google Maps Geocoding API response
+	 * @return string|null The formatted address with special characters normalized, or null if not found
 	 */
 	public static function getFormattedAddressFromResult(?array $result): ?string
 	{
@@ -307,9 +355,11 @@ class GoogleMaps
 	}
 
 	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param array|null $result
-	 * @return bool
+	 * Populate a PostalAddress object from a Google Maps API result.
+	 * Sets road, postcode, city, country code, coordinates, and formatted address on the object.
+	 * @param PostalAddressInterface $postalAddress The postal address object to populate
+	 * @param array|null $result A single result from the Google Maps Geocoding API response
+	 * @return bool True if successful, false if result is missing coordinates
 	 */
 	public static function initPostalAddressFromResult(PostalAddressInterface $postalAddress, ?array $result): bool
 	{
@@ -333,33 +383,35 @@ class GoogleMaps
 	// private
 
 	/**
-	 * @param array $result
-	 * @return array|null
+	 * Process Google Maps API response and handle errors.
+	 * Logs errors via the configured logger and returns null on failure.
+	 * @param array $result The raw JSON response from Google Maps API
+	 * @return array|null Array of results on success, null on error or no results
 	 */
 	private function getResults(array $result): ?array
 	{
 		if ($result['status'] === 'REQUEST_DENIED') {
-			$this->logger->error('Accès refusé : '.($result['error_message'] ?? ''));
+			$this->logger->error('Access denied: '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'OVER_QUERY_LIMIT') {
-			$this->logger->error('Quota atteint : '.($result['error_message'] ?? ''));
+			$this->logger->error('Quota exceeded: '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'INVALID_REQUEST') {
-			$this->logger->error('Requête invalide : '.($result['error_message'] ?? ''));
+			$this->logger->error('Invalid request: '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'UNKNOWN_ERROR' || $result['status'] === 'ERROR') {
-			$this->logger->error('Erreur pendant la requete vers l\'API Google : '.($result['error_message'] ?? ''));
+			$this->logger->error('Error during Google API request: '.($result['error_message'] ?? ''));
 			return null;
 		}
 
 		if ($result['status'] === 'ZERO_RESULTS' || !isset($result['results'])) {
-			$this->logger->info('Aucun résultat trouvé.');
+			$this->logger->info('No results found.');
 			return null;
 		}
 

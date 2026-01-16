@@ -10,15 +10,24 @@ use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class PostalAddress
+ * Utility class for postal address validation, formatting, and display.
+ * Provides methods for validating address components, formatting addresses according to country conventions,
+ * and normalizing special characters.
  */
 class PostalAddress
 {
-	// ========== Vérification ==========
+	/**
+	 * Static cache for postal code regex patterns to avoid re-parsing YAML file on each validation.
+	 * @var array|null
+	 */
+	private static ?array $postalCodeRegex = null;
+
+	// ========== Validation ==========
 
 	/**
-	 * @param string|null $value
-	 * @return bool
+	 * Validate a street address.
+	 * @param string|null $value The street address to validate
+	 * @return bool True if valid
 	 */
 	public static function checkStreet(?string $value): bool
 	{
@@ -27,17 +36,18 @@ class PostalAddress
 	}
 
 	/**
-	 * @param string|null $value
-	 * @param string|null $country
-	 * @return bool
+	 * Validate a postal code, optionally using country-specific format.
+	 * @param string|null $value The postal code to validate
+	 * @param string|null $country The ISO 3166-1 alpha-2 country code for country-specific validation
+	 * @return bool True if valid
 	 */
 	public static function checkPostalCode(?string $value, ?string $country=null): bool
 	{
-		// Si le pays est fourni, on vérifie le code postal spécifique à ce pays
+		// If country is provided, validate using country-specific postal code format
 		if (null !== $country) {
-			$regEx = Yaml::parse(file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'postal_codes.yaml'));
-			if (!empty($regEx[$country])) {
-				return preg_match('/^'.$regEx[$country].'$/u', $value);
+			$regex = self::getPostalCodeRegex($country);
+			if (null !== $regex) {
+				return preg_match('/^'.$regex.'$/u', $value);
 			}
 		}
 
@@ -45,8 +55,9 @@ class PostalAddress
 	}
 
 	/**
-	 * @param string|null $value
-	 * @return bool
+	 * Alias for checkPostalCode().
+	 * @param string|null $value The ZIP code to validate
+	 * @return bool True if valid
 	 */
 	public static function checkZipCode(?string $value): bool
 	{
@@ -54,8 +65,9 @@ class PostalAddress
 	}
 
 	/**
-	 * @param string|null $value
-	 * @return bool
+	 * Validate a city name.
+	 * @param string|null $value The city name to validate
+	 * @return bool True if valid
 	 */
 	public static function checkCity(?string $value): bool
 	{
@@ -65,14 +77,16 @@ class PostalAddress
 	}
 
 
-	// ========== Affichage ==========
+	// ========== Display ==========
 
 	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param bool $withAttention
-	 * @param string|null $separator
-	 * @param string|null $locale
-	 * @return string|null
+	 * Format a postal address according to the country's conventions using commerceguys/addressing library.
+	 * Automatically formats address components in the correct order based on the country code.
+	 * @param PostalAddressInterface $postalAddress The postal address to format
+	 * @param bool $withAttention Include the attention line (recipient name) in the output
+	 * @param string|null $separator Separator between address lines (default: '<br/>')
+	 * @param string|null $locale Locale for formatting (default: system locale)
+	 * @return string|null The formatted address string, or null if country code is missing
 	 * @link https://github.com/commerceguys/addressing
 	 */
 	public static function format(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator='<br/>', ?string $locale=null): ?string
@@ -121,10 +135,11 @@ class PostalAddress
 	}
 
 	/**
-	 * @param PostalAddressInterface $postalAddress
-	 * @param bool $withAttention
-	 * @param string|null $separator
-	 * @return string|null
+	 * Format a postal address as an inline string (single line with comma separators).
+	 * @param PostalAddressInterface $postalAddress The postal address to format
+	 * @param bool $withAttention Include the attention line (recipient name) in the output
+	 * @param string|null $separator Separator between address components (default: ', ')
+	 * @return string|null The formatted inline address string, or null if country code is missing
 	 */
 	public static function formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', '): ?string
 	{
@@ -134,11 +149,34 @@ class PostalAddress
 
 
 
-	// ========== Formatage ==========
+	// ========== Private Methods ==========
 
 	/**
-	 * @param string|null $value
-	 * @return string|null
+	 * Get the postal code regex pattern for a specific country.
+	 * Loads and caches the patterns from postal_codes.yaml on first call.
+	 * @param string $country The ISO 3166-1 alpha-2 country code
+	 * @return string|null The regex pattern for the country, or null if not found
+	 */
+	private static function getPostalCodeRegex(string $country): ?string
+	{
+		// Load regex patterns only once and cache them
+		if (null === self::$postalCodeRegex) {
+			self::$postalCodeRegex = Yaml::parse(
+				file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'postal_codes.yaml')
+			);
+		}
+
+		return self::$postalCodeRegex[$country] ?? null;
+	}
+
+
+	// ========== Formatting ==========
+
+	/**
+	 * Replace special characters in address strings with standard equivalents.
+	 * Normalizes various Unicode characters that may appear in addresses from different sources (e.g., Google Maps).
+	 * @param string|null $value The address string to normalize
+	 * @return string|null The normalized address string
 	 */
 	public static function replaceSpecialChar(?string $value): ?string
 	{
@@ -146,13 +184,13 @@ class PostalAddress
 			return null;
 		}
 
-		// caractère parfois utilisé pour séparer la rue de la ville (exemple pour une adresse de la Tunisie retourné par Google Maps, coordonnées 36.7691557,10.2432981)
+		// Arabic comma sometimes used to separate street from city (e.g., Tunisian addresses from Google Maps, coordinates 36.7691557,10.2432981)
 		$value = str_replace('،', ',', $value);
 
-		// caractère parfois utilisé pour l'apostrophe
+		// Combining acute accent sometimes used for apostrophe
 		$value = str_replace('́', '’', $value);
 
-		// caractère parfois utilisé pour le numéro de rue (exemple pour une adresse en Réunion retourné par Google Maps, coordonnées -21.0506425,55.2241411)
+		// Numero sign sometimes used for street number (e.g., Réunion addresses from Google Maps, coordinates -21.0506425,55.2241411)
 		$value = str_replace('№', 'N°', $value);
 
 		return \Osimatic\Text\Str::replaceAnnoyingChar($value);

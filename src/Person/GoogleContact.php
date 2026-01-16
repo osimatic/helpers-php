@@ -20,7 +20,7 @@ class GoogleContact
 	 * @param string|null $clientId The OAuth 2.0 client ID
 	 * @param string|null $secret The OAuth 2.0 client secret
 	 * @param string|null $appName The application name to identify requests
-	 * @param LoggerInterface $logger The PSR-3 logger instance (default: NullLogger)
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
 		?string $clientId=null,
@@ -47,7 +47,7 @@ class GoogleContact
 
 	/**
 	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The logger instance
+	 * @param LoggerInterface $logger The PSR-3 logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
