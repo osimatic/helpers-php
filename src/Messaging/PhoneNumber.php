@@ -9,12 +9,36 @@ namespace Osimatic\Messaging;
 class PhoneNumber
 {
 	/**
+	 * Default country code used when no country is specified.
+	 * @var string
+	 */
+	private static string $defaultCountry = 'FR';
+
+	/**
+	 * Set the default country code to use for phone number parsing.
+	 * @param string $countryCode The ISO country code (e.g., 'FR', 'US', 'GB')
+	 */
+	public static function setDefaultCountry(string $countryCode): void
+	{
+		self::$defaultCountry = $countryCode;
+	}
+
+	/**
+	 * Get the current default country code.
+	 * @return string The ISO country code
+	 */
+	public static function getDefaultCountry(): string
+	{
+		return self::$defaultCountry;
+	}
+
+	/**
 	 * Format a phone number in national format (e.g., "01 23 45 67 89" for France).
 	 * @param string|null $phoneNumber The phone number to format
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
-	public static function formatNational(?string $phoneNumber, string $defaultCountry='FR'): ?string
+	public static function formatNational(?string $phoneNumber, ?string $defaultCountry = null): ?string
 	{
 		return self::format($phoneNumber, \libphonenumber\PhoneNumberFormat::NATIONAL, $defaultCountry);
 	}
@@ -22,10 +46,10 @@ class PhoneNumber
 	/**
 	 * Format a phone number in international format (e.g., "+33 1 23 45 67 89").
 	 * @param string|null $phoneNumber The phone number to format
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
-	public static function formatInternational(?string $phoneNumber, string $defaultCountry='FR'): ?string
+	public static function formatInternational(?string $phoneNumber, ?string $defaultCountry = null): ?string
 	{
 		return self::format($phoneNumber, \libphonenumber\PhoneNumberFormat::INTERNATIONAL, $defaultCountry);
 	}
@@ -34,52 +58,40 @@ class PhoneNumber
 	 * Format a phone number using a specific format.
 	 * @param string|null $phoneNumber The phone number to format
 	 * @param int $numberFormat The libphonenumber format constant (NATIONAL, INTERNATIONAL, E164, etc.)
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
-	public static function format(?string $phoneNumber, int $numberFormat, string $defaultCountry='FR'): ?string
+	public static function format(?string $phoneNumber, int $numberFormat, ?string $defaultCountry = null): ?string
 	{
-		if (null === $phoneNumber) {
-			return null;
+		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
+			return $phoneNumber;
 		}
 
-		try {
-			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat);
-			}
-		}
-		catch (\libphonenumber\NumberParseException) {}
-		return $phoneNumber;
+		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat);
 	}
 
 	/**
 	 * Parse a phone number and return it in E.164 format (e.g., "+33123456789").
 	 * @param string|null $phoneNumber The phone number to parse
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return string|null The parsed phone number in E.164 format, or the original value if parsing fails, or null if input is null
 	 */
-	public static function parse(?string $phoneNumber, string $defaultCountry='FR'): ?string
+	public static function parse(?string $phoneNumber, ?string $defaultCountry = null): ?string
 	{
-		if (null === $phoneNumber) {
+		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
 			return null;
 		}
 
-		try {
-			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::E164);
-			}
-		}
-		catch (\libphonenumber\NumberParseException) {}
-		return $phoneNumber;
+		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::E164);
 	}
 
 	/**
 	 * Parse an array of phone numbers and return them in E.164 format.
 	 * @param string[] $phoneNumbers Array of phone numbers to parse
-	 * @param string $defaultCountry The ISO country code to use if phone numbers don't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if phone numbers don't include a country code
 	 * @return string[] Array of parsed phone numbers in E.164 format, with invalid entries filtered out
 	 */
-	public static function parseList(array $phoneNumbers, string $defaultCountry='FR'): array
+	public static function parseList(array $phoneNumbers, ?string $defaultCountry = null): array
 	{
 		foreach ($phoneNumbers as $key => $phoneNumber) {
 			if (!empty($phoneNumber)) {
@@ -93,73 +105,55 @@ class PhoneNumber
 	 * Quickly check if a number is a possible phone number using only length information.
 	 * This is much faster than full validation but less accurate.
 	 * @param string|null $phoneNumber The phone number to check
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return bool True if the number is possibly valid based on length, false otherwise
 	 */
-	public static function isPossible(?string $phoneNumber, string $defaultCountry='FR'): bool
+	public static function isPossible(?string $phoneNumber, ?string $defaultCountry = null): bool
 	{
-		if (null === $phoneNumber) {
+		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
 			return false;
 		}
 
-		try {
-			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->isPossibleNumber($phoneNumberObj);
-			}
-		}
-		catch (\libphonenumber\NumberParseException) {}
-		return false;
+		return \libphonenumber\PhoneNumberUtil::getInstance()->isPossibleNumber($phoneNumberObj);
 	}
 
 	/**
 	 * Perform full validation of a phone number using length and prefix information.
 	 * @param string|null $phoneNumber The phone number to validate
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return bool True if the phone number is valid, false otherwise
 	 */
-	public static function isValid(?string $phoneNumber, string $defaultCountry='FR'): bool
+	public static function isValid(?string $phoneNumber, ?string $defaultCountry = null): bool
 	{
-		if (null === $phoneNumber) {
+		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
 			return false;
 		}
 
-		try {
-			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
-			}
-		}
-		catch (\libphonenumber\NumberParseException) {}
-		return false;
+		return \libphonenumber\PhoneNumberUtil::getInstance()->isValidNumber($phoneNumberObj);
 	}
 
 	/**
 	 * Get the type of phone number (mobile, fixed-line, toll-free, premium rate, etc.).
 	 * @param string|null $phoneNumber The phone number to analyze
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return PhoneNumberType|null The phone number type, or null if it cannot be determined
 	 */
-	public static function getType(?string $phoneNumber, string $defaultCountry='FR'): ?PhoneNumberType
+	public static function getType(?string $phoneNumber, ?string $defaultCountry = null): ?PhoneNumberType
 	{
-		if (null === $phoneNumber) {
+		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
 			return null;
 		}
 
-		try {
-			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return PhoneNumberType::tryFrom(\libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj));
-			}
-		}
-		catch (\libphonenumber\NumberParseException) {}
-		return null;
+		return PhoneNumberType::tryFrom(\libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj));
 	}
 
 	/**
 	 * Check if a phone number is a mobile number.
 	 * @param string|null $phoneNumber The phone number to check
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return bool True if the number is a mobile number, false otherwise
 	 */
-	public static function isMobile(?string $phoneNumber, string $defaultCountry='FR'): bool
+	public static function isMobile(?string $phoneNumber, ?string $defaultCountry = null): bool
 	{
 		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::MOBILE;
 	}
@@ -167,10 +161,10 @@ class PhoneNumber
 	/**
 	 * Check if a phone number is a fixed-line (landline) number.
 	 * @param string|null $phoneNumber The phone number to check
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return bool True if the number is a fixed-line number, false otherwise
 	 */
-	public static function isFixedLine(?string $phoneNumber, string $defaultCountry='FR'): bool
+	public static function isFixedLine(?string $phoneNumber, ?string $defaultCountry = null): bool
 	{
 		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::FIXED_LINE;
 	}
@@ -178,10 +172,10 @@ class PhoneNumber
 	/**
 	 * Check if a phone number is a premium rate number.
 	 * @param string|null $phoneNumber The phone number to check
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return bool True if the number is a premium rate number, false otherwise
 	 */
-	public static function isPremium(?string $phoneNumber, string $defaultCountry='FR'): bool
+	public static function isPremium(?string $phoneNumber, ?string $defaultCountry = null): bool
 	{
 		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::PREMIUM_RATE;
 	}
@@ -189,10 +183,10 @@ class PhoneNumber
 	/**
 	 * Check if a phone number is a toll-free number.
 	 * @param string|null $phoneNumber The phone number to check
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return bool True if the number is a toll-free number, false otherwise
 	 */
-	public static function isTollFree(?string $phoneNumber, string $defaultCountry='FR'): bool
+	public static function isTollFree(?string $phoneNumber, ?string $defaultCountry = null): bool
 	{
 		return self::getType($phoneNumber, $defaultCountry) === PhoneNumberType::TOLL_FREE;
 	}
@@ -200,22 +194,16 @@ class PhoneNumber
 	/**
 	 * Get the ISO country code for a phone number.
 	 * @param string|null $phoneNumber The phone number to analyze
-	 * @param string $defaultCountry The ISO country code to use if the phone number doesn't include a country code (default: 'FR')
+	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return string|null The ISO country code (e.g., 'FR', 'US'), or null if it cannot be determined
 	 */
-	public static function getCountryIsoCode(?string $phoneNumber, string $defaultCountry='FR'): ?string
+	public static function getCountryIsoCode(?string $phoneNumber, ?string $defaultCountry = null): ?string
 	{
-		if (null === $phoneNumber) {
+		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
 			return null;
 		}
 
-		try {
-			if (null !== ($phoneNumberObj = \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry))) {
-				return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
-			}
-		}
-		catch (\libphonenumber\NumberParseException) {}
-		return null;
+		return \libphonenumber\PhoneNumberUtil::getInstance()->getRegionCodeForNumber($phoneNumberObj);
 	}
 
 	/**
@@ -288,5 +276,24 @@ class PhoneNumber
 			}
 		}
 		return $phoneNumber;
+	}
+
+	/**
+	 * @param string|null $phoneNumber
+	 * @param string|null $defaultCountry
+	 * @return \libphonenumber\PhoneNumber|null
+	 */
+	private static function parsePhoneNumber(?string $phoneNumber, ?string $defaultCountry = null): ?\libphonenumber\PhoneNumber
+	{
+		if (null === $phoneNumber) {
+			return null;
+		}
+
+		try {
+			return \libphonenumber\PhoneNumberUtil::getInstance()->parse($phoneNumber, $defaultCountry ?? self::$defaultCountry);
+		}
+		catch (\libphonenumber\NumberParseException) {
+			return null;
+		}
 	}
 }

@@ -5,19 +5,26 @@ namespace Osimatic\Messaging;
 /**
  * Utility class for calculating SMS and call costs based on phone numbers and configured rates.
  * This class provides static methods to retrieve pricing information for SMS and calls to different countries and phone number types.
+ * IMPORTANT: All monetary values are stored and returned in the currency unit (EUR, USD, etc.), not in cents.
+ * The currency is specified by the CallAndSmsRateInterface::getCurrency() method.
+ * Rate format:
+ * - SMS rates: cost per SMS in currency units (e.g., 0.085 means 0.085 EUR per SMS)
+ * - Call rates: cost per minute in currency units (e.g., 0.12 means 0.12 EUR per minute)
+ * - Call duration: must be provided in seconds (converted to minutes internally)
  */
 class CallAndSmsRate
 {
 	/**
 	 * Array of call and SMS rate configurations indexed by country.
+	 * Each configuration object must implement CallAndSmsRateInterface.
 	 * @var CallAndSmsRateInterface[]
 	 */
 	private static array $callAndSmsRates = [];
 
 	/**
-	 * Get the SMS cost for sending to a phone number (in cents).
+	 * Get the SMS cost for sending to a phone number.
 	 * @param string $phoneNumber The destination phone number
-	 * @return float The SMS cost in cents, or 0 if no rate is configured for the country
+	 * @return float The SMS cost in currency units (e.g., EUR, USD), or 0 if no rate is configured for the country
 	 */
 	public static function getSmsCostByPhoneNumber(string $phoneNumber): float
 	{
@@ -28,10 +35,10 @@ class CallAndSmsRate
 	}
 
 	/**
-	 * Calculate the call cost for a phone number and duration (in cents).
+	 * Calculate the call cost for a phone number and duration.
 	 * @param string $phoneNumber The destination phone number
 	 * @param int $durationInSeconds The call duration in seconds
-	 * @return float The total call cost in cents, or 0 if no rate is configured for the country
+	 * @return float The total call cost in currency units (e.g., EUR, USD), or 0 if no rate is configured for the country
 	 */
 	public static function getCallCostByPhoneNumberAndDuration(string $phoneNumber, int $durationInSeconds): float
 	{
@@ -40,10 +47,10 @@ class CallAndSmsRate
 	}
 
 	/**
-	 * Get the call rate per minute for a phone number (in cents/minute).
+	 * Get the call rate per minute for a phone number.
 	 * The rate varies depending on whether the number is mobile or landline.
 	 * @param string $phoneNumber The destination phone number
-	 * @return float The call rate per minute in cents, or 0 if no rate is configured for the country
+	 * @return float The call rate per minute in currency units (e.g., EUR/minute, USD/minute), or 0 if no rate is configured for the country
 	 */
 	public static function getCallRatePerMinuteByPhoneNumber(string $phoneNumber): float
 	{

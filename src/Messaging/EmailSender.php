@@ -40,7 +40,7 @@ class EmailSender implements EmailSenderInterface
 	) {}
 
 	/**
-	 * Set the PSR-3 logger for debugging email sending.
+	 * Sets the logger for error and debugging information.
 	 * @param LoggerInterface $logger The logger instance
 	 * @return self Returns this instance for method chaining
 	 */
@@ -186,15 +186,15 @@ class EmailSender implements EmailSenderInterface
 			$mail->Subject = $email->getSubject();
 			if ($email->isHTML()) {
 				$mail->msgHTML($email->getText());
+				$mail->AltBody = $this->plainTextAltBody ?? 'This is a plain-text message body';
 			}
 			else {
 				$mail->Body = $email->getText();
-				$mail->AltBody = $this->plainTextAltBody ?? 'This is a plain-text message body';
 			}
 
 			foreach ($email->getListAttachments() as $attachment) {
 				$resAttachment = $mail->addAttachment($attachment[0], $attachment[1]);
-				$this->logger->debug('Fichier '.$attachment[0].' : '.($resAttachment?'ok':'not ok').'.');
+				$this->logger->debug('File '.$attachment[0].' : '.($resAttachment ? 'attached' : 'failed').'.');
 			}
 
 			if (!$mail->send()) {

@@ -50,27 +50,18 @@ class SendinBlue
 	 * Create or update a contact in a SendinBlue contact list.
 	 * @param int $contactListId The ID of the contact list
 	 * @param string $email The contact's email address
-	 * @param string|null $firstName The contact's first name (optional)
-	 * @param string|null $lastName The contact's last name (optional)
-	 * @param string|null $companyName The contact's company name (optional)
-	 * @param string|null $mobileNumber The contact's mobile phone number (optional)
+	 * @param array $attributes Custom contact attributes (e.g., ['FNAME' => 'John', 'LNAME' => 'Doe', 'COMPANY' => 'Company', 'SMS' => '+33612345678'])
 	 * @return bool True if the contact was created/updated successfully, false otherwise
 	 */
-	public function createContact(int $contactListId, string $email, ?string $firstName=null, ?string $lastName=null, ?string $companyName=null, ?string $mobileNumber=null): bool
+	public function createContact(int $contactListId, string $email, array $attributes = []): bool
 	{
 		$url = 'https://api.sendinblue.com/v3/contacts';
 		$data = [
 			'email' => $email,
 			'listIds' => [$contactListId],
-			'attributes' => [
-				'SOCIETE' => $companyName,
-				'PRENOM' => $firstName,
-				'NOM' => $lastName,
-				'SMS' => $mobileNumber,
-			]
+			'attributes' => $attributes
 		];
 		$response = $this->post($url, $data);
-		//var_dump((string)$response->getBody());
 		if (null === $response) {
 			return false;
 		}
@@ -78,9 +69,10 @@ class SendinBlue
 	}
 
 	/**
-	 * @param string $url
-	 * @param array $queryData
-	 * @return null|ResponseInterface
+	 * Send a POST request to the SendinBlue API.
+	 * @param string $url The API endpoint URL
+	 * @param array $queryData The request payload data
+	 * @return ResponseInterface|null The HTTP response, or null on error
 	 */
 	private function post(string $url, array $queryData=[]): ?ResponseInterface
 	{
@@ -101,7 +93,8 @@ class SendinBlue
 	}
 
 	/**
-	 * @return array
+	 * Get HTTP headers for SendinBlue API requests.
+	 * @return array Array of headers with API key and content type
 	 */
 	private function getHeaders(): array
 	{

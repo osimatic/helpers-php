@@ -125,7 +125,7 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 			return new PushNotificationSendingResponse(true, null, $responseData);
 		}
 		catch (\ErrorException $e) {
-			$this->logger->error('Error envoi web push notification: '.$e->getMessage());
+			$this->logger->error('Error sending web push notification: '.$e->getMessage());
 		}
 
 		return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::UNKNOWN);
