@@ -35,7 +35,7 @@ class SendinBlue
 	}
 
 	/**
-	 * Set the PSR-3 logger for debugging API interactions.
+	 * Sets the logger for error and debugging information.
 	 * @param LoggerInterface $logger The logger instance
 	 * @return self Returns this instance for method chaining
 	 */

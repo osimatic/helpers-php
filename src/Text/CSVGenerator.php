@@ -8,6 +8,11 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ * Utility class for generating CSV files from PHP arrays.
+ * Uses Symfony Serializer to convert data to CSV format with proper UTF-8 BOM for Excel compatibility.
+ * For CSV validation and parsing, see CSV.
+ */
 class CSVGenerator
 {
 	public function __construct(
@@ -15,8 +20,9 @@ class CSVGenerator
 	) {}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -26,11 +32,12 @@ class CSVGenerator
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param array $data
-	 * @param string|null $title
-	 * @param array $context
-	 * @return bool
+	 * Generates a CSV file from a PHP array with semicolon delimiter and UTF-8 BOM.
+	 * @param string $filePath The path where the CSV file will be created
+	 * @param array $data The data array to convert to CSV format
+	 * @param string|null $title Optional title row to add at the beginning of the file
+	 * @param array $context Additional Symfony Serializer context options (CsvEncoder options)
+	 * @return bool True if the CSV file was successfully generated, false on error
 	 */
 	public function generateFile(string $filePath, array $data, ?string $title=null, array $context=[]): bool
 	{
@@ -46,7 +53,7 @@ class CSVGenerator
 		$str = substr($str, strpos($str, "\n")+strlen("\n"));
 
 		if ($context[CsvEncoder::OUTPUT_UTF8_BOM_KEY] ?? true) {
-			$str = chr(0xEF).chr(0xBB).chr(0xBF).$str; // UTF-8 BOM pour forcer l'UTF8 sur Excel
+			$str = chr(0xEF).chr(0xBB).chr(0xBF).$str; // UTF-8 BOM to force UTF-8 encoding in Excel
 		}
 
 		$nbBytes = file_put_contents($filePath, $str, FILE_APPEND);

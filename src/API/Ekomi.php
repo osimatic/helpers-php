@@ -26,8 +26,9 @@ class Ekomi
 	}
 
 	/**
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{

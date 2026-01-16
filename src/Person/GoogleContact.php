@@ -46,8 +46,8 @@ class GoogleContact
 	}
 
 	/**
-	 * Sets the PSR-3 logger instance for error and debug logging.
-	 * @param LoggerInterface $logger The logger instance to use
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self

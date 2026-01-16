@@ -41,7 +41,7 @@ class HTMLRenderer
 	}
 
 	/**
-	 * Sets the logger for error reporting.
+	 * Sets the logger for error and debugging information.
 	 * @param LoggerInterface $logger The logger instance
 	 * @return self Returns this instance for method chaining
 	 */

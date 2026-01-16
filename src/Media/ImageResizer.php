@@ -29,9 +29,9 @@ class ImageResizer
 	) {}
 
 	/**
-	 * Set the logger instance.
-	 * @param LoggerInterface $logger The logger instance to use
-	 * @return self Returns the current instance for method chaining
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{

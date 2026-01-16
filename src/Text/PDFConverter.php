@@ -5,6 +5,11 @@ namespace Osimatic\Text;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Utility class for converting PDF files to and from other formats.
+ * Uses ImageMagick (convert command) to convert between PDF and image formats.
+ * For PDF generation, see PDFGenerator. For PDF validation, see PDF. For PDF merging, see PDFMerger.
+ */
 class PDFConverter
 {
 	public function __construct(
@@ -13,9 +18,9 @@ class PDFConverter
 	) {}
 
 	/**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -25,8 +30,9 @@ class PDFConverter
 	}
 
 	/**
-	 * @param string $imagickConverterBinaryPath
-	 * @return self
+	 * Sets the path to the ImageMagick convert binary executable.
+	 * @param string $imagickConverterBinaryPath The full path to the ImageMagick convert binary
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setImagickConverterBinaryPath(string $imagickConverterBinaryPath): self
 	{
@@ -36,21 +42,22 @@ class PDFConverter
 	}
 
 	/**
-	 * @param string $imageFilePath
-	 * @param string $pdfFilePath
-	 * @return bool
+	 * Converts an image file to PDF format.
+	 * @param string $imageFilePath The path to the source image file
+	 * @param string $pdfFilePath The path where the PDF file will be created
+	 * @return bool True if the conversion was successful, false on error
 	 */
 	public function convertImageToPdf(string $imageFilePath, string $pdfFilePath): bool
 	{
 		$commandLine = escapeshellarg($this->imagickConverterBinaryPath) . ' ' . escapeshellarg($imageFilePath) . ' ' . escapeshellarg($pdfFilePath);
 
-		// Envoi de la commande
-		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		// Execute the command
+		$this->logger->info('Executed command line: '.$commandLine);
 		$returnCode = 0;
 		system($commandLine, $returnCode);
 
 		if ($returnCode !== 0) {
-			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			$this->logger->error('Conversion failed with return code: ' . $returnCode);
 			return false;
 		}
 
@@ -67,9 +74,10 @@ class PDFConverter
 	}
 
 	/**
-	 * @param string $pdfPath
-	 * @param string $imagePath
-	 * @return bool
+	 * Converts a PDF file to image files (one image per page).
+	 * @param string $pdfPath The path to the source PDF file
+	 * @param string $imagePath The base path for the output image files (page numbers will be appended)
+	 * @return bool True if the conversion was successful, false on error
 	 */
 	public function convertToImages(string $pdfPath, string $imagePath): bool
 	{
@@ -79,12 +87,12 @@ class PDFConverter
 
 		$commandLine = escapeshellarg($this->imagickConverterBinaryPath) . ' -quality 100 -density 150 ' . escapeshellarg($pdfPath) . ' ' . escapeshellarg($imagePath);
 
-		// Envoi de la ligne de commande
+		// Execute the command line
 		$returnCode = 0;
 		system($commandLine, $returnCode);
 
 		if ($returnCode !== 0) {
-			$this->logger->error('La conversion a échoué avec le code de retour : ' . $returnCode);
+			$this->logger->error('Conversion failed with return code: ' . $returnCode);
 			return false;
 		}
 

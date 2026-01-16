@@ -19,7 +19,7 @@ class AudioConverter
 	 */
 	public function __construct(
 		private ?string $soxBinaryPath = null,
-		private ?string $ffmpegBinaryPath = 'ffmpeg',
+		private ?string $ffmpegBinaryPath = null,
 		private LoggerInterface $logger=new NullLogger(),
 	) {}
 
@@ -48,9 +48,9 @@ class AudioConverter
 	}
 
 	/**
-	 * Set the logger instance for recording conversion operations and errors.
-	 * @param LoggerInterface $logger Logger instance
-	 * @return self Returns the current instance for method chaining
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -162,7 +162,7 @@ class AudioConverter
 			unlink($destAudioFilePath);
 		}
 
-		$commandLine = escapeshellarg($this->ffmpegBinaryPath) . ' -i ' . escapeshellarg($srcAudioFilePath) . ' -ab 160k -ar 44100 ' . escapeshellarg($destAudioFilePath);
+		$commandLine = escapeshellarg($this->ffmpegBinaryPath ?? 'ffmpeg') . ' -i ' . escapeshellarg($srcAudioFilePath) . ' -ab 160k -ar 44100 ' . escapeshellarg($destAudioFilePath);
 
 		// Execute the command
 		$this->logger->info('Command line executed: '.$commandLine);

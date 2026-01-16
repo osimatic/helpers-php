@@ -5,6 +5,11 @@ namespace Osimatic\Text;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Utility class for merging multiple PDF files into a single PDF document.
+ * Uses PDFtk (PDF Toolkit) command-line tool to concatenate PDF files.
+ * For PDF generation, see PDFGenerator. For PDF validation, see PDF. For PDF conversion, see PDFConverter.
+ */
 class PDFMerger
 {
 	public function __construct(
@@ -13,9 +18,9 @@ class PDFMerger
 	) {}
 
 	/**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -25,8 +30,9 @@ class PDFMerger
 	}
 
 	/**
-	 * @param string $pdfToolkitBinaryPath
-	 * @return self
+	 * Sets the path to the PDFtk binary executable.
+	 * @param string $pdfToolkitBinaryPath The full path to the PDFtk binary
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setPdfToolkitBinaryPath(string $pdfToolkitBinaryPath): self
 	{
@@ -36,35 +42,37 @@ class PDFMerger
 	}
 
 	/**
-	 * @param array $listPdfPath
-	 * @param string $newPdfPath
-	 * @param int $profondeur
-	 * @return bool
+	 * Merges multiple PDF files into a single PDF document.
+	 * Handles large lists by splitting into multiple merge operations to avoid command line length limits.
+	 * @param array $listPdfPath Array of file paths to the PDF files to merge
+	 * @param string $newPdfPath The path where the merged PDF file will be created
+	 * @param int $profondeur Recursion depth for internal splitting (default: 0, for initial call)
+	 * @return bool True if the merge was successful, false on error
 	 */
 	public function mergeFiles(array $listPdfPath, string $newPdfPath, int $profondeur=0): bool
 	{
-		$this->logger->info('Intégration de '.count($listPdfPath).' fichiers PDF vers un fichier PDF unique "'.$newPdfPath.'".');
+		$this->logger->info('Merging '.count($listPdfPath).' PDF files into a single PDF file "'.$newPdfPath.'".');
 
 		\Osimatic\FileSystem\FileSystem::initializeFile($newPdfPath);
 
-		// Vérification que tous les fichiers existent bien
+		// Check that all files exist
 		if ($profondeur === 0) {
 			foreach ($listPdfPath as $pdfPath) {
 				if (!file_exists($pdfPath)) {
-					$this->logger->error('Le fichier PDF "'.$pdfPath.'" à intégrer n\'existe pas.');
+					$this->logger->error('PDF file "'.$pdfPath.'" to merge does not exist.');
 					return false;
 				}
 			}
 		}
 
-		// Création de la ligne de commande
+		// Build the command line
 		$listPdfStringFormat = '';
 		$nbFile = 0;
 		while (($pdfPath = array_shift($listPdfPath)) !== null) {
 			$listPdfStringFormat .= escapeshellarg($pdfPath) . ' ';
 			$nbFile++;
 
-			// todo : faire en fonction de la taille des noms de fichier (la ligne de commande est limité à un certain nombre de caractère)
+			// TODO: base this on filename length (command line is limited to a certain number of characters)
 			if ($nbFile >= 20 && !empty($listPdfPath)) {
 				$filePathTemp = sys_get_temp_dir().'/'.uniqid(md5(mt_rand()), true).PDF::FILE_EXTENSION;
 				$this->mergeFiles($listPdfPath, $filePathTemp, $profondeur+1);
@@ -76,13 +84,13 @@ class PDFMerger
 
 		$commandLine = escapeshellarg($this->pdfToolkitBinaryPath) . ' ' . $listPdfStringFormat . 'cat output ' . escapeshellarg($newPdfPath) . ' dont_ask';
 
-		// Envoi de la commande
-		$this->logger->info('Ligne de commande exécutée : '.$commandLine);
+		// Execute the command
+		$this->logger->info('Executed command line: '.$commandLine);
 		$returnCode = 0;
 		system($commandLine, $returnCode);
 
 		if ($returnCode !== 0) {
-			$this->logger->error('La fusion a échoué avec le code de retour : ' . $returnCode);
+			$this->logger->error('Merge failed with return code: ' . $returnCode);
 			return false;
 		}
 

@@ -108,7 +108,7 @@ class Str
 	 * @param bool $caseSensitive If true, perform case-sensitive comparison (default: false)
 	 * @return int Returns -1 if $val1 < $val2, 1 if $val1 > $val2, or 0 if they are equal
 	 */
-	public static function compare($val1, $val2, bool $naturalOrder=false, bool $caseSensitive=false): int
+	public static function compare(mixed $val1, mixed $val2, bool $naturalOrder=false, bool $caseSensitive=false): int
 	{
 		if (is_numeric($val1) && is_numeric($val2)) {
 			if ($val1 < $val2) {
@@ -198,20 +198,44 @@ class Str
 
 	/**
 	 * Truncates a string in the middle, keeping the beginning and end.
-	 * TODO: Take into account the $dontCutInMiddleOfWord parameter
 	 * @param string $string The string to truncate
 	 * @param int $nbCharMax The maximum number of characters in the result
-	 * @param bool $dontCutInMiddleOfWord If true, avoid cutting in the middle of words (not yet implemented)
+	 * @param bool $dontCutInMiddleOfWord If true, avoid cutting in the middle of words
 	 * @param string $strAddingInMiddle The string to add in the middle where text was removed (default: "[…]")
 	 * @return string The truncated string
 	 */
 	public static function truncateTextInMiddle(string $string, int $nbCharMax, bool $dontCutInMiddleOfWord = true, string $strAddingInMiddle = '[…]'): string
 	{
 		$stringTruncate = $string;
+		$space = ' ';
 
-		if (strlen($string) > $nbCharMax) {
-			$nbCharEachPart = (int)($nbCharMax / 2);
-			$stringTruncate = substr($string, 0, $nbCharEachPart) . $strAddingInMiddle . substr($string, -$nbCharEachPart);
+		if (mb_strlen($string) > $nbCharMax) {
+			$ellipsisLength = mb_strlen($strAddingInMiddle);
+			$availableLength = $nbCharMax - $ellipsisLength;
+			$nbCharEachPart = (int)($availableLength / 2);
+
+			$beginPart = mb_substr($string, 0, $nbCharEachPart);
+			$endPart = mb_substr($string, -$nbCharEachPart);
+
+			if ($dontCutInMiddleOfWord) {
+				// Adjust beginning part to not cut in middle of word
+				if ($nbCharEachPart < mb_strlen($string) && $string[$nbCharEachPart] !== $space) {
+					$posSpace = mb_strrpos($beginPart, $space);
+					if ($posSpace !== false) {
+						$beginPart = mb_substr($beginPart, 0, $posSpace);
+					}
+				}
+
+				// Adjust end part to not cut in middle of word
+				if ($endPart[0] !== $space) {
+					$posSpace = mb_strpos($endPart, $space);
+					if ($posSpace !== false) {
+						$endPart = mb_substr($endPart, $posSpace + 1);
+					}
+				}
+			}
+
+			$stringTruncate = $beginPart . $strAddingInMiddle . $endPart;
 		}
 
 		return $stringTruncate;
@@ -831,11 +855,12 @@ class Str
 		$delim = '[-_\'\"`(){}<>\[\]|!?@#%&,.:;^~*+=\/ 0-9\n\r\t]';
 
 		foreach ($censored as $badword) {
+			$pattern = "/($delim)(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")($delim)/i";
 			if ($replacement !== '') {
-				$str = preg_replace("/($delim)(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")($delim)/i", "\\1$replacement\\3", $str);
+				$str = preg_replace($pattern, "\\1$replacement\\3", $str);
 			}
 			else {
-				$str = preg_replace("/($delim)(".str_replace('\*', '\w*?', preg_quote($badword, '/')).")($delim)/ie", "'\\1'.str_repeat('#', strlen('\\2')).'\\3'", $str);
+				$str = preg_replace_callback($pattern, static fn($matches) => $matches[1] . str_repeat('#', strlen($matches[2])) . $matches[3], $str);
 			}
 		}
 		return trim($str);

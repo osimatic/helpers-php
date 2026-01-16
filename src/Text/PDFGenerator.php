@@ -5,6 +5,11 @@ namespace Osimatic\Text;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Utility class for generating PDF files from HTML content.
+ * Uses wkhtmltopdf library via Snappy to convert HTML to PDF with support for headers, footers, and custom options.
+ * For PDF validation, see PDF. For PDF conversion, see PDFConverter. For PDF merging, see PDFMerger.
+ */
 class PDFGenerator
 {
 	public function __construct(
@@ -13,9 +18,9 @@ class PDFGenerator
 	) {}
 
 	/**
-	 * Set the logger to use to log debugging data.
-	 * @param LoggerInterface $logger
-	 * @return self
+	 * Sets the logger for error and debugging information.
+	 * @param LoggerInterface $logger The logger instance
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
@@ -25,8 +30,9 @@ class PDFGenerator
 	}
 
 	/**
-	 * @param string $wkHtmlToPdtBinaryPath
-	 * @return self
+	 * Sets the path to the wkhtmltopdf binary executable.
+	 * @param string $wkHtmlToPdtBinaryPath The full path to the wkhtmltopdf binary
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setWkHtmlToPdtBinaryPath(string $wkHtmlToPdtBinaryPath): self
 	{
@@ -36,12 +42,13 @@ class PDFGenerator
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string $bodyHtml
-	 * @param string|null $headerHtml
-	 * @param string|null $footerHtml
-	 * @param array $options
-	 * @return bool
+	 * Generates a PDF file from HTML content with optional header and footer.
+	 * @param string $filePath The path where the PDF file will be created
+	 * @param string $bodyHtml The HTML content for the main body of the PDF
+	 * @param string|null $headerHtml Optional HTML content for the PDF header
+	 * @param string|null $footerHtml Optional HTML content for the PDF footer
+	 * @param array $options Additional wkhtmltopdf options (see Snappy documentation)
+	 * @return bool True if the PDF was successfully generated, false on error
 	 */
 	public function generateFile(string $filePath, string $bodyHtml, ?string $headerHtml=null, ?string $footerHtml=null, array $options=[]): bool
 	{
@@ -62,7 +69,7 @@ class PDFGenerator
 			$snappy->generateFromHtml($bodyHtml, $filePath, $options);
 		}
 		catch (\Exception $e) {
-			$this->logger->error('Exception lors de la génération du fichier PDF : '.$e->getMessage());
+			$this->logger->error('Exception during PDF file generation: '.$e->getMessage());
 			return false;
 		}
 

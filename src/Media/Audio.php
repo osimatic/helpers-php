@@ -3,8 +3,6 @@
 namespace Osimatic\Media;
 
 use Osimatic\FileSystem\OutputFile;
-use getID3;
-use getid3_exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -49,7 +47,7 @@ class Audio
 
 	private const int STREAM_BUFFER_SIZE 	= 1024 * 8; // 8 KB buffer for streaming
 
-	private static ?getID3 $getID3Instance = null;
+	private static ?\getID3 $getID3Instance = null;
 
 	/**
 	 * Get all supported audio file extensions and their corresponding MIME types.
@@ -70,12 +68,12 @@ class Audio
 
 	/**
 	 * Get or create the singleton getID3 instance.
-	 * @return getID3 The getID3 instance
+	 * @return \getID3 The getID3 instance
 	 */
-	private static function getID3Instance(): getID3
+	private static function getID3Instance(): \getID3
 	{
 		if (self::$getID3Instance === null) {
-			self::$getID3Instance = new getID3();
+			self::$getID3Instance = new \getID3();
 		}
 		return self::$getID3Instance;
 	}
@@ -96,7 +94,7 @@ class Audio
 
 		try {
 			return self::getID3Instance()->analyze($audioFilePath);
-		} catch (getid3_exception $e) {
+		} catch (\getid3_exception $e) {
 			$logger?->info($e->getMessage());
 		}
 		return null;
