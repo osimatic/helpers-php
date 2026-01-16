@@ -94,8 +94,8 @@ class PDFConverter
 
 		return (new \Osimatic\System\Command($this->logger))->run([
 			$this->getImagickConverterBinaryPath(),
-			'-quality 100',
-			'-density 150',
+			'-quality', '100',
+			'-density', '150',
 			$pdfPath,
 			$imagePath
 		]);

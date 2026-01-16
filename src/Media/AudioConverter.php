@@ -108,11 +108,12 @@ class AudioConverter
 
 		return (new \Osimatic\System\Command($this->logger))->run([
 			$this->getSoxBinaryPath(),
-			$fileFormat === Audio::MP3_FORMAT ? '-t mp3' : null,
+			$fileFormat === Audio::MP3_FORMAT ? '-t' : null,
+			$fileFormat === Audio::MP3_FORMAT ? 'mp3' : null,
 			$srcAudioFilePath,
-			'-e a-law',
-			'-c 1',
-			'-r 8000',
+			'-e', 'a-law',
+			'-c', '1',
+			'-r', '8000',
 			$destAudioFilePath
 		]);
 	}
@@ -141,11 +142,11 @@ class AudioConverter
 
 		return (new \Osimatic\System\Command($this->logger))->run([
 			$this->getSoxBinaryPath(),
-			'-t wav',
-			'-r 8000',
-			'-c 1',
+			'-t', 'wav',
+			'-r', '8000',
+			'-c', '1',
 			$srcAudioFilePath,
-			' -t mp3',
+			'-t', 'mp3',
 			$destAudioFilePath
 		]);
 	}
@@ -178,9 +179,9 @@ class AudioConverter
 
 		return (new \Osimatic\System\Command($this->logger))->run([
 			$this->getFfmpegBinaryPath(),
-			'-i '.$srcAudioFilePath,
-			'-ab 160k',
-			'-ar 44100',
+			'-i', $srcAudioFilePath,
+			'-ab', '160k',
+			'-ar', '44100',
 			$destAudioFilePath
 		]);
 	}
