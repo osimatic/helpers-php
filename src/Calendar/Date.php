@@ -2,13 +2,27 @@
 
 namespace Osimatic\Calendar;
 
+/**
+ * Utility class for date parsing, formatting, and calendar calculations.
+ * Provides methods for:
+ * - Parsing date strings in various formats
+ * - Getting localized names of days and months
+ * - Calculating the number of days in months and years
+ * - Leap year detection
+ */
 class Date
 {
-	// ========== Parse ==========
+	// ========== Parsing Methods ==========
 
 	/**
-	 * @param string $str
-	 * @return null|\DateTime
+	 * Parses a date string in various formats and returns a DateTime object.
+	 * Supports multiple input formats:
+	 * - ISO 8601 with time: "YYYY-MM-DDTHH:II:SS"
+	 * - Compact format with time: "YYYYMMDDHHIISS"
+	 * - SQL DATE format: "YYYY-MM-DD" (time set to 00:00:00)
+	 * - Various other formats supported by SqlDate::parse()
+	 * @param string $str The date string to parse
+	 * @return \DateTime|null A DateTime object if parsing succeeds, null otherwise
 	 */
 	public static function parse(string $str): ?\DateTime
 	{
@@ -40,13 +54,16 @@ class Date
 	}
 
 
-	// ========== Jour de la semaine ==========
+	// ========== Day of Week Methods ==========
 
 	/**
-	 * @param int $dayOfWeek ISO-8601 numeric representation of the day of the week : 1 (for Monday) through 7 (for Sunday)
-	 * @param string|null $locale
+	 * Gets the localized name of a day of the week.
+	 * Uses ICU IntlDateFormatter for internationalization support.
+	 * Returns the full day name with the first letter capitalized.
+	 * @param int $dayOfWeek ISO-8601 numeric representation of the day (1 for Monday through 7 for Sunday)
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The localized name of the day (e.g., "Monday", "Lundi")
 	 * @see http://userguide.icu-project.org/formatparse/datetime
-	 * @return string
 	 */
 	public static function getDayName(int $dayOfWeek, ?string $locale=null): string
 	{
@@ -56,15 +73,18 @@ class Date
 		//return ucfirst(strftime('%A', ($timestamp+($dayOfWeek*3600*24))));
 	}
 
-	// ========== Jour du mois ==========
+	// ========== Day of Month Methods ==========
 
-	// ========== Mois ==========
+	// ========== Month Methods ==========
 
 	/**
-	 * @param int $month Numeric representation of a month
-	 * @param string|null $locale
+	 * Gets the localized name of a month.
+	 * Uses ICU IntlDateFormatter for internationalization support.
+	 * Returns the full month name with the first letter capitalized.
+	 * @param int $month Numeric representation of a month (1-12, where 1 is January and 12 is December)
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The localized name of the month (e.g., "January", "Janvier"), or empty string on error
 	 * @see http://userguide.icu-project.org/formatparse/datetime
-	 * @return string
 	 */
 	public static function getMonthName(int $month, ?string $locale=null): string
 	{
@@ -77,20 +97,25 @@ class Date
 	}
 
 	/**
-	 * @param int $year
-	 * @param int $month
-	 * @return int
+	 * Gets the number of days in a specific month.
+	 * Automatically handles months with different numbers of days and leap years.
+	 * @param int $year The year (e.g., 2024)
+	 * @param int $month The month (1-12, where 1 is January and 12 is December)
+	 * @return int The number of days in the month (28-31)
 	 */
 	public static function getNumberOfDaysInMonth(int $year, int $month): int
 	{
 		return date('t', mktime(0, 0, 0, $month, 1, $year));
 	}
 
-	// ========== Année ==========
+	// ========== Year Methods ==========
 
 	/**
-	 * @param int $year
-	 * @return int
+	 * Checks if a year is a leap year.
+	 * A leap year is divisible by 4, except for years divisible by 100 (unless also divisible by 400).
+	 * Examples: 2020 is a leap year, 1900 is not, 2000 is a leap year.
+	 * @param int $year The year to check (e.g., 2024)
+	 * @return int Returns 1 if leap year, 0 if not
 	 */
 	public static function isLeapYear(int $year): int
 	{
@@ -98,8 +123,10 @@ class Date
 	}
 
 	/**
-	 * @param int $year
-	 * @return int
+	 * Gets the number of days in a year.
+	 * Returns 366 for leap years, 365 for regular years.
+	 * @param int $year The year (e.g., 2024)
+	 * @return int The number of days (365 or 366)
 	 */
 	public static function getNumberOfDaysInYear(int $year): int
 	{

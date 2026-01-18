@@ -129,7 +129,7 @@ final class PhoneNumberTest extends TestCase
 	public function testParseWithInvalidNumber(): void
 	{
 		$result = PhoneNumber::parse('invalid', 'FR');
-		$this->assertSame('invalid', $result);
+		$this->assertNull($result);
 	}
 
 	public function testParseWithDifferentCountry(): void

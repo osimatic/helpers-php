@@ -26,7 +26,7 @@ class AudioConverter
 	/**
 	 * Set the path to the SoX binary executable.
 	 * @param string $soxBinaryPath Path to the SoX binary
-	 * @return self Returns the current instance for method chaining
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSoxBinaryPath(string $soxBinaryPath): self
 	{
@@ -49,7 +49,7 @@ class AudioConverter
 	/**
 	 * Set the path to the FFmpeg binary executable.
 	 * @param string $ffmpegBinaryPath Path to the FFmpeg binary
-	 * @return self Returns the current instance for method chaining
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFfmpegBinaryPath(string $ffmpegBinaryPath): self
 	{

@@ -2,20 +2,30 @@
 
 namespace Osimatic\Draw;
 
+/**
+ * Utility class for color manipulation and conversion.
+ * Provides methods for:
+ * - Color validation (hexadecimal format)
+ * - Color conversion between RGB and hexadecimal formats
+ * - Color brightness analysis
+ * - Random color generation
+ */
 class Color
 {
-	// ========== Méthodes de vérification ==========
+	// ========== Validation Methods ==========
 
 	/**
-	 * @param string $hexaColor
-	 * @return bool
+	 * Validates if a string is a valid hexadecimal color code.
+	 * Accepts both 3-digit (#RGB) and 6-digit (#RRGGBB) formats with leading hash.
+	 * @param string $hexaColor The hexadecimal color string to validate (e.g., '#FF0000' or '#F00')
+	 * @return bool True if valid hexadecimal color, false otherwise
 	 */
 	public static function checkHexaColor(string $hexaColor): bool
 	{
 		return preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $hexaColor) === 1;
 	}
 
-	// ========== Méthodes de conversion ==========
+	// ========== Conversion Methods ==========
 
 	/*
 	public static function rgbToHexa($value) {
@@ -24,12 +34,13 @@ class Color
 	*/
 
 	/**
-	 * Convertie une couleur au format RGB en une couleur au format hexadécimale
-	 * @param int $red le rouge (0 à 255) de la couleur au format RGB
-	 * @param int $green le vert (0 à 255) de la couleur au format RGB
-	 * @param int $blue le bleu (0 à 255) de la couleur au format RGB
-	 * @param bool $withDiese true pour ajouter un "#" au début de la couleur au format HTML retournée, false sinon (true par défaut)
-	 * @return string
+	 * Converts an RGB color to hexadecimal format.
+	 * Each RGB component must be in the range 0-255.
+	 * @param int $red The red component (0-255)
+	 * @param int $green The green component (0-255)
+	 * @param int $blue The blue component (0-255)
+	 * @param bool $withDiese Whether to include the "#" prefix (default: true)
+	 * @return string The hexadecimal color string (e.g., '#FF0000' or 'FF0000')
 	 */
 	public static function rgbToHex(int $red, int $green, int $blue, bool $withDiese=true): string
 	{
@@ -51,10 +62,12 @@ class Color
 	}
 
 	/**
-	 * Convertie une couleur au format hexadécimale en une couleur au format RGB, sous forme de tableau contenant 3 entrées : le rouge (0 à 255), le vert (0 à 255) et le bleu (0 à 255)
-	 * Si la couleur au format HTML contient un "#", il sera automatiquement ignoré. Les couleurs au format HTML à 3 caractères (#000 par exemple) sont acceptées.
-	 * @param string $hex
-	 * @return int[]|null
+	 * Converts a hexadecimal color to RGB format.
+	 * Returns an array containing three elements: red (0-255), green (0-255), and blue (0-255).
+	 * The "#" prefix is optional and will be automatically ignored.
+	 * Both 3-character (#RGB) and 6-character (#RRGGBB) formats are supported.
+	 * @param string $hex The hexadecimal color string (e.g., '#FF0000', 'FF0000', '#F00', or 'F00')
+	 * @return int[]|null Array of [red, green, blue] values (0-255), or null if invalid format
 	 */
 	public static function hexColorToRgb(string $hex): ?array
 	{
@@ -78,10 +91,11 @@ class Color
 	}
 
 	/**
-	 * Retourne le rouge (du format RGB) à partir d'une couleur au format hexadécimale
-	 * Si la couleur au format HTML contient un "#", il sera automatiquement ignoré. Les couleurs au format HTML à 3 caractères (#000 par exemple) sont acceptées.
-	 * @param string $hex
-	 * @return int|null
+	 * Extracts the red component (RGB) from a hexadecimal color.
+	 * The "#" prefix is optional and will be automatically ignored.
+	 * Both 3-character (#RGB) and 6-character (#RRGGBB) formats are supported.
+	 * @param string $hex The hexadecimal color string (e.g., '#FF0000' or 'F00')
+	 * @return int|null The red component value (0-255), or null if invalid format
 	 */
 	public static function getRedFromHex(string $hex): ?int
 	{
@@ -93,10 +107,11 @@ class Color
 	}
 
 	/**
-	 * Retourne le vert (du format RGB) à partir d'une couleur au format HTML
-	 * Si la couleur au format HTML contient un "#", il sera automatiquement ignoré. Les couleurs au format HTML à 3 caractères (#000 par exemple) sont acceptées.
-	 * @param string $hex
-	 * @return int|null
+	 * Extracts the green component (RGB) from a hexadecimal color.
+	 * The "#" prefix is optional and will be automatically ignored.
+	 * Both 3-character (#RGB) and 6-character (#RRGGBB) formats are supported.
+	 * @param string $hex The hexadecimal color string (e.g., '#00FF00' or '0F0')
+	 * @return int|null The green component value (0-255), or null if invalid format
 	 */
 	public static function getGreenFromHexa(string $hex): ?int
 	{
@@ -108,10 +123,11 @@ class Color
 	}
 
 	/**
-	 * Retourne le bleu (du format RGB) à partir d'une couleur au format HTML
-	 * Si la couleur au format HTML contient un "#", il sera automatiquement ignoré. Les couleurs au format HTML à 3 caractères (#000 par exemple) sont acceptées.
-	 * @param string $hex
-	 * @return int|null
+	 * Extracts the blue component (RGB) from a hexadecimal color.
+	 * The "#" prefix is optional and will be automatically ignored.
+	 * Both 3-character (#RGB) and 6-character (#RRGGBB) formats are supported.
+	 * @param string $hex The hexadecimal color string (e.g., '#0000FF' or '00F')
+	 * @return int|null The blue component value (0-255), or null if invalid format
 	 */
 	public static function getBlueFromHexa(string $hex): ?int
 	{
@@ -122,11 +138,14 @@ class Color
 		return $rgb[2];
 	}
 
-	// ========== Méthodes sur les teintes ==========
+	// ========== Brightness Analysis Methods ==========
 
 	/**
-	 * @param string $hex
-	 * @return bool
+	 * Determines if a hexadecimal color is considered light or dark.
+	 * Uses weighted luminance calculation based on human eye sensitivity.
+	 * Returns false if the color format is invalid.
+	 * @param string $hex The hexadecimal color string (e.g., '#FF0000' or 'F00')
+	 * @return bool True if the color is light (bright), false if dark or invalid
 	 */
 	public static function isLightHexColor(string $hex): bool
 	{
@@ -137,10 +156,13 @@ class Color
 	}
 
 	/**
-	 * @param int $red
-	 * @param int $green
-	 * @param int $blue
-	 * @return bool
+	 * Determines if an RGB color is considered light or dark.
+	 * Uses the ITU-R BT.709 weighted luminance formula that accounts for human eye sensitivity.
+	 * Green contributes most to perceived brightness (71.54%), red moderate (21.25%), and blue least (7.21%).
+	 * @param int $red The red component (0-255)
+	 * @param int $green The green component (0-255)
+	 * @param int $blue The blue component (0-255)
+	 * @return bool True if the color is light (brightness > 128), false if dark
 	 */
 	public static function isLightColor(int $red, int $green, int $blue): bool
 	{
@@ -156,10 +178,12 @@ class Color
 	}
 
 
-	// ========== Méthodes de génération ==========
+	// ========== Color Generation Methods ==========
 
 	/**
-	 * @return string
+	 * Generates a random hexadecimal color.
+	 * Each RGB component is randomly selected from 0-255.
+	 * @return string A random hexadecimal color with "#" prefix (e.g., '#A3C4F2')
 	 */
 	public static function getRandomHexColor(): string
 	{
@@ -167,7 +191,9 @@ class Color
 	}
 
 	/**
-	 * @return string
+	 * Generates a random grayscale hexadecimal color.
+	 * All RGB components have the same value, creating a shade of gray from black to white.
+	 * @return string A random grayscale hexadecimal color with "#" prefix (e.g., '#7F7F7F')
 	 */
 	public static function getRandomBlackAndWhiteHexColor(): string
 	{
@@ -175,7 +201,9 @@ class Color
 	}
 
 	/**
-	 * @return array
+	 * Generates a random RGB color.
+	 * Each component (red, green, blue) is randomly selected from 0-255.
+	 * @return int[] Array of [red, green, blue] values (0-255)
 	 */
 	public static function getRandomColor(): array
 	{
@@ -186,7 +214,9 @@ class Color
 	}
 
 	/**
-	 * @return array
+	 * Generates a random grayscale RGB color.
+	 * All components have the same value, creating a shade of gray from black to white.
+	 * @return int[] Array of [red, green, blue] values (all identical, 0-255)
 	 */
 	public static function getRandomBlackAndWhiteColor(): array
 	{

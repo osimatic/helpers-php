@@ -41,7 +41,7 @@ class GoogleReCaptcha
 
 	/**
 	 * @param string $siteKey
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSiteKey(string $siteKey): self
 	{
@@ -52,7 +52,7 @@ class GoogleReCaptcha
 
 	/**
 	 * @param string $secret
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSecret(string $secret): self
 	{

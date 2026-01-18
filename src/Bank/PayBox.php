@@ -8,7 +8,10 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Cette classe permet d'effectuer un paiement par CB via la plateforme PayBox
+ * PayBox payment gateway integration class
+ * Handles credit card payments via the PayBox platform (Verifone)
+ * Supports both PayBox Direct (server-to-server) and PayBox System (hosted payment form) methods
+ * Includes support for 3D Secure authentication, recurring payments (subscribers), and various transaction types
  * @author Benoit Guiraudou <guiraudou@osimatic.com>
  */
 class PayBox
@@ -24,197 +27,258 @@ class PayBox
 	public const int DEFAULT_FORM_TIMEOUT = 1800;
 
 	/**
+	 * PayBox API version to use for payment processing
+	 * Determines which PayBox API version (Direct, Direct Plus, etc.) will be used
 	 * @var PayBoxVersion
 	 */
 	private PayBoxVersion $version = PayBoxVersion::PAYBOX_DIRECT_PLUS;
 
 	/**
+	 * Language/locale code for the payment form
+	 * Controls the language displayed on the PayBox hosted payment page
 	 * @var string
 	 */
 	private string $locale = 'FR';
 
 	/**
+	 * Test mode flag
+	 * When true, uses PayBox test credentials and test URLs for development/testing
 	 * @var bool
 	 */
 	private bool $isTest = false;
 
 	/**
+	 * Form mode flag
+	 * When true, uses PayBox System (hosted form), otherwise uses PayBox Direct (HTTP API)
 	 * @var bool
 	 */
 	private bool $useForm = false;
 
 
 	/**
-	 * Date and time of the request
+	 * Custom date and time for the transaction request
+	 * If not set, the current date/time is automatically used
 	 * @var \DateTime|null
 	 */
 	private ?\DateTime $date = null;
 
 	/**
+	 * Type of bank card operation to perform (authorization, capture, refund, etc.)
 	 * @var BankCardOperation
 	 */
 	private BankCardOperation $bankCardOperation = BankCardOperation::AUTHORIZATION_AND_DEBIT;
 
 	/**
-	 * Unique identifier for the request that allows to avoid confusion in case of multiple	simultaneous requests.
+	 * Unique identifier for the request that allows avoiding confusion in case of multiple simultaneous requests
+	 * Auto-generated if not set, used as PayBox NUMQUESTION parameter
 	 * @var int|null
 	 */
 	private ?int $numQuestion = null;
 
 	/**
-	 * Amount of the transaction
+	 * Transaction amount in major currency units (e.g., 10.50 for 10.50 EUR)
 	 * @var float
 	 */
 	private float $montant = 0.;
 
 	/**
-	 * Currency code for the transaction.
+	 * Currency code for the transaction (ISO 4217 format)
 	 * @var string
 	 */
 	private string $devise = 'EUR';
 
 	/**
-	 * This is the merchant order reference (free field). This allows the merchant to link his platform to the Paybox platform using a reference number.
+	 * Merchant order reference number (free field, max 250 characters)
+	 * Allows the merchant to link their platform to PayBox using a reference number
 	 * @var string|null
 	 */
 	private ?string $reference = null;
 
 	/**
-	 * Merchant reference number allowing him to clearly identify the subscriber (profile) that corresponds to the transaction.
+	 * Subscriber reference number for recurring payments
+	 * Token allowing to clearly identify the subscriber (profile) for the transaction
 	 * @var string|null
 	 */
 	private ?string $subscriberRef = null;
 
 	/**
+	 * Customer email address
+	 * Required for PayBox System (hosted form) payments
 	 * @var string|null
 	 */
 	private ?string $porteurEmail = null;
 
 	/**
-	 * PAN (card number) of the customer, without any spaces and left aligned, or subscriber number for the request.
+	 * Customer's credit card number (PAN) or subscriber token for recurring payments
+	 * For direct payments: card number without spaces, left-aligned, max 19 digits
+	 * For subscriber payments: token reference returned from subscriber registration
 	 * @var string|null
 	 */
 	private ?string $porteur = null;
 
 	/**
-	 * Expiry date of the card
+	 * Credit card expiration date
+	 * Used for PayBox Direct transactions to validate the card
 	 * @var \DateTime|null
 	 */
 	private ?\DateTime $expirationDate = null;
 
 	/**
-	 * Visual cryptogram on the back of the card
+	 * Card Verification Value (CVV/CVC) security code
+	 * 3-4 digit security code printed on the back of the card
 	 * @var string|null
 	 */
 	private ?string $cvv = null;
 
 	/**
-	 * This parameter allows to inform the acquirer (bank) how the transaction was initiated and how the card entry was realized.
+	 * Transaction call origin code
+	 * Informs the acquiring bank how the transaction was initiated and how the card entry was performed
+	 * (e.g., internet payment, telephone order, mail order, recurring payment)
 	 * @var BankCardCallOrigin|null
 	 */
 	private ?BankCardCallOrigin $activite = null;
 
 	/**
-	 * This reference is transmitted to the acquirer (bank) of the merchant during the settlement of the transaction. The reference needs to be unique and allows the merchant to inquire for additional information from the acquirer (bank) in case of a dispute.
+	 * Unique archiving reference for dispute management
+	 * Transmitted to the acquiring bank during settlement
+	 * Allows merchants to request additional information in case of disputes
 	 * @var string|null
 	 */
 	private ?string $archivage = null;
 
 	/**
-	 * Number of days to postpone the settlement
+	 * Deferred settlement period in days
+	 * Number of days to postpone the fund capture after authorization (typically 0-7 days)
 	 * @var int|null
 	 */
 	private ?int $differe = null;
 
 	/**
-	 * Version du 3D Secure
+	 * 3D Secure V2 authentication enablement flag
+	 * When enabled, requires shopping cart and billing address for enhanced security
 	 * @var bool
 	 */
 	private bool $is3DSecureV2 = false;
 
 	/**
+	 * CSS class name for the payment form element
+	 * Applied to the <form> HTML tag in PayBox System hosted forms
 	 * @var string|null
 	 */
 	private ?string $formCssClass = null;
 
 	/**
+	 * CSS class name for the submit button
+	 * Applied to the submit button in PayBox System hosted forms
 	 * @var string|null
 	 */
 	private ?string $buttonCssClass = null;
 
 	/**
+	 * Submit button text/label
+	 * Displayed on the submit button in PayBox System hosted forms
 	 * @var string|null
 	 */
 	private ?string $buttonText = null;
 
 	/**
+	 * Return URL for successful payments (PBX_EFFECTUE parameter)
+	 * Customer is redirected to this URL after successful payment completion
 	 * @var string|null
 	 */
 	private ?string $urlResponseOk = null;
 
 	/**
+	 * Return URL for refused payments (PBX_REFUSE parameter)
+	 * Customer is redirected to this URL when payment is declined or rejected
 	 * @var string|null
 	 */
 	private ?string $urlResponseRefused = null;
 
 	/**
+	 * Return URL for canceled payments (PBX_ANNULE parameter)
+	 * Customer is redirected to this URL if they cancel the payment process
 	 * @var string|null
 	 */
 	private ?string $urlResponseCanceled = null;
 
 	/**
+	 * Return URL for pending/waiting payments (PBX_ATTENTE parameter)
+	 * Customer is redirected to this URL when payment status is pending/waiting
 	 * @var string|null
 	 */
 	private ?string $urlResponseWaiting = null;
 
 	/**
+	 * IPN (Instant Payment Notification) callback URL (PBX_REPONDRE_A parameter)
+	 * PayBox sends server-to-server payment result notifications to this URL
 	 * @var string|null
 	 */
 	private ?string $urlIpn = null;
 
 
 	/**
-	 * This number is returned by Verifone when a transaction is successfully processed.
+	 * Call number returned by PayBox after successful transaction processing
+	 * 10-digit reference number from PayBox/Verifone, required for subsequent operations like capture
 	 * @var int|null
 	 */
 	private ?int $numAppel = null;
 
 	/**
-	 * This number is returned by Verifone when a transaction is successfully processed.
+	 * Transaction number returned by PayBox after successful processing
+	 * 10-digit unique transaction identifier from PayBox/Verifone, required for subsequent operations
 	 * @var int|null
 	 */
 	private ?int $numTransaction = null;
 
 	/**
-	 * Authorization number provided by the merchant that was obtained by telephone call to	the acquirer (bank)
+	 * Authorization number obtained via telephone from the acquiring bank
+	 * Used when manual authorization was obtained by phone call instead of automatic authorization
 	 * @var string|null
 	 */
 	private ?string $autorisation = null;
 
 	/**
-	 * Country code of the issuance of the card
+	 * ISO country code of the card-issuing bank
+	 * Returned by PayBox to indicate where the card was issued
 	 * @var string|null
 	 */
 	private ?string $cardCountryCode = null;
 
 	/**
+	 * Shopping cart data for 3D Secure V2 authentication
+	 * Contains cart items and quantities, required for 3DS2 compliance
 	 * @var ShoppingCartInterface|null
 	 */
 	private ?ShoppingCartInterface $shoppingCart = null;
 
 	/**
+	 * Customer billing address for 3D Secure V2 authentication
+	 * Contains customer address details, required for 3DS2 compliance
 	 * @var BillingAddressInterface|null
 	 */
 	private ?BillingAddressInterface $billingAddress = null;
 
 	/**
-	 * Paybox system form's expiration in seconds
+	 * PayBox System form expiration timeout in seconds
+	 * Defines how long the generated payment form remains valid before expiring (default: 1800s / 30 minutes)
 	 * @var int
 	 */
 	private int $formTimeout = self::DEFAULT_FORM_TIMEOUT;
 
+	/**
+	 * HTTP client instance for making API requests to PayBox
+	 * Used for PayBox Direct HTTP communication
+	 * @var HTTPClient
+	 */
 	private HTTPClient $httpClient;
 
+	/**
+	 * Visa card response codes mapping from PayBox/Verifone
+	 * Maps 5-digit Visa response codes to French error messages as specified by PayBox API
+	 * Used to interpret card issuer response codes in the 00100-00199 range
+	 * @var array<string, string>
+	 */
 	private static array $visaResponseCodes = [
 		'00100' => 'Transaction approuvée ou traitée avec succès',
 		'00101' => 'Contacter l’émetteur de carte',
@@ -267,6 +331,13 @@ class PayBox
 		'00199' => 'Incident domaine initiateur.',
 	];
 
+	/**
+	 * PayBox system response codes mapping
+	 * Maps 5-digit PayBox response codes to French error messages as specified by PayBox API
+	 * Used to interpret PayBox platform errors in the 00000-00099 range
+	 * Code '00000' indicates successful operation
+	 * @var array<string, string>
+	 */
 	private static array $responseCodes = [
 		'00000' => 'Opération réussie',
 		'00001' => 'Echec de connexion au centre d’autorisation',
@@ -300,19 +371,25 @@ class PayBox
 	];
 
 	/**
-	 * @param string $siteNumber
-	 * @param string $rang
-	 * @param string $identifier
-	 * @param string $httpPassword
-	 * @param string $secretKey
+	 * Initialize PayBox payment gateway integration
+	 * Configures credentials and connection parameters for PayBox Direct and PayBox System
+	 * @param string $siteNumber The 7-digit merchant TPE number provided by PayBox
+	 * @param string $rang The 2-3 digit merchant rank number provided by PayBox
+	 * @param string $identifier The 1-9 digit identifier for PayBox System (PBX_IDENTIFIANT parameter)
+	 * @param string $httpPassword The 8-10 character key for PayBox Direct (CLE parameter)
+	 * @param string $secretKey The 128-character hexadecimal key for PayBox System HMAC generation
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
 		/**
+		 * The 7-digit merchant TPE (Terminal de Paiement Électronique) number provided by PayBox
+		 * Required for both PayBox Direct and PayBox System methods
 		 */
 		private string $siteNumber = '',
 
 		/**
+		 * The 2-3 digit merchant rank number provided by PayBox
+		 * Allows merchants to have multiple configurations under the same site number
 		 */
 		private string $rang = '',
 
@@ -338,7 +415,8 @@ class PayBox
 	}
 
 	/**
-	 * @return void
+	 * Reset all transaction-specific data
+	 * Clears transaction details, card information, and response data while keeping configuration
 	 */
 	public function reset(): void
 	{
@@ -359,7 +437,9 @@ class PayBox
 	}
 
 	/**
-	 *
+	 * Execute a new payment transaction
+	 * Uses the currently configured operation type (authorization, debit, etc.)
+	 * @return PayBoxResponse|null The payment response, or null on failure
 	 */
 	public function newPayment(): ?PayBoxResponse
 	{
@@ -370,7 +450,9 @@ class PayBox
 	}
 
 	/**
-	 * @return PayBoxResponse|null
+	 * Perform an authorization-only operation
+	 * Validates the card and reserves funds without capturing them
+	 * @return PayBoxResponse|null The authorization response, or null on failure
 	 */
 	public function doAuthorization(): ?PayBoxResponse
 	{
@@ -379,7 +461,10 @@ class PayBox
 	}
 
 	/**
-	 * @return PayBoxResponse|null
+	 * Capture previously authorized funds
+	 * Finalizes a transaction that was previously authorized
+	 * Requires numAppel and numTransaction to be set from the authorization
+	 * @return PayBoxResponse|null The debit response, or null on failure
 	 */
 	public function doDebit(): ?PayBoxResponse
 	{
@@ -388,7 +473,9 @@ class PayBox
 	}
 
 	/**
-	 * @return PayBoxResponse|null
+	 * Perform authorization and immediate capture in one operation
+	 * Validates the card and captures funds immediately
+	 * @return PayBoxResponse|null The payment response, or null on failure
 	 */
 	public function doAuthorizationAndDebit(): ?PayBoxResponse
 	{
@@ -397,7 +484,10 @@ class PayBox
 	}
 
 	/**
-	 * @return PayBoxResponse|null
+	 * Register a new subscriber for recurring payments
+	 * Stores card information for future transactions without immediate charge
+	 * Returns a subscriber reference (token) for future use
+	 * @return PayBoxResponse|null The registration response with subscriber token, or null on failure
 	 */
 	public function addSubscriber(): ?PayBoxResponse
 	{
@@ -406,7 +496,9 @@ class PayBox
 	}
 
 	/**
-	 * @return PayBoxResponse|null
+	 * Delete a subscriber from the system
+	 * Removes stored card information for a subscriber
+	 * @return PayBoxResponse|null The deletion response, or null on failure
 	 */
 	public function deleteSubscriber(): ?PayBoxResponse
 	{
@@ -417,7 +509,9 @@ class PayBox
 
 
 	/**
-	 * @return string|null
+	 * Generate HTML form for subscriber registration
+	 * Creates a PayBox System form that redirects to PayBox hosted page for card registration
+	 * @return string|null HTML form markup, or null on validation failure
 	 */
 	public function getFormSubscriberRegister(): ?string
 	{
@@ -431,7 +525,9 @@ class PayBox
 	}
 
 	/**
-	 * @return string|null
+	 * Generate HTML payment form
+	 * Creates a PayBox System form that redirects to PayBox hosted payment page
+	 * @return string|null HTML form markup, or null on validation failure
 	 */
 	public function getForm(): ?string
 	{
@@ -460,8 +556,9 @@ class PayBox
 	}
 
 	/**
-	 * @param PayBoxVersion $version
-	 * @return self
+	 * Set PayBox API version
+	 * @param PayBoxVersion $version The PayBox version to use (Direct, Direct Plus, etc.)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setVersion(PayBoxVersion $version): self
 	{
@@ -471,8 +568,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $siteNumber
-	 * @return self
+	 * Set merchant site number
+	 * The 7-digit TPE number provided by PayBox
+	 * @param string $siteNumber The site/TPE number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSiteNumber(string $siteNumber): self
 	{
@@ -482,8 +581,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $rang
-	 * @return self
+	 * Set merchant rank number
+	 * The 2-3 digit rank number provided by PayBox
+	 * @param string $rang The rank number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setRang(string $rang): self
 	{
@@ -493,8 +594,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $identifier
-	 * @return self
+	 * Set PayBox identifier
+	 * Used for PayBox System only (1-9 digits identifier)
+	 * @param string $identifier The PayBox identifier
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setIdentifier(string $identifier): self
 	{
@@ -504,8 +607,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $httpPassword
-	 * @return self
+	 * Set HTTP password key
+	 * Used for PayBox Direct only (8-10 characters key)
+	 * @param string $httpPassword The HTTP password key
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setHttpPassword(string $httpPassword): self
 	{
@@ -515,8 +620,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $secretKey
-	 * @return self
+	 * Set HMAC secret key
+	 * Used for PayBox System only (128-character hexadecimal key generated in back-office)
+	 * @param string $secretKey The HMAC secret key
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSecretKey(string $secretKey): self
 	{
@@ -526,8 +633,9 @@ class PayBox
 	}
 
 	/**
-	 * @param string $locale
-	 * @return self
+	 * Set payment form language locale
+	 * @param string $locale Language code (e.g., 'FR', 'EN', 'ES')
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLocale(string $locale): self
 	{
@@ -537,8 +645,10 @@ class PayBox
 	}
 
 	/**
-	 * @param bool $isTest
-	 * @return self
+	 * Enable or disable test mode
+	 * In test mode, uses PayBox test credentials and test URLs
+	 * @param bool $isTest True to enable test mode, false for production
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setIsTest(bool $isTest): self
 	{
@@ -550,8 +660,10 @@ class PayBox
 
 
 	/**
-	 * @param \DateTime|null $date
-	 * @return self
+	 * Set custom transaction date/time
+	 * If not set, current date/time will be used
+	 * @param \DateTime|null $date The transaction date/time
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setDate(?\DateTime $date): self
 	{
@@ -561,8 +673,9 @@ class PayBox
 	}
 
 	/**
-	 * @param BankCardOperation $bankCardOperation
-	 * @return self
+	 * Set the type of bank card operation
+	 * @param BankCardOperation $bankCardOperation The operation type (authorization, debit, etc.)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setBankCardOperation(BankCardOperation $bankCardOperation): self
 	{
@@ -572,8 +685,11 @@ class PayBox
 	}
 
 	/**
-	 * @param int|null $questionNumber
-	 * @return self
+	 * Set unique question number for the request
+	 * Allows avoiding confusion in case of multiple simultaneous requests
+	 * If not set, will be auto-generated
+	 * @param int|null $questionNumber The unique question number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setQuestionNumber(?int $questionNumber): self
 	{
@@ -583,8 +699,9 @@ class PayBox
 	}
 
 	/**
-	 * @param float $total
-	 * @return self
+	 * Set transaction total amount
+	 * @param float $total Amount in currency units (e.g., 10.50 for 10.50 EUR)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTotal(float $total): self
 	{
@@ -594,8 +711,9 @@ class PayBox
 	}
 
 	/**
-	 * @param float $transactionAmount
-	 * @return self
+	 * Set transaction amount (alias for setTotal)
+	 * @param float $transactionAmount Amount in currency units
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTransactionAmount(float $transactionAmount): self
 	{
@@ -603,8 +721,9 @@ class PayBox
 	}
 
 	/**
-	 * @param string $currency
-	 * @return self
+	 * Set transaction currency
+	 * @param string $currency ISO 4217 currency code (e.g., 'EUR', 'USD')
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCurrency(string $currency): self
 	{
@@ -614,8 +733,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $reference
-	 * @return self
+	 * Set merchant order reference
+	 * Free field to link your platform to PayBox (max 250 characters)
+	 * @param string|null $reference Your order reference
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setReference(?string $reference): self
 	{
@@ -625,8 +746,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $subscriberRef
-	 * @return self
+	 * Set subscriber reference for recurring payments
+	 * The subscriber token/reference obtained from a previous registration
+	 * @param string|null $subscriberRef The subscriber reference
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSubscriberReference(?string $subscriberRef): self
 	{
@@ -636,8 +759,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $porteurEmail
-	 * @return self
+	 * Set customer email address
+	 * Required for PayBox System (hosted form) payments
+	 * @param string|null $porteurEmail The customer's email address
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCustomerEmail(?string $porteurEmail): self
 	{
@@ -647,8 +772,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $creditCardNumber
-	 * @return self
+	 * Set credit card number (PAN)
+	 * Used for PayBox Direct payments (without spaces, left aligned, max 19 digits)
+	 * @param string|null $creditCardNumber The card number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCreditCardNumber(?string $creditCardNumber): self
 	{
@@ -658,8 +785,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $creditCardToken
-	 * @return self
+	 * Set credit card token for subscriber payments
+	 * Used instead of card number when charging a registered subscriber
+	 * @param string|null $creditCardToken The subscriber's card token
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCreditCardToken(?string $creditCardToken): self
 	{
@@ -669,8 +798,9 @@ class PayBox
 	}
 
 	/**
-	 * @param \DateTime|null $expirationDate
-	 * @return self
+	 * Set card expiration date
+	 * @param \DateTime|null $expirationDate The expiration date
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setExpirationDate(?\DateTime $expirationDate): self
 	{
@@ -680,8 +810,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $cvv
-	 * @return self
+	 * Set card CVV/CVC code
+	 * The 3-4 digit security code on the back of the card
+	 * @param string|null $cvv The CVV code
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCvc(?string $cvv): self
 	{
@@ -691,8 +823,10 @@ class PayBox
 	}
 
 	/**
-	 * @param BankCardCallOrigin|null $callOrigin
-	 * @return self
+	 * Set call origin/activity code
+	 * Informs the acquirer how the transaction was initiated
+	 * @param BankCardCallOrigin|null $callOrigin The call origin type
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCallOrigin(?BankCardCallOrigin $callOrigin): self
 	{
@@ -702,8 +836,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $archivingReference
-	 * @return self
+	 * Set archiving reference
+	 * Unique reference transmitted to acquirer for dispute inquiries
+	 * @param string|null $archivingReference The archiving reference
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setArchivingReference(?string $archivingReference): self
 	{
@@ -713,8 +849,10 @@ class PayBox
 	}
 
 	/**
-	 * @param int|null $numberOfDays
-	 * @return self
+	 * Set number of days to postpone settlement
+	 * Delays the fund capture by specified number of days
+	 * @param int|null $numberOfDays Number of days (typically 0-7)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setNumberOfDaysForPostponedSettlement(?int $numberOfDays): self
 	{
@@ -724,8 +862,10 @@ class PayBox
 	}
 
 	/**
-	 * @param int $callNumber
-	 * @return self
+	 * Set call number from previous authorization
+	 * Required for capture operations after authorization-only
+	 * @param int $callNumber The call number from authorization response
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setCallNumber(int $callNumber): self
 	{
@@ -735,8 +875,10 @@ class PayBox
 	}
 
 	/**
-	 * @param int $transactionNumber
-	 * @return self
+	 * Set transaction number from previous authorization
+	 * Required for capture operations after authorization-only
+	 * @param int $transactionNumber The transaction number from authorization response
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTransactionNumber(int $transactionNumber): self
 	{
@@ -746,8 +888,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string $authorizationNumber
-	 * @return self
+	 * Set authorization number obtained by telephone
+	 * Used when authorization was obtained via phone call to acquirer
+	 * @param string $authorizationNumber The phone authorization number
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setAuthorizationNumber(string $authorizationNumber): self
 	{
@@ -757,8 +901,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $formCssClass
-	 * @return self
+	 * Set CSS class for payment form
+	 * Applied to the <form> HTML tag
+	 * @param string|null $formCssClass CSS class name
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFormCssClass(?string $formCssClass): self
 	{
@@ -768,8 +914,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $buttonCssClass
-	 * @return self
+	 * Set CSS class for submit button
+	 * Applied to the submit button in payment form
+	 * @param string|null $buttonCssClass CSS class name
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setButtonCssClass(?string $buttonCssClass): self
 	{
@@ -779,8 +927,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $buttonText
-	 * @return self
+	 * Set text for submit button
+	 * The button label in the payment form
+	 * @param string|null $buttonText Button text
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setButtonText(?string $buttonText): self
 	{
@@ -790,8 +940,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $urlResponseOk
-	 * @return self
+	 * Set return URL for successful payment
+	 * Customer is redirected here after successful payment
+	 * @param string|null $urlResponseOk The success return URL
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUrlResponseOk(?string $urlResponseOk): self
 	{
@@ -801,8 +953,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $urlResponseRefused
-	 * @return self
+	 * Set return URL for refused payment
+	 * Customer is redirected here when payment is refused
+	 * @param string|null $urlResponseRefused The refusal return URL
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUrlResponseRefused(?string $urlResponseRefused): self
 	{
@@ -812,8 +966,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $urlResponseCanceled
-	 * @return self
+	 * Set return URL for canceled payment
+	 * Customer is redirected here if they cancel the payment
+	 * @param string|null $urlResponseCanceled The cancellation return URL
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUrlResponseCanceled(?string $urlResponseCanceled): self
 	{
@@ -823,8 +979,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $urlResponseWaiting
-	 * @return self
+	 * Set return URL for pending/waiting payment
+	 * Customer is redirected here when payment is in waiting state
+	 * @param string|null $urlResponseWaiting The waiting return URL
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUrlResponseWaiting(?string $urlResponseWaiting): self
 	{
@@ -834,8 +992,10 @@ class PayBox
 	}
 
 	/**
-	 * @param string|null $urlIpn
-	 * @return self
+	 * Set IPN (Instant Payment Notification) callback URL
+	 * PayBox will send payment result to this URL (server-to-server)
+	 * @param string|null $urlIpn The IPN callback URL
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUrlIpn(?string $urlIpn): self
 	{
@@ -845,7 +1005,9 @@ class PayBox
 	}
 
 	/**
-	 * @return self
+	 * Set operation to authorization-only mode
+	 * Shortcut method to configure authorization without immediate capture
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setAuthorizationOnly(): self
 	{
@@ -855,7 +1017,8 @@ class PayBox
 	}
 
 	/**
-	 * @return bool
+	 * Check if 3D Secure V2 is enabled
+	 * @return bool True if 3D Secure V2 is enabled
 	 */
 	public function is3DSecureV2(): bool
 	{
@@ -863,7 +1026,9 @@ class PayBox
 	}
 
 	/**
-	 * @return self
+	 * Enable 3D Secure V2 authentication
+	 * Requires shopping cart and billing address to be set
+	 * @return self Returns this instance for method chaining
 	 */
 	public function set3DSecureV2(): self
 	{
@@ -873,7 +1038,8 @@ class PayBox
 	}
 
 	/**
-	 * @return int
+	 * Get form timeout duration
+	 * @return int Timeout in seconds
 	 */
 	public function getFormTimeout(): int
 	{
@@ -881,8 +1047,10 @@ class PayBox
 	}
 
 	/**
-	 * @param int $formTimeout
-	 * @return self
+	 * Set payment form expiration timeout
+	 * How long the PayBox System form remains valid before expiring
+	 * @param int $formTimeout Timeout in seconds (default: 1800)
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFormTimeout(int $formTimeout): self
 	{
@@ -892,16 +1060,19 @@ class PayBox
 	}
 
 	/**
-	 * @return BillingAddressInterface|null
+	 * Get billing address
+	 * @return BillingAddressInterface|null The billing address
 	 */
 	private function getBillingAddress(): ?BillingAddressInterface
 	{
 	   return $this->billingAddress;
 	}
-	
+
 	/**
-	 * @param BillingAddressInterface $billingAddress
-	 * @return self
+	 * Set billing address for 3D Secure V2
+	 * Required when using 3D Secure V2 authentication
+	 * @param BillingAddressInterface $billingAddress The customer's billing address
+	 * @return self Returns this instance for method chaining
 	 */
 	 public function setBillingAddress(BillingAddressInterface $billingAddress): self
 	{
@@ -911,16 +1082,19 @@ class PayBox
 	}
 
 	/**
-	 * @return ShoppingCartInterface|null
+	 * Get shopping cart
+	 * @return ShoppingCartInterface|null The shopping cart
 	 */
 	private function getShoppingCart(): ?ShoppingCartInterface
 	{
 	   return $this->shoppingCart;
 	}
-	
+
 	/**
-	 * @param ShoppingCartInterface $shoppingCart
-	 * @return self
+	 * Set shopping cart for 3D Secure V2
+	 * Required when using 3D Secure V2 authentication
+	 * @param ShoppingCartInterface $shoppingCart The shopping cart with items
+	 * @return self Returns this instance for method chaining
 	 */
 	 public function setShoppingCart(ShoppingCartInterface $shoppingCart): self
 	{
@@ -933,7 +1107,8 @@ class PayBox
 	// ========== Get Response ==========
 
 	/**
-	 * @return int|null
+	 * Get call number from last transaction
+	 * @return int|null The call number returned by PayBox
 	 */
 	public function getCallNumber(): ?int
 	{
@@ -941,7 +1116,8 @@ class PayBox
 	}
 
 	/**
-	 * @return int|null
+	 * Get transaction number from last transaction
+	 * @return int|null The transaction number returned by PayBox
 	 */
 	public function getTransactionNumber(): ?int
 	{
@@ -949,7 +1125,8 @@ class PayBox
 	}
 
 	/**
-	 * @return string|null
+	 * Get authorization number from last transaction
+	 * @return string|null The authorization number
 	 */
 	public function getAuthorizationNumber(): ?string
 	{
@@ -957,7 +1134,8 @@ class PayBox
 	}
 
 	/**
-	 * @return string|null
+	 * Get card country code from last transaction
+	 * @return string|null ISO country code of card issuance
 	 */
 	public function getCardCountryCode(): ?string
 	{
@@ -969,7 +1147,10 @@ class PayBox
 
 
 	/**
-	 * @return string|null
+	 * Generate billing address XML for 3D Secure V2 authentication
+	 * Converts the billing address into PayBox XML format required for 3D Secure 2.0
+	 * Used in the PBX_BILLING parameter when submitting payment forms
+	 * @return string|null The billing address XML string, or null if no billing address is set
 	 */
 	private function getBillingAddressAsXml(): ?string
 	{
@@ -984,7 +1165,10 @@ class PayBox
 	}
 
 	/**
-	 * @return string|null
+	 * Generate shopping cart XML for 3D Secure V2 authentication
+	 * Converts the shopping cart into PayBox XML format required for 3D Secure 2.0
+	 * Used in the PBX_SHOPPINGCART parameter when submitting payment forms
+	 * @return string|null The shopping cart XML string with total quantity, or null if no shopping cart is set
 	 */
 	private function getShoppingCartAsXml(): ?string
 	{
@@ -997,7 +1181,11 @@ class PayBox
 
 
 	/**
-	 * @return PayBoxResponse|bool|string|null
+	 * Execute payment request and validate all parameters
+	 * Central method that orchestrates the payment flow: validates configuration, prepares data,
+	 * and routes to either PayBox System (form generation) or PayBox Direct (HTTP request)
+	 * Handles test mode configuration, validates credentials, amounts, card data, and subscriber references
+	 * @return PayBoxResponse|bool|string|null Returns PayBoxResponse for Direct, HTML string for System, false on validation error, null on failure
 	 */
 	private function doRequest(): PayBoxResponse|bool|string|null
 	{
@@ -1011,97 +1199,97 @@ class PayBox
 		}
 
 		if (empty($this->siteNumber) || strlen($this->siteNumber) !== 7) {
-			$this->logger?->error('Numéro de TPE invalide : ' . $this->siteNumber);
+			$this->logger?->error('Invalid TPE number: ' . $this->siteNumber);
 			return false;
 		}
 
 		if (empty($this->rang) || strlen($this->rang) < 2 || strlen($this->rang) > 3) {
-			$this->logger?->error('Numéro de rang invalide : ' . $this->rang);
+			$this->logger?->error('Invalid rank number: ' . $this->rang);
 			return false;
 		}
 
 		if ($this->useForm) {
 			if (!$this->_checkIdentifier()) {
-				$this->logger?->error('Identifiant PayBox invalide : ' . $this->identifier);
+				$this->logger?->error('Invalid PayBox identifier: ' . $this->identifier);
 				return false;
 			}
 
 			if (!$this->_checkSecretKey()) {
-				$this->logger?->error('Clé secrete invalide : ' . $this->secretKey);
+				$this->logger?->error('Invalid secret key: ' . $this->secretKey);
 				return false;
 			}
 		}
 		else {
 			if (!$this->_checkHttpPassword()) {
-				$this->logger?->error('Mot de passe PayBox invalide : ' . $this->httpPassword);
+				$this->logger?->error('Invalid PayBox HTTP password: ' . $this->httpPassword);
 				return false;
 			}
 		}
 
 		$this->numQuestion = (empty($this->numQuestion) ? date('His') . random_int(1, 999) : $this->numQuestion);
 		if (!is_numeric($this->numQuestion)) {
-			$this->logger?->error('Num question invalide : ' . $this->numQuestion);
+			$this->logger?->error('Invalid question number: ' . $this->numQuestion);
 			return false;
 		}
 
 		if (!in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER], true)) {
 			if (empty($this->montant)) {
-				$this->logger?->error('Montant invalide : ' . $this->montant);
+				$this->logger?->error('Invalid amount: ' . $this->montant);
 				return false;
 			}
 
 			if (empty($this->reference) || strlen($this->reference) > 250) {
-				$this->logger?->error('Référence invalide.');
+				$this->logger?->error('Invalid reference: must be 1-250 characters');
 				return false;
 			}
 		}
 
 		if (in_array($this->bankCardOperation, [BankCardOperation::UPDATE_SUBSCRIBER, BankCardOperation::DELETE_SUBSCRIBER], true)) {
 			if (empty($this->subscriberRef)) {
-				$this->logger?->error('Référence abonné vide.');
+				$this->logger?->error('Subscriber reference is required for this operation');
 				return false;
 			}
 		}
 
 		if (!empty($this->subscriberRef) && strlen($this->subscriberRef) > 250) {
-			$this->logger?->error('Référence abonné invalide.');
+			$this->logger?->error('Invalid subscriber reference: maximum 250 characters');
 			return false;
 		}
 
 		$isCaptureAfterAuthorization = in_array($this->bankCardOperation, [BankCardOperation::DEBIT, BankCardOperation::CANCEL], true);
 
 		if ($this->useForm) {
-			// Utilisation Paybox System (formulaire de paiement sur la plateforme Paybox)
+			// Using PayBox System (hosted payment form on PayBox platform)
 			if (empty($this->porteurEmail) || strlen($this->porteurEmail) < 6 || strlen($this->porteurEmail) > 120 || !filter_var($this->porteurEmail, FILTER_VALIDATE_EMAIL)) {
-				$this->logger?->error('Email porteur invalide.');
+				$this->logger?->error('Invalid customer email address');
 				return false;
 			}
 		} else {
-			// Utilisation Paybox Direct (formulaire de paiement coté client et appel de la plateforme Paybox via requete HTTP)
+			// Using PayBox Direct (client-side payment form with HTTP request to PayBox platform)
 
 			if (!empty($this->subscriberRef)) {
-				// Utilisation système abonné (via le token de la carte)
+				// Using subscriber system (via card token)
 
 				if (empty($this->porteur)) {
-					$this->logger?->error('Token porteur vide.');
+					$this->logger?->error('Card token is required for subscriber payment');
 					return false;
 				}
 			} else {
-				// Utilisation système classique (saisie de la carte)
+				// Using standard system (manual card entry)
 
 				if (!empty($this->porteur) && strlen($this->porteur) > 19) {
-					$this->logger?->error('Numéro carte invalide.');
+					$this->logger?->error('Invalid card number: maximum 19 digits');
 					return false;
 				}
 
 				if (!empty($this->cvv) && (strlen($this->cvv) < 3 || strlen($this->cvv) > 4)) {
-					$this->logger?->error('Cryptogramme visuel invalide.');
+					$this->logger?->error('Invalid CVV code: must be 3-4 digits');
 					return false;
 				}
 			}
 
 			if (empty($this->getExpirationDateFormatted())) {
-				$this->logger?->error('Date validité invalide.');
+				$this->logger?->error('Invalid or missing card expiration date');
 				return false;
 			}
 		}
@@ -1109,25 +1297,25 @@ class PayBox
 		if (!$this->useForm && $isCaptureAfterAuthorization) {
 			// if (empty($this->numAppel) || strlen($this->numAppel) != 10) {
 			if (empty($this->numAppel)) {
-				$this->logger?->error('Numéro appel invalide.');
+				$this->logger?->error('Call number is required for capture operation');
 				return false;
 			}
 
 			// if (empty($this->numTransaction) || strlen($this->numTransaction) != 10) {
 			if (empty($this->numTransaction)) {
-				$this->logger?->error('Numéro appel invalide.');
+				$this->logger?->error('Transaction number is required for capture operation');
 				return false;
 			}
 
 			$this->porteur = null;
 		}
 
-		// ---------- Méthode form (PayBox System) ----------
+		// ---------- Form method (PayBox System) ----------
 		if ($this->useForm) {
 			return $this->getHtml();
 		}
 
-		// ---------- Méthode HTTP (PayBox Direct) ----------
+		// ---------- HTTP method (PayBox Direct) ----------
 		if (null === ($payboxResponse = $this->doHttpRequestToPayBox())) {
 			return false;
 		}
@@ -1135,7 +1323,11 @@ class PayBox
 	}
 
 	/**
-	 * @return PayBoxResponse|null
+	 * Execute HTTP request to PayBox Direct API
+	 * Builds POST data with all transaction parameters, makes HTTP request to PayBox,
+	 * parses the response, validates the response code, and creates a PayBoxResponse object
+	 * Logs all steps for debugging and compliance
+	 * @return PayBoxResponse|null The response with transaction details, or null if request failed or was rejected
 	 */
 	private function doHttpRequestToPayBox(): ?PayBoxResponse
 	{
@@ -1166,7 +1358,7 @@ class PayBox
 			'NUMAPPEL' => $this->numAppel,
 			'NUMTRANS' => $this->numTransaction,
 			'AUTORISATION' => $this->autorisation,
-			'PAYS' => '', // champ vide permettant le renvoi du code pays de la carte dans la réponse
+			'PAYS' => '', // empty field allowing card country code to be returned in response
 		];
 
 		foreach ($postData as $cleVar => $value) {
@@ -1189,7 +1381,7 @@ class PayBox
 
 		$this->logger?->info('Résultat appel Paybox : ' . $res);
 
-		// Récupération des arguments retour
+		// Parsing return parameters
 		parse_str($res, $tabArg);
 		$responseCode = $tabArg['CODEREPONSE'] ?? '';
 
@@ -1211,14 +1403,20 @@ class PayBox
 		$payBoxResponse->setCardNumber(!empty($tabArg['PORTEUR']) ? urldecode($tabArg['PORTEUR']) : null);
 		$payBoxResponse->setCardHash(!empty($tabArg['REFABONNE']) ? urldecode($tabArg['REFABONNE']) : null);
 		$payBoxResponse->setCardType(!empty($tabArg['TYPECARTE']) ? urldecode($tabArg['TYPECARTE']) : null);
-		// var non utilisé : $tabArg['NUMQUESTION'] ; $tabArg['SHA-1']
+		// unused vars: $tabArg['NUMQUESTION'] ; $tabArg['SHA-1']
 
 		return $payBoxResponse;
 	}
 
+	/**
+	 * Generate HTML form for PayBox System payment
+	 * Builds complete HTML form with all PayBox parameters, HMAC signature, and hidden fields
+	 * The form auto-submits to PayBox hosted payment page
+	 * @return string Complete HTML form markup ready to display to customer
+	 */
 	private function getHtml(): string
 	{
-		//variables demandées par PayBox
+		// variables required by PayBox
 		$pbxVars = [
 			'PBX_SITE' => $this->siteNumber,
 			'PBX_RANG' => $this->rang,
@@ -1249,23 +1447,37 @@ class PayBox
 			$pbxVars['PBX_BILLING'] = $this->getBillingAddressAsXml();
 		}
 
-		// Calcul du HMAC
+		// Calculate HMAC signature
 		$hmac = $this->getHmac($pbxVars);
 
-		// Construction HTML
-		$form = '<form method="POST" action="' . ($this->isTest ? self::URL_FORM_TEST : self::URL_FORM) . '" class="' . ($this->formCssClass ?? '') . '">';
-		
+		// Build HTML form
+		$formAction = htmlspecialchars($this->isTest ? self::URL_FORM_TEST : self::URL_FORM, ENT_QUOTES, 'UTF-8');
+		$formClass = htmlspecialchars($this->formCssClass ?? '', ENT_QUOTES, 'UTF-8');
+		$form = '<form method="POST" action="' . $formAction . '" class="' . $formClass . '">';
+
 		foreach ($pbxVars as $index => $value) {
-			$form .= '<input type="hidden" name="'.$index.'" value="' . ($index === 'PBX_SHOPPINGCART' || $index === 'PBX_BILLING' ? htmlspecialchars($value) : $value) . '">';
+			$fieldName = htmlspecialchars($index, ENT_QUOTES, 'UTF-8');
+			$fieldValue = htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+			$form .= '<input type="hidden" name="' . $fieldName . '" value="' . $fieldValue . '">';
 		}
 
-		$form .= '<input type="hidden" name="PBX_HMAC" value="' . $hmac . '">'
-			. '<input type="submit" class="' . ($this->buttonCssClass ?? 'btn btn-primary') . '" value="' . $this->buttonText . '">'
+		$buttonClass = htmlspecialchars($this->buttonCssClass ?? 'btn btn-primary', ENT_QUOTES, 'UTF-8');
+		$buttonText = htmlspecialchars($this->buttonText ?? 'Pay', ENT_QUOTES, 'UTF-8');
+		$hmacValue = htmlspecialchars($hmac, ENT_QUOTES, 'UTF-8');
+
+		$form .= '<input type="hidden" name="PBX_HMAC" value="' . $hmacValue . '">'
+			. '<input type="submit" class="' . $buttonClass . '" value="' . $buttonText . '">'
 			. '</form>';
 
 		return $form;
 	}
 
+	/**
+	 * Get PayBox operation type code based on transaction type and subscriber status
+	 * Maps internal BankCardOperation enum to PayBox TYPE parameter codes
+	 * Uses different codes for subscriber operations (00051-00055) vs standard operations (00001-00005)
+	 * @return string The PayBox operation code (e.g., "00003" for authorization+debit, "00053" for subscriber auth+debit)
+	 */
 	private function getTypeOperationFormatted(): string
 	{
 		if (!empty($this->subscriberRef)) {
@@ -1299,9 +1511,16 @@ class PayBox
 		};
 	}
 
+	/**
+	 * Generate PBX_RETOUR parameter for PayBox System form
+	 * Defines which variables PayBox should return after payment processing
+	 * Maps PayBox internal codes to custom parameter names (e.g., "amount:M" means return amount as M parameter)
+	 * Max length is 150 characters to avoid PayBox error
+	 * @return string Semicolon-separated list of return variable mappings
+	 */
 	private function getReturnedVars(): string
 	{
-		// La longueur total de $returnedVars ne doit pas exéder 150 caractères (sinon erreur PayBox)
+		// Total length of $returnedVars must not exceed 150 characters (otherwise PayBox error)
 		//$returnedVars = 'amount:M;reference:R;authorization_number:A;call_number:T;transaction_number:S;card_last_digits:J;card_expiry_date:D;response_code:E;3d_secure_authentication:F;3d_secure_enabled:G;3d_secure_version:v';
 		$returnedVars = 'amount:M;ref:R;authorizt_nb:A;call_nb:T;transact_nb:S;bc_type:C;bc_ldigit:J;bc_expdate:D;response_code:E;3ds:G;3ds_auth:F;3ds_v:v';
 		if ($this->bankCardOperation === BankCardOperation::REGISTER_SUBSCRIBER) {
@@ -1311,27 +1530,54 @@ class PayBox
 		return $returnedVars;
 	}
 
+	/**
+	 * Get transaction timestamp
+	 * Returns custom date if set, otherwise current time
+	 * @return int Unix timestamp
+	 */
 	private function getTimestamp(): int
 	{
 		return ($this->date !== null ? $this->date->getTimestamp() : time());
 	}
 
+	/**
+	 * Validate HTTP password format for PayBox Direct
+	 * Checks that password is 8-10 characters long as required by PayBox
+	 * @return bool True if valid, false otherwise
+	 */
 	private function _checkHttpPassword(): bool
 	{
 		return !empty($this->httpPassword) && strlen($this->httpPassword) >= 8 && strlen($this->httpPassword) <= 10;
 	}
 
+	/**
+	 * Validate identifier format for PayBox System
+	 * Checks that identifier is 1-9 digits long as required by PayBox
+	 * @return bool True if valid, false otherwise
+	 */
 	private function _checkIdentifier(): bool
 	{
 		return !empty($this->identifier) && strlen($this->identifier) >= 1 && strlen($this->identifier) <= 9;
 	}
 
+	/**
+	 * Validate secret key format for PayBox System HMAC
+	 * Checks that secret key is exactly 128 characters (hexadecimal representation)
+	 * @return bool True if valid, false otherwise
+	 */
 	private function _checkSecretKey(): bool
 	{
 		return !empty($this->secretKey) && strlen($this->secretKey) === 128;
 	}
 
-	private function getHmac($varsList): string
+	/**
+	 * Generate HMAC-SHA512 signature for PayBox System form
+	 * Creates cryptographic signature to secure form data transmission to PayBox
+	 * Uses secret key to generate hash of all form parameters
+	 * @param array<string, mixed> $varsList Associative array of PayBox parameters
+	 * @return string Uppercase hexadecimal HMAC signature
+	 */
+	private function getHmac(array $varsList): string
 	{
 		$vars = [];
 
@@ -1345,10 +1591,16 @@ class PayBox
 		return strtoupper(hash_hmac('sha512', $msg, $binKey));
 	}
 
+	/**
+	 * Convert locale to PayBox language code
+	 * Maps locale strings to ISO 3166-1 alpha-3 country codes for PayBox PBX_LANGUE parameter
+	 * Defaults to FRA (French) if locale not recognized
+	 * @return string Three-letter country code (e.g., "GBR", "ESP", "FRA")
+	 */
 	private function getLanguageCode(): string
 	{
 		if (in_array($this->locale, ['en', 'en_GB', 'en-GB', 'GB', 'UK'], true)) {
-			return 'GBR'; // Anglais
+			return 'GBR'; // English
 		}
 		if (in_array($this->locale, ['es', 'es_ES', 'es-ES', 'ES'], true)) {
 			return 'ESP'; // Espagnol
@@ -1371,12 +1623,18 @@ class PayBox
 		return 'FRA';
 	}
 
+	/**
+	 * Convert call origin enum to PayBox activity code
+	 * Maps BankCardCallOrigin enum to PayBox ACTIVITE parameter codes
+	 * Informs the bank how the transaction was initiated (internet, phone, mail, etc.)
+	 * @return string|null Three-digit activity code (e.g., "024" for internet), or null if not set
+	 */
 	private function getActiviteCode(): ?string
 	{
 		if (null === $this->activite) {
 			return null;
 		}
-		
+
 		return match ($this->activite) {
 			BankCardCallOrigin::NOT_SPECIFIED => '020',
 			BankCardCallOrigin::TELEPHONE_ORDER => '021',
@@ -1387,22 +1645,45 @@ class PayBox
 		};
 	}
 
+	/**
+	 * Convert amount to minor currency units (cents)
+	 * Multiplies by 100 and rounds to convert euros/dollars to cents
+	 * Example: 10.50 EUR becomes 1050
+	 * @return int Amount in smallest currency unit
+	 */
 	private function getAmount(): int
 	{
 		return round($this->montant * 100, 2);
 	}
 
+	/**
+	 * Format amount for PayBox MONTANT parameter
+	 * Converts amount to string and pads with leading zeros to 10 digits
+	 * Example: 1050 becomes "0000001050"
+	 * @return string|null Zero-padded 10-digit amount string
+	 */
 	private function getFormattedAmount(): ?string
 	{
 		$montantFormate = (string) $this->getAmount();
 		return str_pad($montantFormate, 10, '0', STR_PAD_LEFT);
 	}
 
+	/**
+	 * Convert currency code to ISO 4217 numeric code
+	 * Maps three-letter currency codes to PayBox DEVISE parameter numeric codes
+	 * Example: "EUR" becomes 978, "USD" becomes 840
+	 * @return int|null Three-digit numeric currency code
+	 */
 	private function getCurrencyCode(): ?int
 	{
 		return Currency::getNumericCode($this->devise);
 	}
 
+	/**
+	 * Format card expiration date for PayBox DATEVAL parameter
+	 * Formats as MMYY (e.g., "1225" for December 2025)
+	 * @return string|null Four-digit expiration date, or null if not set
+	 */
 	private function getExpirationDateFormatted(): ?string
 	{
 		if (null !== $this->expirationDate) {

@@ -44,7 +44,7 @@ class Ekomi
 
 	/**
 	 * @param string $interfaceId
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setInterfaceId(string $interfaceId): self
 	{
@@ -55,7 +55,7 @@ class Ekomi
 
 	/**
 	 * @param string $interfacePassword
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setInterfacePassword(string $interfacePassword): self
 	{

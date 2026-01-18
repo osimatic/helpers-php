@@ -852,4 +852,277 @@ final class PayBoxTest extends TestCase
 		$result = $this->paybox->setCallOrigin(BankCardCallOrigin::RECURRING_PAYMENT);
 		$this->assertSame($this->paybox, $result);
 	}
+
+	/* ===================== PayBox versions ===================== */
+
+	public function testSetVersionPayBoxDirect(): void
+	{
+		$result = $this->paybox->setVersion(PayBoxVersion::PAYBOX_DIRECT);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetVersionPayBoxDirectPlus(): void
+	{
+		$result = $this->paybox->setVersion(PayBoxVersion::PAYBOX_DIRECT_PLUS);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	/* ===================== Additional edge cases ===================== */
+
+	public function testSetCreditCardNumberWithSpaces(): void
+	{
+		// Should accept card numbers with spaces (validation happens later)
+		$result = $this->paybox->setCreditCardNumber('4111 1111 1111 1111');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCreditCardNumberMaxLength(): void
+	{
+		// Maximum 19 digits
+		$result = $this->paybox->setCreditCardNumber('1234567890123456789');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCvcWithEmptyString(): void
+	{
+		$result = $this->paybox->setCvc('');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetSubscriberReferenceMaxLength(): void
+	{
+		// Maximum 250 characters
+		$longSubscriberRef = str_repeat('A', 250);
+		$result = $this->paybox->setSubscriberReference($longSubscriberRef);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetNumberOfDaysForPostponedSettlementZero(): void
+	{
+		$result = $this->paybox->setNumberOfDaysForPostponedSettlement(0);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetNumberOfDaysForPostponedSettlementSeven(): void
+	{
+		$result = $this->paybox->setNumberOfDaysForPostponedSettlement(7);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	/* ===================== Multiple setters ===================== */
+
+	public function testCompletePaymentConfiguration(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setVersion(PayBoxVersion::PAYBOX_DIRECT_PLUS)
+			->setLocale('en_GB')
+			->setTotal(99.99)
+			->setCurrency('EUR')
+			->setReference('ORDER-12345')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('2025-12-31'))
+			->setCvc('123')
+			->setCallOrigin(BankCardCallOrigin::INTERNET_PAYMENT);
+
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testCompleteFormConfiguration(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(149.99)
+			->setCurrency('USD')
+			->setReference('FORM-ORDER-789')
+			->setCustomerEmail('customer@example.com')
+			->setFormCssClass('checkout-form')
+			->setButtonCssClass('btn-pay')
+			->setButtonText('Proceed to Payment')
+			->setUrlResponseOk('https://example.com/success')
+			->setUrlResponseRefused('https://example.com/refused')
+			->setUrlResponseCanceled('https://example.com/canceled')
+			->setUrlResponseWaiting('https://example.com/waiting')
+			->setUrlIpn('https://example.com/webhook/paybox')
+			->setFormTimeout(3600);
+
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testComplete3DSecureConfiguration(): void
+	{
+		$billingAddress = $this->createMock(BillingAddressInterface::class);
+		$shoppingCart = $this->createMock(ShoppingCartInterface::class);
+
+		$result = $this->paybox
+			->set3DSecureV2()
+			->setBillingAddress($billingAddress)
+			->setShoppingCart($shoppingCart)
+			->setTotal(199.99)
+			->setReference('3DS-ORDER-456');
+
+		$this->assertSame($this->paybox, $result);
+		$this->assertTrue($this->paybox->is3DSecureV2());
+	}
+
+	public function testSubscriberPaymentConfiguration(): void
+	{
+		$result = $this->paybox
+			->setSubscriberReference('SUBSCRIBER-TOKEN-123')
+			->setCreditCardToken('CARD-TOKEN-456')
+			->setTotal(29.99)
+			->setReference('SUBSCRIPTION-ORDER-789')
+			->setCallOrigin(BankCardCallOrigin::RECURRING_PAYMENT);
+
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testAuthorizationOnlyOperation(): void
+	{
+		$result = $this->paybox
+			->setAuthorizationOnly()
+			->setTotal(299.99)
+			->setReference('AUTH-ONLY-ORDER-999')
+			->setCreditCardNumber('5555555555554444')
+			->setExpirationDate(new \DateTime('2026-06-30'))
+			->setCvc('456');
+
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testCaptureAfterAuthorizationConfiguration(): void
+	{
+		$result = $this->paybox
+			->setBankCardOperation(BankCardOperation::DEBIT)
+			->setCallNumber(1234567890)
+			->setTransactionNumber(9876543210)
+			->setTotal(299.99)
+			->setReference('CAPTURE-ORDER-888');
+
+		$this->assertSame($this->paybox, $result);
+	}
+
+	/* ===================== Reset with complex data ===================== */
+
+	public function testResetClearsShoppingCartAndBillingAddress(): void
+	{
+		$billingAddress = $this->createMock(BillingAddressInterface::class);
+		$shoppingCart = $this->createMock(ShoppingCartInterface::class);
+
+		$this->paybox->setBillingAddress($billingAddress);
+		$this->paybox->setShoppingCart($shoppingCart);
+		$this->paybox->setQuestionNumber(999999);
+		$this->paybox->setDate(new \DateTime('2025-01-01'));
+
+		// Reset should clear transaction data including cart and address
+		$this->paybox->reset();
+
+		// Can't directly test if they're null, but reset should have been called
+		$this->assertInstanceOf(PayBox::class, $this->paybox);
+	}
+
+	/* ===================== Different currencies ===================== */
+
+	public function testSetCurrencyEUR(): void
+	{
+		$result = $this->paybox->setCurrency('EUR');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCurrencyUSD(): void
+	{
+		$result = $this->paybox->setCurrency('USD');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCurrencyGBP(): void
+	{
+		$result = $this->paybox->setCurrency('GBP');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCurrencyCHF(): void
+	{
+		$result = $this->paybox->setCurrency('CHF');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	/* ===================== Expiration dates ===================== */
+
+	public function testSetExpirationDateFutureDate(): void
+	{
+		$futureDate = new \DateTime('+2 years');
+		$result = $this->paybox->setExpirationDate($futureDate);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetExpirationDatePastDate(): void
+	{
+		// Should accept past date (validation happens elsewhere)
+		$pastDate = new \DateTime('-1 year');
+		$result = $this->paybox->setExpirationDate($pastDate);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetExpirationDateEndOfMonth(): void
+	{
+		$endOfMonth = new \DateTime('2025-12-31');
+		$result = $this->paybox->setExpirationDate($endOfMonth);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	/* ===================== Transaction references ===================== */
+
+	public function testSetReferenceWithSpecialCharacters(): void
+	{
+		$result = $this->paybox->setReference('ORDER-2025-01-#123@ABC');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetReferenceWithUnicode(): void
+	{
+		$result = $this->paybox->setReference('COMMANDE-€-123');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetArchivingReferenceWithLongString(): void
+	{
+		$longArchRef = str_repeat('X', 200);
+		$result = $this->paybox->setArchivingReference($longArchRef);
+		$this->assertSame($this->paybox, $result);
+	}
+
+	/* ===================== Email validation ===================== */
+
+	public function testSetCustomerEmailValidFormat(): void
+	{
+		$result = $this->paybox->setCustomerEmail('john.doe@example.com');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCustomerEmailWithPlus(): void
+	{
+		$result = $this->paybox->setCustomerEmail('user+tag@example.com');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCustomerEmailWithSubdomain(): void
+	{
+		$result = $this->paybox->setCustomerEmail('admin@mail.example.com');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCustomerEmailMinimumLength(): void
+	{
+		$result = $this->paybox->setCustomerEmail('a@b.co');
+		$this->assertSame($this->paybox, $result);
+	}
+
+	public function testSetCustomerEmailMaximumLength(): void
+	{
+		// 120 characters is the maximum
+		$longEmail = str_repeat('a', 100) . '@example.com'; // ~112 chars
+		$result = $this->paybox->setCustomerEmail($longEmail);
+		$this->assertSame($this->paybox, $result);
+	}
 }

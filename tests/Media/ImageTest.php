@@ -304,4 +304,133 @@ final class ImageTest extends TestCase
 		$result = Image::getGpsCoordinates('/non/existent/file.jpg');
 		$this->assertNull($result);
 	}
+
+	/* ===================== checkFile() ===================== */
+
+	public function testCheckFileWithNonExistentFile(): void
+	{
+		$result = Image::checkFile('/non/existent/file.jpg', 'test.jpg');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkJpgFile() ===================== */
+
+	public function testCheckJpgFileWithNonExistentFile(): void
+	{
+		$result = Image::checkJpgFile('/non/existent/file.jpg', 'test.jpg');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkPngFile() ===================== */
+
+	public function testCheckPngFileWithNonExistentFile(): void
+	{
+		$result = Image::checkPngFile('/non/existent/file.png', 'test.png');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkGifFile() ===================== */
+
+	public function testCheckGifFileWithNonExistentFile(): void
+	{
+		$result = Image::checkGifFile('/non/existent/file.gif', 'test.gif');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== getWidth/Height/MimeType with real image ===================== */
+
+	public function testGetWidthWithRealImage(): void
+	{
+		// Create a minimal 1x1 PNG image
+		$tempFile = $this->createTempPngImage();
+
+		$width = Image::getWidth($tempFile);
+		$this->assertSame(1, $width);
+
+		unlink($tempFile);
+	}
+
+	public function testGetHeightWithRealImage(): void
+	{
+		// Create a minimal 1x1 PNG image
+		$tempFile = $this->createTempPngImage();
+
+		$height = Image::getHeight($tempFile);
+		$this->assertSame(1, $height);
+
+		unlink($tempFile);
+	}
+
+	public function testGetMimeTypeWithRealImage(): void
+	{
+		// Create a minimal 1x1 PNG image
+		$tempFile = $this->createTempPngImage();
+
+		$mimeType = Image::getMimeType($tempFile);
+		$this->assertSame('image/png', $mimeType);
+
+		unlink($tempFile);
+	}
+
+	public function testGetImageInfoWithRealImage(): void
+	{
+		// Create a minimal 1x1 PNG image
+		$tempFile = $this->createTempPngImage();
+
+		$info = Image::getImageInfo($tempFile);
+		$this->assertIsArray($info);
+		$this->assertArrayHasKey('width', $info);
+		$this->assertArrayHasKey('height', $info);
+		$this->assertArrayHasKey('mime', $info);
+		$this->assertSame(1, $info['width']);
+		$this->assertSame(1, $info['height']);
+		$this->assertSame('image/png', $info['mime']);
+
+		unlink($tempFile);
+	}
+
+	public function testGetEtagWithRealImage(): void
+	{
+		// Create a minimal 1x1 PNG image
+		$tempFile = $this->createTempPngImage();
+
+		$etag = Image::getEtag($tempFile);
+		$this->assertIsString($etag);
+		$this->assertNotEmpty($etag);
+		$this->assertSame(32, strlen($etag)); // MD5 hash is 32 characters
+
+		unlink($tempFile);
+	}
+
+	public function testGetLastModifiedStringWithRealImage(): void
+	{
+		// Create a minimal 1x1 PNG image
+		$tempFile = $this->createTempPngImage();
+
+		$lastModified = Image::getLastModifiedString($tempFile);
+		$this->assertIsString($lastModified);
+		$this->assertStringContainsString('GMT', $lastModified);
+
+		unlink($tempFile);
+	}
+
+	/* ===================== Helper Methods ===================== */
+
+	/**
+	 * Create a minimal valid 1x1 PNG image for testing.
+	 * @return string Path to the temporary PNG file
+	 */
+	private function createTempPngImage(): string
+	{
+		$tempFile = sys_get_temp_dir() . '/test_' . uniqid() . '.png';
+
+		// Minimal valid 1x1 transparent PNG
+		$pngContent = base64_decode(
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+		);
+
+		file_put_contents($tempFile, $pngContent);
+
+		return $tempFile;
+	}
 }

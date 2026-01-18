@@ -24,7 +24,7 @@ class GoogleDistanceMatrix
 
 	/**
 	 * @param string $apiKey
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setApiKey(string $apiKey): self
 	{

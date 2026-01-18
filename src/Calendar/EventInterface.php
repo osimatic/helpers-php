@@ -8,7 +8,15 @@ use Osimatic\Organization\OrganizationInterface;
 use Osimatic\Person\PersonInterface;
 
 /**
- * Interface EventInterface
+ * Interface for calendar events.
+ * Defines the contract for event objects with properties based on Schema.org Event type.
+ * Provides methods for:
+ * - Event identification and naming
+ * - Event timing (start and end dates)
+ * - Event location (place and postal address)
+ * - Event organization (organizer person and organization)
+ * - Event metadata (status, language, URL, accessibility)
+ * - Event capacity and registration information
  */
 interface EventInterface
 {

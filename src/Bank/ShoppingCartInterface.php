@@ -3,40 +3,46 @@
 namespace Osimatic\Bank;
 
 /**
- * Represent a shopping cart
- * Used during 3D-Secure authentication for example 
+ * Interface representing a shopping cart
+ * Used during payment processing, particularly for 3D-Secure authentication
  */
 interface ShoppingCartInterface
 {
 	/**
-	 * @return InvoiceProductInterface[]
+	 * Get the list of products in the cart
+	 * @return InvoiceProductInterface[] Array of products
 	 */
 	//public function getProductList(): array;
 
 	/**
-	 * @param InvoiceProductInterface[] $productList
+	 * Set the list of products in the cart
+	 * @param InvoiceProductInterface[] $productList Array of products to set
 	 * @return void
 	 */
 	//public function setProductName(array $productList): void;
 
 	/**
-	 * @return int
+	 * Get the total quantity of items in the cart
+	 * @return int The total number of items
 	 */
 	public function getTotalQuantity(): int;
 
 	/**
-	 * @param int $totalQuantity
+	 * Set the total quantity of items in the cart
+	 * @param int $totalQuantity The total number of items to set
 	 * @return void
 	 */
 	public function setTotalQuantity(int $totalQuantity): void;
 
 	/**
-	 * @return int total price, in cents
+	 * Get the total price of the cart
+	 * @return int The total price in cents (e.g., 1000 = 10.00 EUR)
 	 */
 	public function getTotalPrice(): int;
 
 	/**
-	 * @param int $totalPrice total price, in cents
+	 * Set the total price of the cart
+	 * @param int $totalPrice The total price in cents to set (e.g., 1000 = 10.00 EUR)
 	 * @return void
 	 */
 	public function setTotalPrice(int $totalPrice): void;

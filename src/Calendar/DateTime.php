@@ -2,22 +2,41 @@
 
 namespace Osimatic\Calendar;
 
+/**
+ * Utility class for DateTime manipulation, formatting, and calculations.
+ * Provides methods for:
+ * - DateTime creation and parsing from various formats
+ * - Localized date and time formatting using IntlDateFormatter
+ * - DateTime comparisons (past, future, before, after)
+ * - Working day and business day calculations
+ * - Week and month boundary calculations
+ * - Date manipulation (moving forward/backward by days or months)
+ * - Age calculation and weekday finding
+ * - UTC conversions
+ */
 class DateTime
 {
+	// ========== Basic Methods ==========
+
 	/**
-	 * @return \DateTime
+	 * Gets the current date and time.
+	 * @return \DateTime A new DateTime object representing now
 	 */
 	public static function getCurrentDateTime(): \DateTime
 	{
 		return new \DateTime();
 	}
 
+	// ========== Formatting Methods ==========
+
 	/**
-	 * @param \DateTime $dateTime
-	 * @param int $dateFormatter
-	 * @param int $timeFormatter
-	 * @param string|null $locale
-	 * @return string
+	 * Formats a DateTime using IntlDateFormatter with custom date and time format levels.
+	 * Uses ICU IntlDateFormatter for internationalization support.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL)
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL)
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date/time string, or empty string on error
 	 */
 	public static function format(\DateTime $dateTime, int $dateFormatter, int $timeFormatter, ?string $locale=null): string
 	{
@@ -25,9 +44,11 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @param string|null $locale
-	 * @return string
+	 * Formats a DateTime with SHORT format for both date and time.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date and time string, or empty string on error
 	 */
 	public static function formatDateTime(\DateTime $dateTime, ?string $locale=null): string
 	{
@@ -35,10 +56,12 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @param string|null $locale
-	 * @param int $dateFormatter
-	 * @return string
+	 * Formats only the date portion of a DateTime.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT)
+	 * @return string The formatted date string, or empty string on error
 	 */
 	public static function formatDate(\DateTime $dateTime, ?string $locale=null, int $dateFormatter=\IntlDateFormatter::SHORT): string
 	{
@@ -46,10 +69,12 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @param string|null $locale
-	 * @param bool $withWeekDay
-	 * @return string
+	 * Formats a date in LONG or FULL format.
+	 * FULL format includes the day of the week, LONG format does not.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param bool $withWeekDay If true, uses FULL format with weekday; if false, uses LONG format (default: false)
+	 * @return string The formatted date string, or empty string on error
 	 */
 	public static function formatDateInLong(\DateTime $dateTime, ?string $locale=null, bool $withWeekDay=false): string
 	{
@@ -57,24 +82,30 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @param string|null $locale
-	 * @param int $timeFormatter
-	 * @return string
+	 * Formats only the time portion of a DateTime.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT)
+	 * @return string The formatted time string, or empty string on error
 	 */
 	public static function formatTime(\DateTime $dateTime, ?string $locale=null, int $timeFormatter=\IntlDateFormatter::SHORT): string
 	{
 		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, $timeFormatter)?->format($dateTime->getTimestamp()) ?? '';
 	}
 
+	// ========== Twig Formatting Methods ==========
 
 	/**
-	 * @param string|\DateTime|null $dateTime
-	 * @param string $dateFormatter
-	 * @param string $timeFormatter
-	 * @param string|null $locale
-	 * @return string|null
-	 * @throws \Exception
+	 * Formats a DateTime for use in Twig templates with string format names.
+	 * Accepts both string DateTime and DateTime objects.
+	 * Converts Twig format strings ('none', 'short', 'medium', 'long', 'full') to IntlDateFormatter constants.
+	 * @param string|\DateTime|null $dateTime The DateTime to format (string or object)
+	 * @param string $dateFormatter Format name: 'none', 'short', 'medium', 'long', 'full' (default: 'short')
+	 * @param string $timeFormatter Format name: 'none', 'short', 'medium', 'long', 'full' (default: 'short')
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string|null The formatted date/time string, or null if input is null
+	 * @throws \Exception If string datetime cannot be parsed
 	 */
 	public static function formatFromTwig(string|\DateTime|null $dateTime, string $dateFormatter='short', string $timeFormatter='short', ?string $locale=null): ?string
 	{
@@ -90,10 +121,12 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime|null $dateTime
-	 * @param string $dateFormatter
-	 * @param string|null $locale
-	 * @return string|null
+	 * Formats only the date portion for use in Twig templates with string format name.
+	 * Converts Twig format string ('none', 'short', 'medium', 'long', 'full') to IntlDateFormatter constant.
+	 * @param \DateTime|null $dateTime The DateTime to format
+	 * @param string $dateFormatter Format name: 'none', 'short', 'medium', 'long', 'full' (default: 'short')
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string|null The formatted date string, or null if input is null
 	 */
 	public static function formatDateFromTwig(?\DateTime $dateTime, string $dateFormatter='short', ?string $locale=null): ?string
 	{
@@ -105,10 +138,12 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime|null $dateTime
-	 * @param string $timeFormatter
-	 * @param string|null $locale
-	 * @return string|null
+	 * Formats only the time portion for use in Twig templates with string format name.
+	 * Converts Twig format string ('none', 'short', 'medium', 'long', 'full') to IntlDateFormatter constant.
+	 * @param \DateTime|null $dateTime The DateTime to format
+	 * @param string $timeFormatter Format name: 'none', 'short', 'medium', 'long', 'full' (default: 'short')
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string|null The formatted time string, or null if input is null
 	 */
 	public static function formatTimeFromTwig(?\DateTime $dateTime, string $timeFormatter='short', ?string $locale=null): ?string
 	{
@@ -119,9 +154,13 @@ class DateTime
 		return self::format($dateTime, \IntlDateFormatter::NONE, self::getDateTimeFormatterFromTwig($timeFormatter), $locale);
 	}
 
+	// ========== UTC Conversion Methods ==========
+
 	/**
-	 * @param \DateTime|null $dateTime
-	 * @return string|null
+	 * Converts a DateTime to UTC timezone and returns SQL DATE format.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime|null $dateTime The DateTime to convert
+	 * @return string|null SQL DATE format string (YYYY-MM-DD) in UTC, or null if input is null
 	 */
 	public static function getUTCSqlDate(?\DateTime $dateTime): ?string
 	{
@@ -129,8 +168,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime|null $dateTime
-	 * @return string|null
+	 * Converts a DateTime to UTC timezone and returns SQL TIME format.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime|null $dateTime The DateTime to convert
+	 * @return string|null SQL TIME format string (HH:MM:SS) in UTC, or null if input is null
 	 */
 	public static function getUTCSqlTime(?\DateTime $dateTime): ?string
 	{
@@ -138,8 +179,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime|null $dateTime
-	 * @return string|null
+	 * Converts a DateTime to UTC timezone and returns SQL DATETIME format.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime|null $dateTime The DateTime to convert
+	 * @return string|null SQL DATETIME format string (YYYY-MM-DD HH:MM:SS) in UTC, or null if input is null
 	 */
 	public static function getUTCSqlDateTime(?\DateTime $dateTime): ?string
 	{
@@ -147,8 +190,10 @@ class DateTime
 	}
 
 	/**
-	 * @param string $formatter
-	 * @return int
+	 * Converts Twig format string to IntlDateFormatter constant.
+	 * Maps string format names to their corresponding IntlDateFormatter integer constants.
+	 * @param string $formatter Format name: 'none', 'full', 'long', 'medium', 'short'
+	 * @return int IntlDateFormatter constant
 	 */
 	private static function getDateTimeFormatterFromTwig(string $formatter): int
 	{
@@ -161,11 +206,14 @@ class DateTime
 		};
 	}
 
-
+	// ========== Parsing Methods ==========
 
 	/**
-	 * @param string $str
-	 * @return null|\DateTime
+	 * Parses a date string in various formats and returns a DateTime object.
+	 * Delegates to Date::parse() which supports multiple formats.
+	 * @param string $str The date string to parse
+	 * @return \DateTime|null A DateTime object if parsing succeeds, null otherwise
+	 * @see Date::parse()
 	 */
 	public static function parse(string $str): ?\DateTime
 	{
@@ -173,8 +221,10 @@ class DateTime
 	}
 
 	/**
-	 * @param string $sqlDateTime
-	 * @return \DateTime|null
+	 * Parses a SQL DATETIME format string and returns a DateTime object.
+	 * Accepts format: "YYYY-MM-DD HH:MM:SS"
+	 * @param string $sqlDateTime SQL DATETIME format string
+	 * @return \DateTime|null A DateTime object if parsing succeeds, null on error
 	 */
 	public static function parseFromSqlDateTime(string $sqlDateTime): ?\DateTime
 	{
@@ -186,8 +236,10 @@ class DateTime
 	}
 
 	/**
-	 * @param int $timestamp
-	 * @return \DateTime|null
+	 * Creates a DateTime object from a Unix timestamp.
+	 * Converts the timestamp to SQL DATETIME format before parsing.
+	 * @param int $timestamp Unix timestamp (seconds since January 1, 1970)
+	 * @return \DateTime|null A DateTime object if creation succeeds, null on error
 	 */
 	public static function parseFromTimestamp(int $timestamp): ?\DateTime
 	{
@@ -196,10 +248,13 @@ class DateTime
 	}
 
 	/**
-	 * @param int $year
-	 * @param int $month
-	 * @param int $day
-	 * @return \DateTime|null
+	 * Creates a DateTime object from year, month, and day components.
+	 * Validates the date using checkdate() before creating the DateTime.
+	 * Time is set to the current time.
+	 * @param int $year The year (e.g., 2024)
+	 * @param int $month The month (1-12)
+	 * @param int $day The day of month (1-31)
+	 * @return \DateTime|null A DateTime object if date is valid, null otherwise
 	 */
 	public static function parseFromYearMonthDay(int $year, int $month, int $day): ?\DateTime
 	{
@@ -216,12 +271,14 @@ class DateTime
 		return null;
 	}
 
-	// ========== Comparaison ==========
+	// ========== Comparison Methods ==========
 
 	/**
-	 * @param \DateTime $dateTime1
-	 * @param \DateTime $dateTime2
-	 * @return bool
+	 * Checks if the first date is after the second date (ignoring time).
+	 * Only compares the date portion (year, month, day), not the time.
+	 * @param \DateTime $dateTime1 First datetime to compare
+	 * @param \DateTime $dateTime2 Second datetime to compare
+	 * @return bool True if dateTime1's date is after dateTime2's date
 	 */
 	public static function isDateAfter(\DateTime $dateTime1, \DateTime $dateTime2): bool
 	{
@@ -229,9 +286,11 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime1
-	 * @param \DateTime $dateTime2
-	 * @return bool
+	 * Checks if the first date is before the second date (ignoring time).
+	 * Only compares the date portion (year, month, day), not the time.
+	 * @param \DateTime $dateTime1 First datetime to compare
+	 * @param \DateTime $dateTime2 Second datetime to compare
+	 * @return bool True if dateTime1's date is before dateTime2's date
 	 */
 	public static function isDateBefore(\DateTime $dateTime1, \DateTime $dateTime2): bool
 	{
@@ -239,8 +298,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @return bool
+	 * Checks if a DateTime is in the past (including both date and time).
+	 * Compares full datetime including hours, minutes, and seconds.
+	 * @param \DateTime $dateTime The DateTime to check
+	 * @return bool True if the datetime is before now
 	 */
 	public static function isInThePast(\DateTime $dateTime): bool
 	{
@@ -248,8 +309,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @return bool
+	 * Checks if a DateTime is in the future (including both date and time).
+	 * Compares full datetime including hours, minutes, and seconds.
+	 * @param \DateTime $dateTime The DateTime to check
+	 * @return bool True if the datetime is after now
 	 */
 	public static function isInTheFuture(\DateTime $dateTime): bool
 	{
@@ -257,8 +320,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @return bool
+	 * Checks if a date is in the past (ignoring time).
+	 * Only compares the date portion (year, month, day).
+	 * @param \DateTime $dateTime The DateTime to check
+	 * @return bool True if the date (not time) is before today
 	 */
 	public static function isDateInThePast(\DateTime $dateTime): bool
 	{
@@ -266,25 +331,25 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @return bool
+	 * Checks if a date is in the future (ignoring time).
+	 * Only compares the date portion (year, month, day).
+	 * @param \DateTime $dateTime The DateTime to check
+	 * @return bool True if the date (not time) is after today
 	 */
 	public static function isDateInTheFuture(\DateTime $dateTime): bool
 	{
 		return $dateTime->format('Ymd') > self::getCurrentDateTime()->format('Ymd');
 	}
 
-
-
-	// ========== Jour ==========
-
-	// Jours dans une semaine
+	// ========== Day Methods ==========
 
 	/**
-	 * Jour ouvré avec jour férié ou non
-	 * @param \DateTime $dateTime
-	 * @param bool $withPublicHoliday
-	 * @return bool
+	 * Checks if a date is a working day (Monday-Friday, excluding weekends).
+	 * Working day: Monday through Friday (excludes both Saturday and Sunday).
+	 * Optionally excludes public holidays.
+	 * @param \DateTime $dateTime The date to check
+	 * @param bool $withPublicHoliday If true, also excludes public holidays (default: true)
+	 * @return bool True if the date is a working day
 	 */
 	public static function isWorkingDay(\DateTime $dateTime, bool $withPublicHoliday=true): bool
 	{
@@ -298,10 +363,12 @@ class DateTime
 	}
 
 	/**
-	 * Jour ouvrable avec jour férié ou non
-	 * @param \DateTime $dateTime
-	 * @param bool $withPublicHoliday
-	 * @return bool
+	 * Checks if a date is a business day (Monday-Saturday, excluding Sundays only).
+	 * Business day: Monday through Saturday (excludes only Sunday).
+	 * Optionally excludes public holidays.
+	 * @param \DateTime $dateTime The date to check
+	 * @param bool $withPublicHoliday If true, also excludes public holidays (default: true)
+	 * @return bool True if the date is a business day
 	 */
 	public static function isBusinessDay(\DateTime $dateTime, bool $withPublicHoliday=true): bool
 	{
@@ -316,8 +383,10 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @return bool
+	 * Checks if a date is a weekend day (Saturday or Sunday).
+	 * Uses ISO-8601 day numbering (6 = Saturday, 7 = Sunday).
+	 * @param \DateTime $dateTime The date to check
+	 * @return bool True if the date is Saturday or Sunday
 	 */
 	public static function isWeekend(\DateTime $dateTime): bool
 	{
@@ -326,9 +395,11 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @param int $nbDays
-	 * @return \DateTime
+	 * Moves a DateTime backward by a specified number of days.
+	 * Creates a new DateTime object to avoid modifying the original.
+	 * @param \DateTime $dateTime The datetime to move
+	 * @param int $nbDays Number of days to move backward
+	 * @return \DateTime A new DateTime moved backward by the specified days
 	 */
 	public static function moveBackOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
 	{
@@ -339,9 +410,11 @@ class DateTime
 	}
 
 	/**
-	 * @param \DateTime $dateTime
-	 * @param int $nbDays
-	 * @return \DateTime
+	 * Moves a DateTime forward by a specified number of days.
+	 * Creates a new DateTime object to avoid modifying the original.
+	 * @param \DateTime $dateTime The datetime to move
+	 * @param int $nbDays Number of days to move forward
+	 * @return \DateTime A new DateTime moved forward by the specified days
 	 */
 	public static function moveForwardOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
 	{
@@ -351,8 +424,7 @@ class DateTime
 		return $dateTime->modify('+'.$nbDays.' day');
 	}
 
-
-	// ========== Semaine ==========
+	// ========== Week Methods ==========
 
 	/**
 	 * @param \DateTime $dateTime

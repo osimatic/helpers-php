@@ -2,14 +2,20 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Class for calculating billing tax rates
+ * Determines the applicable VAT/tax rate based on customer and seller locations
+ */
 class BillingTax
 {
 	/**
-	 * @param string|null $country
-	 * @param string|null $zipCode
-	 * @param string|null $vatNumber
-	 * @param string $billingCountry
-	 * @return float
+	 * Get the billing tax rate based on customer and seller locations
+	 * Implements EU VAT rules and French DOM-TOM specific rates
+	 * @param string|null $country The customer's country code (ISO 3166-1 alpha-2)
+	 * @param string|null $zipCode The customer's postal/ZIP code (used for French DOM-TOM)
+	 * @param string|null $vatNumber The customer's EU intra-community VAT number
+	 * @param string $billingCountry The seller's country code (default: "FR")
+	 * @return float The tax rate as a percentage (e.g., 20.0 for 20%)
 	 */
 	public static function getBillingTaxRate(?string $country, ?string $zipCode=null, ?string $vatNumber=null, string $billingCountry='FR'): float
 	{
@@ -21,41 +27,41 @@ class BillingTax
 			$country = 'FR';
 		}
 
-		// TVA étranger
+		// Foreign VAT
 		if ($country !== $billingCountry) {
 			if (false === \Osimatic\Location\Country::isCountryInEuropeanUnion($billingCountry)) {
-				// Pas de TVA, car l'entité qui facture est hors UE.
+				// No VAT, because the billing entity is outside the EU
 				return 0.0;
 			}
 
-			// Le pays qui facture est dans l'UE.
+			// The billing country is in the EU
 
 			if (false === \Osimatic\Location\Country::isCountryInEuropeanUnion($country)) {
-				// Pas de TVA, car le client est hors UE.
+				// No VAT, because the customer is outside the EU
 				return 0.0;
 			}
 
 			if (!empty($vatNumber)) {
-				// Pas de TVA, car le client est dans l'UE et numéro de TVA intracommunautaire renseigné.
+				// No VAT, because the customer is in the EU and has provided an intra-community VAT number
 				return 0.0;
 			}
 
-			// Le client est dans l'UE, mais n'a pas renseigné son numéro de TVA. On applique donc la TVA du pays de l'entité qui facture.
+			// The customer is in the EU but hasn't provided a VAT number. Apply the VAT rate of the billing country.
 			$country = $billingCountry;
 		}
 
-		// TVA France
+		// French VAT
 		if ($country === 'FR') {
-			// DOM-TOM
+			// French overseas departments (DOM-TOM)
 			if (!empty($zipCode)) {
-				// Guyane / Mayotte
+				// French Guiana / Mayotte
 				if (in_array(substr($zipCode, 0, 3), ['973', '976'], true)) {
-					// TVA de 0 car département de Guyane / Mayotte
+					// 0% VAT for French Guiana / Mayotte departments
 					return 0.0;
 				}
 				// Guadeloupe / Martinique / La Réunion
 				if (in_array(substr($zipCode, 0, 3), ['971', '972', '974'], true)) {
-					// TVA de 8,5 car département de Guadeloupe / Martinique / La Réunion
+					// 8.5% VAT for Guadeloupe / Martinique / La Réunion departments
 					return 8.5;
 				}
 			}
@@ -63,7 +69,7 @@ class BillingTax
 			return 20.0;
 		}
 
-		// todo : autres pays
+		// TODO: other countries
 
 		return 0;
 	}

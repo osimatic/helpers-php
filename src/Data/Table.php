@@ -36,15 +36,18 @@ class Table
 
 	/**
 	 * @param array $tableHead
+	 * @return self Returns this instance for method chaining
 	 */
-	public function setTableHead(array $tableHead): void
+	public function setTableHead(array $tableHead): self
 	{
 		$this->tableHead = $tableHead;
+
+		return $this;
 	}
 
 	/**
 	 * @param $tableHead
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTableHeadCell($tableHead): self
 	{
@@ -55,7 +58,7 @@ class Table
 
 	/**
 	 * @param $cell
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addTableHeadCell($cell): self
 	{
@@ -74,7 +77,7 @@ class Table
 
 	/**
 	 * @param array $tableBody
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTableBody(array $tableBody): self
 	{
@@ -85,7 +88,7 @@ class Table
 
 	/**
 	 * @param array $line
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addTableLine(array $line): self
 	{
@@ -96,7 +99,7 @@ class Table
 
 	/**
 	 * @param array $lines
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addTableLines(array $lines): self
 	{
@@ -117,15 +120,18 @@ class Table
 
 	/**
 	 * @param array $tableFoot
+	 * @return self Returns this instance for method chaining
 	 */
-	public function setTableFoot(array $tableFoot): void
+	public function setTableFoot(array $tableFoot): self
 	{
 		$this->tableFoot = $tableFoot;
+
+		return $this;
 	}
 
 	/**
 	 * @param $tableFoot
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTableFootCell($tableFoot): self
 	{
@@ -136,7 +142,7 @@ class Table
 
 	/**
 	 * @param $cell
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function addTableFootCell($cell): self
 	{

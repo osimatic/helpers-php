@@ -33,7 +33,7 @@ readonly class Coordinates
 	/**
 	 * Create Coordinates from a string in "lat,lon" format.
 	 * @param string $coordinates The coordinate string (e.g., "48.8566,2.3522")
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 * @throws \InvalidArgumentException If the string format is invalid or coordinates are out of range
 	 */
 	public static function fromString(string $coordinates): self

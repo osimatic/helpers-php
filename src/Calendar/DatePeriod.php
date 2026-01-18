@@ -3,11 +3,16 @@
 namespace Osimatic\Calendar;
 
 /**
- * Class DatePeriod
+ * Utility class for date period calculations and manipulations.
+ * Provides methods for:
+ * - Calculating number of days, weeks, months, and years in a period
+ * - Getting lists of days, weeks, and months within a period
+ * - Checking if a period represents a full week, month, or year
+ * - Generating period labels and lists based on period types
  */
 class DatePeriod
 {
-	// ========== Jours ==========
+	// ========== Day Methods ==========
 
 	/**
 	 * @param \DateTime $periodStart

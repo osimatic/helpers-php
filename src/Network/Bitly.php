@@ -29,7 +29,7 @@ class Bitly
 	/**
 	 * Sets the Bit.ly login username
 	 * @param string $login the Bit.ly login username
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setLogin(string $login): self
 	{
@@ -41,7 +41,7 @@ class Bitly
 	/**
 	 * Sets the Bit.ly API key
 	 * @param string $key the Bit.ly API key
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setKey(string $key): self
 	{

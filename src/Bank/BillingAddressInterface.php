@@ -2,92 +2,112 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Interface for billing address information
+ * Represents the address details for billing purposes in payment processing
+ */
 interface BillingAddressInterface
 {
 	/**
-	 * @return string|null
+	 * Get the first name of the billing address holder
+	 * @return string|null The first name, or null if not set
 	 */
 	public function getFirstName(): ?string;
 
 	/**
-	 * @param string|null $firstName
+	 * Set the first name of the billing address holder
+	 * @param string|null $firstName The first name to set
 	 * @return self|void
 	 */
 	public function setFirstName(?string $firstName);
 
 	/**
-	 * @return string|null
+	 * Get the last name of the billing address holder
+	 * @return string|null The last name, or null if not set
 	 */
 	public function getLastName(): ?string;
 
 	/**
-	 * @param string|null $lastName
+	 * Set the last name of the billing address holder
+	 * @param string|null $lastName The last name to set
 	 * @return self|void
 	 */
 	public function setLastName(?string $lastName);
 
 	/**
-	 * @return string|null
+	 * Get the company name for the billing address
+	 * @return string|null The company name, or null if not set
 	 */
 	public function getCompanyName(): ?string;
 
 	/**
-	 * @param string|null $companyName
+	 * Set the company name for the billing address
+	 * @param string|null $companyName The company name to set
 	 * @return self|void
 	 */
 	public function setCompanyName(?string $companyName);
 
 	/**
-	 * @return string
+	 * Get the primary street address
+	 * @return string The street address
 	 */
 	public function getStreet(): string;
 
 	/**
-	 * @param string $street
+	 * Set the primary street address
+	 * @param string $street The street address to set
 	 * @return self|void
 	 */
 	public function setStreet(string $street);
 
 	/**
-	 * @return string|null
+	 * Get the secondary street address line (e.g., apartment, suite number)
+	 * @return string|null The secondary street address, or null if not set
 	 */
 	public function getStreet2(): ?string;
 
 	/**
-	 * @param string|null $street2
+	 * Set the secondary street address line (e.g., apartment, suite number)
+	 * @param string|null $street2 The secondary street address to set
 	 * @return self|void
 	 */
 	public function setStreet2(?string $street2);
 
 	/**
-	 * @return string|null
+	 * Get the postal/ZIP code
+	 * @return string|null The postal code, or null if not set
 	 */
 	public function getZipCode(): ?string;
 
 	/**
-	 * @param string|null $zipCode
+	 * Set the postal/ZIP code
+	 * @param string|null $zipCode The postal code to set
 	 * @return self|void
 	 */
 	public function setZipCode(?string $zipCode);
 
 	/**
-	 * @return string
+	 * Get the city name
+	 * @return string The city name
 	 */
 	public function getCity(): string;
 
 	/**
-	 * @param string $city
+	 * Set the city name
+	 * @param string $city The city name to set
 	 * @return self|void
 	 */
 	public function setCity(string $city);
 
 	/**
-	 * @return string
+	 * Get the country code (ISO 3166-1 alpha-2 format)
+	 * @return string The two-letter country code (e.g., "FR", "US")
 	 */
 	public function getCountryCode(): string;
 
 	/**
-	 * @param string $countryCode
+	 * Set the country code (ISO 3166-1 alpha-2 format)
+	 * @param string $countryCode The two-letter country code to set (e.g., "FR", "US")
 	 * @return self|void
 	 */
 	public function setCountryCode(string $countryCode);

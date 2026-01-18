@@ -7,11 +7,25 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Utility class for file operations including upload handling, validation, output and MIME type detection.
+ * Provides comprehensive methods for working with files in web applications, including:
+ * - Base64 data handling
+ * - File upload processing from HTTP requests
+ * - File validation with extension and MIME type checking
+ * - File output to browser (download or inline display)
+ * - MIME type detection and conversion
+ * - File extension management
+ */
 class File
 {
+	// ========== Base64 Data Handling ==========
+
 	/**
-	 * @param string $data
-	 * @return string|null
+	 * Extracts and decodes binary data from a base64-encoded string.
+	 * Handles data URIs (e.g., "data:image/png;base64,iVBORw0...") and validates the base64 encoding.
+	 * @param string $data The base64-encoded data string, optionally with data URI prefix
+	 * @return string|null The decoded binary data, or null if decoding fails or data is invalid
 	 */
 	public static function getDataFromBase64Data(string $data): ?string
 	{
@@ -30,8 +44,12 @@ class File
 	}
 
 	/**
-	 * @param string $data
-	 * @return string|null
+	 * Detects the MIME type from base64-encoded data.
+	 * First attempts to extract MIME type from data URI prefix (e.g., "data:image/png;base64,...").
+	 * Falls back to file signature detection by analyzing the first bytes of the decoded data.
+	 * @see https://en.wikipedia.org/wiki/List_of_file_signatures
+	 * @param string $data The base64-encoded data string, optionally with data URI prefix
+	 * @return string|null The detected MIME type, or null if detection fails
 	 */
 	public static function getMimeTypeFromBase64Data(string $data): ?string
 	{
@@ -48,9 +66,7 @@ class File
 			}
 		}
 
-		// Détection du mime type par la signature de fichier
-		// https://en.wikipedia.org/wiki/List_of_file_signatures
-
+		// MIME type detection by file signature
 		/** @var array $fileSignatures */
 		$fileSignatures = [
 			[["\x66\x74\x79\x70\x33\x67"], \Osimatic\Media\Video::_3GPP_MIME_TYPES[0]], // 3GPP
@@ -93,19 +109,23 @@ class File
 	}
 
 	/**
-	 * @param InputFile|UploadedFile $uploadedFile
-	 * @return string|null
+	 * Gets the file extension from an uploaded file (InputFile or Symfony UploadedFile).
+	 * @param InputFile|UploadedFile $uploadedFile The uploaded file object
+	 * @return string|null The file extension (without dot), or null if not available
 	 */
 	public static function getExtensionOfUploadedFile(InputFile|UploadedFile $uploadedFile): ?string
 	{
 		return is_a($uploadedFile, InputFile::class) ? $uploadedFile->getExtension() : $uploadedFile->getClientOriginalExtension();
 	}
 
+	// ========== File Upload Processing ==========
 
 	/**
-	 * @param UploadedFile $uploadedFile
-	 * @param string[] $allowedFormats
-	 * @return bool
+	 * Validates an uploaded file against allowed format specifications.
+	 * Uses specialized check methods for common formats (PDF, CSV, images, audio, video, ZIP).
+	 * @param UploadedFile $uploadedFile The Symfony UploadedFile to validate
+	 * @param string[] $allowedFormats Array of allowed format names (e.g., ['pdf', 'jpg', 'mp3'])
+	 * @return bool True if file matches one of the allowed formats, false otherwise
 	 */
 	private static function checkAllowedFormat(UploadedFile $uploadedFile, array $allowedFormats): bool
 	{
@@ -138,12 +158,16 @@ class File
 
 
 	/**
-	 * @param Request $request
-	 * @param string $inputFileName
-	 * @param string $inputFileDataName
-	 * @param string[] $allowedFormats
-	 * @param LoggerInterface|null $logger
-	 * @return InputFile|UploadedFile|null
+	 * Extracts and validates an uploaded file from an HTTP request.
+	 * Handles two types of uploads:
+	 * 1. Traditional form file upload (multipart/form-data)
+	 * 2. Base64-encoded data sent as POST parameter
+	 * @param Request $request The Symfony HTTP request object
+	 * @param string $inputFileName The form field name for file upload
+	 * @param string $inputFileDataName The POST parameter name for base64 data
+	 * @param string[] $allowedFormats Optional array of allowed formats (e.g., ['pdf', 'jpg'])
+	 * @param LoggerInterface|null $logger Optional PSR-3 logger for debugging
+	 * @return InputFile|UploadedFile|null The uploaded file object, or null if not found/invalid
 	 */
 	public static function getUploadedFileFromRequest(Request $request, string $inputFileName, string $inputFileDataName, array $allowedFormats=[], ?LoggerInterface $logger=null): InputFile|UploadedFile|null
 	{
@@ -178,10 +202,13 @@ class File
 	}
 
 	/**
-	 * @param InputFile|UploadedFile $uploadedFile
-	 * @param string $filePath
-	 * @param LoggerInterface|null $logger
-	 * @return bool
+	 * Moves an uploaded file to its final destination.
+	 * Handles both traditional uploads and InputFile objects containing binary data.
+	 * Creates necessary directories and removes existing file at destination.
+	 * @param InputFile|UploadedFile $uploadedFile The uploaded file to move
+	 * @param string $filePath The destination file path
+	 * @param LoggerInterface|null $logger Optional PSR-3 logger for error logging
+	 * @return bool True if file was moved successfully, false otherwise
 	 */
 	public static function moveUploadedFile(InputFile|UploadedFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
 	{
@@ -211,12 +238,16 @@ class File
 		return false;
 	}
 
+	// ========== File Validation ==========
+
 	/**
-	 * @param string $realPath
-	 * @param string $clientOriginalName
-	 * @param array|null $extensionsAllowed
-	 * @param array|null $mimeTypesAllowed
-	 * @return bool
+	 * Validates a file based on its extension and MIME type.
+	 * Checks if the file exists, has an allowed extension, and matches one of the allowed MIME types.
+	 * @param string $realPath The real path to the file on the server
+	 * @param string $clientOriginalName The original filename from the client (used to extract extension)
+	 * @param array|null $extensionsAllowed Optional array of allowed extensions (e.g., ['.pdf', '.jpg'])
+	 * @param array|null $mimeTypesAllowed Optional array of allowed MIME types (e.g., ['application/pdf', 'image/jpeg'])
+	 * @return bool True if file passes all validation checks, false otherwise
 	 */
 	public static function check(string $realPath, string $clientOriginalName, ?array $extensionsAllowed=null, ?array $mimeTypesAllowed=null): bool
 	{
@@ -239,37 +270,42 @@ class File
 		return true;
 	}
 
+	// ========== File Extension Management ==========
+
 	/**
-	 * Retourne l'extension d'un fichier
-	 * Gère les doubles extensions courantes comme .tar.gz, .tar.bz2, etc.
-	 * @param string $filePath
-	 * @return string
+	 * Returns the file extension from a file path.
+	 * Handles common double extensions like .tar.gz, .tar.bz2, etc.
+	 * @param string $filePath The file path or filename
+	 * @return string The file extension (without dot). May be a double extension like 'tar.gz'
 	 */
 	public static function getExtension(string $filePath): string
 	{
 		$filename = basename($filePath);
 
-		// Liste des doubles extensions courantes
+		// List of common double extensions
 		$doubleExtensions = [
 			'tar.gz', 'tar.bz2', 'tar.xz', 'tar.z', 'tar.lz',
 			'tar.zst', 'tar.lzma', 'tar.lzo', 'tar.bz'
 		];
 
-		// Vérifier si le fichier a une double extension
+		// Check if file has a double extension
 		foreach ($doubleExtensions as $doubleExt) {
 			if (str_ends_with(mb_strtolower($filename), '.' . $doubleExt)) {
 				return $doubleExt;
 			}
 		}
 
-		// Sinon retourner l'extension simple
+		// Otherwise return simple extension
 		return pathinfo($filePath, PATHINFO_EXTENSION);
 	}
 
 	/**
-	 * @param string $filename
-	 * @param string $newExtension
-	 * @return string
+	 * Replaces the file extension in a filename or path.
+	 * Automatically adds a dot before the new extension if not present.
+	 * Preserves the directory path and handles both Unix (/) and Windows (\) separators.
+	 * @param string $filename The filename or full path whose extension should be replaced
+	 * @param string $newExtension The new extension (with or without leading dot)
+	 * @return string The filename/path with the new extension
 	 */
 	public static function replaceExtension(string $filename, string $newExtension): string
 	{
@@ -284,12 +320,15 @@ class File
 		return $prefix . $info['filename'] . (!str_starts_with($newExtension, '.') ? '.' : '') . $newExtension;
 	}
 
+	// ========== File Output ==========
+
 	/**
-	 * Envoi un fichier au navigateur du client.
-	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param string $filePath
-	 * @param string|null $fileName
-	 * @param string|null $mimeType
+	 * Sends a file to the client browser for inline viewing.
+	 * Sets appropriate headers for displaying the file in the browser (not forcing download).
+	 * No output should be performed before or after calling this function.
+	 * @param string $filePath The path to the file to output
+	 * @param string|null $fileName Optional name for the file (defaults to basename)
+	 * @param string|null $mimeType Optional MIME type (auto-detected if not provided)
 	 */
 	public static function output(string $filePath, ?string $fileName=null, ?string $mimeType=null): void
 	{
@@ -297,10 +336,11 @@ class File
 	}
 
 	/**
-	 * Envoi un fichier au navigateur du client.
-	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param OutputFile $file
-	 * @param string|null $mimeType
+	 * Sends a file to the client browser for inline viewing (using OutputFile object).
+	 * Sets appropriate headers for displaying the file in the browser (not forcing download).
+	 * No output should be performed before or after calling this function.
+	 * @param OutputFile $file The OutputFile object containing file information
+	 * @param string|null $mimeType Optional MIME type (auto-detected if not provided)
 	 */
 	public static function outputFile(OutputFile $file, ?string $mimeType=null): void
 	{
@@ -312,11 +352,12 @@ class File
 	}
 
 	/**
-	 * Envoi un fichier au navigateur du client.
-	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param string $filePath
-	 * @param string|null $fileName
-	 * @param string|null $transferEncoding
+	 * Forces download of a file to the client browser.
+	 * Sets appropriate headers to force browser to download the file instead of displaying it inline.
+	 * No output should be performed before or after calling this function.
+	 * @param string $filePath The path to the file to download
+	 * @param string|null $fileName Optional name for the downloaded file (defaults to basename)
+	 * @param string|null $transferEncoding Optional transfer encoding (defaults to 'binary')
 	 */
 	public static function download(string $filePath, ?string $fileName=null, ?string $transferEncoding=null): void
 	{
@@ -324,10 +365,11 @@ class File
 	}
 
 	/**
-	 * Envoi un fichier au navigateur du client.
-	 * Aucun affichage ne doit être effectué avant ou après l'appel à cette fonction.
-	 * @param OutputFile $file
-	 * @param string|null $transferEncoding
+	 * Forces download of a file to the client browser (using OutputFile object).
+	 * Sets appropriate headers to force browser to download the file instead of displaying it inline.
+	 * No output should be performed before or after calling this function.
+	 * @param OutputFile $file The OutputFile object containing file information
+	 * @param string|null $transferEncoding Optional transfer encoding (defaults to 'binary')
 	 */
 	public static function downloadFile(OutputFile $file, ?string $transferEncoding=null): void
 	{
@@ -339,12 +381,14 @@ class File
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string|null $fileName
-	 * @param bool $forceDownload
-	 * @param string|null $mimeType
-	 * @param string|null $transferEncoding
-	 * @return Response|null
+	 * Creates a Symfony HTTP Response object for a file.
+	 * Use this method when working with Symfony framework to return file responses.
+	 * @param string $filePath The path to the file
+	 * @param string|null $fileName Optional name for the file (defaults to basename)
+	 * @param bool $forceDownload Whether to force download (true) or allow inline viewing (false)
+	 * @param string|null $mimeType Optional MIME type (auto-detected if not provided, ignored if forceDownload=true)
+	 * @param string|null $transferEncoding Optional transfer encoding (defaults to 'binary' if forceDownload=true)
+	 * @return Response|null The HTTP response object, or null if file not found
 	 */
 	public static function getHttpResponse(string $filePath, ?string $fileName=null, bool $forceDownload=true, ?string $mimeType=null, ?string $transferEncoding=null): ?Response
 	{
@@ -352,13 +396,16 @@ class File
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param string|null $fileName
-	 * @param bool $forceDownload
-	 * @param string|null $mimeType
-	 * @param string|null $transferEncoding
-	 * @param bool $sendResponse
-	 * @return Response|null
+	 * Internal method for outputting files to the browser or creating HTTP responses.
+	 * Handles both direct output and Symfony Response creation.
+	 * Sets appropriate headers based on whether download is forced or inline viewing is allowed.
+	 * @param string $filePath The path to the file
+	 * @param string|null $fileName Optional name for the file (defaults to basename)
+	 * @param bool $forceDownload Whether to force download (true) or allow inline viewing (false)
+	 * @param string|null $mimeType Optional MIME type (auto-detected if not provided)
+	 * @param string|null $transferEncoding Optional transfer encoding (defaults to 'binary' if forceDownload=true)
+	 * @param bool $sendResponse Whether to send response directly (true) or return Response object (false)
+	 * @return Response|null The HTTP response object if sendResponse=false, null otherwise
 	 */
 	private static function _output(string $filePath, ?string $fileName=null, bool $forceDownload=true, ?string $mimeType=null, ?string $transferEncoding=null, bool $sendResponse=true): ?Response
 	{
@@ -409,11 +456,15 @@ class File
 		exit();
 	}
 
+	// ========== Utility Methods ==========
+
 	/**
-	 * Retourne la taille plus l'unité arrondie
-	 * @param float $bytes taille en octets
-	 * @param int $numberOfDecimalPlaces le nombre de chiffres après la virgule pour l'affichage du nombre correspondant à la taille
-	 * @return string chaine de caractères formatée
+	 * Formats a file size in bytes to a human-readable string with appropriate unit.
+	 * Automatically selects the appropriate unit (B, KB, MB, GB, TB) based on the size.
+	 * Units are localized based on the current locale (e.g., 'o', 'Ko', 'Mo' for French).
+	 * @param float $bytes The file size in bytes
+	 * @param int $numberOfDecimalPlaces The number of decimal places to display (default: 2)
+	 * @return string The formatted size string (e.g., "1.5 MB", "2.34 GB")
 	 */
 	public static function formatSize(float $bytes, int $numberOfDecimalPlaces=2): string
 	{
@@ -424,10 +475,10 @@ class File
 
 		$b = $bytes;
 
-		// Cas des tailles de fichier négatives
+		// Handle negative file sizes
 		if ($b > 0) {
 			$e = (int)(log($b,1024));
-			// Si on a pas l'unité on retourne en To
+			// If unit is not available, return in TB
 			if (isset($units[$e]) === false) {
 				$e = 4;
 			}
@@ -443,10 +494,14 @@ class File
 		return $float.' '.$units[$e];
 	}
 
+	// ========== MIME Type Detection and Conversion ==========
+
 	/**
-	 * @param string $extension
-	 * @param array|null $extensionsAndMimeTypes
-	 * @return string|null
+	 * Gets the MIME type corresponding to a file extension.
+	 * Searches through the extension/MIME type mapping to find the appropriate MIME type.
+	 * @param string $extension The file extension (with or without leading dot, e.g., 'jpg' or '.jpg')
+	 * @param array|null $extensionsAndMimeTypes Optional custom mapping (uses default if not provided)
+	 * @return string|null The MIME type (e.g., 'image/jpeg'), or null if extension not found
 	 */
 	public static function getMimeTypeFromExtension(string $extension, ?array $extensionsAndMimeTypes=null): ?string
 	{
@@ -463,9 +518,11 @@ class File
 	}
 
 	/**
-	 * @param string $mimeType
-	 * @param array|null $extensionsAndMimeTypes
-	 * @return string|null
+	 * Gets the file extension corresponding to a MIME type.
+	 * Searches through the extension/MIME type mapping to find the appropriate extension.
+	 * @param string $mimeType The MIME type (e.g., 'image/jpeg', 'application/pdf')
+	 * @param array|null $extensionsAndMimeTypes Optional custom mapping (uses default if not provided)
+	 * @return string|null The file extension without dot (e.g., 'jpg', 'pdf'), or null if MIME type not found
 	 */
 	public static function getExtensionFromMimeType(string $mimeType, ?array $extensionsAndMimeTypes=null): ?string
 	{
@@ -482,8 +539,10 @@ class File
 	}
 
 	/**
-	 * @param array $extensionsAndMimeTypes
-	 * @return array
+	 * Formats and normalizes an extension/MIME type mapping array.
+	 * Removes leading dots from extensions to ensure consistent formatting.
+	 * @param array $extensionsAndMimeTypes The raw mapping array
+	 * @return array The formatted mapping array with normalized extensions
 	 */
 	private static function formatExtensionsAndMimeTypes(array $extensionsAndMimeTypes): array
 	{
@@ -491,7 +550,10 @@ class File
 	}
 
 	/**
-	 * @return array
+	 * Gets the complete mapping of file extensions to MIME types.
+	 * Merges mappings from media classes (Image, Audio, Video) with additional common file types.
+	 * Each entry is an array with two elements: [extensions array, MIME types array].
+	 * @return array The complete extension/MIME type mapping array
 	 */
 	public static function getExtensionsAndMimeTypes(): array
 	{

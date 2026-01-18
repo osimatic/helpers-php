@@ -73,6 +73,13 @@ final class BankAccountTest extends TestCase
 		$this->assertFalse(BankAccount::checkIban('XX89370400440532013000'));
 	}
 
+	public function testCheckIbanWithWhitespace(): void
+	{
+		// Avec espaces au début/fin
+		$this->assertTrue(BankAccount::checkIban(' FR1420041010050500013M02606 '));
+		$this->assertTrue(BankAccount::checkIban('	DE89370400440532013000	'));
+	}
+
 	/* ===================== checkBic() ===================== */
 
 	public function testCheckBicWithValidBic8(): void
@@ -110,6 +117,21 @@ final class BankAccountTest extends TestCase
 		// BIC doit être en majuscules selon la norme
 		$this->assertFalse(BankAccount::checkBic('bnpafrpp'));
 		$this->assertFalse(BankAccount::checkBic('deutdeff'));
+	}
+
+	public function testCheckBicWithSpaces(): void
+	{
+		// Avec espaces (doivent être supprimés)
+		$this->assertTrue(BankAccount::checkBic('BNPA FRPP'));
+		$this->assertTrue(BankAccount::checkBic('BNPA FRPP XXX'));
+		$this->assertTrue(BankAccount::checkBic('DEUT DE FF'));
+	}
+
+	public function testCheckBicWithWhitespace(): void
+	{
+		// Avec espaces au début/fin
+		$this->assertTrue(BankAccount::checkBic(' BNPAFRPP '));
+		$this->assertTrue(BankAccount::checkBic('	DEUTDEFF	'));
 	}
 
 	/* ===================== formatIban() ===================== */
@@ -153,6 +175,44 @@ final class BankAccountTest extends TestCase
 		// Retire les espaces et vérifie que les caractères sont préservés
 		$resultWithoutSpaces = str_replace(' ', '', $result);
 		$this->assertStringStartsWith('FR1420041010050500013M0', $resultWithoutSpaces);
+	}
+
+	public function testFormatIbanWithLowerCase(): void
+	{
+		// IBAN en minuscules doit être converti en majuscules
+		$result = BankAccount::formatIban('fr1420041010050500013m02606');
+		$this->assertSame('FR14 2004 1010 0505 0001 3M02 606', $result);
+
+		$result = BankAccount::formatIban('de89370400440532013000');
+		$this->assertSame('DE89 3704 0044 0532 0130 00', $result);
+	}
+
+	public function testFormatIbanWithMixedCase(): void
+	{
+		// IBAN en casse mixte
+		$result = BankAccount::formatIban('Fr1420041010050500013m02606');
+		$this->assertSame('FR14 2004 1010 0505 0001 3M02 606', $result);
+	}
+
+	public function testFormatIbanWithExistingSpaces(): void
+	{
+		// IBAN déjà formaté avec espaces
+		$result = BankAccount::formatIban('FR14 2004 1010 0505 0001 3M02 606');
+		$this->assertSame('FR14 2004 1010 0505 0001 3M02 606', $result);
+
+		// Avec des espaces différents
+		$result = BankAccount::formatIban('FR142004 10100505 00013M02606');
+		$this->assertSame('FR14 2004 1010 0505 0001 3M02 606', $result);
+	}
+
+	public function testFormatIbanWithWhitespace(): void
+	{
+		// Avec espaces au début/fin
+		$result = BankAccount::formatIban(' FR1420041010050500013M02606 ');
+		$this->assertSame('FR14 2004 1010 0505 0001 3M02 606', $result);
+
+		$result = BankAccount::formatIban('	DE89370400440532013000	');
+		$this->assertSame('DE89 3704 0044 0532 0130 00', $result);
 	}
 
 	/* ===================== Integration tests ===================== */

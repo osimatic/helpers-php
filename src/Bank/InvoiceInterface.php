@@ -5,187 +5,225 @@ namespace Osimatic\Bank;
 use Osimatic\Organization\OrganizationInterface;
 
 /**
- * https://schema.org/Invoice
+ * Interface for invoice information
+ * Represents a complete invoice document with buyer, seller, products, and payment details
+ * Based on schema.org/Invoice
  */
 interface InvoiceInterface
 {
 	/**
-	 * @return OrganizationInterface|null
+	 * Get the seller organization
+	 * @return OrganizationInterface|null The organization selling the goods/services
 	 */
 	public function getSeller(): ?OrganizationInterface;
 
 	/**
-	 * @param OrganizationInterface|null $seller
+	 * Set the seller organization
+	 * @param OrganizationInterface|null $seller The organization selling the goods/services
 	 */
 	public function setSeller(?OrganizationInterface $seller): void;
 
 	/**
-	 * @return OrganizationInterface|null
+	 * Get the buyer organization
+	 * @return OrganizationInterface|null The organization purchasing the goods/services
 	 */
 	public function getBuyer(): ?OrganizationInterface;
 
 	/**
-	 * @param OrganizationInterface|null $buyer
+	 * Set the buyer organization
+	 * @param OrganizationInterface|null $buyer The organization purchasing the goods/services
 	 */
 	public function setBuyer(?OrganizationInterface $buyer): void;
 
 	/**
-	 * @return string
+	 * Get the order reference
+	 * @return string The reference of the associated order
 	 */
 	public function getOrderReference(): string;
 
 	/**
-	 * @param string $orderReference
+	 * Set the order reference
+	 * @param string $orderReference The reference of the associated order
 	 */
 	public function setOrderReference(string $orderReference): void;
 
 	/**
-	 * @return string
+	 * Get the invoice number
+	 * @return string The unique invoice number
 	 */
 	public function getInvoiceNumber(): string;
 
 	/**
-	 * @param string $invoiceNumber
+	 * Set the invoice number
+	 * @param string $invoiceNumber The unique invoice number
 	 */
 	public function setInvoiceNumber(string $invoiceNumber): void;
 
 	/**
-	 * @return \DateTime
+	 * Get the invoice date
+	 * @return \DateTime The date the invoice was issued
 	 */
 	public function getDate(): \DateTime;
 
 	/**
-	 * @param \DateTime $date
+	 * Set the invoice date
+	 * @param \DateTime $date The date the invoice was issued
 	 */
 	public function setDate(\DateTime $date): void;
 
 	/**
-	 * @return string
+	 * Get the billing city
+	 * @return string The city where billing occurred
 	 */
 	public function getBillingCity(): string;
 
 	/**
-	 * @param string $billingCity
+	 * Set the billing city
+	 * @param string $billingCity The city where billing occurred
 	 */
 	public function setBillingCity(string $billingCity): void;
 
 	/**
-	 * @return InvoiceProductInterface[]
+	 * Get the list of products/line items on the invoice
+	 * @return InvoiceProductInterface[] Array of invoice line items
 	 */
 	public function getProductsList(): array;
 
 	/**
-	 * @param InvoiceProductInterface[] $productsList
+	 * Set the list of products/line items on the invoice
+	 * @param InvoiceProductInterface[] $productsList Array of invoice line items
 	 */
 	public function setProductsList(array $productsList): void;
 
 	/**
-	 * @return float
+	 * Get the total amount excluding tax
+	 * @return float The total before tax/VAT
 	 */
 	public function getTotalExclTax(): float;
 
 	/**
-	 * @param float $totalExclTax
+	 * Set the total amount excluding tax
+	 * @param float $totalExclTax The total before tax/VAT
 	 */
 	public function setTotalExclTax(float $totalExclTax): void;
 
 	/**
-	 * @return float
+	 * Get the total VAT/tax amount
+	 * @return float The VAT/tax amount
 	 */
 	public function getTotalVat(): float;
 
 	/**
-	 * @param float $totalVat
+	 * Set the total VAT/tax amount
+	 * @param float $totalVat The VAT/tax amount
 	 */
 	public function setTotalVat(float $totalVat): void;
 
 	/**
-	 * @return float
+	 * Get the total amount including tax
+	 * @return float The total after tax/VAT
 	 */
 	public function getTotalInclTax(): float;
 
 	/**
-	 * @param float $totalInclTax
+	 * Set the total amount including tax
+	 * @param float $totalInclTax The total after tax/VAT
 	 */
 	public function setTotalInclTax(float $totalInclTax): void;
 
 	/**
-	 * @return string
+	 * Get the currency code
+	 * @return string The three-letter ISO 4217 currency code (e.g., "EUR", "USD")
 	 */
 	public function getCurrency(): string;
 
 	/**
-	 * @param string $currency
+	 * Set the currency code
+	 * @param string $currency The three-letter ISO 4217 currency code (e.g., "EUR", "USD")
 	 */
 	public function setCurrency(string $currency): void;
 
 	/**
-	 * @return float
+	 * Get the billing tax rate
+	 * @return float The tax rate as a percentage (e.g., 20.0 for 20%)
 	 */
 	public function getBillingTaxRate(): float;
 
 	/**
-	 * @param float $billingTaxRate
+	 * Set the billing tax rate
+	 * @param float $billingTaxRate The tax rate as a percentage (e.g., 20.0 for 20%)
 	 */
 	public function setBillingTaxRate(float $billingTaxRate): void;
 
 	/**
-	 * @return \DateTime|null
+	 * Get the validation date
+	 * @return \DateTime|null The date the invoice was validated/approved
 	 */
 	public function getValidationDate(): ?\DateTime;
 
 	/**
-	 * @param \DateTime|null $validationDate
+	 * Set the validation date
+	 * @param \DateTime|null $validationDate The date the invoice was validated/approved
 	 */
 	public function setValidationDate(?\DateTime $validationDate): void;
 
 	/**
-	 * @return string
+	 * Get the payment status
+	 * @return string The current payment status (e.g., "paid", "pending", "overdue")
 	 */
 	public function getPaymentStatus(): string;
 
 	/**
-	 * @param string $paymentStatus
+	 * Set the payment status
+	 * @param string $paymentStatus The current payment status (e.g., "paid", "pending", "overdue")
 	 */
 	public function setPaymentStatus(string $paymentStatus): void;
 
 	/**
-	 * @return \DateTime|null
+	 * Get the payment date
+	 * @return \DateTime|null The date the invoice was paid
 	 */
 	public function getPaymentDate(): ?\DateTime;
 
 	/**
-	 * @param \DateTime|null $paymentDate
+	 * Set the payment date
+	 * @param \DateTime|null $paymentDate The date the invoice was paid
 	 */
 	public function setPaymentDate(?\DateTime $paymentDate): void;
 
 	/**
-	 * @return PaymentMethod|null
+	 * Get the payment method
+	 * @return PaymentMethod|null The method used for payment (e.g., bank card, transfer, check)
 	 */
 	public function getPaymentMethod(): ?PaymentMethod;
 
 	/**
-	 * @param PaymentMethod|null $paymentMethod
+	 * Set the payment method
+	 * @param PaymentMethod|null $paymentMethod The method used for payment (e.g., bank card, transfer, check)
 	 */
 	public function setPaymentMethod(?PaymentMethod $paymentMethod): void;
 
 	/**
-	 * @return string|null
+	 * Get the bank card authorization number
+	 * @return string|null The authorization number from the payment processor
 	 */
 	public function getBankCardAuthorizationNumber(): ?string;
 
 	/**
-	 * @param string|null $bankCardAuthorizationNumber
+	 * Set the bank card authorization number
+	 * @param string|null $bankCardAuthorizationNumber The authorization number from the payment processor
 	 */
 	public function setBankCardAuthorizationNumber(?string $bankCardAuthorizationNumber): void;
 
 	/**
-	 * @return string|null
+	 * Get the delivery type
+	 * @return string|null The type of delivery (e.g., "standard", "express", "pickup")
 	 */
 	public function getDeliveryType(): ?string;
 
 	/**
-	 * @param string|null $deliveryType
+	 * Set the delivery type
+	 * @param string|null $deliveryType The type of delivery (e.g., "standard", "express", "pickup")
 	 */
 	public function setDeliveryType(?string $deliveryType): void;
 

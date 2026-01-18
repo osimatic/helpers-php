@@ -61,7 +61,7 @@ class Command
 	/**
 	 * Set the default timeout for command execution.
 	 * @param float|null $timeout Timeout in seconds (null = no timeout)
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setTimeout(?float $timeout): self
 	{
@@ -73,7 +73,7 @@ class Command
 	/**
 	 * Set the working directory for command execution.
 	 * @param string|null $workingDirectory Working directory path (null = current directory)
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setWorkingDirectory(?string $workingDirectory): self
 	{
@@ -85,7 +85,7 @@ class Command
 	/**
 	 * Set environment variables for command execution.
 	 * @param array|null $environmentVariables Environment variables (null = inherit from parent)
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setEnvironmentVariables(?array $environmentVariables): self
 	{

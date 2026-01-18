@@ -2,15 +2,32 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Enumeration of payment methods.
+ * Represents the various payment methods accepted for transactions.
+ */
 enum PaymentMethod: string
 {
+	/** Credit or debit card payment */
 	case CREDIT_CARD 	= 'CREDIT_CARD';
+
+	/** Bank transfer payment */
 	case TRANSFER 		= 'TRANSFER';
+
+	/** Check payment */
 	case CHEQUE 		= 'CHEQUE';
+
+	/** PayPal payment */
 	case PAYPAL 		= 'PAYPAL';
-	case DIRECT_DEBIT 	= 'DIRECT_DEBIT'; // Prélèvement SEPA
 
+	/** SEPA Direct Debit payment */
+	case DIRECT_DEBIT 	= 'DIRECT_DEBIT';
 
+	/**
+	 * Gets the localized label for the payment method.
+	 * Returns the French label for display purposes.
+	 * @return string The localized label
+	 */
 	public function getLabel(): string
 	{
 		return match ($this) {

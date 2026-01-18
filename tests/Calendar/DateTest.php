@@ -98,4 +98,18 @@ final class DateTest extends TestCase
 		$this->assertEquals(0, Date::isLeapYear(1900));
 		$this->assertEquals(0, Date::isLeapYear(2100));
 	}
+
+	public function testGetNumberOfDaysInYear(): void
+	{
+		// Années bissextiles (366 jours)
+		$this->assertEquals(366, Date::getNumberOfDaysInYear(2024));
+		$this->assertEquals(366, Date::getNumberOfDaysInYear(2000));
+		$this->assertEquals(366, Date::getNumberOfDaysInYear(2400));
+
+		// Années non bissextiles (365 jours)
+		$this->assertEquals(365, Date::getNumberOfDaysInYear(2023));
+		$this->assertEquals(365, Date::getNumberOfDaysInYear(2025));
+		$this->assertEquals(365, Date::getNumberOfDaysInYear(1900));
+		$this->assertEquals(365, Date::getNumberOfDaysInYear(2100));
+	}
 }

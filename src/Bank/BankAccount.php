@@ -2,40 +2,52 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Utility class for bank account operations
+ * Provides methods for validating and formatting IBAN and BIC codes
+ */
 class BankAccount
 {
 
 	/**
-	 * @param string $iban
-	 * @return string
+	 * Format an IBAN by adding spaces every 4 characters
+	 * Automatically removes existing spaces and converts to uppercase for normalization
+	 * @param string $iban The IBAN to format (with or without spaces)
+	 * @return string The formatted IBAN with spaces every 4 characters, in uppercase
+	 * @example formatIban('FR7630006000011234567890189') returns "FR76 3000 6000 0112 3456 7890 189"
+	 * @example formatIban('fr76 3000 6000 0112 3456 7890 189') returns "FR76 3000 6000 0112 3456 7890 189"
+	 * @example formatIban('de89370400440532013000') returns "DE89 3704 0044 0532 0130 00"
 	 */
 	public static function formatIban(string $iban): string
 	{
-		$str = '';
-		$length = strlen($iban);
-		for ($i=0; $i<$length; $i++) {
-			if (in_array($i, [4, 8, 12, 16, 20, 24], true)) {
-				$str .= ' ';
-			}
-			$str .= substr($iban, $i, 1);
-		}
-		return $str;
+		// Remove spaces and convert to uppercase
+		$iban = strtoupper(str_replace(' ', '', trim($iban)));
+
+		// Add a space every 4 characters
+		return trim(chunk_split($iban, 4, ' '));
 	}
 
 	/**
-	 * @param string $iban
-	 * @return bool
+	 * Validate an IBAN using Symfony validator
+	 * Checks if the IBAN format is correct according to ISO 13616 standard
+	 * Automatically removes spaces and normalizes the input
+	 * @param string $iban The IBAN to validate (with or without spaces)
+	 * @return bool True if the IBAN is valid, false otherwise
+	 * @example checkIban('FR7630006000011234567890189') returns true
+	 * @example checkIban('FR76 3000 6000 0112 3456 7890 189') returns true
+	 * @example checkIban('DE89370400440532013000') returns true
+	 * @example checkIban('invalid') returns false
 	 */
 	public static function checkIban(string $iban): bool
 	{
+		// Remove spaces and trim
+		$iban = str_replace(' ', '', trim($iban));
+
 		if (empty($iban)) {
 			return false;
 		}
 
-		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
-			->addMethodMapping('loadValidatorMetadata')
-			->getValidator();
-		return $validator->validate($iban, new \Symfony\Component\Validator\Constraints\Iban())->count() === 0;
+		return \Osimatic\Validator\Validator::getInstance()->validate($iban, new \Symfony\Component\Validator\Constraints\Iban())->count() === 0;
 
 		/*
 		$iban = mb_strtolower(str_replace(' ', '', $iban));
@@ -62,19 +74,26 @@ class BankAccount
 	}
 
 	/**
-	 * @param string $bic
-	 * @return bool
+	 * Validate a BIC/SWIFT code using Symfony validator
+	 * Checks if the BIC format is correct according to ISO 9362 standard
+	 * Automatically removes spaces and normalizes the input
+	 * @param string $bic The BIC/SWIFT code to validate (8 or 11 characters)
+	 * @return bool True if the BIC is valid, false otherwise
+	 * @example checkBic('BNPAFRPP') returns true (8 characters)
+	 * @example checkBic('BNPAFRPPXXX') returns true (11 characters)
+	 * @example checkBic('BNPA FRPP XXX') returns true (spaces removed)
+	 * @example checkBic('invalid') returns false
 	 */
 	public static function checkBic(string $bic): bool
 	{
+		// Remove spaces and trim
+		$bic = str_replace(' ', '', trim($bic));
+
 		if (empty($bic)) {
 			return false;
 		}
 
-		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
-			->addMethodMapping('loadValidatorMetadata')
-			->getValidator();
-		return $validator->validate($bic, new \Symfony\Component\Validator\Constraints\Bic())->count() === 0;
+		return \Osimatic\Validator\Validator::getInstance()->validate($bic, new \Symfony\Component\Validator\Constraints\Bic())->count() === 0;
 	}
 
 }

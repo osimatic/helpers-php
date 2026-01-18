@@ -3,17 +3,23 @@
 namespace Osimatic\ArrayList;
 
 /**
- * Class MultidimensionalArray
+ * Utility class for multidimensional array operations and manipulations.
+ * Provides methods for:
+ * - Recursive counting of nested arrays
+ * - Extracting values from nested structures by keys
+ * - Modifying all subarrays with new key-value pairs
+ * - Searching for values within nested arrays
+ * - Advanced sorting of multidimensional arrays with multiple criteria
  */
 class MultidimensionalArray
 {
-	// ========== Méthodes de comptage ==========
+	// ========== Counting Methods ==========
 
 	/**
-	 * Compte le nombre de valeurs dans un tableau multidimensionnel
-	 * (toutes les valeurs du tableau principal et de ses éventuels tableaux enfants, sans limite de profondeur)
-	 * @param array $array
-	 * @return int
+	 * Recursively counts all values in a multidimensional array.
+	 * Counts all values in the main array and all nested child arrays, with no depth limit.
+	 * @param array $array The multidimensional array to count
+	 * @return int Total number of values (non-array elements) at all nesting levels
 	 */
 	public static function count(array $array): int
 	{
@@ -30,12 +36,14 @@ class MultidimensionalArray
 	}
 
 
-	// ========== Méthodes de récupération ==========
+	// ========== Retrieval Methods ==========
 
 	/**
-	 * @param array $array
-	 * @param $key
-	 * @return array
+	 * Extracts values from subarrays by a specific key, preserving parent keys.
+	 * Returns an associative array where keys from the parent array are preserved.
+	 * @param array $array Array of subarrays to search in
+	 * @param mixed $key The key to look for in each subarray
+	 * @return array Associative array with parent keys and extracted values
 	 */
 	public static function getValuesWithKeysByKey(array $array, $key): array
 	{
@@ -49,9 +57,11 @@ class MultidimensionalArray
 	}
 
 	/**
-	 * @param array $array
-	 * @param $key
-	 * @return array
+	 * Extracts values from subarrays by a specific key, without preserving parent keys.
+	 * Returns a numerically indexed array of extracted values.
+	 * @param array $array Array of subarrays to search in
+	 * @param mixed $key The key to look for in each subarray
+	 * @return array Indexed array of extracted values
 	 */
 	public static function getValuesByKeyarray(array $array, $key): array
 	{
@@ -64,12 +74,15 @@ class MultidimensionalArray
 		return $listeValues;
 	}
 
-	// ========== Méthodes de modification ==========
+	// ========== Modification Methods ==========
 
 	/**
-	 * @param array $array
-	 * @param $keyAdded
-	 * @param $valueAdded
+	 * Adds a key-value pair to all subarrays in the multidimensional array.
+	 * Modifies the array in-place by reference.
+	 * @param array $array The multidimensional array to modify (passed by reference)
+	 * @param mixed $keyAdded The key to add to each subarray
+	 * @param mixed $valueAdded The value to assign to the new key
+	 * @return void
 	 */
 	public static function addKeyAndValue(array &$array, $keyAdded, $valueAdded): void
 	{
@@ -78,13 +91,15 @@ class MultidimensionalArray
 		}
 	}
 
-	// ========== Méthodes de recherche ==========
+	// ========== Search Methods ==========
 
 	/**
-	 * @param array $array
-	 * @param $value
-	 * @param $key
-	 * @return mixed|null
+	 * Finds and returns the first subarray where a specific key has a specific value.
+	 * Searches through subarrays and returns the entire matching subarray.
+	 * @param array $array Array of subarrays to search in
+	 * @param mixed $value The value to search for
+	 * @param mixed $key The key to check in each subarray
+	 * @return mixed The first matching subarray, or null if not found
 	 */
 	public static function getValue(array $array, $value, $key): mixed
 	{
@@ -97,10 +112,12 @@ class MultidimensionalArray
 	}
 
 	/**
-	 * @param array $array
-	 * @param $value
-	 * @param $key
-	 * @return bool
+	 * Checks if a specific value exists for a specific key in any subarray.
+	 * Returns true if at least one subarray contains the key with the matching value.
+	 * @param array $array Array of subarrays to search in
+	 * @param mixed $value The value to search for
+	 * @param mixed $key The key to check in each subarray
+	 * @return bool True if the value is found, false otherwise
 	 */
 	public static function isValueExist(array $array, $value, $key): bool
 	{
@@ -113,11 +130,12 @@ class MultidimensionalArray
 	}
 
 	/**
-	 * Similaire à la fonction in_array fonctionnant avec des tableaux multidimensionnels
-	 * @param mixed $needle La valeur recherchée.
-	 * @param array $haystack Le tableau multidimensionnel.
-	 * @param bool $strict Le troisième paramètre strict est optionnel. S'il vaut TRUE alors in_array() vérifiera aussi que le type du paramètre needle correspond au type de la valeur trouvée dans haystack.
-	 * @return bool Retourne TRUE si needle est trouvé dans le tableau, FALSE sinon.
+	 * Recursive equivalent of in_array() for multidimensional arrays.
+	 * Searches for a value at any depth in the array structure.
+	 * @param mixed $needle The value to search for
+	 * @param array $haystack The multidimensional array to search in
+	 * @param bool $strict If true, performs strict type checking (default: false)
+	 * @return bool True if needle is found in the array at any level, false otherwise
 	 */
 	public static function inArrayRecursive(mixed $needle, array $haystack, bool $strict = false): bool
 	{
@@ -129,23 +147,28 @@ class MultidimensionalArray
 		return false;
 	}
 
-
-	// ========== Tri ==========
+	// ========== Sorting Methods ==========
 
 	private static ?array $sortListColumnSorting = null;
 	private static ?int $sortDepth = null;
 
 	/**
-	 * Tri un tableau multidimensionnel.
-	 * @param $array array le tableau multidimensionnel à trier.
-	 * @param $listColumnSorting mixed les critères de tri. Peut-être :
-	 * - La clé selon laquelle le tableau va être trié (sous forme d'entier ou de chaîne de caractère)
-	 * - Un tableau avec en index :
-	 * 		→ 0 : nom de la clé
-	 * 		→ 1 : true pour un tri croissant, false pour un tri décroissant (true par défaut)
-	 * 		→ 2 : true pour un tri en ordre naturel, false pour un tri normal (false par défaut)
-	 * 		→ 3 : true pour un tri en tenant compte de la casse, false pour un tri normal (false par défaut)
-	 * - Un tableau de plusieurs tableaux de critères (pour la structure d'un tableau de critère, voir ci-dessus)
+	 * Sorts a multidimensional array by one or more keys with configurable criteria.
+	 * Modifies the array in-place by reference.
+	 * Supports multiple sort criteria with fallback to next criterion when values are equal.
+	 *
+	 * Sort criteria format:
+	 * - Simple: ['keyName'] - sorts by single key, ascending
+	 * - Single criterion: ['keyName', ascending, naturalOrder, caseSensitive]
+	 *   - Index 0: key name (string or int)
+	 *   - Index 1: true for ascending, false for descending (default: true)
+	 *   - Index 2: true for natural order sort, false for normal (default: false)
+	 *   - Index 3: true for case-sensitive sort, false for case-insensitive (default: false)
+	 * - Multiple criteria: [['key1', true], ['key2', false]] - array of criterion arrays
+	 *
+	 * @param array $array The multidimensional array to sort (passed by reference)
+	 * @param array $listColumnSorting Sort criteria (see format above)
+	 * @return void
 	 */
 	public static function sort(array &$array, array $listColumnSorting): void
 	{
@@ -163,6 +186,14 @@ class MultidimensionalArray
 		usort($array, self::sortCompareRecursive(...));
 	}
 
+	/**
+	 * Recursive comparison function for multidimensional array sorting.
+	 * Compares two subarrays according to sort criteria, recursively moving to next criterion if values are equal.
+	 * Uses static properties to maintain state across recursive calls.
+	 * @param array $sousArray1 First subarray to compare
+	 * @param array $sousArray2 Second subarray to compare
+	 * @return int Comparison result: -1, 0, or 1
+	 */
 	private static function sortCompareRecursive(array $sousArray1, array $sousArray2): int
 	{
 		//if (self::$sortDepth == 0) {
@@ -197,6 +228,15 @@ class MultidimensionalArray
 		return $cmp;
 	}
 
+	/**
+	 * Compares two values with configurable comparison method.
+	 * Supports numeric comparison, natural order, and case sensitivity options.
+	 * @param mixed $val1 First value to compare
+	 * @param mixed $val2 Second value to compare
+	 * @param bool $ordreNaturel If true, uses natural order comparison (default: false)
+	 * @param bool $caseSensitive If true, comparison is case-sensitive (default: false)
+	 * @return int Comparison result: -1 if val1 < val2, 0 if equal, 1 if val1 > val2
+	 */
 	private static function compareValue($val1, $val2, bool $ordreNaturel=false, bool $caseSensitive=false): int
 	{
 		if (is_numeric($val1) && is_numeric($val2)) {
@@ -205,20 +245,24 @@ class MultidimensionalArray
 
 		if ($ordreNaturel) {
 			if ($caseSensitive) {
-				return strnatcmp($val1, $val2); // Comparaison ordre naturel, sensible à la casse
+				return strnatcmp($val1, $val2); // Natural order comparison, case-sensitive
 			}
-			return strnatcasecmp($val1, $val2); // Comparaison ordre naturel, insensible à la casse
+			return strnatcasecmp($val1, $val2); // Natural order comparison, case-insensitive
 		}
 
 		if ($caseSensitive) {
-			return strcmp($val1, $val2); // Comparaison, sensible à la casse
+			return strcmp($val1, $val2); // String comparison, case-sensitive
 		}
-		return strcasecmp($val1, $val2); // Comparaison, insensible à la casse
+		return strcasecmp($val1, $val2); // String comparison, case-insensitive
 	}
 
 	/**
-	 * @param array $array
-	 * @param int $sort_flags
+	 * Recursively sorts an array by keys at all nesting levels.
+	 * Applies ksort() to the main array and recursively to all nested arrays.
+	 * Modifies the array in-place by reference.
+	 * @param array $array The array to sort recursively (passed by reference)
+	 * @param int $sort_flags Sort behavior flags (SORT_REGULAR, SORT_NUMERIC, SORT_STRING, etc.)
+	 * @return void
 	 */
 	public static function ksortRecursive(array &$array, int $sort_flags = SORT_REGULAR): void
 	{

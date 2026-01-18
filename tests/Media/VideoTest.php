@@ -216,4 +216,60 @@ final class VideoTest extends TestCase
 		$this->assertNull(Video::getExtensionFromMimeType('invalid/mime'));
 		$this->assertNull(Video::getExtensionFromMimeType('text/plain'));
 	}
+
+	/* ===================== checkFile() ===================== */
+
+	public function testCheckFileWithNonExistentFile(): void
+	{
+		$result = Video::checkFile('/non/existent/file.mp4', 'test.mp4');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkMp4File() ===================== */
+
+	public function testCheckMp4FileWithNonExistentFile(): void
+	{
+		$result = Video::checkMp4File('/non/existent/file.mp4', 'test.mp4');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkMpgFile() ===================== */
+
+	public function testCheckMpgFileWithNonExistentFile(): void
+	{
+		$result = Video::checkMpgFile('/non/existent/file.mpg', 'test.mpg');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkAviFile() ===================== */
+
+	public function testCheckAviFileWithNonExistentFile(): void
+	{
+		$result = Video::checkAviFile('/non/existent/file.avi', 'test.avi');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkWmvFile() ===================== */
+
+	public function testCheckWmvFileWithNonExistentFile(): void
+	{
+		$result = Video::checkWmvFile('/non/existent/file.wmv', 'test.wmv');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkFlvFile() ===================== */
+
+	public function testCheckFlvFileWithNonExistentFile(): void
+	{
+		$result = Video::checkFlvFile('/non/existent/file.flv', 'test.flv');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== check3GppFile() ===================== */
+
+	public function testCheck3GppFileWithNonExistentFile(): void
+	{
+		$result = Video::check3GppFile('/non/existent/file.3gp', 'test.3gp');
+		$this->assertFalse($result);
+	}
 }

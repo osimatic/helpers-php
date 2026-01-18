@@ -297,4 +297,280 @@ final class DateTimeTest extends TestCase
 		$this->assertInstanceOf(\DateTime::class, $result);
 		$this->assertEquals('7', $result->format('N')); // 7 = Dimanche
 	}
+
+	public function testGetFirstDayOfNextWeek(): void
+	{
+		$result = DateTime::getFirstDayOfNextWeek();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('1', $result->format('N'));
+	}
+
+	public function testGetLastDayOfNextWeek(): void
+	{
+		$result = DateTime::getLastDayOfNextWeek();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('7', $result->format('N'));
+	}
+
+	public function testGetFirstDayOfWeek(): void
+	{
+		$result = DateTime::getFirstDayOfWeek(2024, 3);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('1', $result->format('N'));
+	}
+
+	public function testGetLastDayOfWeek(): void
+	{
+		$result = DateTime::getLastDayOfWeek(2024, 3);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('7', $result->format('N'));
+	}
+
+	public function testGetFirstDayOfWeekOfDate(): void
+	{
+		$date = new \DateTime('2024-01-15');
+		$result = DateTime::getFirstDayOfWeekOfDate($date);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('1', $result->format('N'));
+	}
+
+	public function testGetLastDayOfWeekOfDate(): void
+	{
+		$date = new \DateTime('2024-01-15');
+		$result = DateTime::getLastDayOfWeekOfDate($date);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('7', $result->format('N'));
+	}
+
+	public function testGetNextWeekDay(): void
+	{
+		$monday = new \DateTime('2024-01-15'); // Monday
+		$result = DateTime::getNextWeekDay($monday, 5); // Find Friday
+		$this->assertEquals('5', $result->format('N'));
+		$this->assertEquals('2024-01-19', $result->format('Y-m-d'));
+	}
+
+	/* ===================== Mois ===================== */
+
+	public function testMoveBackOfNbMonths(): void
+	{
+		$date = new \DateTime('2024-03-15');
+		$result = DateTime::moveBackOfNbMonths($date, 2);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+		$this->assertEquals('2024-03-15', $date->format('Y-m-d')); // Original unchanged
+	}
+
+	public function testMoveForwardOfNbMonths(): void
+	{
+		$date = new \DateTime('2024-01-15');
+		$result = DateTime::moveForwardOfNbMonths($date, 2);
+		$this->assertEquals('2024-03-15', $result->format('Y-m-d'));
+		$this->assertEquals('2024-01-15', $date->format('Y-m-d')); // Original unchanged
+	}
+
+	public function testGetFirstDayOfCurrentMonth(): void
+	{
+		$result = DateTime::getFirstDayOfCurrentMonth();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('01', $result->format('d'));
+	}
+
+	public function testGetLastDayOfCurrentMonth(): void
+	{
+		$result = DateTime::getLastDayOfCurrentMonth();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$lastDay = (int)$result->format('d');
+		$this->assertGreaterThanOrEqual(28, $lastDay);
+		$this->assertLessThanOrEqual(31, $lastDay);
+	}
+
+	public function testGetFirstDayOfPreviousMonth(): void
+	{
+		$result = DateTime::getFirstDayOfPreviousMonth();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('01', $result->format('d'));
+	}
+
+	public function testGetLastDayOfPreviousMonth(): void
+	{
+		$result = DateTime::getLastDayOfPreviousMonth();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$lastDay = (int)$result->format('d');
+		$this->assertGreaterThanOrEqual(28, $lastDay);
+		$this->assertLessThanOrEqual(31, $lastDay);
+	}
+
+	public function testGetFirstDayOfNextMonth(): void
+	{
+		$result = DateTime::getFirstDayOfNextMonth();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('01', $result->format('d'));
+	}
+
+	public function testGetLastDayOfNextMonth(): void
+	{
+		$result = DateTime::getLastDayOfNextMonth();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$lastDay = (int)$result->format('d');
+		$this->assertGreaterThanOrEqual(28, $lastDay);
+		$this->assertLessThanOrEqual(31, $lastDay);
+	}
+
+	public function testGetFirstDayOfMonth(): void
+	{
+		$result = DateTime::getFirstDayOfMonth(2024, 3);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-03-01', $result->format('Y-m-d'));
+	}
+
+	public function testGetLastDayOfMonth(): void
+	{
+		$result = DateTime::getLastDayOfMonth(2024, 2);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-02-29', $result->format('Y-m-d')); // 2024 is leap year
+	}
+
+	public function testGetFirstDayOfMonthOfDate(): void
+	{
+		$date = new \DateTime('2024-03-15');
+		$result = DateTime::getFirstDayOfMonthOfDate($date);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-03-01', $result->format('Y-m-d'));
+	}
+
+	public function testGetLastDayOfMonthOfDate(): void
+	{
+		$date = new \DateTime('2024-03-15');
+		$result = DateTime::getLastDayOfMonthOfDate($date);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-03-31', $result->format('Y-m-d'));
+	}
+
+	public function testGetWeekDayOfMonth(): void
+	{
+		// 2nd Wednesday of January 2024
+		$result = DateTime::getWeekDayOfMonth(2024, 1, 3, 2);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('3', $result->format('N')); // Wednesday
+		$this->assertEquals('2024-01', $result->format('Y-m'));
+	}
+
+	public function testGetWeekDayOfMonthInvalid(): void
+	{
+		// Invalid weekday
+		$result = DateTime::getWeekDayOfMonth(2024, 1, 8, 1);
+		$this->assertNull($result);
+
+		// Invalid number
+		$result = DateTime::getWeekDayOfMonth(2024, 1, 1, 6);
+		$this->assertNull($result);
+
+		// Non-existent (5th Monday of February 2024)
+		$result = DateTime::getWeekDayOfMonth(2024, 2, 1, 5);
+		$this->assertNull($result);
+	}
+
+	public function testGetLastWeekDayOfMonth(): void
+	{
+		// Last Friday of January 2024
+		$result = DateTime::getLastWeekDayOfMonth(2024, 1, 5);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('5', $result->format('N')); // Friday
+		$this->assertEquals('2024-01', $result->format('Y-m'));
+	}
+
+	public function testGetLastWeekDayOfMonthInvalid(): void
+	{
+		$result = DateTime::getLastWeekDayOfMonth(2024, 1, 8);
+		$this->assertNull($result);
+	}
+
+	/* ===================== Année ===================== */
+
+	public function testCalculateAge(): void
+	{
+		$birthDate = new \DateTime('-30 years');
+		$age = DateTime::calculateAge($birthDate);
+		$this->assertEquals(30, $age);
+
+		$birthDate = new \DateTime('-25 years -6 months');
+		$age = DateTime::calculateAge($birthDate);
+		$this->assertEquals(25, $age);
+	}
+
+	/* ===================== Working Days ===================== */
+
+	public function testIsWorkingDay(): void
+	{
+		// Monday - working day
+		$monday = new \DateTime('2024-01-15');
+		$this->assertTrue(DateTime::isWorkingDay($monday, false));
+
+		// Saturday - not working day
+		$saturday = new \DateTime('2024-01-20');
+		$this->assertFalse(DateTime::isWorkingDay($saturday, false));
+
+		// Sunday - not working day
+		$sunday = new \DateTime('2024-01-21');
+		$this->assertFalse(DateTime::isWorkingDay($sunday, false));
+	}
+
+	public function testIsBusinessDay(): void
+	{
+		// Monday - business day
+		$monday = new \DateTime('2024-01-15');
+		$this->assertTrue(DateTime::isBusinessDay($monday, false));
+
+		// Saturday - business day (6th day)
+		$saturday = new \DateTime('2024-01-20');
+		$this->assertTrue(DateTime::isBusinessDay($saturday, false));
+
+		// Sunday - not business day
+		$sunday = new \DateTime('2024-01-21');
+		$this->assertFalse(DateTime::isBusinessDay($sunday, false));
+	}
+
+	/* ===================== getCurrentDateTime ===================== */
+
+	public function testGetCurrentDateTime(): void
+	{
+		$result = DateTime::getCurrentDateTime();
+		$this->assertInstanceOf(\DateTime::class, $result);
+	}
+
+	/* ===================== format ===================== */
+
+	public function testFormat(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+		$this->assertIsString($formatted);
+		$this->assertNotEmpty($formatted);
+	}
+
+	/* ===================== parse ===================== */
+
+	public function testParse(): void
+	{
+		$result = DateTime::parse('2024-01-15');
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+	}
+
+	/* ===================== parseDate (deprecated) ===================== */
+
+	public function testParseDate(): void
+	{
+		$result = DateTime::parseDate('2024-01-15');
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+
+		// ISO format
+		$result = DateTime::parseDate('2024-01-15T14:30:45');
+		$this->assertInstanceOf(\DateTime::class, $result);
+
+		// Empty
+		$result = DateTime::parseDate('');
+		$this->assertNull($result);
+	}
 }

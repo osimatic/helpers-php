@@ -2,26 +2,37 @@
 
 namespace Osimatic\Calendar;
 
+/**
+ * Utility class for time manipulation, validation, and parsing.
+ * Provides methods for:
+ * - Time formatting and display
+ * - Time component validation
+ * - Parsing time strings with various formats
+ */
 class Time
 {
-	// ========== Affichage ==========
+	// ========== Display Methods ==========
 
 	/**
-	 * @param int $hour
-	 * @return string
+	 * Formats an hour value as a string with "h" suffix.
+	 * Always returns a zero-padded 2-digit hour.
+	 * @param int $hour The hour value (0-23)
+	 * @return string The formatted hour (e.g., "09h", "14h")
 	 */
 	public static function formatHour(int $hour): string
 	{
 		return sprintf('%02d', $hour).'h';
 	}
 
-	// ========== Vérification ==========
+	// ========== Validation Methods ==========
 
 	/**
-	 * @param int $hour
-	 * @param int $minute
-	 * @param int $second
-	 * @return bool
+	 * Validates time components are within valid ranges.
+	 * Hour must be 0-23, minute 0-59, second 0-59.
+	 * @param int $hour The hour (0-23)
+	 * @param int $minute The minute (0-59)
+	 * @param int $second The second (0-59), default 0
+	 * @return bool True if all components are valid, false otherwise
 	 */
 	public static function check(int $hour, int $minute, int $second=0): bool
 	{
@@ -29,27 +40,32 @@ class Time
 	}
 
 	/**
-	 * @param string|null $enteredTime
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return bool
+	 * Validates a time string by attempting to parse it.
+	 * Supports various formats with configurable separators and component positions.
+	 * @param string|null $enteredTime The time string to validate (e.g., "14:30:00", "2:30pm")
+	 * @param string $separator The separator character between components (default: ":")
+	 * @param int $hourPos The position of hour in the string (1-indexed, default: 1)
+	 * @param int $minutePos The position of minute in the string (1-indexed, default: 2)
+	 * @param int $secondPos The position of second in the string (1-indexed, default: 3)
+	 * @return bool True if the time string is valid and parseable, false otherwise
 	 */
 	public static function checkValue(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
 		return null !== self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos);
 	}
 
-	// ========== Parse ==========
+	// ========== Parsing Methods ==========
 
 	/**
-	 * @param string|null $enteredTime
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return string|null
+	 * Parses a time string and returns it in SQL TIME format (HH:MM:SS).
+	 * Supports various input formats with configurable separators and component positions.
+	 * Handles alphanumeric separators by extracting all numbers from the string.
+	 * @param string|null $enteredTime The time string to parse (e.g., "14:30", "2h30m", "14:30:00")
+	 * @param string $separator The separator character between components (default: ":")
+	 * @param int $hourPos The position of hour in the string (1-indexed, default: 1)
+	 * @param int $minutePos The position of minute in the string (1-indexed, default: 2)
+	 * @param int $secondPos The position of second in the string (1-indexed, default: 3)
+	 * @return string|null The SQL TIME format string (HH:MM:SS), or null if parsing fails
 	 */
 	public static function parseToSqlTime(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?string
 	{
@@ -61,12 +77,15 @@ class Time
 	}
 
 	/**
-	 * @param string|null $enteredTime
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return \DateTime|null
+	 * Parses a time string and returns it as a DateTime object.
+	 * The date portion is set to today's date, only the time is parsed.
+	 * Supports various input formats with configurable separators and component positions.
+	 * @param string|null $enteredTime The time string to parse (e.g., "14:30", "2h30m", "14:30:00")
+	 * @param string $separator The separator character between components (default: ":")
+	 * @param int $hourPos The position of hour in the string (1-indexed, default: 1)
+	 * @param int $minutePos The position of minute in the string (1-indexed, default: 2)
+	 * @param int $secondPos The position of second in the string (1-indexed, default: 3)
+	 * @return \DateTime|null A DateTime object with today's date and parsed time, or null if parsing fails
 	 */
 	public static function parse(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?\DateTime
 	{
@@ -78,12 +97,15 @@ class Time
 	}
 
 	/**
-	 * @param string|null $enteredTime
-	 * @param string $separator
-	 * @param int $hourPos
-	 * @param int $minutePos
-	 * @param int $secondPos
-	 * @return array|null
+	 * Internal method to parse a time string into components.
+	 * Handles various separator types including alphanumeric (e.g., "2h30m").
+	 * When alphanumeric separators are detected, all numbers are extracted.
+	 * @param string|null $enteredTime The time string to parse
+	 * @param string $separator The separator character between components (default: ":")
+	 * @param int $hourPos The position of hour in the string (1-indexed, default: 1)
+	 * @param int $minutePos The position of minute in the string (1-indexed, default: 2)
+	 * @param int $secondPos The position of second in the string (1-indexed, default: 3)
+	 * @return array|null Array of [hour, minute, second] integers, or null if parsing fails
 	 */
 	public static function _parse(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): ?array
 	{
@@ -91,9 +113,9 @@ class Time
 			return null;
 		}
 
-		// Si le séparateur n'est pas standard, extraire tous les nombres
+		// If separator is not standard, extract all numbers
 		if (preg_match('/\d+[a-zA-Z]+\d+/', $enteredTime)) {
-			// Contient des séparateurs alphanumériques, extraire les nombres
+			// Contains alphanumeric separators, extract numbers
 			preg_match_all('/\d+/', $enteredTime, $matches);
 			$timeArray = $matches[0];
 		} else {

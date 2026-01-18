@@ -48,6 +48,15 @@ final class BankCardTest extends TestCase
 		$this->assertFalse(BankCard::checkCardNumber('411111111111111111111'));
 	}
 
+	public function testCheckCardNumberWithSpacesAndDashes(): void
+	{
+		// Doit accepter les numéros avec espaces et tirets
+		$this->assertTrue(BankCard::checkCardNumber('4111 1111 1111 1111'));
+		$this->assertTrue(BankCard::checkCardNumber('4111-1111-1111-1111'));
+		$this->assertTrue(BankCard::checkCardNumber('5555 5555 5555 4444'));
+		$this->assertTrue(BankCard::checkCardNumber('3782-822463-10005'));
+	}
+
 	/* ===================== checkCardCSC() ===================== */
 
 	public function testCheckCardCSCWithValidThreeDigits(): void
@@ -71,6 +80,22 @@ final class BankCardTest extends TestCase
 		$this->assertFalse(BankCard::checkCardCSC(''));
 	}
 
+	public function testCheckCardCSCWithNonNumericCharacters(): void
+	{
+		// Doit rejeter les codes contenant des caractères non numériques
+		$this->assertFalse(BankCard::checkCardCSC('12a'));
+		$this->assertFalse(BankCard::checkCardCSC('abc'));
+		$this->assertFalse(BankCard::checkCardCSC('12 3'));
+		$this->assertFalse(BankCard::checkCardCSC('12-3'));
+	}
+
+	public function testCheckCardCSCWithWhitespace(): void
+	{
+		// Doit accepter les codes avec espaces au début/fin (trim)
+		$this->assertTrue(BankCard::checkCardCSC(' 123 '));
+		$this->assertTrue(BankCard::checkCardCSC('	1234	'));
+	}
+
 	/* ===================== formatCardNumber() ===================== */
 
 	public function testFormatCardNumberWithSixteenDigits(): void
@@ -79,16 +104,60 @@ final class BankCardTest extends TestCase
 		$this->assertSame('5555-5555-5555-4444', BankCard::formatCardNumber('5555555555554444'));
 	}
 
-	public function testFormatCardNumberWithAsterisks(): void
+	public function testFormatCardNumberWithFifteenDigits(): void
 	{
-		$this->assertSame('4111-XXXX-XXXX-1111', BankCard::formatCardNumber('4111********1111'));
+		// American Express: 4-6-5 format
+		$this->assertSame('3782-822463-10005', BankCard::formatCardNumber('378282246310005'));
+		$this->assertSame('3714-496353-98431', BankCard::formatCardNumber('371449635398431'));
+	}
+
+	public function testFormatCardNumberWithAsterisksDefaultChar(): void
+	{
+		// Par défaut, les astérisques restent des astérisques
+		$this->assertSame('4111-****-****-1111', BankCard::formatCardNumber('4111********1111'));
+	}
+
+	public function testFormatCardNumberWithAsterisksCustomChar(): void
+	{
+		// Avec hiddenChar personnalisé
+		$this->assertSame('4111-XXXX-XXXX-1111', BankCard::formatCardNumber('4111********1111', 'X'));
+		$this->assertSame('4111-####-####-1111', BankCard::formatCardNumber('4111********1111', '#'));
+		$this->assertSame('4111-••••-••••-1111', BankCard::formatCardNumber('4111********1111', '•'));
+	}
+
+	public function testFormatCardNumberWithLowercaseX(): void
+	{
+		// Remplace aussi 'x' minuscule
+		$this->assertSame('4111-XXXX-XXXX-1111', BankCard::formatCardNumber('4111xxxxxxxx1111', 'X'));
+		$this->assertSame('4111-####-####-1111', BankCard::formatCardNumber('4111xxxxxxxx1111', '#'));
+	}
+
+	public function testFormatCardNumberWithUppercaseX(): void
+	{
+		// Remplace aussi 'X' majuscule
+		$this->assertSame('4111-****-****-1111', BankCard::formatCardNumber('4111XXXXXXXX1111', '*'));
+		$this->assertSame('4111-####-####-1111', BankCard::formatCardNumber('4111XXXXXXXX1111', '#'));
+	}
+
+	public function testFormatCardNumberWithSpacesAndDashes(): void
+	{
+		// Supprime les espaces et tirets avant formatage
+		$this->assertSame('4111-1111-1111-1111', BankCard::formatCardNumber('4111 1111 1111 1111'));
+		$this->assertSame('4111-1111-1111-1111', BankCard::formatCardNumber('4111-1111-1111-1111'));
+	}
+
+	public function testFormatCardNumberAmexWithMasking(): void
+	{
+		// AMEX avec masquage
+		$this->assertSame('3782-******-10005', BankCard::formatCardNumber('3782******10005', '*'));
+		$this->assertSame('3782-XXXXXX-10005', BankCard::formatCardNumber('3782******10005', 'X'));
 	}
 
 	public function testFormatCardNumberWithOtherLength(): void
 	{
-		// Ne formate pas si longueur différente de 16
+		// Ne formate pas si longueur différente de 15 ou 16
 		$this->assertSame('411111111111', BankCard::formatCardNumber('411111111111'));
-		$this->assertSame('378282246310005', BankCard::formatCardNumber('378282246310005'));
+		$this->assertSame('41111111111111111', BankCard::formatCardNumber('41111111111111111'));
 	}
 
 	/* ===================== getExpirationDateFromYearAndMonth() ===================== */
@@ -141,6 +210,38 @@ final class BankCardTest extends TestCase
 	{
 		$date = BankCard::getExpirationDateFromYearAndMonth(2025, 0);
 		$this->assertNull($date);
+	}
+
+	public function testGetExpirationDateFromYearAndMonthWithInvalidYear(): void
+	{
+		// Années en dehors de la plage valide (avant 1900 ou après 2100)
+		$this->assertNull(BankCard::getExpirationDateFromYearAndMonth(1899, 12));
+		$this->assertNull(BankCard::getExpirationDateFromYearAndMonth(2101, 12));
+		$this->assertNull(BankCard::getExpirationDateFromYearAndMonth(-1, 12));
+		$this->assertNull(BankCard::getExpirationDateFromYearAndMonth(100, 12)); // 100 ne sera pas converti, hors plage
+	}
+
+	public function testGetExpirationDateFromYearAndMonthWithTwoDigitYear(): void
+	{
+		// Les années 0-99 sont converties en 2000-2099
+		$date = BankCard::getExpirationDateFromYearAndMonth(25, 12);
+		$this->assertInstanceOf(\DateTime::class, $date);
+		$this->assertSame('2025', $date->format('Y'));
+
+		$date = BankCard::getExpirationDateFromYearAndMonth(0, 1);
+		$this->assertInstanceOf(\DateTime::class, $date);
+		$this->assertSame('2000', $date->format('Y'));
+
+		$date = BankCard::getExpirationDateFromYearAndMonth(99, 12);
+		$this->assertInstanceOf(\DateTime::class, $date);
+		$this->assertSame('2099', $date->format('Y'));
+	}
+
+	public function testGetExpirationDateFromYearAndMonthTimeIsEndOfDay(): void
+	{
+		// Vérifie que l'heure est 23:59:59
+		$date = BankCard::getExpirationDateFromYearAndMonth(2025, 6);
+		$this->assertSame('23:59:59', $date->format('H:i:s'));
 	}
 
 	/* ===================== getExpirationDateFromString() ===================== */
@@ -226,8 +327,13 @@ final class BankCardTest extends TestCase
 
 	public function testGetTypeWithMastercard(): void
 	{
+		// Mastercard ancien range: 51-55
 		$this->assertSame(BankCardType::MASTER_CARD, BankCard::getType('5555555555554444'));
 		$this->assertSame(BankCardType::MASTER_CARD, BankCard::getType('5105105105105100'));
+
+		// Mastercard nouveau range: 2221-2720
+		$this->assertSame(BankCardType::MASTER_CARD, BankCard::getType('2221000000000000'));
+		$this->assertSame(BankCardType::MASTER_CARD, BankCard::getType('2720999999999999'));
 	}
 
 	public function testGetTypeWithAmex(): void
@@ -250,6 +356,20 @@ final class BankCardTest extends TestCase
 	{
 		$this->assertNull(BankCard::getType('1234567890123456'));
 		$this->assertNull(BankCard::getType('9999999999999999'));
+	}
+
+	public function testGetTypeWithSpacesAndDashes(): void
+	{
+		// Doit fonctionner avec espaces et tirets
+		$this->assertSame(BankCardType::VISA, BankCard::getType('4111 1111 1111 1111'));
+		$this->assertSame(BankCardType::VISA, BankCard::getType('4111-1111-1111-1111'));
+		$this->assertSame(BankCardType::AMERICAN_EXPRESS, BankCard::getType('3782-822463-10005'));
+	}
+
+	public function testGetTypeWithEmptyString(): void
+	{
+		$this->assertNull(BankCard::getType(''));
+		$this->assertNull(BankCard::getType('   '));
 	}
 
 	/* ===================== Integration tests ===================== */

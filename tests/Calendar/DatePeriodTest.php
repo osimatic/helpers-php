@@ -289,4 +289,125 @@ final class DatePeriodTest extends TestCase
 		$end = new \DateTime('2025-12-31');
 		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
 	}
+
+	/* ===================== Interval / Label ===================== */
+
+	public function testGetLabel(): void
+	{
+		// Même jour
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-15');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('le', $label);
+		$this->assertStringContainsString('15', $label);
+
+		// Mois complet
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-01-31');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsStringIgnoringCase('janvier', $label);
+		$this->assertStringContainsString('2024', $label);
+
+		// Année complète
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-31');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('2024', $label);
+
+		// Période quelconque
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-20');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('du', $label);
+		$this->assertStringContainsString('au', $label);
+	}
+
+	public function testGetListOfPeriod(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-15');
+
+		// Test HOUR
+		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::HOUR, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertCount(24, $result);
+		$this->assertContains('0', $result);
+		$this->assertContains('23', $result);
+
+		// Test DAY_OF_MONTH
+		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::DAY_OF_MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+
+		// Test WEEK
+		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::WEEK, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+
+		// Test MONTH
+		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+
+		// Test DAY_OF_WEEK
+		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::DAY_OF_WEEK, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertCount(7, $result);
+		$this->assertContains('1', $result);
+		$this->assertContains('7', $result);
+	}
+
+	public function testGetListOfDateWeeks(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-02-15');
+
+		$weeks = DatePeriod::getListOfDateWeeks($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
+		$this->assertInstanceOf(\DateTime::class, $weeks[0]);
+
+		// Vérifier que chaque élément est un lundi
+		foreach ($weeks as $week) {
+			$this->assertEquals(1, (int) $week->format('N')); // N=1 pour lundi
+		}
+	}
+
+	public function testGetListOfDateMonths(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-04-15');
+
+		$months = DatePeriod::getListOfDateMonths($start, $end);
+		$this->assertIsArray($months);
+		$this->assertGreaterThan(0, count($months));
+		$this->assertInstanceOf(\DateTime::class, $months[0]);
+
+		// Vérifier que chaque élément est le premier jour d'un mois
+		foreach ($months as $month) {
+			$this->assertEquals(1, (int) $month->format('d'));
+		}
+	}
+
+	/* ===================== Deprecated methods ===================== */
+
+	public function testGetListDaysOfMonths(): void
+	{
+		// Test deprecated method (should work like getListOfDateDaysOfTheMonth)
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-17');
+
+		$days = DatePeriod::getListDaysOfMonths($start, $end);
+		$this->assertCount(3, $days);
+		$this->assertInstanceOf(\DateTime::class, $days[0]);
+	}
+
+	public function testGetNbDaysBetweenDatesAndTimes(): void
+	{
+		// Test deprecated method (should work like getNbDays with withTimes=true)
+		$start = new \DateTime('2024-01-15 10:00:00');
+		$end = new \DateTime('2024-01-15 14:00:00');
+		$result = DatePeriod::getNbDaysBetweenDatesAndTimes($start, $end);
+		$this->assertLessThan(1, $result);
+	}
 }

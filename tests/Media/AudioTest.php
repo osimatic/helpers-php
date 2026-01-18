@@ -119,6 +119,23 @@ final class AudioTest extends TestCase
 		$this->assertSame('audio/x-aac', Audio::getMimeTypeFromExtension('.aac'));
 	}
 
+	public function testGetMimeTypeFromExtensionWithAiff(): void
+	{
+		$this->assertSame('audio/x-aiff', Audio::getMimeTypeFromExtension('.aiff'));
+		$this->assertSame('audio/x-aiff', Audio::getMimeTypeFromExtension('.aif'));
+		$this->assertSame('audio/x-aiff', Audio::getMimeTypeFromExtension('.aifc'));
+	}
+
+	public function testGetMimeTypeFromExtensionWithWma(): void
+	{
+		$this->assertSame('audio/x-ms-wma', Audio::getMimeTypeFromExtension('.wma'));
+	}
+
+	public function testGetMimeTypeFromExtensionWithWebm(): void
+	{
+		$this->assertSame('audio/webm', Audio::getMimeTypeFromExtension('.weba'));
+	}
+
 	public function testGetMimeTypeFromExtensionWithInvalidExtension(): void
 	{
 		$this->assertNull(Audio::getMimeTypeFromExtension('.invalid'));
@@ -152,6 +169,25 @@ final class AudioTest extends TestCase
 	{
 		$extension = Audio::getExtensionFromMimeType('audio/aac');
 		$this->assertSame('aac', $extension);
+	}
+
+	public function testGetExtensionFromMimeTypeWithAiff(): void
+	{
+		$extension = Audio::getExtensionFromMimeType('audio/x-aiff');
+		// Can be either 'aif' or 'aiff' depending on array order
+		$this->assertContains($extension, ['aif', 'aiff']);
+	}
+
+	public function testGetExtensionFromMimeTypeWithWma(): void
+	{
+		$extension = Audio::getExtensionFromMimeType('audio/x-ms-wma');
+		$this->assertSame('wma', $extension);
+	}
+
+	public function testGetExtensionFromMimeTypeWithWebm(): void
+	{
+		$extension = Audio::getExtensionFromMimeType('audio/webm');
+		$this->assertSame('weba', $extension);
 	}
 
 	public function testGetExtensionFromMimeTypeWithInvalidMimeType(): void
@@ -306,5 +342,29 @@ final class AudioTest extends TestCase
 		$result = Audio::getTags('/non/existent/file.mp3');
 		$this->assertIsArray($result);
 		// Structure should be empty array when file doesn't exist
+	}
+
+	/* ===================== checkFile() ===================== */
+
+	public function testCheckFileWithNonExistentFile(): void
+	{
+		$result = Audio::checkFile('/non/existent/file.mp3', 'test.mp3');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkMp3File() ===================== */
+
+	public function testCheckMp3FileWithNonExistentFile(): void
+	{
+		$result = Audio::checkMp3File('/non/existent/file.mp3', 'test.mp3');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== checkWavFile() ===================== */
+
+	public function testCheckWavFileWithNonExistentFile(): void
+	{
+		$result = Audio::checkWavFile('/non/existent/file.wav', 'test.wav');
+		$this->assertFalse($result);
 	}
 }

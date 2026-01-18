@@ -2,23 +2,33 @@
 
 namespace Osimatic\FileSystem;
 
+/**
+ * Represents a file to be sent to the client (download or inline display).
+ * This class encapsulates information about a file that will be outputted:
+ * - The actual file path on the server
+ * - The display name for the client (filename shown in browser/download dialog)
+ *
+ * Useful for scenarios where the stored filename differs from what should be shown to the user.
+ */
 class OutputFile
 {
 	/**
-	 * The full file path of the file.
+	 * The full file path of the file on the server.
 	 * @var string|null
 	 */
 	private ?string $filePath;
 
 	/**
-	 * The displayed file name of the file (filename for the user who download the file). If null, filename in file path will be used.
+	 * The displayed filename for the client (used in download/display).
+	 * If null, the basename from filePath will be used.
 	 * @var string|null
 	 */
 	private ?string $fileName;
 
 	/**
-	 * @param string|null $filePath
-	 * @param string|null $fileName
+	 * Creates a new OutputFile instance.
+	 * @param string|null $filePath The server path to the file
+	 * @param string|null $fileName The filename to display to the client
 	 */
 	public function __construct(?string $filePath=null, ?string $fileName=null)
 	{
@@ -26,26 +36,46 @@ class OutputFile
 		$this->fileName = $fileName;
 	}
 
+	/**
+	 * Gets the server file path.
+	 * @return string|null The file path
+	 */
 	public function getFilePath(): ?string
 	{
 		return $this->filePath;
 	}
 
+	/**
+	 * Sets the server file path.
+	 * @param string|null $filePath The file path
+	 */
 	public function setFilePath(?string $filePath): void
 	{
 		$this->filePath = $filePath;
 	}
 
+	/**
+	 * Gets the display filename for the client.
+	 * @return string|null The display filename
+	 */
 	public function getFileName(): ?string
 	{
 		return $this->fileName;
 	}
 
+	/**
+	 * Sets the display filename for the client.
+	 * @param string|null $fileName The display filename
+	 */
 	public function setFileName(?string $fileName): void
 	{
 		$this->fileName = $fileName;
 	}
 
+	/**
+	 * Gets the file extension based on the file path or display name.
+	 * @return string|null The file extension in lowercase (without dot), or null if not found
+	 */
 	public function getExtension(): ?string
 	{
 		$path = $this->filePath ?? $this->fileName;

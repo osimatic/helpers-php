@@ -2,13 +2,19 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Utility class for SEPA direct debit transaction operations
+ * Provides methods for transaction date calculation and XML file generation for SEPA direct debit batches
+ */
 class DirectDebitTransaction
 {
 	/**
-	 * Retourne le jour du mois suivant la date de facture
-	 * @param \DateTime $invoiceDate
-	 * @param int $transactionDay
-	 * @return \DateTime
+	 * Calculate the transaction date for a direct debit based on invoice date
+	 * Returns a date in the next month after the invoice date, on the specified day
+	 * For example, invoice on 2024-01-15 with transactionDay=10 returns 2024-02-10
+	 * @param \DateTime $invoiceDate The invoice creation date
+	 * @param int $transactionDay The day of the month for the transaction (default: 10)
+	 * @return \DateTime The calculated transaction date
 	 */
 	public static function getTransactionDate(\DateTime $invoiceDate, int $transactionDay=10): \DateTime
 	{
@@ -26,11 +32,13 @@ class DirectDebitTransaction
 	}
 
 	/**
-	 * Retourne le jour du mois suivant le mois passé en paramètre
-	 * @param int $year
-	 * @param int $month
-	 * @param int $transactionDay
-	 * @return \DateTime|null
+	 * Calculate the transaction date for the month following the specified year and month
+	 * Creates a date on the 1st of the specified month, then calculates transaction date for next month
+	 * For example, getTransactionDateByMonth(2024, 1, 10) returns 2024-02-10
+	 * @param int $year The year
+	 * @param int $month The month (1-12)
+	 * @param int $transactionDay The day of the month for the transaction (default: 10)
+	 * @return \DateTime|null The calculated transaction date, or null if date creation fails
 	 */
 	public static function getTransactionDateByMonth(int $year, int $month, int $transactionDay=10): ?\DateTime
 	{
@@ -42,13 +50,16 @@ class DirectDebitTransaction
 	}
 
 	/**
-	 * @param string $filePath
-	 * @param BankAccountInterface $creditorBankAccount
-	 * @param string $sepaCreditorIdentifier
-	 * @param DirectDebitTransactionInterface[] $listTransactions
-	 * @param string|null $referenceTransactions
-	 * @param \DateTime|null $transactionDate
-	 * @return bool
+	 * Generate SEPA direct debit XML file (pain.008.001.02 format)
+	 * Creates an XML file for batch processing of direct debit transactions according to SEPA standards
+	 * The file can be uploaded to the bank for automated direct debit processing
+	 * @param string $filePath Path where the XML file will be saved
+	 * @param BankAccountInterface $creditorBankAccount The creditor's (merchant's) bank account information
+	 * @param string $sepaCreditorIdentifier The SEPA creditor identifier (ICS - Identifiant Créancier SEPA)
+	 * @param DirectDebitTransactionInterface[] $listTransactions Array of transactions to include in the batch
+	 * @param string|null $referenceTransactions Optional batch reference (auto-generated if null)
+	 * @param \DateTime|null $transactionDate Optional transaction execution date (calculated if null)
+	 * @return bool True if file generation succeeded, false if transaction list is empty
 	 */
 	public static function getTransactionsListXmlFile(string $filePath, BankAccountInterface $creditorBankAccount, string $sepaCreditorIdentifier, array $listTransactions, ?string $referenceTransactions=null, ?\DateTime $transactionDate=null): bool
 	{
@@ -60,7 +71,7 @@ class DirectDebitTransaction
 			$transactionDate = self::getTransactionDateByMonth(date('Y'), date('m'));
 		}
 
-		// si date passée, le prélèvement est effectué le lendemain.
+		// If date is in the past, schedule the direct debit for tomorrow
 		if ($transactionDate->format('Y-m-d') < date('Y-m-d')) {
 			$transactionDate = new \DateTime();
 			$transactionDate->modify('+1 day');
@@ -70,7 +81,7 @@ class DirectDebitTransaction
 			$referenceTransactions = 'SEPA'.date('YmdH:i:s');
 		}
 
-		// On arrondit les montants à 2 chiffres après la virgule.
+		// Round amounts to 2 decimal places
 		foreach ($listTransactions as $transaction) {
 			$transaction->setAmount(round($transaction->getAmount(), 2));
 		}
@@ -81,7 +92,7 @@ class DirectDebitTransaction
 		$xml = [
 			'CstmrDrctDbtInitn' => [
 				'GrpHdr' => [
-					'MsgId' => $referenceTransactions, // Référence du message qui n'est pas utilisée comme référence fonctionnelle.
+					'MsgId' => $referenceTransactions, // Message reference (not used as functional reference)
 					'CreDtTm' => date('Y-m-d\TH:i:s'),
 					'NbOfTxs' => $nbTransactions,
 					'CtrlSum' => self::formatAmount($totalAmount),
@@ -90,7 +101,7 @@ class DirectDebitTransaction
 					],
 				],
 				'PmtInf' => [
-					'PmtInfId' => $referenceTransactions, // Référence du lot. Elle est restituée sur le relevé de compte du créancier en cas de comptabilisation par lot.
+					'PmtInfId' => $referenceTransactions, // Batch reference. Returned on the creditor's bank statement when batch accounting is used
 					'PmtMtd' => 'DD',
 					'BtchBookg' => 'false',
 					'NbOfTxs' => $nbTransactions,
@@ -139,8 +150,8 @@ class DirectDebitTransaction
 		foreach ($listTransactions as $transaction) {
 			$xml['CstmrDrctDbtInitn']['PmtInf']['DrctDbtTxInf'][] = [
 				'PmtId' => [
-					// 'InstrId' => , // Référence de l'opération
-					'EndToEndId' => $transaction->getInvoiceReference(), // Référence de bout-en-bout qui est restituée au débiteur
+					// 'InstrId' => , // Operation reference
+					'EndToEndId' => $transaction->getInvoiceReference(), // End-to-end reference returned to the debtor
 				],
 				'InstdAmt' => [
 					'@attributes' => [
@@ -180,8 +191,10 @@ class DirectDebitTransaction
 	}
 
 	/**
-	 * @param float $amount
-	 * @return string
+	 * Format amount for SEPA XML file
+	 * Formats the amount with exactly 2 decimal places using a dot as decimal separator
+	 * @param float $amount The amount to format
+	 * @return string The formatted amount (e.g., "10.00")
 	 */
 	private static function formatAmount(float $amount): string
 	{

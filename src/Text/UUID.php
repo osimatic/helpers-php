@@ -15,10 +15,7 @@ class UUID
 	 */
 	public static function check(string $uuid): bool
 	{
-		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
-			->addMethodMapping('loadValidatorMetadata')
-			->getValidator();
-		return $validator->validate($uuid, new \Symfony\Component\Validator\Constraints\Uuid())->count() === 0;
+		return \Osimatic\Validator\Validator::getInstance()->validate($uuid, new \Symfony\Component\Validator\Constraints\Uuid())->count() === 0;
 	}
 
 	/**

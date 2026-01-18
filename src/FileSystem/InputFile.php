@@ -2,55 +2,65 @@
 
 namespace Osimatic\FileSystem;
 
+/**
+ * Represents an input file from upload or base64 data.
+ * This class encapsulates file information for files received through:
+ * - Traditional HTTP file uploads ($_FILES)
+ * - Base64-encoded data from API requests
+ *
+ * Provides properties to store both the uploaded file location and
+ * the decoded binary data for further processing.
+ */
 class InputFile
 {
 	/**
-	 * The full file path of the uploaded file.
+	 * The full file path of the uploaded file (temporary location).
 	 * @var string|null
 	 */
 	private ?string $uploadedFilePath = null;
 
 	/**
-	 * The full file path of the file, after upload.
+	 * The full file path of the file after it has been moved from temporary location.
 	 * @var string|null
 	 */
 	private ?string $path = null;
 
 	/**
-	 * The original filename of the uploaded file.
+	 * The original filename provided by the client during upload.
 	 * @var string|null
 	 */
 	private ?string $originalFileName = null;
 
 	/**
-	 * Binary data of the file (if data sent directly instead of uploaded file)
+	 * Binary data of the file (when data is sent directly instead of uploaded file).
 	 * @var string|null
 	 */
 	private ?string $data = null;
 
 	/**
-	 * Base64 encoded data of the file (if data sent directly instead of uploaded file)
+	 * Base64-encoded data of the file (when data is sent directly instead of uploaded file).
 	 * @var string|null
 	 */
 	private ?string $base64EncodedData = null;
 
 	/**
-	 * Mime Type of the file (if data sent directly instead of uploaded file)
+	 * MIME type of the file (when data is sent directly instead of uploaded file).
 	 * @var string|null
 	 */
 	private ?string $mimeType = null;
 
 	/**
-	 * Size of the file
+	 * Size of the file in bytes.
 	 * @var int|null
 	 */
 	private ?int $fileSize = null;
 
 	/**
-	 * @param array|null $uploadedFileInfos
-	 * @param string|null $data
-	 * @param string|null $mimeType
-	 * @param string|null $base64EncodedData
+	 * Creates a new InputFile instance.
+	 * @param array|null $uploadedFileInfos Information from $_FILES array
+	 * @param string|null $data Binary data of the file
+	 * @param string|null $mimeType MIME type of the file
+	 * @param string|null $base64EncodedData Base64-encoded representation of the file
 	 */
 	public function __construct(?array $uploadedFileInfos=null, ?string $data=null, ?string $mimeType=null, ?string $base64EncodedData=null)
 	{
@@ -64,7 +74,8 @@ class InputFile
 
 
 	/**
-	 * @param array $uploadedFileInfos
+	 * Sets the uploaded file information from $_FILES array.
+	 * @param array $uploadedFileInfos Array containing 'tmp_name' and 'name' keys
 	 */
 	public function setUploadedFileInfos(array $uploadedFileInfos): void
 	{
@@ -73,7 +84,8 @@ class InputFile
 	}
 
 	/**
-	 * @return string|null
+	 * Gets the file extension based on the original filename or MIME type.
+	 * @return string|null The file extension (without dot), or null if cannot be determined
 	 */
 	public function getExtension(): ?string
 	{
@@ -87,12 +99,11 @@ class InputFile
 	}
 
 
-
-
-
+	// ========== Getters and Setters ==========
 
 	/**
-	 * @return string|null
+	 * Gets the temporary path of the uploaded file.
+	 * @return string|null The uploaded file path
 	 */
 	public function getUploadedFilePath(): ?string
 	{
@@ -100,8 +111,9 @@ class InputFile
 	}
 
 	/**
-	 * @param string|null $uploadedFilePath
-	 * @return self
+	 * Sets the temporary path of the uploaded file.
+	 * @param string|null $uploadedFilePath The uploaded file path
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUploadedFilePath(?string $uploadedFilePath): self
 	{
@@ -111,7 +123,8 @@ class InputFile
 	}
 
 	/**
-	 * @return string|null
+	 * Gets the final path of the file after processing.
+	 * @return string|null The file path
 	 */
 	public function getPath(): ?string
 	{
@@ -119,8 +132,9 @@ class InputFile
 	}
 
 	/**
-	 * @param string|null $path
-	 * @return self
+	 * Sets the final path of the file after processing.
+	 * @param string|null $path The file path
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setPath(?string $path): self
 	{
@@ -130,7 +144,8 @@ class InputFile
 	}
 
 	/**
-	 * @return string|null
+	 * Gets the original filename from the client.
+	 * @return string|null The original filename
 	 */
 	public function getOriginalFileName(): ?string
 	{
@@ -138,8 +153,9 @@ class InputFile
 	}
 
 	/**
-	 * @param string|null $originalFileName
-	 * @return self
+	 * Sets the original filename from the client.
+	 * @param string|null $originalFileName The original filename
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setOriginalFileName(?string $originalFileName): self
 	{
@@ -149,7 +165,8 @@ class InputFile
 	}
 
 	/**
-	 * @return string|null
+	 * Gets the binary data of the file.
+	 * @return string|null The file data
 	 */
 	public function getData(): ?string
 	{
@@ -157,8 +174,9 @@ class InputFile
 	}
 
 	/**
-	 * @param string|null $data
-	 * @return self
+	 * Sets the binary data of the file.
+	 * @param string|null $data The file data
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setData(?string $data): self
 	{
@@ -168,7 +186,8 @@ class InputFile
 	}
 
 	/**
-	 * @return string|null
+	 * Gets the base64-encoded data of the file.
+	 * @return string|null The base64-encoded data
 	 */
 	public function getBase64EncodedData(): ?string
 	{
@@ -176,8 +195,9 @@ class InputFile
 	}
 
 	/**
-	 * @param string|null $base64EncodedData
-	 * @return self
+	 * Sets the base64-encoded data of the file.
+	 * @param string|null $base64EncodedData The base64-encoded data
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setBase64EncodedData(?string $base64EncodedData): self
 	{
@@ -187,7 +207,8 @@ class InputFile
 	}
 
 	/**
-	 * @return string|null
+	 * Gets the MIME type of the file.
+	 * @return string|null The MIME type
 	 */
 	public function getMimeType(): ?string
 	{
@@ -195,8 +216,9 @@ class InputFile
 	}
 
 	/**
-	 * @param string|null $mimeType
-	 * @return self
+	 * Sets the MIME type of the file.
+	 * @param string|null $mimeType The MIME type
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setMimeType(?string $mimeType): self
 	{
@@ -206,7 +228,8 @@ class InputFile
 	}
 
 	/**
-	 * @return int|null
+	 * Gets the size of the file in bytes.
+	 * @return int|null The file size
 	 */
 	public function getFileSize(): ?int
 	{
@@ -214,8 +237,9 @@ class InputFile
 	}
 
 	/**
-	 * @param int|null $fileSize
-	 * @return self
+	 * Sets the size of the file in bytes.
+	 * @param int|null $fileSize The file size
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setFileSize(?int $fileSize): self
 	{

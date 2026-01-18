@@ -39,7 +39,7 @@ class PostalAddressFormatter
 
 	/**
 	 * @param string|null $separator
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setSeparator(?string $separator=null): self
 	{

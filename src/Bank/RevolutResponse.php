@@ -3,99 +3,133 @@
 namespace Osimatic\Bank;
 
 /**
- * https://developer.revolut.com/docs/api-reference/merchant/#tag/Orders/operation/createOrder
+ * Class representing a Revolut payment gateway response
+ * Implements BankCardOperationResponseInterface to provide standardized access to payment response data
+ * Handles responses from the Revolut Merchant API for order creation and payment processing
+ * API Reference: https://developer.revolut.com/docs/api-reference/merchant/#tag/Orders/operation/createOrder
  */
 class RevolutResponse implements BankCardOperationResponseInterface
 {
     /**
+     * Unique order identifier from Revolut
      * @var string|null
      */
     private ?string $id = null;
 
     /**
+     * Public order identifier for customer-facing URLs
      * @var string|null
      */
     private ?string $publicId = null;
 
     /**
+     * Order type (e.g., "PAYMENT")
      * @var string|null
      */
     private ?string $type = null;
 
     /**
+     * Current order state/status (e.g., "PENDING", "PROCESSING", "COMPLETED", "CANCELLED")
      * @var string|null
      */
     private ?string $state = null;
 
     /**
+     * Order creation timestamp
      * @var \DateTime|null
      */
     private ?\DateTime $creationDate = null;
 
     /**
+     * Last update timestamp
      * @var \DateTime|null
      */
     private ?\DateTime $updateDate = null;
 
     /**
+     * Payment capture mode: "AUTOMATIC" (immediate capture) or "MANUAL" (delayed capture)
      * @var string|null
      */
     private ?string $captureMode = null;
 
     /**
+     * Merchant's external order reference/ID
      * @var string|null
      */
     private ?string $merchantOrderExtRef = null;
 
     /**
+     * Order amount in minor currency units (cents)
+     * Example: 1000 = 10.00
      * @var int|null
      */
     private ?int $amount = null;
 
     /**
+     * Currency code (ISO 4217)
      * @var string|null
      */
     private ?string $currency = null;
 
     /**
+     * Revolut checkout page URL for customer payment
      * @var string|null
      */
     private ?string $checkoutUrl = null;
 
 	/**
+	 * Error identifier if the request failed
 	 * @var string|null
 	 */
 	private ?string $errorId = null;
 
     /**
+     * Last 4 digits of the card number
      * @var string|null
      */
     private ?string $cardLastDigits = null;
 
     /**
+     * Card expiration date
      * @var \DateTime|null
      */
     private ?\DateTime $cardExpiration = null;
 
 
 	/**
-	 * @return string|null
+	 * Get the authorization number (implements BankCardOperationResponseInterface)
+	 * Note: Revolut API does not provide this field, returns null
+	 * @return string|null Always returns null for Revolut
 	 */
 	public function getAuthorisationNumber(): ?string
 	{
 		return null;
 	}
 
+	/**
+	 * Get the merchant's order reference (implements BankCardOperationResponseInterface)
+	 * @return string|null The external order reference
+	 */
 	public function getOrderReference(): ?string
 	{
 		return $this->merchantOrderExtRef;
 	}
 
+	/**
+	 * Get the card reference token (implements BankCardOperationResponseInterface)
+	 * Note: Revolut API does not provide this field, returns null
+	 * @return string|null Always returns null for Revolut
+	 */
 	public function getCardReference(): ?string
 	{
 		return null;
 	}
 
+	/**
+	 * Get the call number (implements BankCardOperationResponseInterface)
+	 * Note: Revolut API does not provide this field, returns null
+	 * @return string|null Always returns null for Revolut
+	 */
 	public function getCallNumber(): ?string
 	{
 		return null;
@@ -104,7 +138,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
 
 
     /**
-     * @return string|null
+     * Get the unique Revolut order identifier
+     * @return string|null The Revolut order ID
      */
     public function getId(): ?string
     {
@@ -112,7 +147,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $id
+     * Set the unique Revolut order identifier
+     * @param string|null $id The Revolut order ID to set
      */
     public function setId(?string $id): void
     {
@@ -120,7 +156,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the public order identifier for customer-facing URLs
+     * @return string|null The public order ID
      */
     public function getPublicId(): ?string
     {
@@ -128,7 +165,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $publicId
+     * Set the public order identifier
+     * @param string|null $publicId The public order ID to set
      */
     public function setPublicId(?string $publicId): void
     {
@@ -136,7 +174,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the order type
+     * @return string|null The order type (typically "PAYMENT")
      */
     public function getType(): ?string
     {
@@ -144,7 +183,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $type
+     * Set the order type
+     * @param string|null $type The order type to set
      */
     public function setType(?string $type): void
     {
@@ -152,7 +192,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the current order state/status
+     * @return string|null The order state (e.g., "PENDING", "PROCESSING", "COMPLETED", "CANCELLED")
      */
     public function getState(): ?string
     {
@@ -160,7 +201,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $state
+     * Set the order state/status
+     * @param string|null $state The order state to set
      */
     public function setState(?string $state): void
     {
@@ -168,7 +210,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return \DateTime|null
+     * Get the order creation timestamp
+     * @return \DateTime|null When the order was created
      */
     public function getCreationDate(): ?\DateTime
     {
@@ -176,7 +219,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param \DateTime|null $creationDate
+     * Set the order creation timestamp
+     * @param \DateTime|null $creationDate The creation timestamp to set
      */
     public function setCreationDate(?\DateTime $creationDate): void
     {
@@ -184,7 +228,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return \DateTime|null
+     * Get the last update timestamp
+     * @return \DateTime|null When the order was last updated
      */
     public function getUpdateDate(): ?\DateTime
     {
@@ -192,7 +237,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param \DateTime|null $updateDate
+     * Set the last update timestamp
+     * @param \DateTime|null $updateDate The update timestamp to set
      */
     public function setUpdateDate(?\DateTime $updateDate): void
     {
@@ -200,7 +246,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the payment capture mode
+     * @return string|null "AUTOMATIC" for immediate capture, "MANUAL" for delayed capture
      */
     public function getCaptureMode(): ?string
     {
@@ -208,7 +255,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $captureMode
+     * Set the payment capture mode
+     * @param string|null $captureMode The capture mode to set
      */
     public function setCaptureMode(?string $captureMode): void
     {
@@ -216,7 +264,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the merchant's external order reference
+     * @return string|null The external order reference/ID
      */
     public function getMerchantOrderExtRef(): ?string
     {
@@ -224,7 +273,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $merchantOrderExtRef
+     * Set the merchant's external order reference
+     * @param string|null $merchantOrderExtRef The external order reference to set
      */
     public function setMerchantOrderExtRef(?string $merchantOrderExtRef): void
     {
@@ -232,7 +282,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return integer|null
+     * Get the order amount in minor currency units (cents)
+     * @return integer|null The amount (e.g., 1000 = 10.00)
      */
     public function getAmount(): ?int
     {
@@ -240,7 +291,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param integer|null $amount
+     * Set the order amount in minor currency units (cents)
+     * @param integer|null $amount The amount to set (e.g., 1000 = 10.00)
      */
     public function setAmount(?int $amount): void
     {
@@ -248,7 +300,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the currency code
+     * @return string|null The ISO 4217 currency code
      */
     public function getCurrency(): ?string
     {
@@ -256,7 +309,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @param string|null $currency
+     * Set the currency code
+     * @param string|null $currency The ISO 4217 currency code to set
      */
     public function setCurrency(?string $currency): void
     {
@@ -264,23 +318,26 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
     /**
-     * @return string|null
+     * Get the Revolut checkout page URL
+     * @return string|null The checkout URL for customer payment
      */
     public function getCheckoutUrl(): ?string
     {
         return $this->checkoutUrl;
     }
-    
+
     /**
-     * @param string|null $checkoutUrl
+     * Set the Revolut checkout page URL
+     * @param string|null $checkoutUrl The checkout URL to set
      */
     public function setCheckoutUrl(?string $checkoutUrl): void
     {
         $this->checkoutUrl = $checkoutUrl;
     }
-    
+
 	/**
-	 * @return string|null
+	 * Get the error identifier
+	 * @return string|null The error ID if the request failed, null if successful
 	 */
 	public function getErrorId(): ?string
 	{
@@ -288,7 +345,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $errorId
+	 * Set the error identifier
+	 * @param string|null $errorId The error ID to set
 	 */
 	public function setErrorId(?string $errorId): void
 	{
@@ -296,28 +354,35 @@ class RevolutResponse implements BankCardOperationResponseInterface
 	}
 
     /**
-     * @return string|null
+     * Get the last 4 digits of the card number
+     * @return string|null The card's last 4 digits
      */
     public function getCardLastDigits(): ?string
     {
         return $this->cardLastDigits;
     }
 
+    /**
+     * Set the last 4 digits of the card number
+     * @param string|null $cardLastDigits The card's last 4 digits to set
+     */
     public function setCardLastDigits(?string $cardLastDigits): void
     {
         $this->cardLastDigits = $cardLastDigits;
     }
 
     /**
-     * @return \DateTime|null $cardExpiration
+     * Get the card expiration date
+     * @return \DateTime|null The expiration date of the card
      */
     public function getCardExpirationDateTime(): ?\DateTime
     {
         return $this->cardExpiration;
     }
-    
+
     /**
-     * @param \DateTime|null $cardExpiration
+     * Set the card expiration date
+     * @param \DateTime|null $cardExpiration The expiration date to set
      */
     public function setCardExpirationDateTime(?\DateTime $cardExpiration): void
     {
@@ -325,7 +390,8 @@ class RevolutResponse implements BankCardOperationResponseInterface
     }
 
 	/**
-	 * @return bool
+	 * Check if the payment operation was successful
+	 * @return bool True if no error occurred (errorId is null), false otherwise
 	 */
 	public function isSuccess(): bool
 	{
@@ -333,16 +399,21 @@ class RevolutResponse implements BankCardOperationResponseInterface
 	}
 
     /**
-	 * @return string|null
+	 * Get the transaction number (implements BankCardOperationResponseInterface)
+	 * Returns the Revolut order ID as the transaction identifier
+	 * @return string|null The Revolut order ID
 	 */
 	public function getTransactionNumber(): ?string
 	{
 		return $this->id ?? null;
 	}
-    
+
     /**
-     * @param array $request
-     * @return RevolutResponse
+     * Create a RevolutResponse from Revolut API response data
+     * Parses the response array from Revolut Merchant API and populates the response object
+     * Extracts order details, payment information, and card data if available
+     * @param array $request Array of Revolut API response parameters
+     * @return RevolutResponse The populated Revolut response object
      */
     public static function getFromRequest(array $request): RevolutResponse
     {

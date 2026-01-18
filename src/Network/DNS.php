@@ -23,10 +23,7 @@ class DNS
 		return preg_match('/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/', $dns) === 1;
 
 		/*
-		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
-			->addMethodMapping('loadValidatorMetadata')
-			->getValidator();
-		return $validator->validate($dns, new \Symfony\Component\Validator\Constraints\Hostname())->count() === 0;
+		return \Osimatic\Validator\Validator::getInstance()->validate($dns, new \Symfony\Component\Validator\Constraints\Hostname())->count() === 0;
 		*/
 	}
 

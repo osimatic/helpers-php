@@ -16,7 +16,7 @@ class Mantis
 
 	/**
 	 * @param string $url
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUrl(string $url): self
 	{
@@ -27,7 +27,7 @@ class Mantis
 
 	/**
 	 * @param string $userId
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUserId(string $userId): self
 	{
@@ -38,7 +38,7 @@ class Mantis
 
 	/**
 	 * @param string $userName
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUserName(string $userName): self
 	{
@@ -49,7 +49,7 @@ class Mantis
 
 	/**
 	 * @param string $userPassword
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setUserPassword(string $userPassword): self
 	{

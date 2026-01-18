@@ -2,81 +2,124 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Class representing a PayBox payment gateway response
+ * Implements BankCardOperationResponseInterface to provide standardized access to payment response data
+ * Handles both standard payments and 3D Secure authentication responses
+ */
 class PayBoxResponse implements BankCardOperationResponseInterface
 {
+	/** 3D Secure protocol version 1 */
 	public const int _3D_SECURE_VERSION_1 = 1;
+
+	/** 3D Secure protocol version 2 */
 	public const int _3D_SECURE_VERSION_2 = 2;
 
 	/**
+	 * Merchant's order/transaction reference
+	 * The reference ID provided during payment request, returned by PayBox to identify the transaction
 	 * @var string|null
 	 */
 	private ?string $reference = null;
 
 	/**
+	 * PayBox response code indicating the transaction result
+	 * Code '00000' indicates success, other codes indicate various error conditions
+	 * Maps to CODEREPONSE in PayBox API
 	 * @var string|null
 	 */
 	private ?string $responseCode = null;
 
 	/**
+	 * Call number (NUMAPPEL) returned by PayBox
+	 * 10-digit reference number from PayBox/Verifone, required for subsequent operations like capture
 	 * @var string|null
 	 */
 	private ?string $callNumber = null;
 
 	/**
+	 * Transaction number (NUMTRANS) returned by PayBox
+	 * 10-digit unique transaction identifier from PayBox/Verifone
 	 * @var string|null
 	 */
 	private ?string $transactionNumber = null;
 
 	/**
+	 * Authorization number from the acquiring bank
+	 * The authorization code provided by the bank approving the transaction
 	 * @var string|null
 	 */
 	private ?string $authorizationNumber = null;
 
 	/**
+	 * Card type/brand
+	 * The card network (e.g., VISA, MASTERCARD, CB, AMEX)
 	 * @var string|null
 	 */
 	private ?string $cardType = null;
 
 	/**
+	 * Masked card number
+	 * Card number with middle digits masked (e.g., "1234********5678")
+	 * Constructed from BIN6 (first 6 digits) and last 4 digits
 	 * @var string|null
 	 */
 	private ?string $cardNumber = null;
 
 	/**
+	 * Last 4 digits of the card number
+	 * Used for card identification without exposing the full number
 	 * @var string|null
 	 */
 	private ?string $cardLastDigits = null;
 
 	/**
+	 * Card expiration date
+	 * The month and year when the card expires
 	 * @var \DateTime|null
 	 */
 	private ?\DateTime $cardExpirationDateTime = null;
 
 	/**
+	 * Card hash/token for recurring payments
+	 * Subscriber reference token that can be used for future transactions without card details
+	 * Extracted from the card_ref parameter returned by PayBox
 	 * @var string|null
 	 */
 	private ?string $cardHash = null;
 
 	/**
+	 * 3D Secure enablement status
+	 * Indicates whether 3D Secure authentication was used for this transaction
 	 * @var bool
 	 */
 	private bool $_3DSecureEnabled = false;
 
 	/**
-	 * Valeurs possibles :
-	 * - "Y" : Porteur authentifié
-	 * - "A" : Authentification du porteur forcée par la banque de l’acheteur
-	 * - "U" : L’authentification du porteur n’a pas pu s’effectuer
-	 * - "N" : Porteur non authentifié
+	 * 3D Secure authentication status
+	 * Possible values:
+	 * - "Y": Cardholder authenticated
+	 * - "A": Authentication forced by the buyer's bank
+	 * - "U": Cardholder authentication could not be performed
+	 * - "N": Cardholder not authenticated
 	 * @var string|null
 	 */
 	private ?string $_3DSecureAuthentication = null;
 
 	/**
+	 * 3D Secure protocol version used
+	 * Either _3D_SECURE_VERSION_1 (1) or _3D_SECURE_VERSION_2 (2)
+	 * Version 2 provides enhanced security and additional authentication data
 	 * @var int|null
 	 */
 	private ?int $_3DSecureVersion = null;
 
+	/**
+	 * Create a PayBoxResponse from Symfony HTTP request
+	 * Extracts PayBox response parameters from the HTTP request
+	 * @param \Symfony\Component\HttpFoundation\Request $request The HTTP request containing PayBox response
+	 * @return PayBoxResponse The parsed PayBox response
+	 */
 	public static function getFromHttpRequest(\Symfony\Component\HttpFoundation\Request $request): PayBoxResponse
 	{
 		return self::getFromRequest([
@@ -96,6 +139,12 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 		]);
 	}
 
+	/**
+	 * Create a PayBoxResponse from request parameters array
+	 * Parses PayBox response parameters and populates the response object
+	 * @param array $request Array of PayBox response parameters
+	 * @return PayBoxResponse The populated PayBox response object
+	 */
 	public static function getFromRequest(array $request): PayBoxResponse
 	{
 		$payBoxResponse = new PayBoxResponse();
@@ -106,7 +155,7 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 		$payBoxResponse->setAuthorisationNumber(!empty($request['authorizt_nb']) ? urldecode($request['authorizt_nb']) : null);
 
 		if (!empty($request['card_ref'])) {
-			// card_ref contient la chaine suivante : "abc123abc12  2206  ---" (la premiere partie correspond au token de la carte, à utiliser pour débiter la carte ultérieurement)
+			// card_ref contains a string like: "abc123abc12  2206  ---" (the first part is the card token, used for future debits)
 			$payBoxResponse->setCardHash(explode('  ', $request['card_ref'])[0] ?? null);
 		}
 
@@ -130,18 +179,27 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return bool
+	 * Check if the payment operation was successful
+	 * @return bool True if response code is '00000' (success), false otherwise
 	 */
 	public function isSuccess(): bool
 	{
 		return $this->responseCode ===  '00000';
 	}
 
+	/**
+	 * Get the order reference (implements BankCardOperationResponseInterface)
+	 * @return string|null The merchant's order reference
+	 */
 	public function getOrderReference(): ?string
 	{
 		return $this->reference;
 	}
 
+	/**
+	 * Get the card reference token (implements BankCardOperationResponseInterface)
+	 * @return string|null The card hash/token for future operations
+	 */
 	public function getCardReference(): ?string
 	{
 		return $this->cardHash;
@@ -149,7 +207,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 
 
 	/**
-	 * @return string|null
+	 * Get the order/transaction reference
+	 * @return string|null The reference ID
 	 */
 	public function getReference(): ?string
 	{
@@ -157,7 +216,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $reference
+	 * Set the order/transaction reference
+	 * @param string|null $reference The reference ID to set
 	 */
 	public function setReference(?string $reference): void
 	{
@@ -165,7 +225,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the PayBox response code
+	 * @return string|null The response code ('00000' = success)
 	 */
 	public function getResponseCode(): ?string
 	{
@@ -173,7 +234,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $responseCode
+	 * Set the PayBox response code
+	 * @param string|null $responseCode The response code to set
 	 */
 	public function setResponseCode(?string $responseCode): void
 	{
@@ -181,7 +243,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the call number
+	 * @return string|null The unique identifier for this API call
 	 */
 	public function getCallNumber(): ?string
 	{
@@ -189,7 +252,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $callNumber
+	 * Set the call number
+	 * @param string|null $callNumber The unique identifier for this API call
 	 */
 	public function setCallNumber(?string $callNumber): void
 	{
@@ -197,7 +261,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the transaction number
+	 * @return string|null The unique transaction identifier
 	 */
 	public function getTransactionNumber(): ?string
 	{
@@ -205,7 +270,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $transactionNumber
+	 * Set the transaction number
+	 * @param string|null $transactionNumber The unique transaction identifier
 	 */
 	public function setTransactionNumber(?string $transactionNumber): void
 	{
@@ -213,7 +279,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the authorization number
+	 * @return string|null The authorization code from the bank
 	 */
 	public function getAuthorisationNumber(): ?string
 	{
@@ -221,7 +288,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $authorizationNumber
+	 * Set the authorization number
+	 * @param string|null $authorizationNumber The authorization code from the bank
 	 */
 	public function setAuthorisationNumber(?string $authorizationNumber): void
 	{
@@ -229,7 +297,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the card type
+	 * @return string|null The card brand/type
 	 */
 	public function getCardType(): ?string
 	{
@@ -237,7 +306,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $cardType
+	 * Set the card type
+	 * @param string|null $cardType The card brand/type
 	 */
 	public function setCardType(?string $cardType): void
 	{
@@ -245,7 +315,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the masked card number
+	 * @return string|null The card number with middle digits masked
 	 */
 	public function getCardNumber(): ?string
 	{
@@ -253,7 +324,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $cardNumber
+	 * Set the masked card number
+	 * @param string|null $cardNumber The card number with middle digits masked
 	 */
 	public function setCardNumber(?string $cardNumber): void
 	{
@@ -261,7 +333,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the last digits of the card number
+	 * @return string|null The last 4 digits of the card
 	 */
 	public function getCardLastDigits(): ?string
 	{
@@ -269,7 +342,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $cardLastDigits
+	 * Set the last digits of the card number
+	 * @param string|null $cardLastDigits The last 4 digits of the card
 	 */
 	public function setCardLastDigits(?string $cardLastDigits): void
 	{
@@ -277,7 +351,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return \DateTime|null
+	 * Get the card expiration date
+	 * @return \DateTime|null The expiration date of the card
 	 */
 	public function getCardExpirationDateTime(): ?\DateTime
 	{
@@ -285,7 +360,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param \DateTime|null $cardExpirationDateTime
+	 * Set the card expiration date
+	 * @param \DateTime|null $cardExpirationDateTime The expiration date of the card
 	 */
 	public function setCardExpirationDateTime(?\DateTime $cardExpirationDateTime): void
 	{
@@ -293,7 +369,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the card hash/token
+	 * @return string|null The card token for future transactions
 	 */
 	public function getCardHash(): ?string
 	{
@@ -301,7 +378,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $cardHash
+	 * Set the card hash/token
+	 * @param string|null $cardHash The card token for future transactions
 	 */
 	public function setCardHash(?string $cardHash): void
 	{
@@ -309,7 +387,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return bool
+	 * Check if 3D Secure was enabled for this transaction
+	 * @return bool True if 3D Secure was used, false otherwise
 	 */
 	public function is3DSecureEnabled(): bool
 	{
@@ -317,7 +396,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param bool $_3DSecureEnabled
+	 * Set whether 3D Secure was enabled for this transaction
+	 * @param bool $_3DSecureEnabled True if 3D Secure was used
 	 */
 	public function set3DSecureEnabled(bool $_3DSecureEnabled): void
 	{
@@ -325,7 +405,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return string|null
+	 * Get the 3D Secure authentication status
+	 * @return string|null The authentication status code (Y/A/U/N)
 	 */
 	public function get3DSecureAuthentication(): ?string
 	{
@@ -333,7 +414,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param string|null $_3DSecureAuthentication
+	 * Set the 3D Secure authentication status
+	 * @param string|null $_3DSecureAuthentication The authentication status code (Y/A/U/N)
 	 */
 	public function set3DSecureAuthentication(?string $_3DSecureAuthentication): void
 	{
@@ -341,7 +423,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @return int|null
+	 * Get the 3D Secure protocol version
+	 * @return int|null The 3D Secure version (1 or 2)
 	 */
 	public function get3DSecureVersion(): ?int
 	{
@@ -349,7 +432,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 	/**
-	 * @param int|null $_3DSecureVersion
+	 * Set the 3D Secure protocol version
+	 * @param int|null $_3DSecureVersion The 3D Secure version (1 or 2)
 	 */
 	public function set3DSecureVersion(?int $_3DSecureVersion): void
 	{

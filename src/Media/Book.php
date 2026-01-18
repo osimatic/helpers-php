@@ -142,12 +142,9 @@ class Book
 			return false;
 		}
 
-		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
-			->addMethodMapping('loadValidatorMetadata')
-			->getValidator();
 		$constraint = new \Symfony\Component\Validator\Constraints\Isbn();
 		$constraint->type = $type;
-		return $validator->validate($isbn, $constraint)->count() === 0;
+		return \Osimatic\Validator\Validator::getInstance()->validate($isbn, $constraint)->count() === 0;
 	}
 
 	/**
@@ -335,10 +332,7 @@ class Book
 			return false;
 		}
 
-		$validator = \Symfony\Component\Validator\Validation::createValidatorBuilder()
-			->addMethodMapping('loadValidatorMetadata')
-			->getValidator();
-		return $validator->validate($issn, new \Symfony\Component\Validator\Constraints\Issn())->count() === 0;
+		return \Osimatic\Validator\Validator::getInstance()->validate($issn, new \Symfony\Component\Validator\Constraints\Issn())->count() === 0;
 	}
 
 }

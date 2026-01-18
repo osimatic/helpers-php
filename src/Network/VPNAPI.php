@@ -39,7 +39,7 @@ class VPNAPI
 	/**
 	 * Sets the API key for VPNAPI.io
 	 * @param string $key the API key
-	 * @return self
+	 * @return self Returns this instance for method chaining
 	 */
 	public function setKey(string $key): self
 	{

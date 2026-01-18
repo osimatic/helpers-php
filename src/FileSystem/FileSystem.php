@@ -2,18 +2,28 @@
 
 namespace Osimatic\FileSystem;
 
+/**
+ * Utility class for file system operations including path manipulation and directory management.
+ * Provides helper methods for:
+ * - Path formatting and normalization (handling Unix/Windows separators)
+ * - Directory creation with recursive support
+ * - File initialization (cleanup and directory preparation)
+ */
 class FileSystem
 {
+	// ========== Path Manipulation ==========
+
 	/**
-	 * Formate un chemin (chemin complet depuis la racine disque ou en chemin relatif) :
-	 * - retire les '//' et les './' inutiles
-	 * - remplace les '\' et '/' par la constante PHP "DIRECTORY_SEPARATOR"
-	 * @param string $filePath Le chemin à formater.
-	 * @return string Le chemin formaté.
+	 * Formats a file path by normalizing separators and removing redundant elements.
+	 * - Removes unnecessary '//' and './' elements
+	 * - Replaces '\' and '/' with the PHP DIRECTORY_SEPARATOR constant
+	 * - Preserves UNC paths (\\server\share) on Windows
+	 * @param string $filePath The path to format (absolute or relative)
+	 * @return string The formatted path
 	 */
 	public static function formatPath(string $filePath): string
 	{
-		// Retire les './' inutiles
+		// Remove unnecessary './' elements
 		$filePath = preg_replace('#\/\.\/#', DIRECTORY_SEPARATOR, $filePath);
 
 		$isUnc = (str_starts_with($filePath, '\\\\'));
@@ -22,11 +32,11 @@ class FileSystem
 		}
 		//$filePath = ($isUnc?substr($filePath, 2):$filePath);
 
-		// Retire les '//' et \\ inutiles
+		// Remove unnecessary '//' and \\ elements
 		$filePath = preg_replace('#\/(\/)*\/#', DIRECTORY_SEPARATOR, $filePath);
 		$filePath = preg_replace('#\\\\(\\\\)*\\\\#m', DIRECTORY_SEPARATOR, $filePath);
 
-		// Remplace les '\' par des '/'
+		// Replace '\' with DIRECTORY_SEPARATOR
 		$filePath = preg_replace('#\\\\#m', DIRECTORY_SEPARATOR, $filePath);
 		$filePath = preg_replace('#\/#', DIRECTORY_SEPARATOR, $filePath);
 
@@ -34,25 +44,29 @@ class FileSystem
 	}
 
 	/**
-	 * Retourne le chemin complet sans le nom de fichier
-	 * @param string $filePath
-	 * @return string
+	 * Returns the directory path without the filename.
+	 * Ensures the result always ends with a directory separator.
+	 * @param string $filePath The full file path
+	 * @return string The directory path with trailing separator
 	 */
 	public static function dirname(string $filePath): string
 	{
 		$dirPath = self::formatPath($filePath);
-		// Si le chemin se termine déjà par un séparateur, c'est un répertoire, on le retourne tel quel
+		// If path already ends with a separator, it's a directory, return as is
 		if (substr($dirPath, -1) === DIRECTORY_SEPARATOR) {
 			return $dirPath;
 		}
-		// Sinon c'est un fichier, on retourne le répertoire parent
+		// Otherwise it's a file, return the parent directory
 		return dirname($dirPath).DIRECTORY_SEPARATOR;
 	}
 
+	// ========== Directory Management ==========
+
 	/**
-	 * Crée tous les répertoires appartenant au chemin (du répertoire racine au dernier répertoire), s'ils n'existent pas encore.
-	 * @param string $filePath Le chemin complet vers le répertoire à créer (à partir de la racine disque).
-	 * @return boolean true si les répertoires appartenant au chemin ont bien été crées, false si une erreur survient.
+	 * Creates all directories in the path recursively if they don't exist.
+	 * Creates all parent directories from root to the final directory.
+	 * @param string $filePath The complete path to the directory or file (from disk root)
+	 * @return bool True if directories were created successfully, false on error
 	 */
 	public static function createDirectories(string $filePath): bool
 	{
@@ -85,17 +99,20 @@ class FileSystem
 	}
 
 	/**
-	 * Supprime le fichier si le fichier existe et crée tous les répertoires appartenant au chemin (du répertoire racine au dernier répertoire), s'ils n'existent pas encore.
-	 * @param string $filePath Le chemin complet vers le fichier.
+	 * Initializes a file by removing it if it exists and creating all parent directories.
+	 * This ensures a clean slate for file creation:
+	 * - Deletes the file if it already exists
+	 * - Creates all necessary parent directories
+	 * @param string $filePath The complete path to the file
 	 */
 	public static function initializeFile(string $filePath): void
 	{
-		// Suppression du fichier s'il existe déjà
+		// Delete file if it already exists
 		if (file_exists($filePath)) {
 			unlink($filePath);
 		}
 
-		// Création des répertoires où se trouvera le fichier
+		// Create directories where the file will be located
 		if (!file_exists(dirname($filePath))) {
 			self::createDirectories($filePath);
 		}

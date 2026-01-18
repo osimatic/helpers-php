@@ -2,45 +2,57 @@
 
 namespace Osimatic\Bank;
 
+/**
+ * Interface for bank account information
+ * Represents essential bank account details including IBAN, BIC, and account holder information
+ */
 interface BankAccountInterface
 {
 	/**
-	 * @return string
+	 * Get the account holder's identity/name
+	 * @return string The name of the account holder
 	 */
 	public function getIdentity(): string;
 
 	/**
-	 * @param string $value
+	 * Set the account holder's identity/name
+	 * @param string $value The name of the account holder to set
 	 */
 	public function setIdentity(string $value): void;
 
 	/**
-	 * @return string
+	 * Get the IBAN (International Bank Account Number)
+	 * @return string The IBAN identifying the bank account
 	 */
 	public function getIban(): string;
 
 	/**
-	 * @param string $value
+	 * Set the IBAN (International Bank Account Number)
+	 * @param string $value The IBAN identifying the bank account to set
 	 */
 	public function setIban(string $value): void;
 
 	/**
-	 * @return string
+	 * Get the BIC (Bank Identifier Code), also known as SWIFT code
+	 * @return string The BIC/SWIFT code of the bank
 	 */
 	public function getBic(): string;
 
 	/**
-	 * @param string $value
+	 * Set the BIC (Bank Identifier Code), also known as SWIFT code
+	 * @param string $value The BIC/SWIFT code of the bank to set
 	 */
 	public function setBic(string $value): void;
 
 	/**
-	 * @return string
+	 * Get the banking domiciliation (bank branch/address information)
+	 * @return string The domiciliation information of the bank
 	 */
 	public function getBankingDomiciliation(): string;
 
 	/**
-	 * @param string $value
+	 * Set the banking domiciliation (bank branch/address information)
+	 * @param string $value The domiciliation information of the bank to set
 	 */
 	public function setBankingDomiciliation(string $value): void;
 
