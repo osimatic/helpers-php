@@ -1125,4 +1125,564 @@ final class PayBoxTest extends TestCase
 		$result = $this->paybox->setCustomerEmail($longEmail);
 		$this->assertSame($this->paybox, $result);
 	}
+
+	/* ===================== Form generation tests ===================== */
+
+	public function testGetFormReturnsHtmlString(): void
+	{
+		$html = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setCurrency('EUR')
+			->setReference('TEST-ORDER-001')
+			->setCustomerEmail('test@example.com')
+			->setUrlResponseOk('https://example.com/ok')
+			->setUrlResponseRefused('https://example.com/refused')
+			->setUrlResponseCanceled('https://example.com/canceled')
+			->getForm();
+
+		$this->assertIsString($html);
+		$this->assertStringContainsString('<form', $html);
+		$this->assertStringContainsString('</form>', $html);
+		$this->assertStringContainsString('PBX_SITE', $html);
+		$this->assertStringContainsString('PBX_TOTAL', $html);
+		$this->assertStringContainsString('PBX_DEVISE', $html);
+		$this->assertStringContainsString('PBX_CMD', $html);
+		$this->assertStringContainsString('PBX_PORTEUR', $html);
+		$this->assertStringContainsString('PBX_HMAC', $html);
+	}
+
+	public function testGetFormWithCustomCssClasses(): void
+	{
+		$html = $this->paybox
+			->setIsTest(true)
+			->setTotal(49.99)
+			->setReference('TEST-CSS-001')
+			->setCustomerEmail('test@example.com')
+			->setFormCssClass('custom-payment-form')
+			->setButtonCssClass('btn-custom-pay')
+			->setButtonText('Payer maintenant')
+			->getForm();
+
+		$this->assertStringContainsString('class="custom-payment-form"', $html);
+		$this->assertStringContainsString('class="btn-custom-pay"', $html);
+		$this->assertStringContainsString('value="Payer maintenant"', $html);
+	}
+
+	public function testGetFormSubscriberRegisterReturnsHtmlString(): void
+	{
+		$html = $this->paybox
+			->setIsTest(true)
+			->setTotal(0.01)
+			->setReference('SUBSCRIBER-REG-001')
+			->setCustomerEmail('subscriber@example.com')
+			->setUrlResponseOk('https://example.com/subscriber/ok')
+			->getFormSubscriberRegister();
+
+		$this->assertIsString($html);
+		$this->assertStringContainsString('<form', $html);
+		$this->assertStringContainsString('PBX_AUTOSEULE', $html);
+	}
+
+	public function testGetFormWith3DSecureV2(): void
+	{
+		$billingAddress = $this->createMock(BillingAddressInterface::class);
+		$billingAddress->method('getFirstName')->willReturn('John');
+		$billingAddress->method('getLastName')->willReturn('Doe');
+		$billingAddress->method('getStreet')->willReturn('123 Main St');
+		$billingAddress->method('getStreet2')->willReturn('Apt 4');
+		$billingAddress->method('getZipCode')->willReturn('75001');
+		$billingAddress->method('getCity')->willReturn('Paris');
+		$billingAddress->method('getCountryCode')->willReturn('FR');
+
+		$shoppingCart = $this->createMock(ShoppingCartInterface::class);
+		$shoppingCart->method('getTotalQuantity')->willReturn(3);
+
+		$html = $this->paybox
+			->setIsTest(true)
+			->set3DSecureV2()
+			->setBillingAddress($billingAddress)
+			->setShoppingCart($shoppingCart)
+			->setTotal(199.99)
+			->setReference('3DS-TEST-001')
+			->setCustomerEmail('3ds@example.com')
+			->getForm();
+
+		$this->assertStringContainsString('PBX_SHOPPINGCART', $html);
+		$this->assertStringContainsString('PBX_BILLING', $html);
+	}
+
+	/* ===================== Validation error tests ===================== */
+
+	public function testGetFormFailsWithoutEmail(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('NO-EMAIL-001')
+			// Missing customer email
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithInvalidEmail(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('INVALID-EMAIL-001')
+			->setCustomerEmail('invalid-email')
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithoutAmount(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setReference('NO-AMOUNT-001')
+			->setCustomerEmail('test@example.com')
+			// Missing amount (default is 0)
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithoutReference(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setCustomerEmail('test@example.com')
+			// Missing reference
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithEmptyReference(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('')
+			->setCustomerEmail('test@example.com')
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithTooLongReference(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference(str_repeat('A', 251)) // 251 characters (max is 250)
+			->setCustomerEmail('test@example.com')
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithEmailTooShort(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCustomerEmail('a@b.c') // 5 characters (min is 6)
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormFailsWithEmailTooLong(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCustomerEmail(str_repeat('a', 121) . '@example.com') // > 120 characters
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== Payment method tests ===================== */
+
+	public function testNewPaymentFailsWithMissingConfiguration(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '123456', // Invalid (must be 7 digits)
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testDoAuthorizationSetsCorrectOperation(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '123456', // Invalid site number
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: '0123'
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('AUTH-001')
+			->doAuthorization();
+
+		// Should return null due to invalid configuration
+		$this->assertNull($result);
+	}
+
+	public function testDoDebitRequiresCallAndTransactionNumbers(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false) // Force validation
+			->setTotal(99.99)
+			->setReference('DEBIT-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			// Missing call number and transaction number
+			->doDebit();
+
+		$this->assertNull($result);
+	}
+
+	public function testDoAuthorizationAndDebitFailsWithoutCardInfo(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(99.99)
+			->setReference('AUTH-DEBIT-001')
+			// Missing card information
+			->doAuthorizationAndDebit();
+
+		$this->assertNull($result);
+	}
+
+	public function testAddSubscriberFailsWithoutCardInfo(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(0.01)
+			->setReference('ADD-SUB-001')
+			// Missing card information
+			->addSubscriber();
+
+		$this->assertNull($result);
+	}
+
+	public function testDeleteSubscriberFailsWithoutSubscriberRef(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			// Missing subscriber reference
+			->deleteSubscriber();
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== Subscriber operations tests ===================== */
+
+	public function testGetFormSubscriberRegisterFailsWithoutEmail(): void
+	{
+		$result = $this->paybox
+			->setIsTest(true)
+			->setTotal(0.01)
+			->setReference('SUB-REG-001')
+			// Missing email
+			->getFormSubscriberRegister();
+
+		$this->assertNull($result);
+	}
+
+	public function testGetFormWithSubscriberReference(): void
+	{
+		$html = $this->paybox
+			->setIsTest(true)
+			->setTotal(29.99)
+			->setReference('SUB-PAY-001')
+			->setCustomerEmail('subscriber@example.com')
+			->setSubscriberReference('SUB-TOKEN-123')
+			->getForm();
+
+		$this->assertIsString($html);
+		$this->assertStringContainsString('PBX_REFABONNE', $html);
+	}
+
+	/* ===================== Configuration validation tests ===================== */
+
+	public function testInvalidSiteNumberLength(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '12345', // 5 digits (must be 7)
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidRangTooShort(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '1', // 1 digit (must be 2-3)
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidRangTooLong(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '1234', // 4 digits (must be 2-3)
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidHttpPasswordTooShort(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '1234567', // 7 characters (must be 8-10)
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidHttpPasswordTooLong(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678901', // 11 characters (must be 8-10)
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidIdentifierForForm(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '', // Empty (must be 1-9 digits)
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCustomerEmail('test@example.com')
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidSecretKeyForForm(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: 'short' // Not 128 characters
+		);
+
+		$result = $paybox
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setCustomerEmail('test@example.com')
+			->getForm();
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== Card validation tests ===================== */
+
+	public function testInvalidCardNumberTooLong(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(99.99)
+			->setReference('CARD-TOO-LONG')
+			->setCreditCardNumber('12345678901234567890') // 20 digits (max is 19)
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidCvvTooShort(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(99.99)
+			->setReference('CVV-TOO-SHORT')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('12') // 2 digits (must be 3-4)
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testInvalidCvvTooLong(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(99.99)
+			->setReference('CVV-TOO-LONG')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('12345') // 5 digits (must be 3-4)
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testMissingExpirationDate(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(99.99)
+			->setReference('NO-EXP-DATE')
+			->setCreditCardNumber('4111111111111111')
+			// Missing expiration date
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== Subscriber reference validation ===================== */
+
+	public function testSubscriberReferenceTooLong(): void
+	{
+		$result = $this->paybox
+			->setIsTest(false)
+			->setTotal(99.99)
+			->setReference('TEST-001')
+			->setSubscriberReference(str_repeat('A', 251)) // 251 characters (max is 250)
+			->setCreditCardToken('TOKEN123')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== Special operations ===================== */
+
+	public function testUpdateSubscriberRequiresSubscriberRef(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setBankCardOperation(BankCardOperation::UPDATE_SUBSCRIBER)
+			// Missing subscriber reference (required for update)
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testDeleteSubscriberRequiresSubscriberRef(): void
+	{
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128)
+		);
+
+		$result = $paybox
+			->setBankCardOperation(BankCardOperation::DELETE_SUBSCRIBER)
+			// Missing subscriber reference (required for delete)
+			->newPayment();
+
+		$this->assertNull($result);
+	}
 }

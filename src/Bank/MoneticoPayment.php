@@ -11,7 +11,7 @@ use Psr\Log\NullLogger;
  * Supports payment form generation, transaction validation, and HMAC security
  * @author Euro-Information <centrecom@e-i.com>
  */
-class CICPayment
+class MoneticoPayment
 {
 	public const string CMCIC_VERSION 			= '3.0';
 	public const string CMCIC_URL_PAIEMENT 		= 'https://ssl.paiement.cic-banques.fr/paiement.cgi';
