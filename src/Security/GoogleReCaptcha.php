@@ -8,16 +8,25 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Class GoogleReCaptcha
+ * Google reCAPTCHA v2 integration class that handles verification of reCAPTCHA responses with Google's API, provides methods to generate HTML form fields and JavaScript includes for reCAPTCHA widgets.
  */
 class GoogleReCaptcha
 {
+	private const string VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+	private const string API_JS_URL = 'https://www.google.com/recaptcha/api.js';
+	private const string DEFAULT_LOCALE = 'en';
+
+	/**
+	 * HTTP client instance used to communicate with Google's reCAPTCHA verification API.
+	 * @var HTTPClient
+	 */
 	private HTTPClient $httpClient;
 
 	/**
-	 * @param string|null $siteKey
-	 * @param string|null $secret
-	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * Initializes the Google reCAPTCHA handler with configuration parameters and sets up the HTTP client for API communication.
+	 * @param string|null $siteKey The Google reCAPTCHA site key (public key) used to render the reCAPTCHA widget on the client side
+	 * @param string|null $secret The Google reCAPTCHA secret key (private key) used to verify responses with Google's API server
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging information (default: NullLogger)
 	 */
 	public function __construct(
 		private ?string $siteKey=null,
@@ -27,20 +36,10 @@ class GoogleReCaptcha
 		$this->httpClient = new HTTPClient($logger);
 	}
 
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->httpClient->setLogger($logger);
-
-		return $this;
-	}
 
 	/**
-	 * @param string $siteKey
+	 * Sets the Google reCAPTCHA site key (public key) used to render the reCAPTCHA widget.
+	 * @param string $siteKey The site key obtained from Google reCAPTCHA admin console
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setSiteKey(string $siteKey): self
@@ -51,7 +50,8 @@ class GoogleReCaptcha
 	}
 
 	/**
-	 * @param string $secret
+	 * Sets the Google reCAPTCHA secret key (private key) used to verify responses with Google's API.
+	 * @param string $secret The secret key obtained from Google reCAPTCHA admin console
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setSecret(string $secret): self
@@ -62,8 +62,9 @@ class GoogleReCaptcha
 	}
 
 	/**
-	 * @param string|null $recaptchaResponse
-	 * @return bool
+	 * Verifies a reCAPTCHA response token by sending it to Google's verification API. The method makes an HTTP request to Google's siteverify endpoint with the secret key and response token, then returns whether the verification was successful.
+	 * @param string|null $recaptchaResponse The reCAPTCHA response token received from the client-side reCAPTCHA widget after user interaction
+	 * @return bool Returns true if the reCAPTCHA response is valid and verified by Google, false otherwise (including on empty response or API errors)
 	 */
 	public function check(?string $recaptchaResponse): bool
 	{
@@ -71,22 +72,24 @@ class GoogleReCaptcha
 			return false;
 		}
 
-		$url = 'https://www.google.com/recaptcha/api/siteverify';
 		$queryData = [
 			'secret' => $this->secret,
 			'response' => $recaptchaResponse,
 			//'remoteip' => ($_SERVER['REMOTE_ADDR'] ?? null),
 		];
 
-		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url, queryData: $queryData))) {
+		$json = $this->httpClient->jsonRequest(HTTPMethod::GET, self::VERIFY_URL, queryData: $queryData);
+
+		if (null === $json) {
 			return false;
 		}
 
-		return isset($json['success']) && $json['success'] == true;
+		return isset($json['success']) && $json['success'] === true;
 	}
 
 	/**
-	 * @return string
+	 * Generates the HTML div element required to display the Google reCAPTCHA widget in a web form. This method returns a div with the class "g-recaptcha" and the data-sitekey attribute set to the configured site key.
+	 * @return string The HTML markup for the reCAPTCHA widget container
 	 */
 	public function getFormField(): string
 	{
@@ -94,12 +97,13 @@ class GoogleReCaptcha
 	}
 
 	/**
-	 * @param string $locale
-	 * @return string
+	 * Generates the URL to the Google reCAPTCHA JavaScript API with the specified language locale. This URL should be included in the HTML page to load the reCAPTCHA widget functionality.
+	 * @param string $locale The language code for the reCAPTCHA widget interface (e.g., 'en' for English, 'fr' for French, 'es' for Spanish) (default: 'en')
+	 * @return string The complete URL to the Google reCAPTCHA JavaScript API with the specified language parameter
 	 */
-	public function getJavaScriptUrl(string $locale='en'): string
+	public function getJavaScriptUrl(string $locale=self::DEFAULT_LOCALE): string
 	{
-		return 'https://www.google.com/recaptcha/api.js?hl='.$locale;
+		return self::API_JS_URL.'?hl='.$locale;
 	}
 
 }

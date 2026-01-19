@@ -48,10 +48,12 @@ class OutputFile
 	/**
 	 * Sets the server file path.
 	 * @param string|null $filePath The file path
+	 * @return self Returns this instance for method chaining
 	 */
-	public function setFilePath(?string $filePath): void
+	public function setFilePath(?string $filePath): self
 	{
 		$this->filePath = $filePath;
+		return $this;
 	}
 
 	/**
@@ -66,14 +68,17 @@ class OutputFile
 	/**
 	 * Sets the display filename for the client.
 	 * @param string|null $fileName The display filename
+	 * @return self Returns this instance for method chaining
 	 */
-	public function setFileName(?string $fileName): void
+	public function setFileName(?string $fileName): self
 	{
 		$this->fileName = $fileName;
+		return $this;
 	}
 
 	/**
 	 * Gets the file extension based on the file path or display name.
+	 * Handles common double extensions like .tar.gz using File::getExtension().
 	 * @return string|null The file extension in lowercase (without dot), or null if not found
 	 */
 	public function getExtension(): ?string
@@ -83,6 +88,7 @@ class OutputFile
 			return null;
 		}
 
-		return strtolower(pathinfo($path, PATHINFO_EXTENSION)) ?: null;
+		$extension = File::getExtension($path);
+		return !empty($extension) ? mb_strtolower($extension) : null;
 	}
 }

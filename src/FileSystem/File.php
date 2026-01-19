@@ -221,7 +221,7 @@ class File
 		$tmpUploadedFileName = is_a($uploadedFile, InputFile::class) ? $uploadedFile->getOriginalFileName() : $filePath;
 		if (!empty($tmpUploadedFileName)) {
 			if (false === move_uploaded_file((is_a($uploadedFile, InputFile::class) ? $uploadedFile->getUploadedFilePath() : $uploadedFile->getPathname()), $filePath)) {
-				$logger?->error('Erreur lors du téléchargement du fichier "' . $filePath . '"');
+				$logger?->error('Failed to move uploaded file to "' . $filePath . '"');
 				return false;
 			}
 			return true;
@@ -229,7 +229,7 @@ class File
 
 		if (is_a($uploadedFile, InputFile::class) && !empty($uploadedFile->getData())) {
 			if (false === file_put_contents($filePath, $uploadedFile->getData())) {
-				$logger?->error('Erreur lors de l\'écriture du fichier "' . $filePath . '" (taille données : ' . strlen($uploadedFile->getData()) . ')');
+				$logger?->error('Failed to write file "' . $filePath . '" (data size: ' . strlen($uploadedFile->getData()) . ' bytes)');
 				return false;
 			}
 			return true;

@@ -107,7 +107,7 @@ class InputFile
 	 */
 	public function getUploadedFilePath(): ?string
 	{
-		return $this->uploadedFilePath ?? null;
+		return $this->uploadedFilePath;
 	}
 
 	/**
@@ -149,7 +149,7 @@ class InputFile
 	 */
 	public function getOriginalFileName(): ?string
 	{
-		return $this->originalFileName ?? null;
+		return $this->originalFileName;
 	}
 
 	/**
@@ -170,7 +170,7 @@ class InputFile
 	 */
 	public function getData(): ?string
 	{
-		return $this->data ?? null;
+		return $this->data;
 	}
 
 	/**

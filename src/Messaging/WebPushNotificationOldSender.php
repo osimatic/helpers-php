@@ -18,7 +18,7 @@ class WebPushNotificationOldSender
 	const int MAX_COMPATIBILITY_PAYLOAD_LENGTH = 3052;
 
 	/**
-	 * The PSR-3 logger instance for debugging.
+	 * The PSR-3 logger instance.
 	 * @var LoggerInterface
 	 */
 	private LoggerInterface $logger;

@@ -44,7 +44,7 @@ class MoneticoPayment
 	private string $key;
 
 	/**
-	 * PSR-3 logger instance for error and debugging information
+	 * The PSR-3 logger instance.
 	 * @var LoggerInterface
 	 */
 	private LoggerInterface $logger;

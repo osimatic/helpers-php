@@ -30,7 +30,6 @@ class FileSystem
 		if ($isUnc) {
 			$filePath = substr($filePath, 2);
 		}
-		//$filePath = ($isUnc?substr($filePath, 2):$filePath);
 
 		// Remove unnecessary '//' and \\ elements
 		$filePath = preg_replace('#\/(\/)*\/#', DIRECTORY_SEPARATOR, $filePath);
@@ -77,25 +76,6 @@ class FileSystem
 		}
 
 		return mkdir($dirPath, 0777, true);
-
-		/*
-		$currentPath = '';
-		$directories = explode(DIRECTORY_SEPARATOR, $dirPath);
-		if (!empty($directories)) {
-			foreach ($directories as $key => $directory) {
-				$currentPath .= $directory.DIRECTORY_SEPARATOR;
-
-				if ((strpos($currentPath, '\\\\') === 0 && $key < 1) || file_exists($currentPath)) {
-					continue;
-				}
-
-				if (!mkdir($currentPath) && !is_dir($currentPath)) {
-					return false;
-				}
-			}
-		}
-		return true;
-		*/
 	}
 
 	/**

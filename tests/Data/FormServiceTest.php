@@ -60,6 +60,25 @@ final class FormServiceTest extends TestCase
 		$this->assertSame('', FormService::trim('   '));
 	}
 
+	public function testTrimWithReturnNullIfEmptyTrue(): void
+	{
+		$this->assertNull(FormService::trim('', true, true));
+		$this->assertNull(FormService::trim('   ', true, true));
+		$this->assertNull(FormService::trim("\t\n\r", true, true));
+	}
+
+	public function testTrimWithReturnNullIfEmptyFalse(): void
+	{
+		$this->assertSame('', FormService::trim('', true, false));
+		$this->assertSame('', FormService::trim('   ', true, false));
+	}
+
+	public function testTrimWithReturnNullIfEmptyButNonEmpty(): void
+	{
+		$this->assertSame('test', FormService::trim('  test  ', true, true));
+		$this->assertSame('hello', FormService::trim('hello', true, true));
+	}
+
 	/* ===================== parseArray() ===================== */
 
 	public function testParseArrayWithNull(): void
@@ -106,6 +125,246 @@ final class FormServiceTest extends TestCase
 		$this->assertSame([123], FormService::parseArray(123));
 	}
 
+	public function testParseArrayWithDoSProtection(): void
+	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Array size (10001) exceeds maximum allowed size (10000)');
+
+		$largeArray = range(1, 10001);
+		FormService::parseArray($largeArray);
+	}
+
+	public function testParseArrayWithCustomMaxSize(): void
+	{
+		$smallArray = range(1, 5);
+		$result = FormService::parseArray($smallArray, true, null, 10);
+		$this->assertCount(5, $result);
+	}
+
+	public function testParseArrayExceedsCustomMaxSize(): void
+	{
+		$this->expectException(\InvalidArgumentException::class);
+
+		$array = range(1, 11);
+		FormService::parseArray($array, true, null, 10);
+	}
+
+	public function testParseArrayWithUnlimitedSize(): void
+	{
+		$largeArray = range(1, 15000);
+		$result = FormService::parseArray($largeArray, true, null, 0);
+		$this->assertCount(15000, $result);
+	}
+
+	/* ===================== parseBoolean() ===================== */
+
+	public function testParseBooleanWithNull(): void
+	{
+		$this->assertNull(FormService::parseBoolean(null));
+	}
+
+	public function testParseBooleanWithBooleanTrue(): void
+	{
+		$this->assertTrue(FormService::parseBoolean(true));
+	}
+
+	public function testParseBooleanWithBooleanFalse(): void
+	{
+		$this->assertFalse(FormService::parseBoolean(false));
+	}
+
+	public function testParseBooleanWithStringTrue(): void
+	{
+		$this->assertTrue(FormService::parseBoolean('true'));
+		$this->assertTrue(FormService::parseBoolean('TRUE'));
+		$this->assertTrue(FormService::parseBoolean('1'));
+		$this->assertTrue(FormService::parseBoolean('yes'));
+		$this->assertTrue(FormService::parseBoolean('YES'));
+		$this->assertTrue(FormService::parseBoolean('on'));
+		$this->assertTrue(FormService::parseBoolean('ON'));
+	}
+
+	public function testParseBooleanWithStringFalse(): void
+	{
+		$this->assertFalse(FormService::parseBoolean('false'));
+		$this->assertFalse(FormService::parseBoolean('FALSE'));
+		$this->assertFalse(FormService::parseBoolean('0'));
+		$this->assertFalse(FormService::parseBoolean('no'));
+		$this->assertFalse(FormService::parseBoolean('NO'));
+		$this->assertFalse(FormService::parseBoolean('off'));
+		$this->assertFalse(FormService::parseBoolean('OFF'));
+		$this->assertFalse(FormService::parseBoolean(''));
+	}
+
+	public function testParseBooleanWithInteger(): void
+	{
+		$this->assertTrue(FormService::parseBoolean(1));
+		$this->assertFalse(FormService::parseBoolean(0));
+		$this->assertTrue(FormService::parseBoolean(42));
+	}
+
+	public function testParseBooleanWithWhitespace(): void
+	{
+		$this->assertTrue(FormService::parseBoolean('  true  '));
+		$this->assertFalse(FormService::parseBoolean('  false  '));
+	}
+
+	/* ===================== parseInteger() ===================== */
+
+	public function testParseIntegerWithNull(): void
+	{
+		$this->assertNull(FormService::parseInteger(null));
+	}
+
+	public function testParseIntegerWithEmptyString(): void
+	{
+		$this->assertNull(FormService::parseInteger(''));
+	}
+
+	public function testParseIntegerWithValidString(): void
+	{
+		$this->assertSame(42, FormService::parseInteger('42'));
+		$this->assertSame(-10, FormService::parseInteger('-10'));
+		$this->assertSame(0, FormService::parseInteger('0'));
+	}
+
+	public function testParseIntegerWithValidInteger(): void
+	{
+		$this->assertSame(42, FormService::parseInteger(42));
+		$this->assertSame(0, FormService::parseInteger(0));
+	}
+
+	public function testParseIntegerWithInvalidString(): void
+	{
+		$this->assertNull(FormService::parseInteger('abc'));
+		$this->assertNull(FormService::parseInteger('12abc'));
+	}
+
+	public function testParseIntegerWithMinValidation(): void
+	{
+		$this->assertSame(50, FormService::parseInteger(50, 0, null));
+		$this->assertSame(0, FormService::parseInteger(0, 0, null));
+		$this->assertNull(FormService::parseInteger(-5, 0, null));
+	}
+
+	public function testParseIntegerWithMaxValidation(): void
+	{
+		$this->assertSame(50, FormService::parseInteger(50, null, 100));
+		$this->assertSame(100, FormService::parseInteger(100, null, 100));
+		$this->assertNull(FormService::parseInteger(150, null, 100));
+	}
+
+	public function testParseIntegerWithRangeValidation(): void
+	{
+		$this->assertSame(50, FormService::parseInteger(50, 0, 100));
+		$this->assertSame(0, FormService::parseInteger(0, 0, 100));
+		$this->assertSame(100, FormService::parseInteger(100, 0, 100));
+		$this->assertNull(FormService::parseInteger(-1, 0, 100));
+		$this->assertNull(FormService::parseInteger(101, 0, 100));
+	}
+
+	/* ===================== parseFloat() ===================== */
+
+	public function testParseFloatWithNull(): void
+	{
+		$this->assertNull(FormService::parseFloat(null));
+	}
+
+	public function testParseFloatWithEmptyString(): void
+	{
+		$this->assertNull(FormService::parseFloat(''));
+	}
+
+	public function testParseFloatWithValidString(): void
+	{
+		$this->assertSame(42.5, FormService::parseFloat('42.5'));
+		$this->assertSame(-10.75, FormService::parseFloat('-10.75'));
+		$this->assertSame(0.0, FormService::parseFloat('0.0'));
+	}
+
+	public function testParseFloatWithValidFloat(): void
+	{
+		$this->assertSame(42.5, FormService::parseFloat(42.5));
+		$this->assertSame(0.0, FormService::parseFloat(0.0));
+	}
+
+	public function testParseFloatWithInteger(): void
+	{
+		$this->assertSame(42.0, FormService::parseFloat(42));
+	}
+
+	public function testParseFloatWithInvalidString(): void
+	{
+		$this->assertNull(FormService::parseFloat('abc'));
+		$this->assertNull(FormService::parseFloat('12.5abc'));
+	}
+
+	public function testParseFloatWithMinValidation(): void
+	{
+		$this->assertSame(50.5, FormService::parseFloat(50.5, 0.0, null));
+		$this->assertSame(0.0, FormService::parseFloat(0.0, 0.0, null));
+		$this->assertNull(FormService::parseFloat(-5.5, 0.0, null));
+	}
+
+	public function testParseFloatWithMaxValidation(): void
+	{
+		$this->assertSame(50.5, FormService::parseFloat(50.5, null, 100.0));
+		$this->assertSame(100.0, FormService::parseFloat(100.0, null, 100.0));
+		$this->assertNull(FormService::parseFloat(150.5, null, 100.0));
+	}
+
+	public function testParseFloatWithRangeValidation(): void
+	{
+		$this->assertSame(50.5, FormService::parseFloat(50.5, 0.0, 100.0));
+		$this->assertSame(0.0, FormService::parseFloat(0.0, 0.0, 100.0));
+		$this->assertSame(100.0, FormService::parseFloat(100.0, 0.0, 100.0));
+		$this->assertNull(FormService::parseFloat(-0.1, 0.0, 100.0));
+		$this->assertNull(FormService::parseFloat(100.1, 0.0, 100.0));
+	}
+
+	/* ===================== sanitizeHtml() ===================== */
+
+	public function testSanitizeHtmlWithNull(): void
+	{
+		$this->assertNull(FormService::sanitizeHtml(null));
+	}
+
+	public function testSanitizeHtmlStripsAllTags(): void
+	{
+		$this->assertSame('Hello World', FormService::sanitizeHtml('<p>Hello World</p>'));
+		$this->assertSame('Hello', FormService::sanitizeHtml('<script>alert("xss")</script>Hello'));
+		$this->assertSame('Test', FormService::sanitizeHtml('<div><span>Test</span></div>'));
+	}
+
+	public function testSanitizeHtmlWithoutTags(): void
+	{
+		$this->assertSame('Hello World', FormService::sanitizeHtml('Hello World'));
+		$this->assertSame('', FormService::sanitizeHtml(''));
+	}
+
+	public function testSanitizeHtmlAllowBasicFormatting(): void
+	{
+		$this->assertSame('<b>Bold</b>', FormService::sanitizeHtml('<b>Bold</b>', true));
+		$this->assertSame('<i>Italic</i>', FormService::sanitizeHtml('<i>Italic</i>', true));
+		$this->assertSame('<strong>Strong</strong>', FormService::sanitizeHtml('<strong>Strong</strong>', true));
+		$this->assertSame('<em>Emphasis</em>', FormService::sanitizeHtml('<em>Emphasis</em>', true));
+		$this->assertSame('<u>Underline</u>', FormService::sanitizeHtml('<u>Underline</u>', true));
+		$this->assertSame('Line1<br>Line2', FormService::sanitizeHtml('Line1<br>Line2', true));
+		$this->assertSame('<p>Paragraph</p>', FormService::sanitizeHtml('<p>Paragraph</p>', true));
+	}
+
+	public function testSanitizeHtmlRemovesDangerousTagsEvenWithFormatting(): void
+	{
+		$this->assertSame('<b>Hello</b> ', FormService::sanitizeHtml('<b>Hello</b> <script>alert("xss")</script>', true));
+		$this->assertSame('<p>Test</p>', FormService::sanitizeHtml('<p>Test</p><iframe src="evil"></iframe>', true));
+	}
+
+	public function testSanitizeHtmlRemovesNonAllowedFormattingTags(): void
+	{
+		$this->assertSame('Link', FormService::sanitizeHtml('<a href="#">Link</a>', true));
+		$this->assertSame('Div', FormService::sanitizeHtml('<div>Div</div>', true));
+	}
+
 	/* ===================== parseEnum() ===================== */
 
 	public function testParseEnumWithValidUpperCase(): void
@@ -139,6 +398,21 @@ final class FormServiceTest extends TestCase
 	{
 		$result = FormService::parseEnum(TestStatus::class, null);
 		$this->assertNull($result);
+	}
+
+	public function testParseEnumThrowsExceptionForInvalidClass(): void
+	{
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Class "stdClass" is not a valid BackedEnum');
+
+		FormService::parseEnum(\stdClass::class, 'test');
+	}
+
+	public function testParseEnumThrowsExceptionForNonExistentClass(): void
+	{
+		$this->expectException(\InvalidArgumentException::class);
+
+		FormService::parseEnum('NonExistentClass', 'test');
 	}
 
 	/* ===================== parseEnumList() ===================== */
@@ -335,6 +609,43 @@ final class FormServiceTest extends TestCase
 		$this->assertCount(2, $result);
 		$this->assertArrayHasKey('field.property', $result);
 		$this->assertArrayHasKey('email', $result);
+	}
+
+	public function testGetErrorMessagesWithPropertyPathWithoutDot(): void
+	{
+		// Test le bug fix pour strpos qui retourne false quand il n'y a pas de point dans le propertyPath
+		$violation = new ConstraintViolation(
+			'This value should not be blank.',
+			'This value should not be blank.',
+			[],
+			'root',
+			'simpleField',  // Pas de point dans le propertyPath
+			null
+		);
+		$violations = new ConstraintViolationList([$violation]);
+
+		$result = FormService::getErrorMessages($violations);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('simple_field', $result);
+		$this->assertSame('This value should not be blank.', $result['simple_field']);
+	}
+
+	public function testGetErrorMessagesConvertsPropertyPathToSnakeCase(): void
+	{
+		$violation = new ConstraintViolation(
+			'Error message',
+			'Error message',
+			[],
+			'root',
+			'myFieldName.property',
+			null
+		);
+		$violations = new ConstraintViolationList([$violation]);
+
+		$result = FormService::getErrorMessages($violations);
+
+		$this->assertArrayHasKey('my_field_name.property', $result);
 	}
 
 	/* ===================== Integration tests ===================== */

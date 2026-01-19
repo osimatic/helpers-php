@@ -71,9 +71,9 @@ class ZipArchive
 	 * Creates an HTTP response for a ZIP file.
 	 * @param string $filePath The path to the ZIP file
 	 * @param string|null $fileName Optional filename for the response
-	 * @return Response The HTTP response object
+	 * @return Response|null The HTTP response object, or null if file not found
 	 */
-	public static function getHttpResponse(string $filePath, ?string $fileName=null): Response
+	public static function getHttpResponse(string $filePath, ?string $fileName=null): ?Response
 	{
 		return File::getHttpResponse($filePath, $fileName, true);
 	}
@@ -85,19 +85,24 @@ class ZipArchive
 	 * If the archive already exists, it will be deleted and recreated.
 	 * @param string $filePath The path of the archive to create
 	 * @param string[] $files An array containing the list of file paths to add to the archive
+	 * @return bool True if archive was created successfully, false on error
 	 */
-	public static function archive(string $filePath, array $files): void
+	public static function archive(string $filePath, array $files): bool
 	{
 		FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
-		$zip->open($filePath, \ZipArchive::CREATE);
+		if (true !== $zip->open($filePath, \ZipArchive::CREATE)) {
+			return false;
+		}
+
 		foreach ($files as $f) {
 			if (file_exists($f)) {
 				$zip->addFile($f, basename($f));
 			}
 		}
-		$zip->close();
+
+		return $zip->close();
 	}
 
 	/**
@@ -106,19 +111,24 @@ class ZipArchive
 	 * Uses the display filenames from OutputFile objects for the archive entries.
 	 * @param string $filePath The path of the archive to create
 	 * @param OutputFile[] $files An array of OutputFile objects to add to the archive
+	 * @return bool True if archive was created successfully, false on error
 	 */
-	public static function archiveOutputFiles(string $filePath, array $files): void
+	public static function archiveOutputFiles(string $filePath, array $files): bool
 	{
 		FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
-		$zip->open($filePath, \ZipArchive::CREATE);
+		if (true !== $zip->open($filePath, \ZipArchive::CREATE)) {
+			return false;
+		}
+
 		foreach ($files as $outputFile) {
 			if (null !== ($currentFilePath = $outputFile->getFilePath()) && file_exists($currentFilePath)) {
 				$zip->addFile($currentFilePath, $outputFile->getFileName() ?? basename($currentFilePath));
 			}
 		}
-		$zip->close();
+
+		return $zip->close();
 	}
 
 	/**
@@ -126,17 +136,22 @@ class ZipArchive
 	 * If the archive already exists, it will be deleted and recreated.
 	 * @param string $filePath The path of the archive to create
 	 * @param array $contentFiles An associative array where keys are filenames in the archive and values are the file contents
+	 * @return bool True if archive was created successfully, false on error
 	 */
-	public static function archiveFilesFromString(string $filePath, array $contentFiles): void
+	public static function archiveFilesFromString(string $filePath, array $contentFiles): bool
 	{
 		FileSystem::initializeFile($filePath);
 
 		$zip = new \ZipArchive();
-		$zip->open($filePath, \ZipArchive::CREATE);
+		if (true !== $zip->open($filePath, \ZipArchive::CREATE)) {
+			return false;
+		}
+
 		foreach ($contentFiles as $filename => $content) {
 			$zip->addFromString($filename, $content);
 		}
-		$zip->close();
+
+		return $zip->close();
 	}
 
 }

@@ -14,7 +14,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 class Command
 {
 	/**
-	 * PSR-3 logger for command execution logging.
+	 * The PSR-3 logger instance.
 	 * @var LoggerInterface
 	 */
 	private LoggerInterface $logger;
