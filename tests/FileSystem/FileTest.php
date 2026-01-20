@@ -61,15 +61,27 @@ final class FileTest extends TestCase
 
 	public function testGetExtension(): void
 	{
+		// Simple extensions (default behavior)
 		$this->assertEquals('txt', File::getExtension('file.txt'));
 		$this->assertEquals('pdf', File::getExtension('/path/to/document.pdf'));
 		$this->assertEquals('jpg', File::getExtension('C:\\Users\\test\\image.jpg'));
 		$this->assertEquals('', File::getExtension('noextension'));
 
-		// Double extensions
-		$this->assertEquals('tar.gz', File::getExtension('archive.tar.gz'));
-		$this->assertEquals('tar.bz2', File::getExtension('backup.tar.bz2'));
-		$this->assertEquals('tar.xz', File::getExtension('file.tar.xz'));
+		// Double extensions without includeDoubleExtension parameter (returns last extension only)
+		$this->assertEquals('gz', File::getExtension('archive.tar.gz'));
+		$this->assertEquals('bz2', File::getExtension('backup.tar.bz2'));
+		$this->assertEquals('xz', File::getExtension('file.tar.xz'));
+
+		// Double extensions with includeDoubleExtension = true
+		$this->assertEquals('tar.gz', File::getExtension('archive.tar.gz', true));
+		$this->assertEquals('tar.bz2', File::getExtension('backup.tar.bz2', true));
+		$this->assertEquals('tar.xz', File::getExtension('file.tar.xz', true));
+		$this->assertEquals('tar.z', File::getExtension('old.tar.z', true));
+		$this->assertEquals('tar.lz', File::getExtension('compressed.tar.lz', true));
+
+		// Non-double extensions should return simple extension even with includeDoubleExtension = true
+		$this->assertEquals('txt', File::getExtension('file.txt', true));
+		$this->assertEquals('pdf', File::getExtension('document.pdf', true));
 	}
 
 	public function testReplaceExtension(): void

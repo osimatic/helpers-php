@@ -87,15 +87,17 @@ class FormService
 	/**
 	 * Parses a value into a boolean.
 	 * Accepts various string representations of boolean values (case-insensitive):
-	 * - true: 'true', '1', 'yes', 'on'
-	 * - false: 'false', '0', 'no', 'off', ''
+	 * - true: 'true', '1', 'yes', 'on', true, 1
+	 * - false: 'false', '0', 'no', 'off', '', false, 0
+	 * - null: null, or any invalid value
 	 * Example:
 	 * FormService::parseBoolean('true') // Returns: true
 	 * FormService::parseBoolean('0') // Returns: false
 	 * FormService::parseBoolean(1) // Returns: true
 	 * FormService::parseBoolean(null) // Returns: null
+	 * FormService::parseBoolean('invalid') // Returns: null
 	 * @param mixed $value The value to parse into a boolean
-	 * @return bool|null The parsed boolean value, or null if the input was null
+	 * @return bool|null The parsed boolean value, or null if the input was null or invalid
 	 */
 	public static function parseBoolean(mixed $value): ?bool
 	{
@@ -105,6 +107,14 @@ class FormService
 
 		if (is_bool($value)) {
 			return $value;
+		}
+
+		if (is_int($value)) {
+			return match ($value) {
+				0 => false,
+				1 => true,
+				default => null,
+			};
 		}
 
 		if (is_string($value)) {
@@ -117,7 +127,7 @@ class FormService
 			}
 		}
 
-		return (bool) $value;
+		return null;
 	}
 
 	/**
@@ -193,6 +203,7 @@ class FormService
 	/**
 	 * Sanitizes HTML content by stripping all tags or allowing only specific safe tags.
 	 * By default, removes all HTML tags. When allowBasicFormatting is true, allows safe formatting tags like <b>, <i>, <u>, <em>, <strong>, <br>, <p>.
+	 * Dangerous tags like <script>, <style>, <iframe> are removed along with their content before processing.
 	 * Example:
 	 * FormService::sanitizeHtml('<script>alert("xss")</script>Hello') // Returns: 'Hello'
 	 * FormService::sanitizeHtml('<b>Hello</b> <script>bad</script>', true) // Returns: '<b>Hello</b> '
@@ -206,6 +217,13 @@ class FormService
 		if (null === $value) {
 			return null;
 		}
+
+		// Remove dangerous tags and their content (script, style, iframe, object, embed)
+		$value = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $value);
+		$value = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $value);
+		$value = preg_replace('/<iframe\b[^>]*>.*?<\/iframe>/is', '', $value);
+		$value = preg_replace('/<object\b[^>]*>.*?<\/object>/is', '', $value);
+		$value = preg_replace('/<embed\b[^>]*>.*?<\/embed>/is', '', $value);
 
 		if ($allowBasicFormatting) {
 			// Allow only safe formatting tags

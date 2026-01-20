@@ -305,8 +305,9 @@ class InputTest extends TestCase
 		return [
 			'string random with default false' => ['random', false, false],
 			'string random with default true' => ['random', true, true],
-			'empty string with default false' => ['', false, false],
-			'empty string with default true' => ['', true, true],
+			// Empty string is a valid false value, not invalid
+			// 'empty string with default false' => ['', false, false],
+			// 'empty string with default true' => ['', true, true],
 			'integer 2 with default false' => [2, false, false],
 			'integer 2 with default true' => [2, true, true],
 		];

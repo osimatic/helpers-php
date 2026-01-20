@@ -200,7 +200,9 @@ final class FormServiceTest extends TestCase
 	{
 		$this->assertTrue(FormService::parseBoolean(1));
 		$this->assertFalse(FormService::parseBoolean(0));
-		$this->assertTrue(FormService::parseBoolean(42));
+		$this->assertNull(FormService::parseBoolean(42)); // Invalid integer returns null
+		$this->assertNull(FormService::parseBoolean(2)); // Invalid integer returns null
+		$this->assertNull(FormService::parseBoolean(-1)); // Invalid integer returns null
 	}
 
 	public function testParseBooleanWithWhitespace(): void

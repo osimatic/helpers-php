@@ -274,28 +274,32 @@ class File
 
 	/**
 	 * Returns the file extension from a file path.
-	 * Handles common double extensions like .tar.gz, .tar.bz2, etc.
+	 * By default, returns only the last extension (e.g., 'gz' for 'file.tar.gz').
+	 * When includeDoubleExtension is true, returns common double extensions like .tar.gz, .tar.bz2, etc.
 	 * @param string $filePath The file path or filename
-	 * @return string The file extension (without dot). May be a double extension like 'tar.gz'
+	 * @param bool $includeDoubleExtension Whether to check for and return double extensions (default: false)
+	 * @return string The file extension (without dot). May be a double extension like 'tar.gz' if includeDoubleExtension is true
 	 */
-	public static function getExtension(string $filePath): string
+	public static function getExtension(string $filePath, bool $includeDoubleExtension = false): string
 	{
-		$filename = basename($filePath);
+		if ($includeDoubleExtension) {
+			$filename = basename($filePath);
 
-		// List of common double extensions
-		$doubleExtensions = [
-			'tar.gz', 'tar.bz2', 'tar.xz', 'tar.z', 'tar.lz',
-			'tar.zst', 'tar.lzma', 'tar.lzo', 'tar.bz'
-		];
+			// List of common double extensions
+			$doubleExtensions = [
+				'tar.gz', 'tar.bz2', 'tar.xz', 'tar.z', 'tar.lz',
+				'tar.zst', 'tar.lzma', 'tar.lzo', 'tar.bz'
+			];
 
-		// Check if file has a double extension
-		foreach ($doubleExtensions as $doubleExt) {
-			if (str_ends_with(mb_strtolower($filename), '.' . $doubleExt)) {
-				return $doubleExt;
+			// Check if file has a double extension
+			foreach ($doubleExtensions as $doubleExt) {
+				if (str_ends_with(mb_strtolower($filename), '.' . $doubleExt)) {
+					return $doubleExt;
+				}
 			}
 		}
 
-		// Otherwise return simple extension
+		// Return simple extension
 		return pathinfo($filePath, PATHINFO_EXTENSION);
 	}
 

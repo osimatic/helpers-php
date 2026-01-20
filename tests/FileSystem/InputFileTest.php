@@ -92,7 +92,7 @@ final class InputFileTest extends TestCase
 		$this->assertEquals('jpg', $inputFile->getExtension());
 
 		$inputFile->setOriginalFileName('archive.tar.gz');
-		$this->assertEquals('tar.gz', $inputFile->getExtension());
+		$this->assertEquals('gz', $inputFile->getExtension()); // Returns last extension only by default
 	}
 
 	public function testGetExtensionFromMimeType(): void
