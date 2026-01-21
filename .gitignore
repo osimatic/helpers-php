@@ -5,4 +5,4 @@ tests/test_postal_address.php
 tests/test.php
 todo.txt
 /.phpunit.cache
-/coverage-report/
+/coverage/
