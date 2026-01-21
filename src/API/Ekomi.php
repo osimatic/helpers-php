@@ -8,18 +8,25 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Class Ekomi
+ * Client for interacting with the eKomi API (v3).
+ * eKomi is a customer review and rating platform that allows businesses to collect, manage, and display customer feedback.
+ * This class provides methods to retrieve feedback links, customer reviews, and rating statistics.
  */
 class Ekomi
 {
+	/** Base URL for the eKomi API v3 endpoint */
 	public const string URL = 'http://api.ekomi.de/v3/';
+
+	/** Script version identifier used in API requests */
 	public const string SCRIPT_VERSION = '1.0.0';
 
+	/** HTTP client instance used for making API requests */
 	private HTTPClient $httpClient;
 
 	/**
-	 * @param string|null $interfaceId
-	 * @param string|null $interfacePassword
+	 * Initializes a new eKomi API client instance.
+	 * @param string|null $interfaceId The eKomi interface ID for API authentication
+	 * @param string|null $interfacePassword The eKomi interface password for API authentication
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
@@ -43,7 +50,8 @@ class Ekomi
 	}
 
 	/**
-	 * @param string $interfaceId
+	 * Sets the eKomi interface ID for API authentication.
+	 * @param string $interfaceId The eKomi interface ID
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setInterfaceId(string $interfaceId): self
@@ -54,7 +62,8 @@ class Ekomi
 	}
 
 	/**
-	 * @param string $interfacePassword
+	 * Sets the eKomi interface password for API authentication.
+	 * @param string $interfacePassword The eKomi interface password
 	 * @return self Returns this instance for method chaining
 	 */
 	public function setInterfacePassword(string $interfacePassword): self
@@ -65,8 +74,10 @@ class Ekomi
 	}
 
 	/**
-	 * @param string|int $orderId
-	 * @return string|null
+	 * Retrieves the customer feedback link for a specific order from the eKomi API.
+	 * This link can be used to direct customers to leave feedback about their order.
+	 * @param string|int $orderId The unique order identifier
+	 * @return string|null The feedback link URL if successful, null on failure
 	 */
 	public function getFeedbackLink(string|int $orderId): ?string
 	{
@@ -83,8 +94,9 @@ class Ekomi
 	}
 
 	/**
-	 * @param string $range
-	 * @return array|null
+	 * Retrieves a list of customer feedback entries from the eKomi API.
+	 * @param string $range The time range for feedback retrieval (e.g., 'all', 'month', 'week'). Default is 'all'
+	 * @return array|null Array of feedback entries if successful, null on failure
 	 */
 	public function getListFeedback(string $range='all'): ?array
 	{
@@ -96,7 +108,8 @@ class Ekomi
 	}
 
 	/**
-	 * @return array|null
+	 * Retrieves the average rating and total feedback count from the eKomi API.
+	 * @return array{0: float, 1: int}|null Array containing [average rating, feedback count] if successful, null on failure
 	 */
 	public function getAverage(): ?array
 	{
@@ -108,8 +121,10 @@ class Ekomi
 	}
 
 	/**
-	 * @param string $url
-	 * @return array|null
+	 * Executes an HTTP request to the eKomi API with authentication credentials.
+	 * This method handles the common request logic for all API calls, including authentication and JSON response parsing.
+	 * @param string $url The complete API endpoint URL to request
+	 * @return array|null The decoded JSON response as an associative array if successful, null on failure
 	 */
 	private function executeRequest(string $url): ?array
 	{
