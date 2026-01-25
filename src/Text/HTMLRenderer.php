@@ -89,10 +89,9 @@ class HTMLRenderer
 	public function renderString(string $template, array $templateData=[]): ?string
 	{
 		try {
-			$twigTemplate = $this->twig->createTemplate($template);
-			return $twigTemplate->render($templateData);
+			return $this->twig->createTemplate($template)->render($templateData);
 		}
-		catch (\Twig\Error\RuntimeError | \Twig\Error\SyntaxError $e) {
+		catch (\Twig\Error\LoaderError | \Twig\Error\SyntaxError $e) {
 			$this->logger->error('Twig string rendering error: ' . $e->getMessage(), [
 				'exception' => get_class($e),
 			]);

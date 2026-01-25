@@ -6,6 +6,7 @@ namespace Tests\Network;
 
 use Osimatic\Network\HTTPMethod;
 use Osimatic\Network\HTTPRequest;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -23,9 +24,7 @@ final class HTTPRequestTest extends TestCase
 	 * - Ou utiliser un serveur HTTP local de test
 	 */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteGetRequestWithRealHttpCall(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -43,9 +42,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertArrayHasKey('url', $json);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecutePostRequestWithRealHttpCall(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -66,9 +63,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertEquals('bar', $json['form']['foo']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteGetRequestWithQueryParameters(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -87,9 +82,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertEquals('value2', $json['args']['param2']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithHeaders(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -111,9 +104,7 @@ final class HTTPRequestTest extends TestCase
 
 	/* ===================== execute() - Options tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithUserAgent(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -134,9 +125,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertEquals($customUserAgent, $json['user-agent']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithTimeout(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -154,9 +143,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertFalse($result);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithHttpAuthentication(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -176,9 +163,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertEquals('user', $json['user']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithWrongHttpAuthentication(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -197,9 +182,7 @@ final class HTTPRequestTest extends TestCase
 
 	/* ===================== execute() - SSL tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithHttpsUrl(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -213,9 +196,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertNotEmpty($result);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithHttpUrl(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -231,9 +212,7 @@ final class HTTPRequestTest extends TestCase
 
 	/* ===================== execute() - Response file tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithResponseFile(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -288,9 +267,7 @@ final class HTTPRequestTest extends TestCase
 
 	/* ===================== execute() - Logger tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteLogsSuccessfulRequest(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -333,9 +310,7 @@ final class HTTPRequestTest extends TestCase
 
 	/* ===================== execute() - Different HTTP methods ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteWithDifferentHttpMethods(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -357,9 +332,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertIsString($result);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecutePostWithSslAndQueryParameters(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -379,9 +352,7 @@ final class HTTPRequestTest extends TestCase
 
 	/* ===================== execute() - URL building tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteGetAppendsQueryParamsToUrlWithoutExistingQuery(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -397,9 +368,7 @@ final class HTTPRequestTest extends TestCase
 		$this->assertEquals('qux', $json['args']['baz']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testExecuteGetAppendsQueryParamsToUrlWithExistingQuery(): void
 	{
 		$this->markTestSkipped('Ce test nécessite une connexion Internet et appelle un service externe');
@@ -456,23 +425,9 @@ final class HTTPRequestTest extends TestCase
 	}
 
 	/**
-	 * Test documenté pour expliquer comment cette méthode devrait être testée
-	 */
-	public function testParseRawHttpRequestDataIntegrationTest(): void
-	{
-		$this->markTestSkipped(
-			'Cette méthode nécessite un test fonctionnel avec de vraies requêtes HTTP. ' .
-			'Pour tester correctement : ' .
-			'1. Créer un script PHP qui appelle parseRawHttpRequestData() ' .
-			'2. Envoyer des requêtes multipart/form-data avec des fichiers ' .
-			'3. Vérifier que les données et fichiers sont correctement parsés'
-		);
-	}
-
-	/**
-	 * @group integration
 	 * Test qui documente l'utilisation attendue avec multipart/form-data
 	 */
+	#[Group("integration")]
 	public function testParseRawHttpRequestDataWithMultipartFormData(): void
 	{
 		$this->markTestSkipped(
@@ -489,9 +444,23 @@ final class HTTPRequestTest extends TestCase
 	}
 
 	/**
-	 * @group integration
+	 * Test documenté pour expliquer comment cette méthode devrait être testée
+	 */
+	public function testParseRawHttpRequestDataIntegrationTest(): void
+	{
+		$this->markTestSkipped(
+			'Cette méthode nécessite un test fonctionnel avec de vraies requêtes HTTP. ' .
+			'Pour tester correctement : ' .
+			'1. Créer un script PHP qui appelle parseRawHttpRequestData() ' .
+			'2. Envoyer des requêtes multipart/form-data avec des fichiers ' .
+			'3. Vérifier que les données et fichiers sont correctement parsés'
+		);
+	}
+
+	/**
 	 * Test qui documente l'utilisation avec form-urlencoded
 	 */
+	#[Group("integration")]
 	public function testParseRawHttpRequestDataWithFormUrlEncoded(): void
 	{
 		$this->markTestSkipped(

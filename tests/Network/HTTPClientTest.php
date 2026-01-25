@@ -6,10 +6,13 @@ namespace Tests\Network;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 final class HTTPClientTest extends TestCase
@@ -55,6 +58,92 @@ final class HTTPClientTest extends TestCase
 		$this->assertInstanceOf(HTTPClient::class, $client);
 	}
 
+	public function testConstructorWithDefaultOptions(): void
+	{
+		$client = new HTTPClient(
+			logger: new NullLogger(),
+			defaultOptions: ['timeout' => 10, 'verify' => false]
+		);
+
+		$this->assertInstanceOf(HTTPClient::class, $client);
+	}
+
+	/* ===================== PSR-18 ClientInterface Implementation ===================== */
+
+	public function testImplementsClientInterface(): void
+	{
+		$client = new HTTPClient();
+
+		$this->assertInstanceOf(ClientInterface::class, $client);
+	}
+
+	#[Group("integration")]
+	public function testSendRequestWithGetRequest(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$request = new Request('GET', 'https://httpbin.org/get');
+
+		$response = $client->sendRequest($request);
+
+		$this->assertNotNull($response);
+		$this->assertEquals(200, $response->getStatusCode());
+	}
+
+	#[Group("integration")]
+	public function testSendRequestWithPostRequest(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$request = new Request(
+			'POST',
+			'https://httpbin.org/post',
+			['Content-Type' => 'application/json'],
+			json_encode(['key' => 'value'])
+		);
+
+		$response = $client->sendRequest($request);
+
+		$this->assertNotNull($response);
+		$this->assertEquals(200, $response->getStatusCode());
+	}
+
+	public function testSendRequestThrowsExceptionOnInvalidUrl(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('error')
+			->with($this->stringContains('Error during PSR-18 request'));
+
+		$client = new HTTPClient($logger);
+		$request = new Request('GET', 'invalid-url');
+
+		$this->expectException(\Psr\Http\Client\ClientExceptionInterface::class);
+		$client->sendRequest($request);
+	}
+
+	#[Group("integration")]
+	public function testSendRequestWithCustomHeaders(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$request = new Request(
+			'GET',
+			'https://httpbin.org/headers',
+			['X-Custom-Header' => 'test-value', 'User-Agent' => 'HTTPClient/1.0']
+		);
+
+		$response = $client->sendRequest($request);
+
+		$this->assertNotNull($response);
+		$body = json_decode((string) $response->getBody(), true);
+		$this->assertArrayHasKey('headers', $body);
+		$this->assertEquals('test-value', $body['headers']['X-Custom-Header']);
+	}
+
 	/* ===================== request() - Note importante ===================== */
 
 	/**
@@ -76,9 +165,8 @@ final class HTTPClientTest extends TestCase
 	/**
 	 * Test with httpbin.org (public HTTP testing service)
 	 * This test requires an Internet connection
-	 *
-	 * @group integration
 	 */
+	#[Group("integration")]
 	public function testRequestGetWithRealHttpCall(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -90,9 +178,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals(200, $response->getStatusCode());
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testRequestPostWithRealHttpCall(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -108,9 +194,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals(200, $response->getStatusCode());
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testRequestWithQueryParameters(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -129,9 +213,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals('value2', $body['args']['param2']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testRequestWithHeaders(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -149,9 +231,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertArrayHasKey('headers', $body);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testRequestWithJsonBody(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -171,9 +251,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals('value', $body['json']['key']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testRequestWithFormParams(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -195,9 +273,7 @@ final class HTTPClientTest extends TestCase
 
 	/* ===================== jsonRequest() ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testJsonRequestReturnsArray(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -208,9 +284,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertIsArray($result);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testJsonRequestWithInvalidUrl(): void
 	{
 		$client = new HTTPClient();
@@ -221,9 +295,7 @@ final class HTTPClientTest extends TestCase
 
 	/* ===================== stringRequest() ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testStringRequestReturnsString(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -235,9 +307,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertNotEmpty($result);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testStringRequestWithInvalidUrl(): void
 	{
 		$client = new HTTPClient();
@@ -293,9 +363,7 @@ final class HTTPClientTest extends TestCase
 
 	/* ===================== URL building tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testGetRequestAppendsQueryParamsToUrl(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -315,9 +383,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals('qux', $body['args']['baz']);
 	}
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testGetRequestAppendsQueryParamsToUrlWithExistingParams(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
@@ -339,9 +405,7 @@ final class HTTPClientTest extends TestCase
 
 	/* ===================== Options tests ===================== */
 
-	/**
-	 * @group integration
-	 */
+	#[Group("integration")]
 	public function testRequestWithCustomOptions(): void
 	{
 		$this->markTestSkipped('This test requires an Internet connection and calls an external service');

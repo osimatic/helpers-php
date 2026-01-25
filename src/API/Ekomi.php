@@ -15,26 +15,25 @@ use Psr\Log\NullLogger;
 class Ekomi
 {
 	/** Base URL for the eKomi API v3 endpoint */
-	public const string URL = 'http://api.ekomi.de/v3/';
+	public const string URL = 'https://api.ekomi.de/v3/';
 
 	/** Script version identifier used in API requests */
 	public const string SCRIPT_VERSION = '1.0.0';
-
-	/** HTTP client instance used for making API requests */
-	private HTTPClient $httpClient;
 
 	/**
 	 * Initializes a new eKomi API client instance.
 	 * @param string|null $interfaceId The eKomi interface ID for API authentication
 	 * @param string|null $interfacePassword The eKomi interface password for API authentication
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param HTTPClient $httpClient HTTP client instance used for making API requests (default: new HTTPClient instance)
 	 */
 	public function __construct(
-		private ?string $interfaceId=null,
-		private ?string $interfacePassword=null,
-		LoggerInterface $logger=new NullLogger(),
+		private ?string $interfaceId = null,
+		private ?string $interfacePassword = null,
+		private LoggerInterface $logger = new NullLogger(),
+		private readonly HTTPClient $httpClient = new HTTPClient(),
 	) {
-		$this->httpClient = new HTTPClient($logger);
+		$httpClient->setLogger($this->logger);
 	}
 
 	/**
@@ -44,7 +43,7 @@ class Ekomi
 	 */
 	public function setLogger(LoggerInterface $logger): self
 	{
-		$this->httpClient->setLogger($logger);
+		$this->logger = $logger;
 
 		return $this;
 	}
@@ -81,25 +80,31 @@ class Ekomi
 	 */
 	public function getFeedbackLink(string|int $orderId): ?string
 	{
-		if (null !== ($result = $this->executeRequest(self::URL.'putOrder?order_id='.$orderId))) {
+		if (empty($orderId)) {
+			$this->logger->error('Order ID cannot be empty');
+			return null;
+		}
+
+		if (null === ($result = $this->executeRequest(self::URL.'putOrder?order_id='.$orderId))) {
 			return null;
 		}
 
 		return $result['link'] ?? null;
-		//return [
-		//	'link' 			=> $data['link'],
-		//	'hash' 			=> $data['hash'],
-		//	'known_since' 	=> $data['known_since'],
-		//];
 	}
 
 	/**
 	 * Retrieves a list of customer feedback entries from the eKomi API.
 	 * @param string $range The time range for feedback retrieval (e.g., 'all', 'month', 'week'). Default is 'all'
-	 * @return array|null Array of feedback entries if successful, null on failure
+	 * @return array<string, mixed>|null Array of feedback entries if successful, null on failure
 	 */
 	public function getListFeedback(string $range='all'): ?array
 	{
+		$validRanges = ['all', 'month', 'week', 'day', 'year'];
+		if (!in_array($range, $validRanges, true)) {
+			$this->logger->error('Invalid range parameter. Valid values are: ' . implode(', ', $validRanges));
+			return null;
+		}
+
 		if (null === ($result = $this->executeRequest(self::URL.'getFeedback?range='.$range))) {
 			return null;
 		}
@@ -128,6 +133,11 @@ class Ekomi
 	 */
 	private function executeRequest(string $url): ?array
 	{
+		if (empty($this->interfaceId) || empty($this->interfacePassword)) {
+			$this->logger->error('eKomi API credentials are not configured. Please set interfaceId and interfacePassword.');
+			return null;
+		}
+
 		$queryData = [
 			'auth' => $this->interfaceId.'|'.$this->interfacePassword,
 			'version' => 'cust-'.self::SCRIPT_VERSION,
