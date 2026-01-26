@@ -7,6 +7,7 @@ namespace Tests\API;
 use Osimatic\API\Mantis;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 final class MantisTest extends TestCase
 {
@@ -15,6 +16,23 @@ final class MantisTest extends TestCase
 	public function testConstructorWithAllParameters(): void
 	{
 		$mantis = new Mantis('https://mantis.example.com/', 'user123', 'username', 'password123');
+
+		$this->assertInstanceOf(Mantis::class, $mantis);
+	}
+
+	public function testConstructorWithSoapClientAndLogger(): void
+	{
+		$soapClient = $this->createMock(\SoapClient::class);
+		$logger = $this->createMock(LoggerInterface::class);
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: $soapClient,
+			logger: $logger
+		);
 
 		$this->assertInstanceOf(Mantis::class, $mantis);
 	}
@@ -368,5 +386,239 @@ final class MantisTest extends TestCase
 		$result = $mantis->setUrl('https://mantis.example.com:8080/');
 
 		$this->assertSame($mantis, $result);
+	}
+
+	/* ===================== addIssue() with SoapClient Mock ===================== */
+
+	public function testAddIssueWithSoapClientMockReturnsIssueId(): void
+	{
+		$expectedIssueId = 12345;
+
+		$soapClient = $this->createMock(\SoapClient::class);
+		$soapClient->expects(self::once())
+			->method('__call')
+			->with('mc_issue_add', self::callback(function ($args) {
+				return $args[0] === 'username'
+					&& $args[1] === 'password123'
+					&& is_array($args[2])
+					&& $args[2]['summary'] === 'Test Issue';
+			}))
+			->willReturn($expectedIssueId);
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: $soapClient
+		);
+
+		$result = $mantis->addIssue(
+			projectId: 1,
+			title: 'Test Issue',
+			desc: 'Test Description',
+			severity: 50
+		);
+
+		$this->assertSame($expectedIssueId, $result);
+	}
+
+	public function testAddIssueWithSoapClientMockAndAllParameters(): void
+	{
+		$expectedIssueId = 67890;
+
+		$soapClient = $this->createMock(\SoapClient::class);
+		$soapClient->expects(self::once())
+			->method('__call')
+			->with('mc_issue_add', self::callback(function ($args) {
+				$issueData = $args[2];
+				return $issueData['summary'] === 'Complex Issue'
+					&& $issueData['description'] === 'Detailed Description'
+					&& $issueData['category'] === 'Bug'
+					&& isset($issueData['priority'])
+					&& isset($issueData['reproducibility'])
+					&& isset($issueData['custom_fields']);
+			}))
+			->willReturn($expectedIssueId);
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: $soapClient
+		);
+
+		$result = $mantis->addIssue(
+			projectId: 5,
+			title: 'Complex Issue',
+			desc: 'Detailed Description',
+			severity: 60,
+			projectName: 'My Project',
+			category: 'Bug',
+			priority: 70,
+			reproducibility: 'Always',
+			customFields: ['field1' => 'value1', 'field2' => 'value2']
+		);
+
+		$this->assertSame($expectedIssueId, $result);
+	}
+
+	public function testAddIssueWithSoapFaultReturnsFalse(): void
+	{
+		$soapClient = $this->createMock(\SoapClient::class);
+		$soapClient->expects(self::once())
+			->method('__call')
+			->with('mc_issue_add')
+			->willThrowException(new \SoapFault('Server', 'Authentication failed'));
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: $soapClient
+		);
+
+		$result = $mantis->addIssue(
+			projectId: 1,
+			title: 'Test Issue',
+			desc: 'Test Description',
+			severity: 50
+		);
+
+		$this->assertFalse($result);
+	}
+
+	/* ===================== Logger Integration ===================== */
+
+	public function testAddIssueLogsErrorWhenUrlMissing(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with('Mantis: URL is required when SoapClient is not injected');
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: null,
+			logger: $logger
+		);
+
+		$result = $mantis->addIssue(
+			projectId: 1,
+			title: 'Test Issue',
+			desc: 'Test Description',
+			severity: 50
+		);
+
+		$this->assertFalse($result);
+	}
+
+	public function testAddIssueLogsErrorWhenCredentialsMissing(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(
+				'Mantis: Username, password, and user ID are all required',
+				self::callback(fn($context) => is_array($context))
+			);
+
+		$mantis = new Mantis(
+			url: 'https://mantis.example.com/',
+			userId: null,
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: null,
+			logger: $logger
+		);
+
+		$result = $mantis->addIssue(
+			projectId: 1,
+			title: 'Test Issue',
+			desc: 'Test Description',
+			severity: 50
+		);
+
+		$this->assertFalse($result);
+	}
+
+	public function testAddIssueLogsSuccessWhenIssueCreated(): void
+	{
+		$expectedIssueId = 999;
+
+		$soapClient = $this->createMock(\SoapClient::class);
+		$soapClient->expects(self::once())
+			->method('__call')
+			->willReturn($expectedIssueId);
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('info')
+			->with(
+				'Mantis: Issue created successfully',
+				self::callback(function ($context) use ($expectedIssueId) {
+					return $context['issue_id'] === $expectedIssueId
+						&& $context['project_id'] === 1
+						&& $context['title'] === 'Test Issue';
+				})
+			);
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: $soapClient,
+			logger: $logger
+		);
+
+		$mantis->addIssue(
+			projectId: 1,
+			title: 'Test Issue',
+			desc: 'Test Description',
+			severity: 50
+		);
+	}
+
+	public function testAddIssueLogsErrorOnSoapFault(): void
+	{
+		$soapClient = $this->createMock(\SoapClient::class);
+		$soapClient->expects(self::once())
+			->method('__call')
+			->willThrowException(new \SoapFault('Client', 'Invalid credentials'));
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(
+				'Mantis: SOAP error while creating issue',
+				self::callback(function ($context) {
+					return $context['soap_fault_code'] === 'Client'
+						&& $context['soap_fault_string'] === 'Invalid credentials'
+						&& $context['project_id'] === 1
+						&& $context['title'] === 'Bug Report';
+				})
+			);
+
+		$mantis = new Mantis(
+			url: null,
+			userId: 'user123',
+			userName: 'username',
+			userPassword: 'password123',
+			soapClient: $soapClient,
+			logger: $logger
+		);
+
+		$mantis->addIssue(
+			projectId: 1,
+			title: 'Bug Report',
+			desc: 'Description',
+			severity: 50
+		);
 	}
 }

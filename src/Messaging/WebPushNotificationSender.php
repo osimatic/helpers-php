@@ -22,7 +22,7 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 		private ?string $vapidPublicKey = null,
 		private ?string $vapidPrivateKey = null,
 		private ?string $subject = null,
-		private LoggerInterface $logger = new NullLogger(),
+		private readonly LoggerInterface $logger = new NullLogger(),
 	) {}
 
 	/**
@@ -57,18 +57,6 @@ class WebPushNotificationSender implements WebPushNotificationSenderInterface
 	public function setSubject(?string $subject): self
 	{
 		$this->subject = $subject;
-
-		return $this;
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
 
 		return $this;
 	}

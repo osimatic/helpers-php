@@ -4,27 +4,49 @@ declare(strict_types=1);
 
 namespace Tests\API;
 
+use GuzzleHttp\Psr7\Response;
 use Osimatic\API\Ekomi;
-use Osimatic\Network\HTTPClient;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 final class EkomiTest extends TestCase
 {
+	private const string TEST_INTERFACE_ID = 'test-interface-123';
+	private const string TEST_INTERFACE_PASSWORD = 'test-password-456';
+	private const string TEST_ORDER_ID = 'ORDER-12345';
+
 	/**
-	 * Helper method to create an HTTPClient instance for testing
+	 * Helper method to create a PSR-7 Response with JSON body
+	 * @param array $data Data to encode as JSON
+	 * @param int $statusCode HTTP status code
+	 * @return Response PSR-7 Response instance
 	 */
-	private function createHttpClient(): HTTPClient
+	private function createJsonResponse(array $data, int $statusCode = 200): Response
 	{
-		return new HTTPClient();
+		return new Response($statusCode, ['Content-Type' => 'application/json'], json_encode($data));
+	}
+
+	/**
+	 * Helper method to verify HTTP request contains authentication parameters
+	 * @param mixed $request PSR-7 Request to verify
+	 * @return bool True if request contains valid auth parameters
+	 */
+	private function assertRequestHasAuth($request): bool
+	{
+		$uri = (string) $request->getUri();
+		return str_contains($uri, 'auth=' . self::TEST_INTERFACE_ID . '%7C' . self::TEST_INTERFACE_PASSWORD)
+			&& str_contains($uri, 'version=cust-1.0.0')
+			&& str_contains($uri, 'type=json');
 	}
 
 	/* ===================== Constants ===================== */
 
 	public function testUrlConstant(): void
 	{
-		$this->assertSame('https://api.ekomi.de/v3/', Ekomi::URL);
+		$this->assertSame('https://api.ekomi.de/v3/', Ekomi::API_URL);
 	}
 
 	public function testScriptVersionConstant(): void
@@ -37,10 +59,10 @@ final class EkomiTest extends TestCase
 	public function testConstructorWithAllParameters(): void
 	{
 		$logger = $this->createMock(LoggerInterface::class);
-		$httpClient = $this->createHttpClient();
+		$httpClient = $this->createMock(ClientInterface::class);
 		$ekomi = new Ekomi('interface123', 'password123', logger: $logger, httpClient: $httpClient);
 
-		$this->assertInstanceOf(Ekomi::class, $ekomi);
+		self::assertInstanceOf(Ekomi::class, $ekomi);
 	}
 
 	public function testConstructorWithMinimalParameters(): void
@@ -60,23 +82,13 @@ final class EkomiTest extends TestCase
 
 	public function testConstructorWithHttpClientInjection(): void
 	{
-		$httpClient = $this->createHttpClient();
+		$httpClient = $this->createMock(ClientInterface::class);
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
-		$this->assertInstanceOf(Ekomi::class, $ekomi);
+		self::assertInstanceOf(Ekomi::class, $ekomi);
 	}
 
 	/* ===================== Setters ===================== */
-
-	public function testSetLogger(): void
-	{
-		$ekomi = new Ekomi();
-		$logger = $this->createMock(LoggerInterface::class);
-
-		$result = $ekomi->setLogger($logger);
-
-		$this->assertSame($ekomi, $result);
-	}
 
 	public function testSetInterfaceId(): void
 	{
@@ -98,11 +110,9 @@ final class EkomiTest extends TestCase
 
 	public function testFluentInterface(): void
 	{
-		$logger = $this->createMock(LoggerInterface::class);
 		$ekomi = new Ekomi();
 
 		$result = $ekomi
-			->setLogger($logger)
 			->setInterfaceId('interface123')
 			->setInterfacePassword('password123');
 
@@ -168,19 +178,14 @@ final class EkomiTest extends TestCase
 
 	public function testGetFeedbackLinkWithValidParameters(): void
 	{
-		// Create mock HTTPClient that returns a simulated API response
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Create mock ClientInterface that returns a simulated API response
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->with(
-				$this->anything(), // HTTPMethod::GET
-				$this->stringContains('putOrder?order_id=ORDER123'),
-				$this->anything()  // queryData
-			)
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'link' => 'https://ekomi.example.com/feedback/ORDER123',
 				'status' => 'success'
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -192,14 +197,14 @@ final class EkomiTest extends TestCase
 
 	public function testGetFeedbackLinkReturnsNullWhenNoLink(): void
 	{
-		// Create mock HTTPClient that returns a response without 'link' key
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Create mock ClientInterface that returns a response without 'link' key
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'status' => 'success',
 				'message' => 'No link available'
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -208,19 +213,90 @@ final class EkomiTest extends TestCase
 		$this->assertNull($result);
 	}
 
-	public function testGetFeedbackLinkReturnsNullWhenHttpClientReturnsNull(): void
+	public function testGetFeedbackLinkWithNetworkException(): void
 	{
-		// Create mock HTTPClient that returns null (simulating API failure)
-		$httpClient = $this->createMock(HTTPClient::class);
-		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->willReturn(null);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
 
-		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
 
-		$result = $ekomi->getFeedbackLink('ORDER123');
+		$result = $ekomi->getFeedbackLink(self::TEST_ORDER_ID);
 
-		$this->assertNull($result);
+		self::assertNull($result);
+	}
+
+	public function testGetFeedbackLinkVerifiesRequestUrlContainsOrderId(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'putOrder?order_id=' . self::TEST_ORDER_ID)
+					&& $this->assertRequestHasAuth($request);
+			}))
+			->willReturn($this->createJsonResponse(['link' => 'https://ekomi.example.com/feedback']));
+
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
+
+		$result = $ekomi->getFeedbackLink(self::TEST_ORDER_ID);
+
+		self::assertNotNull($result);
+	}
+
+	public function testGetFeedbackLinkWithSpecialCharactersInOrderId(): void
+	{
+		$orderId = 'ORDER-2025/01#123';
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) use ($orderId) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'putOrder?order_id=' . $orderId);
+			}))
+			->willReturn($this->createJsonResponse(['link' => 'https://ekomi.example.com/feedback']));
+
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
+
+		$result = $ekomi->getFeedbackLink($orderId);
+
+		self::assertNotNull($result);
+	}
+
+	public function testGetFeedbackLinkWithIntegerOrderId(): void
+	{
+		$orderId = 12345;
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) use ($orderId) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'putOrder?order_id=' . $orderId);
+			}))
+			->willReturn($this->createJsonResponse(['link' => 'https://ekomi.example.com/feedback/' . $orderId]));
+
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
+
+		$result = $ekomi->getFeedbackLink($orderId);
+
+		self::assertNotNull($result);
+		self::assertSame('https://ekomi.example.com/feedback/' . $orderId, $result);
+	}
+
+	public function testGetFeedbackLinkLogsCredentialError(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with('eKomi API credentials are not configured. Please set interfaceId and interfacePassword.');
+
+		$ekomi = new Ekomi(logger: $logger);
+
+		$result = $ekomi->getFeedbackLink(self::TEST_ORDER_ID);
+
+		self::assertNull($result);
 	}
 
 	/* ===================== getListFeedback() ===================== */
@@ -251,16 +327,11 @@ final class EkomiTest extends TestCase
 	#[DataProvider('validRangeProvider')]
 	public function testGetListFeedbackWithValidRanges(string $range): void
 	{
-		// Mock HTTPClient to test each valid range
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Mock ClientInterface to test each valid range
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->with(
-				$this->anything(),
-				$this->stringContains('getFeedback?range=' . $range),
-				$this->anything()
-			)
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'feedbacks' => [
 					[
 						'order_id' => 'TEST_ORDER',
@@ -269,7 +340,7 @@ final class EkomiTest extends TestCase
 					]
 				],
 				'range' => $range
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -295,16 +366,11 @@ final class EkomiTest extends TestCase
 
 	public function testGetListFeedbackDefaultRange(): void
 	{
-		// Mock HTTPClient to test default range behavior
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Mock ClientInterface to test default range behavior
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->with(
-				$this->anything(),
-				$this->stringContains('getFeedback?range=all'), // default is 'all'
-				$this->anything()
-			)
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'feedbacks' => [
 					[
 						'order_id' => 'DEFAULT_TEST',
@@ -312,7 +378,7 @@ final class EkomiTest extends TestCase
 					]
 				],
 				'total' => 1
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -326,16 +392,11 @@ final class EkomiTest extends TestCase
 
 	public function testGetListFeedbackWithValidCredentials(): void
 	{
-		// Create mock HTTPClient that returns a simulated API response
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Create mock ClientInterface that returns a simulated API response
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->with(
-				$this->anything(), // HTTPMethod::GET
-				$this->stringContains('getFeedback?range=all'),
-				$this->anything()  // queryData
-			)
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'feedbacks' => [
 					[
 						'order_id' => 'ORDER123',
@@ -352,7 +413,7 @@ final class EkomiTest extends TestCase
 				],
 				'total' => 2,
 				'status' => 'success'
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -366,36 +427,49 @@ final class EkomiTest extends TestCase
 		$this->assertSame(5, $result['feedbacks'][0]['rating']);
 	}
 
-	public function testGetListFeedbackReturnsNullWhenHttpClientReturnsNull(): void
+	public function testGetListFeedbackWithNetworkException(): void
 	{
-		// Create mock HTTPClient that returns null (simulating API failure)
-		$httpClient = $this->createMock(HTTPClient::class);
-		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->willReturn(null);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
 
-		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
 
 		$result = $ekomi->getListFeedback('month');
 
-		$this->assertNull($result);
+		self::assertNull($result);
+	}
+
+	public function testGetListFeedbackVerifiesRequestUrlContainsRange(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'getFeedback?range=week')
+					&& $this->assertRequestHasAuth($request);
+			}))
+			->willReturn($this->createJsonResponse(['feedbacks' => []]));
+
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
+
+		$result = $ekomi->getListFeedback('week');
+
+		self::assertNotNull($result);
 	}
 
 	public function testGetListFeedbackWithDifferentRanges(): void
 	{
 		// Test with 'week' range
-		$httpClient = $this->createMock(HTTPClient::class);
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->with(
-				$this->anything(),
-				$this->stringContains('getFeedback?range=week'),
-				$this->anything()
-			)
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'feedbacks' => [],
 				'total' => 0
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -438,22 +512,17 @@ final class EkomiTest extends TestCase
 
 	public function testGetAverageWithValidCredentials(): void
 	{
-		// Create mock HTTPClient that returns a simulated API response
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Create mock ClientInterface that returns a simulated API response
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->with(
-				$this->anything(), // HTTPMethod::GET
-				$this->stringContains('getSnapshot?range=all'),
-				$this->anything()  // queryData
-			)
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'info' => [
 					'fb_avg' => 4.5,
 					'fb_count' => 150
 				],
 				'status' => 'success'
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -466,33 +535,51 @@ final class EkomiTest extends TestCase
 		$this->assertSame(150, $result[1]); // feedback count
 	}
 
-	public function testGetAverageReturnsNullWhenHttpClientReturnsNull(): void
+	public function testGetAverageWithNetworkException(): void
 	{
-		// Create mock HTTPClient that returns null (simulating API failure)
-		$httpClient = $this->createMock(HTTPClient::class);
-		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->willReturn(null);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
 
-		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
 
 		$result = $ekomi->getAverage();
 
-		$this->assertNull($result);
+		self::assertNull($result);
+	}
+
+	public function testGetAverageVerifiesRequestUrlContainsSnapshot(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'getSnapshot?range=all')
+					&& $this->assertRequestHasAuth($request);
+			}))
+			->willReturn($this->createJsonResponse(['info' => ['fb_avg' => 4.0, 'fb_count' => 100]]));
+
+		$ekomi = new Ekomi(self::TEST_INTERFACE_ID, self::TEST_INTERFACE_PASSWORD, httpClient: $httpClient);
+
+		$result = $ekomi->getAverage();
+
+		self::assertNotNull($result);
 	}
 
 	public function testGetAverageWithDifferentValues(): void
 	{
 		// Test with different average and count values
-		$httpClient = $this->createMock(HTTPClient::class);
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->once())
-			->method('jsonRequest')
-			->willReturn([
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
 				'info' => [
 					'fb_avg' => 3.8,
 					'fb_count' => 42
 				]
-			]);
+			]));
 
 		$ekomi = new Ekomi('interface123', 'password123', httpClient: $httpClient);
 
@@ -551,38 +638,36 @@ final class EkomiTest extends TestCase
 
 	public function testCompleteWorkflow(): void
 	{
-		// Mock HTTPClient to simulate successful API calls
-		$httpClient = $this->createMock(HTTPClient::class);
+		// Mock ClientInterface to simulate successful API calls
+		$httpClient = $this->createMock(ClientInterface::class);
 		$httpClient->expects($this->exactly(3))
-			->method('jsonRequest')
+			->method('sendRequest')
 			->willReturnOnConsecutiveCalls(
 				// First call: getFeedbackLink
-				[
+				$this->createJsonResponse([
 					'link' => 'https://ekomi.example.com/feedback/ORDER123',
 					'status' => 'success'
-				],
+				]),
 				// Second call: getListFeedback
-				[
+				$this->createJsonResponse([
 					'feedbacks' => [
 						['order_id' => 'ORDER123', 'rating' => 5]
 					],
 					'total' => 1
-				],
+				]),
 				// Third call: getAverage
-				[
+				$this->createJsonResponse([
 					'info' => [
 						'fb_avg' => 4.5,
 						'fb_count' => 100
 					]
-				]
+				])
 			);
 
-		$logger = $this->createMock(LoggerInterface::class);
 		$ekomi = new Ekomi(httpClient: $httpClient);
 
 		// Test method chaining
 		$ekomi
-			->setLogger($logger)
 			->setInterfaceId('interface123')
 			->setInterfacePassword('password123');
 

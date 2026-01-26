@@ -2,6 +2,7 @@
 
 namespace Osimatic\Network;
 
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -11,29 +12,22 @@ use Psr\Log\NullLogger;
  */
 class VPNAPI
 {
-	private HTTPClient $httpClient;
+	public const string API_URL = 'https://vpnapi.io/';
+
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * @param string|null $key API key for VPNAPI.io
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
 		private ?string $key=null,
-		LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger = new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	) {
-		$this->httpClient = new HTTPClient($logger);
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->httpClient->setLogger($logger);
-
-		return $this;
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 	/**
@@ -55,8 +49,13 @@ class VPNAPI
 	 */
 	public function getIpInfos(string $ipAddress): ?array
 	{
-		$url = 'https://vpnapi.io/api/'.$ipAddress.'?key='.$this->key;
-		if (null === ($data = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
+		if (empty($this->key)) {
+			$this->logger->error('VPNAPI.io API key is missing');
+			return null;
+		}
+
+		$url = self::API_URL.'api/'.$ipAddress.'?key='.$this->key;
+		if (null === ($data = $this->requestExecutor->execute(HTTPMethod::GET, $url, decodeJson: true))) {
 			return null;
 		}
 

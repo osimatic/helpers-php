@@ -4,6 +4,8 @@ namespace Osimatic\Bank;
 
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
@@ -71,12 +73,8 @@ class Revolut
 	 */
 	private ?string $purchaseReference = null;
 
-	/**
-	 * HTTP client for API communication
-	 * Handles HTTP requests to the Revolut API
-	 * @var HTTPClient
-	 */
-	private HTTPClient $httpClient;
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * Initialize Revolut payment gateway integration
@@ -84,26 +82,16 @@ class Revolut
 	 * @param string $publicKey The Revolut public API key for merchant identification
 	 * @param string $secretKey The Revolut secret API key used as Bearer token for API authentication
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
-		private string          $publicKey,
-		private string          $secretKey,
-		private LoggerInterface $logger = new NullLogger(),
+		private string $publicKey,
+		private string $secretKey,
+		private readonly LoggerInterface $logger = new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	)
 	{
-		$this->httpClient = new HTTPClient($logger);
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
-
-		return $this;
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 	/**
@@ -252,10 +240,10 @@ class Revolut
 
 		// Log
 		$this->logger?->info('URL : ' . $url);
-		$this->logger?->info('Payload : ' . json_encode($payload, JSON_THROW_ON_ERROR));
+		$this->logger?->info('Payload : ' . json_encode($payload));
 
 		// Call Revolut URL via GET (get order) or POST (authorize / pay order)
-		$res = $this->httpClient->request($httpMethod, $url, queryData: $payload, headers: ['Authorization' => 'Bearer ' . $this->secretKey], jsonBody: HTTPMethod::POST === $httpMethod);
+		$res = $this->requestExecutor->send($httpMethod, $url, $payload, headers: ['Authorization' => 'Bearer ' . $this->secretKey], jsonBody: HTTPMethod::POST === $httpMethod);
 
 		if (null === $res) {
 			$this->logger?->error('Revolut API call failed');

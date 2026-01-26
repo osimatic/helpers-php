@@ -49,3 +49,6 @@ Version du 23/08/2025 :
 Version du 01/10/2025 :
 - ImageResizer::resize() -> $imageResizer->resize()
 - Duration::getDurationOfIntersectionBetweenTwoTimeSlot() -> Duration::getIntersectionDurationBetweenTimestampSlots()
+
+Version du 26/01/2026 :
+- suppression des méthodes setLogger dans les différents services

@@ -4,6 +4,8 @@ namespace Osimatic\Security;
 
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -16,24 +18,23 @@ class GoogleReCaptcha
 	private const string API_JS_URL = 'https://www.google.com/recaptcha/api.js';
 	private const string DEFAULT_LOCALE = 'en';
 
-	/**
-	 * HTTP client instance used to communicate with Google's reCAPTCHA verification API.
-	 * @var HTTPClient
-	 */
-	private HTTPClient $httpClient;
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * Initializes the Google reCAPTCHA handler with configuration parameters and sets up the HTTP client for API communication.
 	 * @param string|null $siteKey The Google reCAPTCHA site key (public key) used to render the reCAPTCHA widget on the client side
 	 * @param string|null $secret The Google reCAPTCHA secret key (private key) used to verify responses with Google's API server
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging information (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
 		private ?string $siteKey=null,
 		private ?string $secret=null,
-		LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	) {
-		$this->httpClient = new HTTPClient($logger);
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 
@@ -68,6 +69,11 @@ class GoogleReCaptcha
 	 */
 	public function check(?string $recaptchaResponse): bool
 	{
+		if (empty($this->secret)) {
+			$this->logger->error('Google reCAPTCHA secret key (private key) is not configured. Please set secret key.');
+			return false;
+		}
+
 		if (empty($recaptchaResponse)) {
 			return false;
 		}
@@ -78,9 +84,7 @@ class GoogleReCaptcha
 			//'remoteip' => ($_SERVER['REMOTE_ADDR'] ?? null),
 		];
 
-		$json = $this->httpClient->jsonRequest(HTTPMethod::GET, self::VERIFY_URL, queryData: $queryData);
-
-		if (null === $json) {
+		if (null === ($json = $this->requestExecutor->execute(HTTPMethod::GET, self::VERIFY_URL, $queryData, decodeJson: true))) {
 			return false;
 		}
 
@@ -105,5 +109,4 @@ class GoogleReCaptcha
 	{
 		return self::API_JS_URL.'?hl='.$locale;
 	}
-
 }

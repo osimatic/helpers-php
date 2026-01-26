@@ -2,6 +2,9 @@
 
 namespace Osimatic\Bank;
 
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -23,123 +26,90 @@ class MoneticoPayment
 	private const int HMAC_SHA1_BLOCK_LENGTH = 64;
 
 	/**
-	 * TPE (Terminal de Paiement Électronique) number
-	 * The merchant's payment terminal identifier provided by CIC
-	 * @var int
-	 */
-	private int $tpeNumber;
-
-	/**
-	 * Company code (société code)
-	 * The merchant's company identifier provided by CIC
-	 * @var string
-	 */
-	private string $companyCode;
-
-	/**
-	 * HMAC security key
-	 * The secret key provided by CIC for cryptographic signing of payment requests
-	 * @var string
-	 */
-	private string $key;
-
-	/**
-	 * The PSR-3 logger instance.
-	 * @var LoggerInterface
-	 */
-	private LoggerInterface $logger;
-
-	/**
 	 * Total amount including all taxes
 	 * Format: integer, optional decimal point, optional integer with n digits (n being max decimals for currency)
-	 * @var float
 	 */
 	private float $allTaxesInclAmount;
 
 	/**
 	 * Currency code (3 alphabetic characters ISO 4217)
-	 * @var string
 	 */
 	private string $currency;
 
 	/**
 	 * Unique order reference
 	 * Size: max 12 alphanumeric characters
-	 * @var string
 	 */
 	private ?string $reference = null;
 
 	/**
 	 * Free text field
 	 * Size: max 3200 characters. Examples: long reference, session contexts for return
-	 * @var string
 	 */
 	private ?string $texteLibre = null;
 
 	/**
 	 * Language code
 	 * Size: 2 characters. Examples: "FR", "EN", "DE", "IT", "ES" according to subscribed options
-	 * @var string
 	 */
 	private ?string $language = null;
 
 	/**
 	 * Customer email address
-	 * @var string
 	 */
 	private ?string $customerEmail = null;
 
 	/**
 	 * CSS class name for the payment form element
 	 * Applied to the <form> HTML tag for styling purposes
-	 * @var string
 	 */
 	private ?string $formTagClass = null;
 
 	/**
 	 * CSS class name for the submit button
 	 * Applied to the submit button in the payment form for styling purposes
-	 * @var string
 	 */
 	private ?string $buttonTagClass = null;
 
 	/**
 	 * Submit button text/label
 	 * The text displayed on the payment form submit button
-	 * @var string
 	 */
 	private ?string $buttonTagText = null;
 
 	/**
 	 * Test mode flag
 	 * When true, uses CIC test environment URLs for development/testing
-	 * @var bool
 	 */
 	private bool $paiementTest = false;
 
 	/**
 	 * URL where the buyer returns to the shop's homepage
-	 * @var string
 	 */
 	private ?string $returnUrlHome = null;
 
 	/**
 	 * URL where the buyer returns to the merchant's site after a successful payment
-	 * @var string
 	 */
 	private ?string $returnUrlOk = null;
 
 	/**
 	 * URL where the buyer returns to the merchant's site after a refused payment
-	 * @var string
 	 */
 	private ?string $returnUrlNotOk = null;
 
-	public function __construct()
-	{
-		$this->logger = new NullLogger();
-	}
-
+	/**
+	 * @param int $tpeNumber The merchant's payment terminal identifier (TPE, Terminal de Paiement Électronique) number provided by CIC
+	 * @param string $companyCode The merchant's company identifier provided by CIC
+	 * @param string $key The secret key (HMAC security key) provided by CIC for cryptographic signing of payment requests
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 */
+	public function __construct(
+		private int $tpeNumber,
+		private string $companyCode,
+		private string $key,
+		private readonly LoggerInterface $logger=new NullLogger(),
+	) {}
 
 	/**
 	 * Get payment validation data from CIC payment gateway response
@@ -217,18 +187,6 @@ class MoneticoPayment
 	public function setKey(string $key): self
 	{
 		$this->key = $key;
-
-		return $this;
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
 
 		return $this;
 	}

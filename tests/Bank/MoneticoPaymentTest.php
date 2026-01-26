@@ -10,11 +10,19 @@ use Psr\Log\LoggerInterface;
 
 final class MoneticoPaymentTest extends TestCase
 {
+	private const int TEST_TPE_NUMBER = 1234567;
+	private const string TEST_COMPANY_CODE = 'testcompany';
+	private const string TEST_KEY = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'; // 40 chars
+
 	private MoneticoPayment $cicPayment;
 
 	protected function setUp(): void
 	{
-		$this->cicPayment = new MoneticoPayment();
+		$this->cicPayment = new MoneticoPayment(
+			tpeNumber: self::TEST_TPE_NUMBER,
+			companyCode: self::TEST_COMPANY_CODE,
+			key: self::TEST_KEY
+		);
 	}
 
 	/* ===================== Constants ===================== */
@@ -38,7 +46,25 @@ final class MoneticoPaymentTest extends TestCase
 
 	public function testConstructorCreatesInstance(): void
 	{
-		$cicPayment = new MoneticoPayment();
+		$cicPayment = new MoneticoPayment(
+			tpeNumber: self::TEST_TPE_NUMBER,
+			companyCode: self::TEST_COMPANY_CODE,
+			key: self::TEST_KEY
+		);
+
+		$this->assertInstanceOf(MoneticoPayment::class, $cicPayment);
+	}
+
+	public function testConstructorWithLogger(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+
+		$cicPayment = new MoneticoPayment(
+			tpeNumber: self::TEST_TPE_NUMBER,
+			companyCode: self::TEST_COMPANY_CODE,
+			key: self::TEST_KEY,
+			logger: $logger
+		);
 
 		$this->assertInstanceOf(MoneticoPayment::class, $cicPayment);
 	}
@@ -86,14 +112,6 @@ final class MoneticoPaymentTest extends TestCase
 		// CIC keys are typically 40 characters hexadecimal
 		$key = str_repeat('A', 40);
 		$result = $this->cicPayment->setKey($key);
-
-		$this->assertSame($this->cicPayment, $result);
-	}
-
-	public function testSetLogger(): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$result = $this->cicPayment->setLogger($logger);
 
 		$this->assertSame($this->cicPayment, $result);
 	}
@@ -384,45 +402,6 @@ final class MoneticoPaymentTest extends TestCase
 
 	/* ===================== Form generation tests ===================== */
 
-	public function testGetFormThrowsExceptionWithoutTpeNumber(): void
-	{
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('TPE number is required for CIC payment');
-
-		$this->cicPayment
-			->setCompanyCode('test')
-			->setKey(str_repeat('A', 40))
-			->setAllTaxesInclAmount(100.0)
-			->setCurrency('EUR')
-			->getForm();
-	}
-
-	public function testGetFormThrowsExceptionWithoutCompanyCode(): void
-	{
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('Company code is required for CIC payment');
-
-		$this->cicPayment
-			->setTpeNumber(1234567)
-			->setKey(str_repeat('A', 40))
-			->setAllTaxesInclAmount(100.0)
-			->setCurrency('EUR')
-			->getForm();
-	}
-
-	public function testGetFormThrowsExceptionWithoutKey(): void
-	{
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('HMAC key is required for CIC payment');
-
-		$this->cicPayment
-			->setTpeNumber(1234567)
-			->setCompanyCode('test')
-			->setAllTaxesInclAmount(100.0)
-			->setCurrency('EUR')
-			->getForm();
-	}
-
 	public function testGetFormThrowsExceptionWithoutAmount(): void
 	{
 		$this->expectException(\RuntimeException::class);
@@ -561,11 +540,15 @@ final class MoneticoPaymentTest extends TestCase
 
 	public function testCompleteTestModeConfiguration(): void
 	{
-		$cicPayment = new MoneticoPayment();
 		$logger = $this->createMock(LoggerInterface::class);
+		$cicPayment = new MoneticoPayment(
+			tpeNumber: 9999999,
+			companyCode: 'initial',
+			key: str_repeat('Z', 40),
+			logger: $logger
+		);
 
 		$result = $cicPayment
-			->setLogger($logger)
 			->setTpeNumber(1234567)
 			->setCompanyCode('testcompany')
 			->setKey(str_repeat('A', 40))

@@ -2,39 +2,48 @@
 
 namespace Tests\Route;
 
-use Osimatic\Network\HTTPClient;
-use Osimatic\Network\HTTPMethod;
+use GuzzleHttp\Psr7\Response;
 use Osimatic\Route\GoogleDistanceMatrix;
 use Osimatic\Route\GoogleDistanceMatrixParameters;
 use Osimatic\Route\TransitTravelMode;
 use Osimatic\Route\TravelMode;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 class GoogleDistanceMatrixTest extends TestCase
 {
+	private const string TEST_API_KEY = 'test-api-key';
+	private const string ORIGIN_COORDS = '48.8566,2.3522'; // Paris
+	private const string DESTINATION_COORDS = '51.5074,-0.1278'; // London
+
 	// ========== Constructor Tests ==========
 
 	public function testConstructorWithoutApiKey(): void
 	{
 		$client = new GoogleDistanceMatrix();
-
 		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
 	}
 
 	public function testConstructorWithApiKey(): void
 	{
-		$client = new GoogleDistanceMatrix('test-api-key');
-
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY);
 		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
 	}
 
 	public function testConstructorWithApiKeyAndLogger(): void
 	{
 		$logger = $this->createMock(LoggerInterface::class);
-		$client = new GoogleDistanceMatrix('test-api-key', $logger);
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger);
+		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
+	}
 
+	public function testConstructorWithAllParameters(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
 		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
 	}
 
@@ -43,36 +52,87 @@ class GoogleDistanceMatrixTest extends TestCase
 	public function testSetApiKey(): void
 	{
 		$client = new GoogleDistanceMatrix();
-
 		$result = $client->setApiKey('my-api-key');
-
 		self::assertSame($client, $result); // Test fluent interface
 	}
 
 	public function testSetApiKeyReplacesExistingKey(): void
 	{
 		$client = new GoogleDistanceMatrix('old-key');
-
 		$client->setApiKey('new-key');
-
-		// We can't directly test the private property, but we can verify
-		// the method returns $this for chaining
 		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
 	}
 
-	// ========== setLogger Tests ==========
+	// ========== Successful API Calls ==========
 
-	public function testSetLogger(): void
+	public function testGetDistanceMatrixSuccessfulResponse(): void
 	{
-		$client = new GoogleDistanceMatrix();
-		$logger = $this->createMock(LoggerInterface::class);
+		$responseData = [
+			'status' => 'OK',
+			'rows' => [
+				[
+					'elements' => [
+						[
+							'status' => 'OK',
+							'duration' => ['value' => 3600], // 1 hour in seconds
+							'distance' => ['value' => 100000], // 100 km in meters
+						],
+					],
+				],
+			],
+		];
 
-		$result = $client->setLogger($logger);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-		self::assertSame($client, $result); // Test fluent interface
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertIsArray($result);
+		self::assertCount(2, $result);
+		self::assertSame(3600, $result[0]); // duration
+		self::assertSame(100000, $result[1]); // distance
 	}
 
-	// ========== getDistanceMatrix - Missing API Key ==========
+	public function testGetDistanceMatrixWithCompleteResponseStructure(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'origin_addresses' => ['Paris, France'],
+			'destination_addresses' => ['London, UK'],
+			'rows' => [
+				[
+					'elements' => [
+						[
+							'status' => 'OK',
+							'duration' => [
+								'value' => 7200,
+								'text' => '2 hours',
+							],
+							'distance' => [
+								'value' => 450000,
+								'text' => '450 km',
+							],
+						],
+					],
+				],
+			],
+		];
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertSame([7200, 450000], $result);
+	}
+
+	// ========== Missing API Key ==========
 
 	public function testGetDistanceMatrixWithoutApiKeyReturnsNull(): void
 	{
@@ -81,17 +141,16 @@ class GoogleDistanceMatrixTest extends TestCase
 			->method('error')
 			->with('Google Distance Matrix API key is missing');
 
-		$client = new GoogleDistanceMatrix(null, $logger);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::never())->method('sendRequest');
 
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278'
-		);
+		$client = new GoogleDistanceMatrix(null, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
 
 		self::assertNull($result);
 	}
 
-	// ========== getDistanceMatrix - Invalid Travel Mode ==========
+	// ========== Invalid Travel Mode ==========
 
 	public function testGetDistanceMatrixWithInvalidTravelModeReturnsNull(): void
 	{
@@ -105,272 +164,257 @@ class GoogleDistanceMatrixTest extends TestCase
 				})
 			);
 
-		$client = new GoogleDistanceMatrix('test-key', $logger);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::never())->method('sendRequest');
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
 
 		// Using an unsupported travel mode (PLANE is not mapped in the match statement)
 		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
+			self::ORIGIN_COORDS,
+			self::DESTINATION_COORDS,
 			TravelMode::PLANE
 		);
 
 		self::assertNull($result);
 	}
 
-	// ========== Coordinates Formatting ==========
+	// ========== Different Travel Modes ==========
 
-	public function testGetDistanceMatrixRemovesSpacesFromCoordinates(): void
+	public function testGetDistanceMatrixWithDriveMode(): void
 	{
-		// This test is implicit - the method should work with spaces in coordinates
-		// We'll test this through a successful call
-		$client = new GoogleDistanceMatrix('test-key');
+		$responseData = $this->createSuccessResponse(5400, 200000);
 
-		// We can't easily test this without mocking HTTPClient
-		// This is tested implicitly in integration tests
-		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
-	}
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'mode=driving');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-	// Note: The following tests would require mocking the HTTPClient
-	// which is created inside the constructor. For comprehensive testing,
-	// we would need to refactor the class to inject HTTPClient as a dependency.
-	// For now, we can test the public API and behavior we can observe.
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::DRIVE);
 
-	// ========== Fluent Interface ==========
-
-	public function testFluentInterfaceWithSetters(): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$client = new GoogleDistanceMatrix();
-
-		$result = $client
-			->setApiKey('test-key')
-			->setLogger($logger);
-
-		self::assertSame($client, $result);
-	}
-
-	// ========== Edge Cases ==========
-
-	public function testGetDistanceMatrixWithEmptyCoordinates(): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$client = new GoogleDistanceMatrix('test-key', $logger);
-
-		// Empty coordinates should still attempt the request
-		// (API will return error)
-		$result = $client->getDistanceMatrix('', '');
-
-		// Without mocking HTTPClient, we can't predict the exact behavior
-		// but the method should handle it gracefully
-		self::assertNull($result);
-	}
-
-	public function testGetDistanceMatrixWithDefaultParameters(): void
-	{
-		$client = new GoogleDistanceMatrix('test-key');
-
-		// Test that method accepts default TravelMode and Parameters
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278'
-		);
-
-		// Without API mock, this will return null, but it should not throw
-		self::assertNull($result);
-	}
-
-	public function testGetDistanceMatrixWithCustomParameters(): void
-	{
-		$client = new GoogleDistanceMatrix('test-key');
-		$params = new GoogleDistanceMatrixParameters();
-		$params->avoidTolls()->avoidHighways();
-
-		// Test that method accepts custom parameters
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::DRIVE,
-			$params
-		);
-
-		// Without API mock, this will return null, but it should not throw
-		self::assertNull($result);
+		self::assertSame([5400, 200000], $result);
 	}
 
 	public function testGetDistanceMatrixWithTransitMode(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
-		$params = new GoogleDistanceMatrixParameters();
-		$params->setTransitModes([TransitTravelMode::BUS, TransitTravelMode::SUBWAY]);
+		$responseData = $this->createSuccessResponse(7200, 180000);
 
-		// Test that method accepts transit parameters
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::TRANSIT,
-			$params
-		);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'mode=transit');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-		// Without API mock, this will return null, but it should not throw
-		self::assertNull($result);
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::TRANSIT);
+
+		self::assertSame([7200, 180000], $result);
 	}
 
-	public function testGetDistanceMatrixWithWalkModeAndAvoidIndoor(): void
+	public function testGetDistanceMatrixWithWalkMode(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
-		$params = new GoogleDistanceMatrixParameters();
-		$params->avoidIndoor();
+		$responseData = $this->createSuccessResponse(36000, 30000);
 
-		// Test that method accepts walk mode with avoid indoor
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::WALK,
-			$params
-		);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'mode=walking');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-		// Without API mock, this will return null, but it should not throw
-		self::assertNull($result);
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::WALK);
+
+		self::assertSame([36000, 30000], $result);
 	}
 
-	// ========== Different Travel Modes ==========
-
-	#[\PHPUnit\Framework\Attributes\DataProvider('supportedTravelModesProvider')]
-	public function testGetDistanceMatrixWithSupportedTravelModes(TravelMode $travelMode): void
+	public function testGetDistanceMatrixWithBicycleMode(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
+		$responseData = $this->createSuccessResponse(10800, 40000);
 
-		// Test that the method accepts all supported travel modes without throwing
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			$travelMode
-		);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'mode=bicycling');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-		// Without API mock, result depends on the mode
-		// DRIVE, TRANSIT, WALK, BICYCLE should not error on mode validation
-		// Other modes will return null with error log
-		if (in_array($travelMode, [TravelMode::DRIVE, TravelMode::TRANSIT, TravelMode::WALK, TravelMode::BICYCLE], true)) {
-			// These modes are supported, will fail on HTTP call but not on validation
-			self::assertNull($result);
-		} else {
-			// Unsupported modes return null
-			self::assertNull($result);
-		}
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::BICYCLE);
+
+		self::assertSame([10800, 40000], $result);
 	}
 
-	public static function supportedTravelModesProvider(): array
+	// ========== Parameters: Avoid Options for Drive Mode ==========
+
+	public function testGetDistanceMatrixAvoidTollsForDriveMode(): void
 	{
-		return [
-			'DRIVE' => [TravelMode::DRIVE],
-			'TRANSIT' => [TravelMode::TRANSIT],
-			'WALK' => [TravelMode::WALK],
-			'BICYCLE' => [TravelMode::BICYCLE],
-		];
-	}
+		$responseData = $this->createSuccessResponse(6000, 210000);
 
-	#[\PHPUnit\Framework\Attributes\DataProvider('unsupportedTravelModesProvider')]
-	public function testGetDistanceMatrixWithUnsupportedTravelModes(TravelMode $travelMode): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$logger->expects(self::once())
-			->method('error')
-			->with('Invalid travel mode provided', self::anything());
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'avoid=tolls');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-		$client = new GoogleDistanceMatrix('test-key', $logger);
-
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			$travelMode
-		);
-
-		self::assertNull($result);
-	}
-
-	public static function unsupportedTravelModesProvider(): array
-	{
-		return [
-			'TWO_WHEELER' => [TravelMode::TWO_WHEELER],
-			'PLANE' => [TravelMode::PLANE],
-			'BOAT' => [TravelMode::BOAT],
-		];
-	}
-
-	// ========== Logger Usage ==========
-
-	public function testUsesNullLoggerByDefault(): void
-	{
-		$client = new GoogleDistanceMatrix('test-key');
-
-		// Test that client works without a custom logger
-		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
-	}
-
-	public function testAcceptsCustomLogger(): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$client = new GoogleDistanceMatrix('test-key', $logger);
-
-		self::assertInstanceOf(GoogleDistanceMatrix::class, $client);
-	}
-
-	// ========== Parameters Application ==========
-
-	public function testGetDistanceMatrixAppliesAvoidTollsForDriveMode(): void
-	{
-		$client = new GoogleDistanceMatrix('test-key');
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
 		$params = new GoogleDistanceMatrixParameters();
 		$params->avoidTolls();
 
-		// Method should accept avoid tolls for DRIVE mode
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::DRIVE,
-			$params
-		);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::DRIVE, $params);
 
-		self::assertNull($result); // No HTTP mock, but should not throw
+		self::assertSame([6000, 210000], $result);
 	}
 
-	public function testGetDistanceMatrixAppliesMultipleAvoidOptionsForDriveMode(): void
+	public function testGetDistanceMatrixAvoidHighwaysForDriveMode(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
+		$responseData = $this->createSuccessResponse(7200, 195000);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'avoid=highways');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$params = new GoogleDistanceMatrixParameters();
+		$params->avoidHighways();
+
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::DRIVE, $params);
+
+		self::assertSame([7200, 195000], $result);
+	}
+
+	public function testGetDistanceMatrixAvoidFerriesForDriveMode(): void
+	{
+		$responseData = $this->createSuccessResponse(5800, 205000);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'avoid=ferries');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$params = new GoogleDistanceMatrixParameters();
+		$params->avoidFerries();
+
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::DRIVE, $params);
+
+		self::assertSame([5800, 205000], $result);
+	}
+
+	public function testGetDistanceMatrixAvoidMultipleForDriveMode(): void
+	{
+		$responseData = $this->createSuccessResponse(8100, 220000);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'avoid=tolls') &&
+					   str_contains($uri, 'highways') &&
+					   str_contains($uri, 'ferries');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
 		$params = new GoogleDistanceMatrixParameters();
 		$params->avoidTolls()->avoidHighways()->avoidFerries();
 
-		// Method should accept multiple avoid options for DRIVE mode
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::DRIVE,
-			$params
-		);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::DRIVE, $params);
 
-		self::assertNull($result); // No HTTP mock, but should not throw
+		self::assertSame([8100, 220000], $result);
 	}
 
-	public function testGetDistanceMatrixIgnoresAvoidTollsForNonDriveMode(): void
+	// ========== Parameters: Avoid Indoor for Walk Mode ==========
+
+	public function testGetDistanceMatrixAvoidIndoorForWalkMode(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
+		$responseData = $this->createSuccessResponse(36300, 30500);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'avoid=indoor');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
 		$params = new GoogleDistanceMatrixParameters();
-		$params->avoidTolls(); // Should be ignored for WALK mode
+		$params->avoidIndoor();
 
-		// Method should ignore avoid tolls for non-DRIVE modes
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::WALK,
-			$params
-		);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::WALK, $params);
 
-		self::assertNull($result); // No HTTP mock, but should not throw
+		self::assertSame([36300, 30500], $result);
 	}
 
-	public function testGetDistanceMatrixAppliesTransitModesForTransitMode(): void
+	// ========== Parameters: Transit Modes ==========
+
+	public function testGetDistanceMatrixWithTransitModes(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
+		$responseData = $this->createSuccessResponse(7500, 185000);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'transit_mode=bus') && str_contains($uri, 'subway');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$params = new GoogleDistanceMatrixParameters();
+		$params->setTransitModes([TransitTravelMode::BUS, TransitTravelMode::SUBWAY]);
+
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::TRANSIT, $params);
+
+		self::assertSame([7500, 185000], $result);
+	}
+
+	public function testGetDistanceMatrixWithAllTransitModes(): void
+	{
+		$responseData = $this->createSuccessResponse(7000, 180000);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'transit_mode=') &&
+					   str_contains($uri, 'bus') &&
+					   str_contains($uri, 'subway') &&
+					   str_contains($uri, 'train') &&
+					   str_contains($uri, 'tram');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
 		$params = new GoogleDistanceMatrixParameters();
 		$params->setTransitModes([
 			TransitTravelMode::BUS,
@@ -379,31 +423,299 @@ class GoogleDistanceMatrixTest extends TestCase
 			TransitTravelMode::LIGHT_RAIL,
 		]);
 
-		// Method should accept all transit modes
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::TRANSIT,
-			$params
-		);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS, TravelMode::TRANSIT, $params);
 
-		self::assertNull($result); // No HTTP mock, but should not throw
+		self::assertSame([7000, 180000], $result);
 	}
 
-	public function testGetDistanceMatrixIgnoresTransitModesForNonTransitMode(): void
+	// ========== Coordinates Formatting ==========
+
+	public function testGetDistanceMatrixRemovesSpacesFromCoordinates(): void
 	{
-		$client = new GoogleDistanceMatrix('test-key');
-		$params = new GoogleDistanceMatrixParameters();
-		$params->setTransitModes([TransitTravelMode::BUS]); // Should be ignored for DRIVE mode
+		$responseData = $this->createSuccessResponse(3600, 100000);
 
-		// Method should ignore transit modes for non-TRANSIT modes
-		$result = $client->getDistanceMatrix(
-			'48.8566,2.3522',
-			'51.5074,-0.1278',
-			TravelMode::DRIVE,
-			$params
-		);
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				// Check that spaces are removed
+				return str_contains($uri, 'origins=48.8566%2C2.3522') &&
+					   str_contains($uri, 'destinations=51.5074%2C-0.1278');
+			}))
+			->willReturn(new Response(200, [], json_encode($responseData)));
 
-		self::assertNull($result); // No HTTP mock, but should not throw
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix('48.8566, 2.3522', '51.5074, -0.1278');
+
+		self::assertSame([3600, 100000], $result);
+	}
+
+	// ========== API Error Responses ==========
+
+	public function testGetDistanceMatrixWithApiErrorStatus(): void
+	{
+		$responseData = [
+			'status' => 'REQUEST_DENIED',
+			'error_message' => 'The provided API key is invalid.',
+		];
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(
+				'Google Distance Matrix API returned error status',
+				self::callback(function ($context) {
+					return $context['status'] === 'REQUEST_DENIED' &&
+						   isset($context['error_message']);
+				})
+			);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertNull($result);
+	}
+
+	public function testGetDistanceMatrixWithInvalidResponseStructure(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'rows' => [], // Empty rows
+		];
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with('Invalid response structure from Google Distance Matrix API');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertNull($result);
+	}
+
+	public function testGetDistanceMatrixWithElementNotOkStatus(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'rows' => [
+				[
+					'elements' => [
+						[
+							'status' => 'ZERO_RESULTS',
+						],
+					],
+				],
+			],
+		];
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('warning')
+			->with(
+				'Google Distance Matrix API could not calculate route',
+				self::callback(function ($context) {
+					return $context['status'] === 'ZERO_RESULTS' &&
+						   isset($context['origin']) &&
+						   isset($context['destination']);
+				})
+			);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertNull($result);
+	}
+
+	// ========== HTTP Errors ==========
+
+	public function testGetDistanceMatrixWithHttpError(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::exactly(2))
+			->method('error')
+			->with(self::logicalOr(
+				self::stringContains('JSON decoding'),
+				self::stringContains('Failed to fetch data from Google Distance Matrix API')
+			));
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(500, [], 'Internal Server Error'));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertNull($result);
+	}
+
+	public function testGetDistanceMatrixWithInvalidJson(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::exactly(2))
+			->method('error')
+			->with(self::logicalOr(
+				self::stringContains('JSON decoding'),
+				self::stringContains('Failed to fetch data from Google Distance Matrix API')
+			));
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], 'invalid json'));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertNull($result);
+	}
+
+	public function testGetDistanceMatrixWithNetworkException(): void
+	{
+		$exception = new class('Network error') extends \RuntimeException implements ClientExceptionInterface {};
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::exactly(2))
+			->method('error')
+			->with(self::logicalOr(
+				self::stringContains('HTTP request failed'),
+				self::stringContains('Failed to fetch data from Google Distance Matrix API')
+			));
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException($exception);
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertNull($result);
+	}
+
+	// ========== Edge Cases ==========
+
+	public function testGetDistanceMatrixWithEmptyCoordinates(): void
+	{
+		$responseData = ['status' => 'INVALID_REQUEST'];
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(
+				'Google Distance Matrix API returned error status',
+				self::anything()
+			);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, $logger, $httpClient);
+		$result = $client->getDistanceMatrix('', '');
+
+		self::assertNull($result);
+	}
+
+	public function testGetDistanceMatrixWithMissingDurationValue(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'rows' => [
+				[
+					'elements' => [
+						[
+							'status' => 'OK',
+							'distance' => ['value' => 100000],
+							// duration missing
+						],
+					],
+				],
+			],
+		];
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertSame([0, 100000], $result); // duration defaults to 0
+	}
+
+	public function testGetDistanceMatrixWithMissingDistanceValue(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'rows' => [
+				[
+					'elements' => [
+						[
+							'status' => 'OK',
+							'duration' => ['value' => 3600],
+							// distance missing
+						],
+					],
+				],
+			],
+		];
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, [], json_encode($responseData)));
+
+		$client = new GoogleDistanceMatrix(self::TEST_API_KEY, httpClient: $httpClient);
+		$result = $client->getDistanceMatrix(self::ORIGIN_COORDS, self::DESTINATION_COORDS);
+
+		self::assertSame([3600, 0], $result); // distance defaults to 0
+	}
+
+	// ========== Fluent Interface ==========
+
+	public function testFluentInterfaceWithSetters(): void
+	{
+		$client = new GoogleDistanceMatrix();
+		$result = $client->setApiKey('test-key');
+		self::assertSame($client, $result);
+	}
+
+	// ========== Helper Methods ==========
+
+	private function createSuccessResponse(int $duration, int $distance): array
+	{
+		return [
+			'status' => 'OK',
+			'rows' => [
+				[
+					'elements' => [
+						[
+							'status' => 'OK',
+							'duration' => ['value' => $duration],
+							'distance' => ['value' => $distance],
+						],
+					],
+				],
+			],
+		];
 	}
 }

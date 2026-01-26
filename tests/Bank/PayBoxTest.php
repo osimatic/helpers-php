@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace Tests\Bank;
 
+use GuzzleHttp\Psr7\Response;
 use Osimatic\Bank\BankCardCallOrigin;
 use Osimatic\Bank\BankCardOperation;
 use Osimatic\Bank\BillingAddressInterface;
 use Osimatic\Bank\PayBox;
+use Osimatic\Bank\PayBoxResponse;
 use Osimatic\Bank\PayBoxVersion;
 use Osimatic\Bank\ShoppingCartInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 final class PayBoxTest extends TestCase
@@ -123,13 +127,6 @@ final class PayBoxTest extends TestCase
 		$this->assertSame($this->paybox, $result);
 	}
 
-	public function testSetLogger(): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$result = $this->paybox->setLogger($logger);
-
-		$this->assertSame($this->paybox, $result);
-	}
 
 	/* ===================== Setters - Transaction parameters ===================== */
 
@@ -1684,5 +1681,595 @@ final class PayBoxTest extends TestCase
 			->newPayment();
 
 		$this->assertNull($result);
+	}
+
+	/* ===================== HTTP Client Tests ===================== */
+
+	public function testConstructorWithHttpClient(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',
+			httpClient: $httpClient
+		);
+
+		$this->assertInstanceOf(PayBox::class, $paybox);
+	}
+
+	/**
+	 * Helper method to create a PayBox Direct response string
+	 */
+	private function createPayBoxResponse(string $responseCode = '00000', array $additionalData = []): string
+	{
+		$data = array_merge([
+			'CODEREPONSE' => $responseCode,
+			'COMMENTAIRE' => $responseCode === '00000' ? 'Operation reussie' : 'Erreur',
+			'NUMAPPEL' => '0123456789',
+			'NUMTRANS' => '9876543210',
+			'AUTORISATION' => 'AUTH' . random_int(1000, 9999),
+			'REFERENCE' => 'ORDER-123',
+			'PORTEUR' => '4111111111******',
+			'REFABONNE' => 'SUB123456',
+			'TYPECARTE' => 'VISA',
+			'NUMQUESTION' => '987654321',
+			'SHA-1' => hash('sha1', 'test'),
+		], $additionalData);
+
+		return http_build_query($data);
+	}
+
+	/**
+	 * Helper method to create PSR-7 Response with query string body
+	 */
+	private function createHttpResponse(string $body, int $statusCode = 200): Response
+	{
+		return new Response($statusCode, ['Content-Type' => 'application/x-www-form-urlencoded'], $body);
+	}
+
+	/* ===================== newPayment() with HTTP mocks ===================== */
+
+	public function testNewPaymentReturnsResponseOnSuccess(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('ORDER-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $result);
+		$this->assertSame('00000', $result->getResponseCode());
+	}
+
+	public function testNewPaymentVerifiesRequestStructure(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				$body = (string) $request->getBody();
+
+				// Verify it's a POST request to PayBox Direct API (PPPS.php, not tpeweb)
+				return str_contains($uri, 'paybox.com/PPPS.php')
+					&& $request->getMethod() === 'POST'
+					&& str_contains($body, 'SITE=')
+					&& str_contains($body, 'RANG=')
+					&& str_contains($body, 'MONTANT=')
+					&& str_contains($body, 'REFERENCE=');
+			}))
+			->willReturn($this->createHttpResponse($this->createPayBoxResponse()));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('ORDER-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+	}
+
+	public function testNewPaymentReturnsNullOnNetworkException(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('ORDER-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testNewPaymentReturnsNullOnPayBoxError(): void
+	{
+		// PayBox error code 00001 = Authorization denied
+		$responseBody = $this->createPayBoxResponse('00001');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('ORDER-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testNewPaymentWithAuthorizationOnlyOperation(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$body = (string) $request->getBody();
+				// Verify TYPE parameter for authorization only (00001)
+				return str_contains($body, 'TYPE=00001');
+			}))
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('AUTH-ONLY-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->setBankCardOperation(BankCardOperation::AUTHORIZATION_ONLY)
+			->newPayment();
+	}
+
+	public function testNewPaymentWithAuthorizationAndDebitOperation(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$body = (string) $request->getBody();
+				// Verify TYPE parameter for authorization and debit (00003)
+				return str_contains($body, 'TYPE=00003');
+			}))
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('AUTH-DEBIT-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->setBankCardOperation(BankCardOperation::AUTHORIZATION_AND_DEBIT)
+			->newPayment();
+	}
+
+	/* ===================== doAuthorization() with HTTP mocks ===================== */
+
+	public function testDoAuthorizationReturnsResponseOnSuccess(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(150.00)
+			->setReference('AUTH-ORDER-456')
+			->setCreditCardNumber('5555555555554444')
+			->setExpirationDate(new \DateTime('+2 years'))
+			->setCvc('456')
+			->doAuthorization();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $result);
+	}
+
+	/* ===================== doDebit() with HTTP mocks ===================== */
+
+	public function testDoDebitReturnsResponseOnSuccess(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(200.00)
+			->setReference('DEBIT-ORDER-789')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->setCallNumber(1234567890)
+			->setTransactionNumber(9876543210)
+			->doDebit();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $result);
+	}
+
+	/* ===================== doAuthorizationAndDebit() with HTTP mocks ===================== */
+
+	public function testDoAuthorizationAndDebitReturnsResponseOnSuccess(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(300.00)
+			->setReference('AUTH-DEBIT-ORDER-999')
+			->setCreditCardNumber('5555555555554444')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('789')
+			->doAuthorizationAndDebit();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $result);
+	}
+
+	/* ===================== addSubscriber() with HTTP mocks ===================== */
+
+	public function testAddSubscriberReturnsResponseOnSuccess(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000', ['REFABONNE' => 'SUB-TOKEN-12345']);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$body = (string) $request->getBody();
+				// Verify TYPE parameter for subscriber registration (00056)
+				return str_contains($body, 'TYPE=00056');
+			}))
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setTotal(0.01)
+			->setReference('ADD-SUB-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->addSubscriber();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $result);
+		$this->assertSame('SUB-TOKEN-12345', $result->getCardHash());
+	}
+
+	/* ===================== deleteSubscriber() with HTTP mocks ===================== */
+
+	public function testDeleteSubscriberReturnsResponseOnSuccess(): void
+	{
+		$responseBody = $this->createPayBoxResponse('00000');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$body = (string) $request->getBody();
+				// Verify TYPE parameter for subscriber deletion (00058)
+				return str_contains($body, 'TYPE=00058')
+					&& str_contains($body, 'REFABONNE=');
+			}))
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		$result = $paybox
+			->setIsTest(true)
+			->setSubscriberReference('SUB-TOKEN-12345')
+			->deleteSubscriber();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $result);
+	}
+
+	/* ===================== Logger integration tests ===================== */
+
+	public function testNewPaymentLogsOnException(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::atLeastOnce())
+			->method('error');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			logger: $logger,
+			httpClient: $httpClient
+		);
+
+		$paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('ERROR-ORDER-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+	}
+
+	public function testNewPaymentLogsPayBoxError(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(self::stringContains('Response code: 00001'));
+
+		$responseBody = $this->createPayBoxResponse('00001');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createHttpResponse($responseBody));
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			logger: $logger,
+			httpClient: $httpClient
+		);
+
+		$paybox
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('DENIED-ORDER-123')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->newPayment();
+	}
+
+	/* ===================== Complete workflows with HTTP ===================== */
+
+	public function testCompleteAuthorizationCaptureWorkflowWithHttp(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::exactly(2))
+			->method('sendRequest')
+			->willReturnOnConsecutiveCalls(
+				// First call: authorization
+				$this->createHttpResponse($this->createPayBoxResponse('00000', [
+					'NUMAPPEL' => '1234567890',
+					'NUMTRANS' => '9876543210',
+					'AUTORISATION' => 'AUTH5678'
+				])),
+				// Second call: capture
+				$this->createHttpResponse($this->createPayBoxResponse('00000'))
+			);
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		// Step 1: Authorization
+		$authResult = $paybox
+			->setIsTest(true)
+			->setTotal(500.00)
+			->setReference('WORKFLOW-AUTH-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->doAuthorization();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $authResult);
+
+		// Step 2: Capture using returned call and transaction numbers
+		$captureResult = $paybox
+			->setCallNumber((int) $authResult->getCallNumber())
+			->setTransactionNumber((int) $authResult->getTransactionNumber())
+			->doDebit();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $captureResult);
+	}
+
+	public function testCompleteSubscriberWorkflowWithHttp(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::exactly(3))
+			->method('sendRequest')
+			->willReturnOnConsecutiveCalls(
+				// First call: add subscriber
+				$this->createHttpResponse($this->createPayBoxResponse('00000', ['REFABONNE' => 'SUB-TOKEN-789'])),
+				// Second call: payment with subscriber
+				$this->createHttpResponse($this->createPayBoxResponse('00000')),
+				// Third call: delete subscriber
+				$this->createHttpResponse($this->createPayBoxResponse('00000'))
+			);
+
+		$paybox = new PayBox(
+			siteNumber: '1234567',
+			rang: '99',
+			identifier: '123456789',
+			httpPassword: '12345678',
+			secretKey: str_repeat('0', 128),
+			httpClient: $httpClient
+		);
+
+		// Step 1: Add subscriber
+		$addResult = $paybox
+			->setIsTest(true)
+			->setTotal(0.01)
+			->setReference('SUB-WORKFLOW-001')
+			->setCreditCardNumber('4111111111111111')
+			->setExpirationDate(new \DateTime('+1 year'))
+			->setCvc('123')
+			->addSubscriber();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $addResult);
+		$subscriberRef = $addResult->getCardHash();
+
+		// Step 2: Use subscriber token for payment
+		$paymentResult = $paybox
+			->reset()
+			->setIsTest(true)
+			->setTotal(99.99)
+			->setReference('SUB-PAYMENT-001')
+			->setSubscriberReference($subscriberRef)
+			->setCreditCardToken($subscriberRef)
+			->setExpirationDate(new \DateTime('+1 year'))
+			->doAuthorizationAndDebit();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $paymentResult);
+
+		// Step 3: Delete subscriber
+		$deleteResult = $paybox
+			->reset()
+			->setIsTest(true)
+			->setSubscriberReference($subscriberRef)
+			->deleteSubscriber();
+
+		$this->assertInstanceOf(PayBoxResponse::class, $deleteResult);
 	}
 }

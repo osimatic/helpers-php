@@ -2,6 +2,7 @@
 
 namespace Osimatic\Network;
 
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -14,27 +15,19 @@ use Psr\Log\NullLogger;
  */
 class Incolumitas
 {
-	private HTTPClient $httpClient;
+	public const string API_URL = 'https://api.incolumitas.com/';
+
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
 	 */
 	public function __construct(
-		LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	) {
-		$this->httpClient = new HTTPClient($logger);
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->httpClient->setLogger($logger);
-
-		return $this;
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 	/**
@@ -44,8 +37,8 @@ class Incolumitas
 	 */
 	public function getIpInfos(string $ipAddress): ?array
 	{
-		$url = 'https://api.incolumitas.com/?q='.$ipAddress;
-		if (null === ($data = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
+		$url = self::API_URL.'?q='.$ipAddress;
+		if (null === ($data = $this->requestExecutor->execute(HTTPMethod::GET, $url, decodeJson: true))) {
 			return null;
 		}
 

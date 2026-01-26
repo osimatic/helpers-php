@@ -2,6 +2,10 @@
 
 namespace Osimatic\Person;
 
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -14,6 +18,9 @@ class GoogleContact
 {
 	private \Google_Client $client;
 
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
+
 	/**
 	 * GoogleContact constructor.
 	 * Initializes the Google API client with contacts scope and online access type.
@@ -21,14 +28,18 @@ class GoogleContact
 	 * @param string|null $secret The OAuth 2.0 client secret
 	 * @param string|null $appName The application name to identify requests
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
 		?string $clientId=null,
 		?string $secret=null,
 		?string $appName=null,
-		private LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	)
 	{
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
+
 		$this->client = new \Google_Client();
 		$this->client->setApplicationName('');
 		$this->client->setScopes('https://www.googleapis.com/auth/contacts');
@@ -43,18 +54,6 @@ class GoogleContact
 		if (!empty($appName)) {
 			$this->setApplicationName($appName);
 		}
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
-
-		return $this;
 	}
 
 	/**
@@ -128,17 +127,17 @@ class GoogleContact
 			return null;
 		}
 
-		$clientHTTP = new \GuzzleHttp\Client();
-		try {
-			$res = $clientHTTP->request('GET', 'https://www.google.com/m8/feeds/contacts/default/full?max-results=150&alt=json&v=3.0&oauth_token='.$accessToken);
-		}
-		catch (\Exception | \GuzzleHttp\Exception\GuzzleException $e) {
-			$this->logger->error($e->getMessage());
+		$url = 'https://www.google.com/m8/feeds/contacts/default/full';
+		$queryData = [
+			'max-results' => 150,
+			'alt' => 'json',
+			'v' => '3.0',
+			'oauth_token' => $accessToken,
+		];
+
+		if (null === ($dataList = $this->requestExecutor->execute(HTTPMethod::GET, $url, $queryData, decodeJson: true))) {
 			return null;
 		}
-
-		$dataList = \GuzzleHttp\Utils::jsonDecode((string) $res->getBody(), true);
-		//dump($dataList);
 
 		$googleContacts = $dataList['feed']['entry'];
 		//dump($googleContacts);
@@ -265,5 +264,4 @@ class GoogleContact
 		//var_dump($accessTokenData);
 		return $accessTokenData['access_token'] ?? null;
 	}
-
 }

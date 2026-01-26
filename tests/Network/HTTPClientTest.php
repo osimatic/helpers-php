@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 final class HTTPClientTest extends TestCase
 {
@@ -144,20 +145,253 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals('test-value', $body['headers']['X-Custom-Header']);
 	}
 
-	/* ===================== request() - Note importante ===================== */
+	/* ===================== send() ===================== */
 
 	/**
-	 * Note: Les tests suivants sont limités car la classe HTTPClient crée
-	 * directement une instance de GuzzleHttp\Client dans la méthode request(),
-	 * ce qui rend difficile le mocking sans refactoring de la classe.
-	 *
-	 * Pour des tests complets, il faudrait :
-	 * - Injecter le GuzzleHttp\Client via le constructeur
-	 * - Ou utiliser un environnement de test avec un serveur HTTP mock réel
-	 * - Ou refactorer la classe pour utiliser une factory pour créer le client
-	 *
-	 * Les tests ci-dessous vérifient principalement la logique de la classe
-	 * et nécessitent une connexion réseau réelle ou un environnement de test approprié.
+	 * Test with httpbin.org (public HTTP testing service)
+	 * This test requires an Internet connection
+	 */
+	#[Group("integration")]
+	public function testSendGetRequest(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$response = $client->send(HTTPMethod::GET, 'https://httpbin.org/get');
+
+		$this->assertNotNull($response);
+		$this->assertEquals(200, $response->getStatusCode());
+	}
+
+	#[Group("integration")]
+	public function testSendPostRequest(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$response = $client->send(
+			HTTPMethod::POST,
+			'https://httpbin.org/post',
+			['key' => 'value']
+		);
+
+		$this->assertNotNull($response);
+		$this->assertEquals(200, $response->getStatusCode());
+	}
+
+	#[Group("integration")]
+	public function testSendWithQueryParameters(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$response = $client->send(
+			HTTPMethod::GET,
+			'https://httpbin.org/get',
+			['param1' => 'value1', 'param2' => 'value2']
+		);
+
+		$this->assertNotNull($response);
+		$body = json_decode((string) $response->getBody(), true);
+		$this->assertArrayHasKey('args', $body);
+		$this->assertEquals('value1', $body['args']['param1']);
+		$this->assertEquals('value2', $body['args']['param2']);
+	}
+
+	#[Group("integration")]
+	public function testSendWithHeaders(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$response = $client->send(
+			HTTPMethod::GET,
+			'https://httpbin.org/headers',
+			[],
+			['X-Custom-Header' => 'test-value']
+		);
+
+		$this->assertNotNull($response);
+		$body = json_decode((string) $response->getBody(), true);
+		$this->assertArrayHasKey('headers', $body);
+	}
+
+	#[Group("integration")]
+	public function testSendWithJsonBody(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$response = $client->send(
+			HTTPMethod::POST,
+			'https://httpbin.org/post',
+			['key' => 'value', 'nested' => ['foo' => 'bar']],
+			['Content-Type' => 'application/json'],
+			true // jsonBody
+		);
+
+		$this->assertNotNull($response);
+		$body = json_decode((string) $response->getBody(), true);
+		$this->assertArrayHasKey('json', $body);
+		$this->assertEquals('value', $body['json']['key']);
+	}
+
+	#[Group("integration")]
+	public function testSendWithFormParams(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$response = $client->send(
+			HTTPMethod::POST,
+			'https://httpbin.org/post',
+			['key' => 'value'],
+			[],
+			false // formParams
+		);
+
+		$this->assertNotNull($response);
+		$body = json_decode((string) $response->getBody(), true);
+		$this->assertArrayHasKey('form', $body);
+		$this->assertEquals('value', $body['form']['key']);
+	}
+
+	public function testSendWithInvalidUrlReturnsNull(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('error')
+			->with($this->stringContains('Error during'));
+
+		$client = new HTTPClient($logger);
+		$result = $client->send(HTTPMethod::GET, 'invalid-url');
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== execute() ===================== */
+
+	#[Group("integration")]
+	public function testExecuteReturnsRawStringByDefault(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$result = $client->execute(HTTPMethod::GET, 'https://httpbin.org/html');
+
+		$this->assertIsString($result);
+		$this->assertNotEmpty($result);
+	}
+
+	#[Group("integration")]
+	public function testExecuteWithDecodeJsonReturnsArray(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$result = $client->execute(HTTPMethod::GET, 'https://httpbin.org/json', decodeJson: true);
+
+		$this->assertIsArray($result);
+	}
+
+	#[Group("integration")]
+	public function testExecuteWithoutDecodeJsonReturnsString(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$result = $client->execute(HTTPMethod::GET, 'https://httpbin.org/json', decodeJson: false);
+
+		$this->assertIsString($result);
+		$this->assertJson($result);
+	}
+
+	#[Group("integration")]
+	public function testExecuteWithGetRequest(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$result = $client->execute(
+			HTTPMethod::GET,
+			'https://httpbin.org/get',
+			['param' => 'value'],
+			decodeJson: true
+		);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('args', $result);
+		$this->assertEquals('value', $result['args']['param']);
+	}
+
+	#[Group("integration")]
+	public function testExecuteWithPostJsonBody(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$result = $client->execute(
+			HTTPMethod::POST,
+			'https://httpbin.org/post',
+			['key' => 'value'],
+			[],
+			true, // jsonBody
+			true  // decodeJson
+		);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('json', $result);
+		$this->assertEquals('value', $result['json']['key']);
+	}
+
+	#[Group("integration")]
+	public function testExecuteWithPostFormParams(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+		$result = $client->execute(
+			HTTPMethod::POST,
+			'https://httpbin.org/post',
+			['key' => 'value'],
+			[],
+			false, // formParams
+			true   // decodeJson
+		);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('form', $result);
+		$this->assertEquals('value', $result['form']['key']);
+	}
+
+	public function testExecuteWithInvalidUrlReturnsNull(): void
+	{
+		$client = new HTTPClient();
+		$result = $client->execute(HTTPMethod::GET, 'https://invalid-url-that-does-not-exist-12345.com');
+
+		$this->assertNull($result);
+	}
+
+	public function testExecuteLogsErrorOnInvalidJson(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('error')
+			->with($this->stringContains('Error during JSON decoding'));
+
+		$client = new HTTPClient($logger);
+		// httpbin.org/html returns HTML, not JSON
+		$result = $client->execute(HTTPMethod::GET, 'https://httpbin.org/html', decodeJson: true);
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== request() - DEPRECATED ===================== */
+
+	/**
+	 * Note: Les tests suivants vérifient la rétrocompatibilité des méthodes obsolètes
 	 */
 
 	/* ===================== Tests basiques de méthode HTTP ===================== */
@@ -271,7 +505,7 @@ final class HTTPClientTest extends TestCase
 		$this->assertEquals('value', $body['form']['key']);
 	}
 
-	/* ===================== jsonRequest() ===================== */
+	/* ===================== jsonRequest() - DEPRECATED ===================== */
 
 	#[Group("integration")]
 	public function testJsonRequestReturnsArray(): void
@@ -293,7 +527,20 @@ final class HTTPClientTest extends TestCase
 		$this->assertNull($result);
 	}
 
-	/* ===================== stringRequest() ===================== */
+	public function testJsonRequestIsAliasForExecuteWithDecodeJson(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+
+		// Both methods should return the same result
+		$result1 = $client->jsonRequest(HTTPMethod::GET, 'https://httpbin.org/json');
+		$result2 = $client->execute(HTTPMethod::GET, 'https://httpbin.org/json', decodeJson: true);
+
+		$this->assertEquals($result1, $result2);
+	}
+
+	/* ===================== stringRequest() - DEPRECATED ===================== */
 
 	#[Group("integration")]
 	public function testStringRequestReturnsString(): void
@@ -316,6 +563,19 @@ final class HTTPClientTest extends TestCase
 		$this->assertNull($result);
 	}
 
+	public function testStringRequestIsAliasForExecuteWithoutDecodeJson(): void
+	{
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+
+		// Both methods should return the same result
+		$result1 = $client->stringRequest(HTTPMethod::GET, 'https://httpbin.org/html');
+		$result2 = $client->execute(HTTPMethod::GET, 'https://httpbin.org/html', decodeJson: false);
+
+		$this->assertEquals($result1, $result2);
+	}
+
 	/* ===================== Error handling ===================== */
 
 	public function testRequestWithInvalidUrlReturnsNull(): void
@@ -331,9 +591,17 @@ final class HTTPClientTest extends TestCase
 		$this->assertNull($result);
 	}
 
-	public function testJsonRequestLogsErrorOnInvalidJson(): void
+	public function testRequestIsAliasForSend(): void
 	{
-		$this->markTestSkipped('Difficult to test without refactoring the class');
+		$this->markTestSkipped('This test requires an Internet connection and calls an external service');
+
+		$client = new HTTPClient();
+
+		// Both methods should return the same result
+		$result1 = $client->request(HTTPMethod::GET, 'https://httpbin.org/get');
+		$result2 = $client->send(HTTPMethod::GET, 'https://httpbin.org/get');
+
+		$this->assertEquals($result1->getStatusCode(), $result2->getStatusCode());
 	}
 
 	/* ===================== HTTPMethod enum tests ===================== */

@@ -4,6 +4,8 @@ namespace Osimatic\Location;
 
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -14,7 +16,10 @@ use Psr\Log\NullLogger;
  */
 class GoogleMaps
 {
-	private HTTPClient $httpClient;
+	public const string API_URL = 'https://maps.googleapis.com/maps/api/';
+
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * In-memory cache for API responses to reduce duplicate requests.
@@ -26,7 +31,7 @@ class GoogleMaps
 	 * Cache TTL in seconds (default: 1 hour).
 	 * @var int
 	 */
-	private int $cacheTtl = 3600;
+	private int $cacheTtl;
 
 	/**
 	 * Construct a new Google Maps API client.
@@ -36,10 +41,11 @@ class GoogleMaps
 	 */
 	public function __construct(
 		private ?string $apiKey=null,
-		private LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 		int $cacheTtl=3600,
 	) {
-		$this->httpClient = new HTTPClient($logger);
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 		$this->cacheTtl = $cacheTtl;
 	}
 
@@ -51,19 +57,6 @@ class GoogleMaps
 	public function setApiKey(string $apiKey): self
 	{
 		$this->apiKey = $apiKey;
-
-		return $this;
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
-		$this->httpClient->setLogger($logger);
 
 		return $this;
 	}
@@ -98,9 +91,8 @@ class GoogleMaps
 
 		$address = str_replace(['’', '́', '+', ' '], ["'", "'", '%2B', '+'], $address);
 
-		$url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$address.'&key='.$this->apiKey;
-
-		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
+		$queryData = ['address' => $address];
+		if (null === ($json = $this->sendRequest( self::API_URL.'geocode/json', $queryData))) {
 			return null;
 		}
 
@@ -143,9 +135,8 @@ class GoogleMaps
 			return $this->cache[$cacheKey]['data'];
 		}
 
-		$url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$coordinates.'&key='.$this->apiKey;
-
-		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
+		$queryData = ['latlng' => $coordinates];
+		if (null === ($json = $this->sendRequest( self::API_URL.'geocode/json', $queryData))) {
 			return null;
 		}
 
@@ -342,7 +333,7 @@ class GoogleMaps
 		//if (false !== ($pos = strrpos($streetAddress, ','))) {
 		//	$streetAddress = trim(substr($streetAddress, $pos + 1));
 		//}
-		if (!empty($addressComponents['route']) && !empty($streetAddress) && strstr($streetAddress, $addressComponents['route'])) {
+		if (!empty($addressComponents['route']) && !empty($streetAddress) && str_contains($streetAddress, $addressComponents['route'])) {
 			$addressComponents['street'] = $streetAddress;
 		}
 		else {
@@ -563,4 +554,25 @@ class GoogleMaps
 	}
 
 
+	/**
+	 * Executes an HTTP request to the Google Maps API.
+	 * This method handles the common request logic for all API calls, including authentication and JSON response parsing.
+	 * @param string $url The complete API endpoint URL to request
+	 * @param array $queryData The request payload data
+	 * @param HTTPMethod $httpMethod HTTP method to use
+	 * @return array|null The decoded JSON response as an associative array if successful, null on failure
+	 */
+	private function sendRequest(string $url, array $queryData=[], HTTPMethod $httpMethod=HTTPMethod::GET): ?array
+	{
+		if (empty($this->apiKey)) {
+			$this->logger->error('Google Maps API key is not configured. Please set API key.');
+			return null;
+		}
+
+		$queryData = array_merge($queryData, [
+			'key' => $this->apiKey,
+		]);
+
+		return $this->requestExecutor->execute($httpMethod, $url, $queryData, decodeJson: true);
+	}
 }

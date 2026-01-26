@@ -11,6 +11,8 @@ use Psr\Log\NullLogger;
  */
 class FirebaseMessaging implements MobilePushNotificationSenderInterface
 {
+	public const string API_URL = 'https://fcm.googleapis.com/v1/';
+
 	/**
 	 * Construct a new FirebaseMessaging client instance.
 	 * @param string|null $projectId The Firebase project ID
@@ -20,7 +22,7 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 	public function __construct(
 		private ?string $projectId = null,
 		private ?string $serviceKeyFile = null,
-		private LoggerInterface $logger = new NullLogger(),
+		private readonly LoggerInterface $logger = new NullLogger(),
 	) {}
 
 	/**
@@ -48,19 +50,6 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 	}
 
 	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
-
-		return $this;
-	}
-
-
-	/**
 	 * Send the message to the device
 	 * @param PushNotificationInterface $mobilePushNotification
 	 * @return PushNotificationSendingResponse
@@ -82,7 +71,7 @@ class FirebaseMessaging implements MobilePushNotificationSenderInterface
 			return new PushNotificationSendingResponse(false, PushNotificationSendingStatus::SETTINGS_INVALID);
 		}
 
-		$url = 'https://fcm.googleapis.com/v1/projects/'.$this->projectId.'/messages:send';
+		$url = self::API_URL.'projects/'.$this->projectId.'/messages:send';
 
 		if (!is_a($subscription = $mobilePushNotification->getSubscription(), MobilePushNotificationSubscriptionInterface::class) || empty($deviceToken = $subscription->getDeviceToken())) {
 			$this->logger->error('No device set');

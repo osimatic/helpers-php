@@ -2,8 +2,11 @@
 
 namespace Osimatic\Route;
 
+use Osimatic\Location\GoogleMaps;
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -15,22 +18,21 @@ use Psr\Log\NullLogger;
  */
 class GoogleDistanceMatrix
 {
-	/**
-	 * The HTTP client used for making API requests.
-	 * @var HTTPClient
-	 */
-	private HTTPClient $httpClient;
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * Constructs a new Google Distance Matrix API client.
 	 * @param string|null $apiKey The Google API key for authentication (can be set later via setApiKey())
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
 		private ?string $apiKey=null,
-		private LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	) {
-		$this->httpClient = new HTTPClient($logger);
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 	/**
@@ -41,19 +43,6 @@ class GoogleDistanceMatrix
 	public function setApiKey(string $apiKey): self
 	{
 		$this->apiKey = $apiKey;
-
-		return $this;
-	}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
-		$this->httpClient->setLogger($logger);
 
 		return $this;
 	}
@@ -77,19 +66,19 @@ class GoogleDistanceMatrix
 		$originCoordinates = str_replace(' ', '', $originCoordinates);
 		$destinationCoordinates = str_replace(' ', '', $destinationCoordinates);
 
-		$params = [
+		$queryData = [
 			'origins' => $originCoordinates,
 			'destinations' => $destinationCoordinates,
 		];
 
-		$params['mode'] = match ($travelMode) {
+		$queryData['mode'] = match ($travelMode) {
 			TravelMode::DRIVE => 'driving',
 			TravelMode::TRANSIT => 'transit',
 			TravelMode::WALK => 'walking',
 			TravelMode::BICYCLE => 'bicycling',
 			default => null
 		};
-		if (null === $params['mode']) {
+		if (null === $queryData['mode']) {
 			$this->logger->error('Invalid travel mode provided', ['travelMode' => $travelMode->value]);
 			return null;
 		}
@@ -113,7 +102,7 @@ class GoogleDistanceMatrix
 		}
 
 		if (!empty($avoid)) {
-			$params['avoid'] = implode('|', $avoid);
+			$queryData['avoid'] = implode('|', $avoid);
 		}
 
 		if (TravelMode::TRANSIT === $travelMode && !empty($transitModes = $parameters->getTransitModes())) {
@@ -124,14 +113,12 @@ class GoogleDistanceMatrix
 				TransitTravelMode::LIGHT_RAIL => 'tram',
 			}, $transitModes)));
 			if (!empty($transitModesStrings)) {
-				$params['transit_mode'] = implode('|', $transitModesStrings);
+				$queryData['transit_mode'] = implode('|', $transitModesStrings);
 			}
 		}
 
-		$params['key'] = $this->apiKey;
-		$url = 'https://maps.googleapis.com/maps/api/distancematrix/json?'.http_build_query($params);
-
-		if (null === ($json = $this->httpClient->jsonRequest(HTTPMethod::GET, $url))) {
+		$queryData['key'] = $this->apiKey;
+		if (null === ($json = $this->requestExecutor->execute(HTTPMethod::GET, GoogleMaps::API_URL.'distancematrix/json', $queryData, decodeJson: true))) {
 			$this->logger->error('Failed to fetch data from Google Distance Matrix API');
 			return null;
 		}

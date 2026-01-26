@@ -57,25 +57,14 @@ class FirebaseMessagingTest extends TestCase
 		self::assertSame($sender, $result);
 	}
 
-	public function testSetLogger(): void
-	{
-		$sender = new FirebaseMessaging();
-		$logger = $this->createMock(LoggerInterface::class);
-
-		$result = $sender->setLogger($logger);
-
-		self::assertSame($sender, $result);
-	}
 
 	public function testFluentConfiguration(): void
 	{
-		$logger = $this->createMock(LoggerInterface::class);
 		$sender = new FirebaseMessaging();
 
 		$result = $sender
 			->setProjectId('project-123')
-			->setServiceKeyFile('/path/to/key.json')
-			->setLogger($logger);
+			->setServiceKeyFile('/path/to/key.json');
 
 		self::assertSame($sender, $result);
 	}

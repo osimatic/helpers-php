@@ -4,6 +4,8 @@ namespace Osimatic\Bank;
 
 use Osimatic\Network\HTTPClient;
 use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -266,12 +268,8 @@ class PayBox
 	 */
 	private int $formTimeout = self::DEFAULT_FORM_TIMEOUT;
 
-	/**
-	 * HTTP client instance for making API requests to PayBox
-	 * Used for PayBox Direct HTTP communication
-	 * @var HTTPClient
-	 */
-	private HTTPClient $httpClient;
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
 
 	/**
 	 * Visa card response codes mapping from PayBox/Verifone
@@ -379,6 +377,7 @@ class PayBox
 	 * @param string $httpPassword The 8-10 character key for PayBox Direct (CLE parameter)
 	 * @param string $secretKey The 128-character hexadecimal key for PayBox System HMAC generation
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
 		/**
@@ -408,17 +407,19 @@ class PayBox
 		 */
 		private string $secretKey = '',
 
-		private LoggerInterface $logger=new NullLogger(),
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
 	)
 	{
-		$this->httpClient = new HTTPClient($logger);
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 	/**
 	 * Reset all transaction-specific data
 	 * Clears transaction details, card information, and response data while keeping configuration
+	 * @return self Returns this instance for method chaining
 	 */
-	public function reset(): void
+	public function reset(): self
 	{
 		$this->numQuestion = null;
 		$this->date = null;
@@ -434,6 +435,8 @@ class PayBox
 		$this->autorisation = null;
 		$this->shoppingCart = null;
 		$this->billingAddress = null;
+
+		return $this;
 	}
 
 	/**
@@ -542,18 +545,6 @@ class PayBox
 
 
 	// ========== Set Request ==========
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
-	{
-		$this->logger = $logger;
-
-		return $this;
-	}
 
 	/**
 	 * Set PayBox API version
@@ -1267,30 +1258,34 @@ class PayBox
 		} else {
 			// Using PayBox Direct (client-side payment form with HTTP request to PayBox platform)
 
-			if (!empty($this->subscriberRef)) {
-				// Using subscriber system (via card token)
+			$isSubscriberManagementOnly = in_array($this->bankCardOperation, [BankCardOperation::DELETE_SUBSCRIBER], true);
 
-				if (empty($this->porteur)) {
-					$this->logger?->error('Card token is required for subscriber payment');
+			if (!$isSubscriberManagementOnly) {
+				if (!empty($this->subscriberRef)) {
+					// Using subscriber system (via card token)
+
+					if (empty($this->porteur)) {
+						$this->logger?->error('Card token is required for subscriber payment');
+						return false;
+					}
+				} else {
+					// Using standard system (manual card entry)
+
+					if (!empty($this->porteur) && strlen($this->porteur) > 19) {
+						$this->logger?->error('Invalid card number: maximum 19 digits');
+						return false;
+					}
+
+					if (!empty($this->cvv) && (strlen($this->cvv) < 3 || strlen($this->cvv) > 4)) {
+						$this->logger?->error('Invalid CVV code: must be 3-4 digits');
+						return false;
+					}
+				}
+
+				if (empty($this->getExpirationDateFormatted())) {
+					$this->logger?->error('Invalid or missing card expiration date');
 					return false;
 				}
-			} else {
-				// Using standard system (manual card entry)
-
-				if (!empty($this->porteur) && strlen($this->porteur) > 19) {
-					$this->logger?->error('Invalid card number: maximum 19 digits');
-					return false;
-				}
-
-				if (!empty($this->cvv) && (strlen($this->cvv) < 3 || strlen($this->cvv) > 4)) {
-					$this->logger?->error('Invalid CVV code: must be 3-4 digits');
-					return false;
-				}
-			}
-
-			if (empty($this->getExpirationDateFormatted())) {
-				$this->logger?->error('Invalid or missing card expiration date');
-				return false;
 			}
 		}
 
@@ -1372,7 +1367,7 @@ class PayBox
 		$this->logger?->info('Référence achat : ' . $postData['REFERENCE']);
 
 		// Appel de l'URL Paybox avec les arguments POST
-		$res = $this->httpClient->stringRequest(HTTPMethod::POST, $urlPaiement, queryData: $postData);
+		$res = $this->requestExecutor->execute(HTTPMethod::POST, $urlPaiement, $postData);
 
 		if (null === $res) {
 			$this->logger?->error('Appel Paybox échoué');

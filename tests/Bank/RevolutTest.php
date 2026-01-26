@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Bank;
 
+use GuzzleHttp\Psr7\Response;
 use Osimatic\Bank\BankCardOperation;
 use Osimatic\Bank\Revolut;
 use Osimatic\Bank\RevolutResponse;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 final class RevolutTest extends TestCase
@@ -64,13 +67,6 @@ final class RevolutTest extends TestCase
 		$this->assertSame($this->revolut, $result);
 	}
 
-	public function testSetLogger(): void
-	{
-		$logger = $this->createMock(LoggerInterface::class);
-		$result = $this->revolut->setLogger($logger);
-
-		$this->assertSame($this->revolut, $result);
-	}
 
 	public function testSetIsTest(): void
 	{
@@ -272,10 +268,7 @@ final class RevolutTest extends TestCase
 
 	public function testCompletePaymentConfiguration(): void
 	{
-		$logger = $this->createMock(LoggerInterface::class);
-
 		$result = $this->revolut
-			->setLogger($logger)
 			->setIsTest(false)
 			->setPublicKey('pk_live_complete')
 			->setSecretKey('sk_live_complete')
@@ -425,17 +418,6 @@ final class RevolutTest extends TestCase
 
 	/* ===================== Logger scenarios ===================== */
 
-	public function testSetLoggerMultipleTimes(): void
-	{
-		$logger1 = $this->createMock(LoggerInterface::class);
-		$logger2 = $this->createMock(LoggerInterface::class);
-
-		$result1 = $this->revolut->setLogger($logger1);
-		$this->assertSame($this->revolut, $result1);
-
-		$result2 = $this->revolut->setLogger($logger2);
-		$this->assertSame($this->revolut, $result2);
-	}
 
 	/* ===================== Test mode scenarios ===================== */
 
@@ -550,5 +532,549 @@ final class RevolutTest extends TestCase
 		// Empty order ID should return null
 		$result = $this->revolut->getOrder('');
 		$this->assertNull($result);
+	}
+
+	/* ===================== HTTP Client Tests ===================== */
+
+	public function testConstructorWithHttpClient(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$this->assertInstanceOf(Revolut::class, $revolut);
+	}
+
+	/**
+	 * Helper method to create a PSR-7 Response with JSON body
+	 */
+	private function createJsonResponse(array $data, int $statusCode = 200): Response
+	{
+		return new Response($statusCode, ['Content-Type' => 'application/json'], json_encode($data));
+	}
+
+	/**
+	 * Helper method to create a typical Revolut API order response
+	 */
+	private function createRevolutOrderResponse(string $orderId, string $state = 'COMPLETED'): array
+	{
+		return [
+			'id' => $orderId,
+			'public_id' => 'pub_' . $orderId,
+			'type' => 'PAYMENT',
+			'state' => $state,
+			'created_at' => '2025-01-18T10:30:00Z',
+			'updated_at' => '2025-01-18T10:30:05Z',
+			'completed_at' => '2025-01-18T10:30:05Z',
+			'merchant_order_ext_ref' => 'ORDER-123',
+			'amount' => 9999,
+			'currency' => 'EUR',
+			'capture_mode' => 'AUTOMATIC',
+		];
+	}
+
+	/* ===================== newPayment() ===================== */
+
+	public function testNewPaymentReturnsResponseOnSuccess(): void
+	{
+		$responseData = $this->createRevolutOrderResponse('order_12345');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData, 201));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+
+		$this->assertInstanceOf(RevolutResponse::class, $result);
+	}
+
+	public function testNewPaymentVerifiesRequestStructure(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				$body = (string) $request->getBody();
+				$bodyData = json_decode($body, true);
+
+				return str_contains($uri, 'sandbox-merchant.revolut.com/api/1.0/orders')
+					&& $request->getMethod() === 'POST'
+					&& $request->hasHeader('Authorization')
+					&& str_contains($request->getHeaderLine('Authorization'), 'Bearer ')
+					&& $request->hasHeader('Content-Type')
+					&& str_contains($request->getHeaderLine('Content-Type'), 'application/json')
+					&& $bodyData['amount'] === 9999
+					&& $bodyData['currency'] === 'EUR'
+					&& $bodyData['merchant_order_ext_ref'] === 'ORDER-123';
+			}))
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse('order_12345'), 201));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$revolut
+			->setIsTest(true)
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+	}
+
+	public function testNewPaymentUsesProductionUrlWhenNotTest(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'merchant.revolut.com/api/1.0/orders')
+					&& !str_contains($uri, 'sandbox');
+			}))
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse('order_prod'), 201));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_live_abc',
+			secretKey: 'sk_live_xyz',
+			httpClient: $httpClient
+		);
+
+		$revolut
+			->setIsTest(false)
+			->setAmount(5000)
+			->setPurchaseReference('PROD-ORDER-001')
+			->newPayment();
+	}
+
+	public function testNewPaymentWithAuthorizationOnly(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$body = json_decode((string) $request->getBody(), true);
+				return $body['capture_mode'] === 'MANUAL';
+			}))
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse('order_auth'), 201));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$revolut
+			->setIsTest(true)
+			->setBankCardOperation(BankCardOperation::AUTHORIZATION_ONLY)
+			->setAmount(15000)
+			->setPurchaseReference('AUTH-ONLY-001')
+			->newPayment();
+	}
+
+	public function testNewPaymentWithAuthorizationAndDebit(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$body = json_decode((string) $request->getBody(), true);
+				return $body['capture_mode'] === 'AUTOMATIC';
+			}))
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse('order_auto'), 201));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$revolut
+			->setIsTest(true)
+			->setBankCardOperation(BankCardOperation::AUTHORIZATION_AND_DEBIT)
+			->setAmount(25000)
+			->setPurchaseReference('AUTH-DEBIT-001')
+			->newPayment();
+	}
+
+	public function testNewPaymentReturnsNullOnNetworkException(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testNewPaymentReturnsNullOn401Unauthorized(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['error' => 'Unauthorized'], 401));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_invalid',
+			secretKey: 'sk_test_invalid',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testNewPaymentReturnsNullOn400BadRequest(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['error' => 'Invalid parameters'], 400));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testNewPaymentReturnsNullOnUnknownStatusCode(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['error' => 'Server error'], 500));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	public function testNewPaymentReturnsNullOnInvalidJson(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn(new Response(200, ['Content-Type' => 'application/json'], 'invalid-json{'));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== capture() ===================== */
+
+	public function testCaptureReturnsResponseOnSuccess(): void
+	{
+		$orderId = 'order_12345';
+		$responseData = $this->createRevolutOrderResponse($orderId, 'COMPLETED');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData, 200));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(5000)
+			->capture($orderId);
+
+		$this->assertInstanceOf(RevolutResponse::class, $result);
+	}
+
+	public function testCaptureVerifiesRequestStructure(): void
+	{
+		$orderId = 'order_auth_123';
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) use ($orderId) {
+				$uri = (string) $request->getUri();
+				$body = json_decode((string) $request->getBody(), true);
+
+				return str_contains($uri, "/orders/$orderId/capture")
+					&& $request->getMethod() === 'POST'
+					&& $request->hasHeader('Authorization')
+					&& $body['amount'] === 5000;
+			}))
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse($orderId), 200));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$revolut
+			->setAmount(5000)
+			->capture($orderId);
+	}
+
+	public function testCaptureReturnsNullOnNetworkException(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setAmount(5000)
+			->capture('order_123');
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== getOrder() ===================== */
+
+	public function testGetOrderReturnsResponseOnSuccess(): void
+	{
+		$orderId = 'order_12345';
+		$responseData = $this->createRevolutOrderResponse($orderId);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData, 200));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut->getOrder($orderId);
+
+		$this->assertInstanceOf(RevolutResponse::class, $result);
+	}
+
+	public function testGetOrderVerifiesRequestStructure(): void
+	{
+		$orderId = 'order_get_123';
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) use ($orderId) {
+				$uri = (string) $request->getUri();
+
+				return str_contains($uri, "/orders/$orderId")
+					&& $request->getMethod() === 'GET'
+					&& $request->hasHeader('Authorization');
+			}))
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse($orderId), 200));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$revolut->getOrder($orderId);
+	}
+
+	public function testGetOrderReturnsNullOnNetworkException(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut->getOrder('order_123');
+
+		$this->assertNull($result);
+	}
+
+	/* ===================== Logger integration tests ===================== */
+
+	public function testNewPaymentLogsOnException(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::atLeastOnce())
+			->method('error');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willThrowException(new class('Network error') extends \RuntimeException implements ClientExceptionInterface {});
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			logger: $logger,
+			httpClient: $httpClient
+		);
+
+		$revolut
+			->setAmount(9999)
+			->setPurchaseReference('ORDER-123')
+			->newPayment();
+	}
+
+	public function testCaptureLogsErrorOnEmptyOrderId(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with('Revolut capture failed: orderId cannot be empty');
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			logger: $logger
+		);
+
+		$revolut
+			->setAmount(5000)
+			->capture('');
+	}
+
+	public function testGetOrderLogsErrorOnEmptyOrderId(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with('Revolut getOrder failed: orderId cannot be empty');
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			logger: $logger
+		);
+
+		$revolut->getOrder('');
+	}
+
+	/* ===================== Complete workflows with HTTP ===================== */
+
+	public function testCompleteAuthorizationCaptureWorkflowWithHttp(): void
+	{
+		$orderId = 'order_workflow_123';
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::exactly(2))
+			->method('sendRequest')
+			->willReturnOnConsecutiveCalls(
+				// First call: authorization (newPayment)
+				$this->createJsonResponse($this->createRevolutOrderResponse($orderId, 'AUTHORIZED'), 201),
+				// Second call: capture
+				$this->createJsonResponse($this->createRevolutOrderResponse($orderId, 'COMPLETED'), 200)
+			);
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		// Step 1: Create authorization
+		$authResult = $revolut
+			->setIsTest(true)
+			->setBankCardOperation(BankCardOperation::AUTHORIZATION_ONLY)
+			->setAmount(50000)
+			->setPurchaseReference('AUTH-WORKFLOW-001')
+			->newPayment();
+
+		$this->assertInstanceOf(RevolutResponse::class, $authResult);
+
+		// Step 2: Capture the authorization
+		$captureResult = $revolut->capture($orderId);
+
+		$this->assertInstanceOf(RevolutResponse::class, $captureResult);
+	}
+
+	public function testCompleteDirectPaymentWorkflowWithHttp(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($this->createRevolutOrderResponse('order_direct', 'COMPLETED'), 201));
+
+		$revolut = new Revolut(
+			publicKey: 'pk_test_abc',
+			secretKey: 'sk_test_xyz',
+			httpClient: $httpClient
+		);
+
+		$result = $revolut
+			->setIsTest(true)
+			->setBankCardOperation(BankCardOperation::AUTHORIZATION_AND_DEBIT)
+			->setAmount(29999)
+			->setPurchaseReference('DIRECT-PAYMENT-001')
+			->newPayment();
+
+		$this->assertInstanceOf(RevolutResponse::class, $result);
 	}
 }
