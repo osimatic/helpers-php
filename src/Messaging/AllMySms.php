@@ -2,6 +2,10 @@
 
 namespace Osimatic\Messaging;
 
+use Osimatic\Network\HTTPClient;
+use Osimatic\Network\HTTPMethod;
+use Osimatic\Network\HTTPRequestExecutor;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -11,28 +15,26 @@ use Psr\Log\NullLogger;
  */
 class AllMySms implements SmsSenderInterface
 {
+	public const string API_URL = 'https://api.allmysms.com/';
+
+	/** HTTP request executor for making API calls */
+	private HTTPRequestExecutor $requestExecutor;
+
 	/**
 	 * Construct a new AllMySms client instance.
 	 * @param string $login The AllMySms account login
 	 * @param string $apiKey The AllMySms API key for authentication
 	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+	 * @param ClientInterface $httpClient The PSR-18 HTTP client instance used for making API requests (default: HTTPClient)
 	 */
 	public function __construct(
 		private string $login,
 		private string $apiKey,
-		private LoggerInterface $logger=new NullLogger(),
-	) {}
-
-	/**
-	 * Sets the logger for error and debugging information.
-	 * @param LoggerInterface $logger The PSR-3 logger instance
-	 * @return self Returns this instance for method chaining
-	 */
-	public function setLogger(LoggerInterface $logger): self
+		private readonly LoggerInterface $logger=new NullLogger(),
+		ClientInterface $httpClient = new HTTPClient(),
+	)
 	{
-		$this->logger = $logger;
-
-		return $this;
+		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
 	/**
@@ -102,61 +104,30 @@ class AllMySms implements SmsSenderInterface
 		*/
 
 		foreach ($sms->getListRecipients() as $phoneNumber) {
-			$json = json_encode([
+			$requestData = [
 				'from' => $sms->getSenderName(),
 				'to' => $phoneNumber,
 				'text' => $sms->getText(),
-			]);
+			];
 
 			try {
-				$curl = curl_init();
-
-				curl_setopt_array($curl, array(
-					CURLOPT_URL => "https://api.allmysms.com/sms/send",
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => "",
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 5,
-					CURLOPT_CONNECTTIMEOUT => 2,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => "POST",
-					CURLOPT_POSTFIELDS => $json,
-					CURLOPT_HTTPHEADER => [
-						"Authorization: Basic ".$this->getAuthToken(),
-						"Content-Type: application/json",
-						"cache-control: no-cache"
+				$responseData = $this->requestExecutor->execute(
+					HTTPMethod::POST,
+					self::API_URL.'sms/send',
+					$requestData,
+					headers: [
+						'Authorization' => 'Basic ' . $this->getAuthToken(),
+						'cache-control' => 'no-cache',
 					],
-				));
+					jsonBody: true,
+					decodeJson: true
+				);
 
-				$response = curl_exec($curl);
-				$httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-				$err = curl_error($curl);
-
-				curl_close($curl);
-			}
-			catch (\Exception $e) {
-				$this->logger->error($e->getMessage());
-				throw $e;
-			}
-
-			if ($err) {
-				$this->logger->error('cURL Error: ' . $err);
-				throw new \Exception('AllMySms API cURL error: ' . $err);
-			}
-
-			// Validate HTTP response code
-			if ($httpCode < 200 || $httpCode >= 300) {
-				$errorMsg = 'AllMySms API returned HTTP code ' . $httpCode;
-				if ($response) {
-					$errorMsg .= ': ' . $response;
+				if ($responseData === null) {
+					$this->logger->error('AllMySms API returned null response');
+					throw new \Exception('AllMySms API returned null response');
 				}
-				$this->logger->error($errorMsg);
-				throw new \Exception($errorMsg);
-			}
 
-			// Parse and validate JSON response
-			try {
-				$responseData = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
 				$this->logger->info('AllMySms API response', ['response' => $responseData]);
 
 				// Check for API errors in response
@@ -168,9 +139,9 @@ class AllMySms implements SmsSenderInterface
 					$this->logger->error($errorMsg);
 					throw new \Exception($errorMsg);
 				}
-			} catch (\JsonException $e) {
-				$this->logger->error('Invalid JSON response from AllMySms API: ' . $e->getMessage());
-				throw new \Exception('Invalid JSON response from AllMySms API: ' . $e->getMessage());
+			} catch (\Throwable $e) {
+				$this->logger->error('AllMySms API error: ' . $e->getMessage());
+				throw new \Exception('AllMySms API error: ' . $e->getMessage(), 0, $e);
 			}
 		}
 	}

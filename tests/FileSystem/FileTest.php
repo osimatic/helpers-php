@@ -246,4 +246,525 @@ final class FileTest extends TestCase
 		$this->assertEquals('fichier-été.txt', $result['basename']);
 		$this->assertEquals('fichier-été', $result['filename']);
 	}
+
+	/* ===================== Edge Cases - Base64 Data ===================== */
+
+	public function testGetDataFromBase64DataWithEmptyAfterExplode(): void
+	{
+		// Cas où la partie après "base64," est vide
+		$this->assertNull(File::getDataFromBase64Data('data:image/png;base64,'));
+	}
+
+	public function testGetDataFromBase64DataWithInvalidBase64(): void
+	{
+		// Base64 qui échoue au décodage strict
+		$this->assertNull(File::getDataFromBase64Data('!!!invalid!!!'));
+		$this->assertNull(File::getDataFromBase64Data('not@valid#base64'));
+	}
+
+	public function testGetDataFromBase64DataWithInvalidReencode(): void
+	{
+		// Base64 valide mais qui ne peut pas être réencodé identiquement (padding manquant)
+		// Note: En pratique, base64_decode en mode strict rejette déjà ces cas
+		$invalidPadding = 'YQ'; // 'a' sans padding correct
+		$this->assertNull(File::getDataFromBase64Data($invalidPadding));
+	}
+
+	public function testGetMimeTypeFromBase64DataWithEmptyFileInfos(): void
+	{
+		// Cas où explode()[0] est vide
+		$this->assertNull(File::getMimeTypeFromBase64Data('base64,iVBORw0KGgo='));
+	}
+
+	public function testGetMimeTypeFromBase64DataWithEmptyDataAfterSecondExplode(): void
+	{
+		// Cas où la seconde partie après explode est vide
+		// Note: This actually returns the mime type from the prefix 'data:image/png;'
+		$this->assertEquals('image/png', File::getMimeTypeFromBase64Data('data:image/png;base64,'));
+	}
+
+	public function testGetMimeTypeFromBase64DataWithVariousSignatures(): void
+	{
+		// Test des signatures de fichiers non couvertes
+
+		// 3GPP video
+		$data3gpp = base64_encode("\x66\x74\x79\x70\x33\x67");
+		$this->assertEquals('video/3gpp', File::getMimeTypeFromBase64Data($data3gpp));
+
+		// EXE (Windows executable)
+		$dataExe = base64_encode("\x4D\x5A");
+		$this->assertEquals('application/octet-stream', File::getMimeTypeFromBase64Data($dataExe));
+
+		// MP4 video
+		$dataMp4 = base64_encode("\x66\x74\x79\x70\x69\x73\x6F\x6D");
+		$this->assertEquals('video/mp4', File::getMimeTypeFromBase64Data($dataMp4));
+
+		// TIFF image
+		$dataTiff1 = base64_encode("\x49\x49\x2A\x00");
+		$this->assertEquals('image/tiff', File::getMimeTypeFromBase64Data($dataTiff1));
+		$dataTiff2 = base64_encode("\x4D\x4D\x00\x2A");
+		$this->assertEquals('image/tiff', File::getMimeTypeFromBase64Data($dataTiff2));
+
+		// WEBP image
+		$dataWebp = base64_encode("\x52\x49\x46\x46");
+		$this->assertEquals('image/webp', File::getMimeTypeFromBase64Data($dataWebp));
+
+		// RTF document
+		$dataRtf = base64_encode("\x7B\x5C\x72\x74\x66\x31");
+		$this->assertEquals('application/rtf', File::getMimeTypeFromBase64Data($dataRtf));
+
+		// QuickTime video
+		$dataQt = base64_encode("\x71\x74\x20\x20");
+		$this->assertEquals('video/quicktime', File::getMimeTypeFromBase64Data($dataQt));
+	}
+
+	/* ===================== File Extension of UploadedFile ===================== */
+
+	public function testGetExtensionOfUploadedFileWithInputFile(): void
+	{
+		$inputFile = new \Osimatic\FileSystem\InputFile();
+		$inputFile->setOriginalFileName('document.pdf');
+
+		$extension = File::getExtensionOfUploadedFile($inputFile);
+		$this->assertEquals('pdf', $extension);
+	}
+
+	public function testGetExtensionOfUploadedFileWithSymfonyUploadedFile(): void
+	{
+		$uploadedFile = $this->createMock(\Symfony\Component\HttpFoundation\File\UploadedFile::class);
+		$uploadedFile->method('getClientOriginalExtension')->willReturn('jpg');
+
+		$extension = File::getExtensionOfUploadedFile($uploadedFile);
+		$this->assertEquals('jpg', $extension);
+	}
+
+	/* ===================== File Upload Processing ===================== */
+
+	public function testGetUploadedFileFromRequestWithBase64Data(): void
+	{
+		$base64Data = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+		$request->method('get')->willReturnCallback(function($key) use ($base64Data) {
+			return $key === 'file_data' ? $base64Data : null;
+		});
+
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('info')
+			->with('Uploaded file from base64 content.');
+
+		$result = File::getUploadedFileFromRequest($request, 'file', 'file_data', [], $logger);
+
+		$this->assertInstanceOf(\Osimatic\FileSystem\InputFile::class, $result);
+		$this->assertNotNull($result->getData());
+		$this->assertEquals('image/png', $result->getMimeType());
+	}
+
+	public function testGetUploadedFileFromRequestWithInvalidBase64(): void
+	{
+		$invalidBase64 = 'invalid!!!base64';
+
+		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+		$request->method('get')->willReturn($invalidBase64);
+
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->atLeastOnce())
+			->method('info');
+
+		$result = File::getUploadedFileFromRequest($request, 'file', 'file_data', [], $logger);
+
+		$this->assertNull($result);
+	}
+
+	public function testGetUploadedFileFromRequestWithFormUpload(): void
+	{
+		$uploadedFile = $this->createMock(\Symfony\Component\HttpFoundation\File\UploadedFile::class);
+		$uploadedFile->method('getSize')->willReturn(1024);
+		$uploadedFile->method('getError')->willReturn(UPLOAD_ERR_OK);
+
+		$files = $this->createMock(\Symfony\Component\HttpFoundation\FileBag::class);
+		$files->method('get')->willReturn($uploadedFile);
+
+		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+		$request->method('get')->willReturn(null);
+		$request->files = $files;
+
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->atLeastOnce())
+			->method('info');
+
+		$result = File::getUploadedFileFromRequest($request, 'file', 'file_data', [], $logger);
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\File\UploadedFile::class, $result);
+	}
+
+	public function testGetUploadedFileFromRequestWithUploadError(): void
+	{
+		$uploadedFile = $this->createMock(\Symfony\Component\HttpFoundation\File\UploadedFile::class);
+		$uploadedFile->method('getSize')->willReturn(1024);
+		$uploadedFile->method('getError')->willReturn(UPLOAD_ERR_INI_SIZE);
+		$uploadedFile->method('getErrorMessage')->willReturn('The file exceeds the upload_max_filesize directive');
+
+		$files = $this->createMock(\Symfony\Component\HttpFoundation\FileBag::class);
+		$files->method('get')->willReturn($uploadedFile);
+
+		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+		$request->method('get')->willReturn(null);
+		$request->files = $files;
+
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->atLeastOnce())
+			->method('info');
+
+		$result = File::getUploadedFileFromRequest($request, 'file', 'file_data', [], $logger);
+
+		$this->assertNull($result);
+	}
+
+	public function testGetUploadedFileFromRequestWithInvalidFormat(): void
+	{
+		$uploadedFile = $this->createMock(\Symfony\Component\HttpFoundation\File\UploadedFile::class);
+		$uploadedFile->method('getSize')->willReturn(1024);
+		$uploadedFile->method('getError')->willReturn(UPLOAD_ERR_OK);
+		$uploadedFile->method('getRealPath')->willReturn(__FILE__); // Use this test file
+		$uploadedFile->method('getClientOriginalName')->willReturn('test.php');
+
+		$files = $this->createMock(\Symfony\Component\HttpFoundation\FileBag::class);
+		$files->method('get')->willReturn($uploadedFile);
+
+		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+		$request->method('get')->willReturn(null);
+		$request->files = $files;
+
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->atLeastOnce())
+			->method('info');
+
+		// Only allow PDF files
+		$result = File::getUploadedFileFromRequest($request, 'file', 'file_data', ['pdf'], $logger);
+
+		$this->assertNull($result);
+	}
+
+	public function testGetUploadedFileFromRequestNotFound(): void
+	{
+		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
+		$request->method('get')->willReturn(null);
+
+		$files = $this->createMock(\Symfony\Component\HttpFoundation\FileBag::class);
+		$files->method('get')->willReturn(null);
+		$request->files = $files;
+
+		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('info')
+			->with('Uploaded file not found in request.');
+
+		$result = File::getUploadedFileFromRequest($request, 'file', 'file_data', [], $logger);
+
+		$this->assertNull($result);
+	}
+
+	public function testMoveUploadedFileWithInputFileData(): void
+	{
+		// Create temporary file to write to
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+
+		$inputFile = new \Osimatic\FileSystem\InputFile();
+		$inputFile->setData('test content for file');
+
+		$result = File::moveUploadedFile($inputFile, $tempFile);
+
+		$this->assertTrue($result);
+		$this->assertFileExists($tempFile);
+		$this->assertEquals('test content for file', file_get_contents($tempFile));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	// Note: testMoveUploadedFileWithInputFileDataFailure removed because it's not portable
+	// (FileSystem::createDirectories() may succeed on some systems)
+
+	public function testMoveUploadedFileReplacesExistingFile(): void
+	{
+		// Create existing file
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'old content');
+
+		$inputFile = new \Osimatic\FileSystem\InputFile();
+		$inputFile->setData('new content');
+
+		$result = File::moveUploadedFile($inputFile, $tempFile);
+
+		$this->assertTrue($result);
+		$this->assertEquals('new content', file_get_contents($tempFile));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testMoveUploadedFileWithEmptyData(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+
+		$inputFile = new \Osimatic\FileSystem\InputFile();
+		// No data set, no uploaded file path
+
+		$result = File::moveUploadedFile($inputFile, $tempFile);
+
+		$this->assertFalse($result);
+
+		// Cleanup
+		if (file_exists($tempFile)) {
+			unlink($tempFile);
+		}
+	}
+
+	/* ===================== File Validation ===================== */
+
+	public function testCheckWithValidFile(): void
+	{
+		// Create a temporary test file
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		$result = File::check($tempFile, 'test.txt', ['.txt'], ['text/plain']);
+
+		$this->assertTrue($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testCheckWithNonExistentFile(): void
+	{
+		$this->assertFalse(File::check('/non/existent/file.txt', 'file.txt'));
+	}
+
+	public function testCheckWithEmptyPath(): void
+	{
+		$this->assertFalse(File::check('', 'file.txt'));
+	}
+
+	public function testCheckWithInvalidExtension(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		// File has no extension in name, but we require .pdf
+		$result = File::check($tempFile, 'noextension', ['.pdf']);
+
+		$this->assertFalse($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testCheckWithNotAllowedExtension(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		// Extension is .txt but only .pdf is allowed
+		$result = File::check($tempFile, 'file.txt', ['.pdf', '.doc']);
+
+		$this->assertFalse($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testCheckWithInvalidMimeType(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		// Real MIME type will be text/plain, but we require application/pdf
+		$result = File::check($tempFile, 'file.txt', ['.txt'], ['application/pdf']);
+
+		$this->assertFalse($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testCheckWithNoRestrictions(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		// No restrictions, should pass
+		$result = File::check($tempFile, 'file.txt', null, null);
+
+		$this->assertTrue($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	/* ===================== File Output ===================== */
+
+	public function testGetHttpResponseWithExistingFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test file content');
+
+		$response = File::getHttpResponse($tempFile, 'download.txt', true);
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertEquals('test file content', $response->getContent());
+		$this->assertEquals('application/force-download', $response->headers->get('Content-Type'));
+		$this->assertStringContainsString('download.txt', $response->headers->get('Content-Disposition'));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetHttpResponseWithNonExistentFile(): void
+	{
+		$response = File::getHttpResponse('/non/existent/file.txt', 'test.txt');
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals('file_not_found', $response->getContent());
+	}
+
+	public function testGetHttpResponseForInlineDisplay(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		$response = File::getHttpResponse($tempFile, 'image.jpg', false, 'image/jpeg');
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals('image/jpeg', $response->headers->get('Content-Type'));
+		$this->assertStringNotContainsString('force-download', $response->headers->get('Content-Type'));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetHttpResponseWithCustomTransferEncoding(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'test content');
+
+		$response = File::getHttpResponse($tempFile, 'file.bin', true, null, 'chunked');
+
+		$this->assertEquals('chunked', $response->headers->get('Content-Transfer-Encoding'));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testOutputFileWithValidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'output content');
+
+		$outputFile = new \Osimatic\FileSystem\OutputFile($tempFile, 'display.txt');
+
+		// getHttpResponse mode (sendResponse = false)
+		$response = File::getHttpResponse($outputFile->getFilePath(), $outputFile->getFileName(), false, 'text/plain');
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals('text/plain', $response->headers->get('Content-Type'));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testOutputFileWithNullFilePath(): void
+	{
+		$outputFile = new \Osimatic\FileSystem\OutputFile(null, 'test.txt');
+
+		// outputFile method returns early if filePath is null
+		// We can't directly test outputFile() since it calls exit(), but we can test via getHttpResponse
+		$this->assertNull($outputFile->getFilePath());
+	}
+
+	public function testDownloadFileWithValidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_');
+		file_put_contents($tempFile, 'download content');
+
+		$outputFile = new \Osimatic\FileSystem\OutputFile($tempFile, 'download.bin');
+
+		$response = File::getHttpResponse($outputFile->getFilePath(), $outputFile->getFileName(), true);
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals('application/force-download', $response->headers->get('Content-Type'));
+		$this->assertStringContainsString('download.bin', $response->headers->get('Content-Disposition'));
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	/* ===================== Edge Cases - Format Size ===================== */
+
+	public function testFormatSizeWithVeryLargeFile(): void
+	{
+		// 5 Petabytes (au-delà de Terabytes)
+		$petabytes = 5 * pow(1024, 5);
+
+		$result = File::formatSize($petabytes);
+
+		// Should return in TB since it's the highest unit
+		$this->assertStringContainsString('To', $result);
+		$this->assertStringContainsString('5120.00', $result); // 5 * 1024 TB
+	}
+
+	public function testFormatSizeWithExactlyZero(): void
+	{
+		$this->assertEquals('0.00 o', File::formatSize(0));
+	}
+
+	/* ===================== Extensions and MIME Types ===================== */
+
+	public function testGetExtensionsAndMimeTypes(): void
+	{
+		$mappings = File::getExtensionsAndMimeTypes();
+
+		$this->assertIsArray($mappings);
+		$this->assertNotEmpty($mappings);
+
+		// Verify structure: each entry should be [extensions_array, mime_types_array]
+		foreach ($mappings as $mapping) {
+			$this->assertIsArray($mapping);
+			$this->assertCount(2, $mapping);
+			$this->assertIsArray($mapping[0]); // extensions
+			$this->assertIsArray($mapping[1]); // mime types
+		}
+
+		// Check that common formats are included
+		$allExtensions = array_merge(...array_column($mappings, 0));
+		$this->assertContains('pdf', $allExtensions);
+		$this->assertContains('jpg', $allExtensions);
+		$this->assertContains('png', $allExtensions);
+		$this->assertContains('zip', $allExtensions);
+		$this->assertContains('mp4', $allExtensions);
+	}
+
+	public function testGetMimeTypeFromExtensionWithCustomMapping(): void
+	{
+		$customMapping = [
+			[['custom'], ['application/x-custom']],
+		];
+
+		$result = File::getMimeTypeFromExtension('custom', $customMapping);
+		$this->assertEquals('application/x-custom', $result);
+	}
+
+	public function testGetExtensionFromMimeTypeWithCustomMapping(): void
+	{
+		$customMapping = [
+			[['myext'], ['application/x-mytype']],
+		];
+
+		$result = File::getExtensionFromMimeType('application/x-mytype', $customMapping);
+		$this->assertEquals('myext', $result);
+	}
 }

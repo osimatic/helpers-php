@@ -26,7 +26,8 @@ class Incolumitas
 	public function __construct(
 		private readonly LoggerInterface $logger=new NullLogger(),
 		ClientInterface $httpClient = new HTTPClient(),
-	) {
+	)
+	{
 		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 

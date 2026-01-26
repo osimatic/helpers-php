@@ -44,7 +44,8 @@ class GoogleMaps
 		private readonly LoggerInterface $logger=new NullLogger(),
 		ClientInterface $httpClient = new HTTPClient(),
 		int $cacheTtl=3600,
-	) {
+	)
+	{
 		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 		$this->cacheTtl = $cacheTtl;
 	}

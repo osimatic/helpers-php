@@ -26,7 +26,8 @@ class VPNAPI
 		private ?string $key=null,
 		private readonly LoggerInterface $logger = new NullLogger(),
 		ClientInterface $httpClient = new HTTPClient(),
-	) {
+	)
+	{
 		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 

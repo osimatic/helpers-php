@@ -631,4 +631,688 @@ final class GoogleMapsTest extends TestCase
 		self::assertNotNull($coordinates);
 		self::assertNotNull($formattedAddress);
 	}
+
+	/* ===================== PostalAddress methods ===================== */
+
+	public function testInitPostalAddressDataFromAddress(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->expects(self::once())->method('setRoad');
+		$postalAddress->expects(self::once())->method('setPostcode');
+		$postalAddress->expects(self::once())->method('setCity');
+		$postalAddress->expects(self::once())->method('setCountryCode');
+		$postalAddress->expects(self::once())->method('setCoordinates');
+		$postalAddress->expects(self::once())->method('setFormattedAddress');
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->initPostalAddressDataFromAddress($postalAddress, self::TEST_ADDRESS);
+
+		self::assertTrue($result);
+	}
+
+	public function testInitPostalAddressDataFromAddressReturnsFalseOnError(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['status' => 'ZERO_RESULTS']));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->initPostalAddressDataFromAddress($postalAddress, 'Invalid Address');
+
+		self::assertFalse($result);
+	}
+
+	public function testInitPostalAddressDataFromCoordinates(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->expects(self::once())->method('setRoad');
+		$postalAddress->expects(self::once())->method('setPostcode');
+		$postalAddress->expects(self::once())->method('setCity');
+		$postalAddress->expects(self::once())->method('setCountryCode');
+		$postalAddress->expects(self::exactly(2))->method('setCoordinates'); // Once in initPostalAddressFromResult, once explicitly
+		$postalAddress->expects(self::once())->method('setFormattedAddress');
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->initPostalAddressDataFromCoordinates($postalAddress, self::TEST_COORDINATES);
+
+		self::assertTrue($result);
+	}
+
+	public function testInitPostalAddressDataFromCoordinatesReturnsFalseOnNullResults(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['status' => 'ZERO_RESULTS']));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->initPostalAddressDataFromCoordinates($postalAddress, self::TEST_COORDINATES);
+
+		self::assertFalse($result);
+	}
+
+	public function testInitPostalAddressDataFromCoordinatesReturnsFalseOnMissingFormattedAddress(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'results' => [
+				[
+					'geometry' => [
+						'location' => [
+							'lat' => self::TEST_LATITUDE,
+							'lng' => self::TEST_LONGITUDE
+						]
+					],
+					// Missing formatted_address field
+					'address_components' => []
+				]
+			]
+		];
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->initPostalAddressDataFromCoordinates($postalAddress, self::TEST_COORDINATES);
+
+		self::assertFalse($result);
+	}
+
+	public function testInitPostalAddressFromResult(): void
+	{
+		$result = [
+			'formatted_address' => self::TEST_ADDRESS,
+			'geometry' => [
+				'location' => [
+					'lat' => self::TEST_LATITUDE,
+					'lng' => self::TEST_LONGITUDE
+				]
+			],
+			'address_components' => [
+				[
+					'long_name' => 'Downing Street',
+					'types' => ['route']
+				],
+				[
+					'long_name' => 'London',
+					'types' => ['locality']
+				],
+				[
+					'long_name' => 'SW1A 2AA',
+					'types' => ['postal_code']
+				],
+				[
+					'short_name' => 'GB',
+					'types' => ['country']
+				]
+			]
+		];
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->expects(self::once())->method('setRoad')->with(self::isType('string'));
+		$postalAddress->expects(self::once())->method('setPostcode')->with('SW1A 2AA');
+		$postalAddress->expects(self::once())->method('setCity')->with('London');
+		$postalAddress->expects(self::once())->method('setCountryCode')->with('GB');
+		$postalAddress->expects(self::once())->method('setCoordinates')->with(self::isType('string'));
+		$postalAddress->expects(self::once())->method('setFormattedAddress')->with(self::isType('string'));
+
+		$success = GoogleMaps::initPostalAddressFromResult($postalAddress, $result);
+
+		self::assertTrue($success);
+	}
+
+	public function testInitPostalAddressFromResultReturnsFalseOnMissingCoordinates(): void
+	{
+		$result = [
+			'formatted_address' => self::TEST_ADDRESS,
+			'geometry' => [], // Missing location
+			'address_components' => []
+		];
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+
+		$success = GoogleMaps::initPostalAddressFromResult($postalAddress, $result);
+
+		self::assertFalse($success);
+	}
+
+	public function testGetCoordinatesFromPostalAddressWithFullAddress(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->method('getRoad')->willReturn('10 Downing Street');
+		$postalAddress->method('getAttention')->willReturn('Prime Minister');
+		$postalAddress->method('getPostcode')->willReturn('SW1A 2AA');
+		$postalAddress->method('getCity')->willReturn('London');
+		$postalAddress->method('getCountryCode')->willReturn('GB');
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getCoordinatesFromPostalAddress($postalAddress);
+
+		self::assertNotNull($result);
+		self::assertIsString($result);
+	}
+
+	public function testGetCoordinatesFromPostalAddressWithoutAttention(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->method('getRoad')->willReturn('10 Downing Street');
+		$postalAddress->method('getAttention')->willReturn(null);
+		$postalAddress->method('getPostcode')->willReturn('SW1A 2AA');
+		$postalAddress->method('getCity')->willReturn('London');
+		$postalAddress->method('getCountryCode')->willReturn('GB');
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getCoordinatesFromPostalAddress($postalAddress);
+
+		self::assertNotNull($result);
+	}
+
+	public function testGetCoordinatesFromPostalAddressWithAttentionFallback(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		// Called twice: first with road+attention fails (returns null), second with attention succeeds
+		$httpClient->expects(self::exactly(2))
+			->method('sendRequest')
+			->willReturnOnConsecutiveCalls(
+				$this->createJsonResponse(['status' => 'ZERO_RESULTS']), // First call fails
+				$this->createJsonResponse($responseData) // Second call succeeds
+			);
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->method('getRoad')->willReturn('Unknown Street');
+		$postalAddress->method('getAttention')->willReturn('Prime Minister Office');
+		$postalAddress->method('getPostcode')->willReturn('SW1A 2AA');
+		$postalAddress->method('getCity')->willReturn('London');
+		$postalAddress->method('getCountryCode')->willReturn('GB');
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getCoordinatesFromPostalAddress($postalAddress);
+
+		self::assertNotNull($result);
+	}
+
+	public function testGetCoordinatesFromPostalAddressReturnsNullWithoutRoadAndCity(): void
+	{
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->method('getRoad')->willReturn(null);
+		$postalAddress->method('getCity')->willReturn(null);
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY);
+
+		$result = $googleMaps->getCoordinatesFromPostalAddress($postalAddress);
+
+		self::assertNull($result);
+	}
+
+	public function testGetCoordinatesFromPostalAddressUsesDefaultCountryCode(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->with(self::callback(function ($request) {
+				$uri = (string) $request->getUri();
+				return str_contains($uri, 'France'); // Default country is FR = France
+			}))
+			->willReturn($this->createJsonResponse($responseData));
+
+		$postalAddress = $this->createMock(\Osimatic\Location\PostalAddressInterface::class);
+		$postalAddress->method('getRoad')->willReturn('10 Rue de Rivoli');
+		$postalAddress->method('getPostcode')->willReturn('75001');
+		$postalAddress->method('getCity')->willReturn('Paris');
+		$postalAddress->method('getCountryCode')->willReturn(null); // No country code
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getCoordinatesFromPostalAddress($postalAddress);
+
+		self::assertNotNull($result);
+	}
+
+	/* ===================== Deprecated methods ===================== */
+
+	public function testGetAddressDataFromAddress(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressDataFromAddress(self::TEST_ADDRESS);
+
+		self::assertNotNull($result);
+		self::assertIsArray($result);
+		self::assertArrayHasKey('coordinates', $result);
+		self::assertArrayHasKey('formatted_address', $result);
+		self::assertArrayHasKey('address_components', $result);
+	}
+
+	public function testGetAddressDataFromAddressReturnsNullOnError(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['status' => 'ZERO_RESULTS']));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressDataFromAddress('Invalid');
+
+		self::assertNull($result);
+	}
+
+	public function testGetAddressDataFromAddressReturnsNullOnMissingCoordinates(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'results' => [
+				[
+					'formatted_address' => self::TEST_ADDRESS,
+					'geometry' => [], // Missing location
+					'address_components' => []
+				]
+			]
+		];
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressDataFromAddress(self::TEST_ADDRESS);
+
+		self::assertNull($result);
+	}
+
+	public function testGetAddressDataFromCoordinates(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressDataFromCoordinates(self::TEST_COORDINATES);
+
+		self::assertNotNull($result);
+		self::assertIsArray($result);
+		self::assertArrayHasKey('coordinates', $result);
+		self::assertArrayHasKey('formatted_address', $result);
+		self::assertArrayHasKey('address_components', $result);
+		self::assertSame(self::TEST_COORDINATES, $result['coordinates']);
+	}
+
+	public function testGetAddressDataFromCoordinatesReturnsNullOnError(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['status' => 'ZERO_RESULTS']));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressDataFromCoordinates(self::TEST_COORDINATES);
+
+		self::assertNull($result);
+	}
+
+	public function testGetAddressDataFromCoordinatesReturnsNullOnMissingFormattedAddress(): void
+	{
+		$responseData = [
+			'status' => 'OK',
+			'results' => [
+				[
+					'geometry' => [
+						'location' => [
+							'lat' => self::TEST_LATITUDE,
+							'lng' => self::TEST_LONGITUDE
+						]
+					],
+					// Missing formatted_address
+					'address_components' => []
+				]
+			]
+		];
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressDataFromCoordinates(self::TEST_COORDINATES);
+
+		self::assertNull($result);
+	}
+
+	public function testGetAddressComponentsFromAddress(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressComponentsFromAddress(self::TEST_ADDRESS);
+
+		self::assertNotNull($result);
+		self::assertIsArray($result);
+		self::assertArrayHasKey('street', $result);
+		self::assertArrayHasKey('locality', $result);
+	}
+
+	public function testGetAddressComponentsFromAddressReturnsNullOnError(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['status' => 'ZERO_RESULTS']));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressComponentsFromAddress('Invalid');
+
+		self::assertNull($result);
+	}
+
+	public function testGetAddressComponentsFromCoordinates(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressComponentsFromCoordinates(self::TEST_COORDINATES);
+
+		self::assertNotNull($result);
+		self::assertIsArray($result);
+		self::assertArrayHasKey('street', $result);
+		self::assertArrayHasKey('locality', $result);
+	}
+
+	public function testGetAddressComponentsFromCoordinatesReturnsNullOnError(): void
+	{
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse(['status' => 'ZERO_RESULTS']));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		$result = $googleMaps->getAddressComponentsFromCoordinates(self::TEST_COORDINATES);
+
+		self::assertNull($result);
+	}
+
+	/* ===================== Error handling tests ===================== */
+
+	public function testGeocodingWithUnknownError(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(self::stringContains('Error during Google API request'));
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
+				'status' => 'UNKNOWN_ERROR',
+				'error_message' => 'An unknown error occurred'
+			]));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, logger: $logger, httpClient: $httpClient);
+
+		$result = $googleMaps->geocoding(self::TEST_ADDRESS);
+
+		self::assertNull($result);
+	}
+
+	public function testGeocodingWithErrorStatus(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('error')
+			->with(self::stringContains('Error during Google API request'));
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
+				'status' => 'ERROR',
+				'error_message' => 'Generic error'
+			]));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, logger: $logger, httpClient: $httpClient);
+
+		$result = $googleMaps->geocoding(self::TEST_ADDRESS);
+
+		self::assertNull($result);
+	}
+
+	public function testGeocodingWithMissingResults(): void
+	{
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::once())
+			->method('info')
+			->with('No results found.');
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once())
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse([
+				'status' => 'OK'
+				// Missing 'results' field
+			]));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, logger: $logger, httpClient: $httpClient);
+
+		$result = $googleMaps->geocoding(self::TEST_ADDRESS);
+
+		self::assertNull($result);
+	}
+
+	/* ===================== Address components variations ===================== */
+
+	public function testGetAddressComponentsWithSuburb(): void
+	{
+		$result = [
+			'formatted_address' => 'Test Address',
+			'address_components' => [
+				[
+					'long_name' => 'Montmartre',
+					'types' => ['sublocality_level_1']
+				]
+			]
+		];
+
+		$addressComponents = GoogleMaps::getAddressComponentsFromResult($result);
+
+		self::assertNotNull($addressComponents);
+		self::assertArrayHasKey('suburb', $addressComponents);
+		self::assertSame('Montmartre', $addressComponents['suburb']);
+	}
+
+	public function testGetAddressComponentsWithPostalTown(): void
+	{
+		$result = [
+			'formatted_address' => 'Test Address',
+			'address_components' => [
+				[
+					'long_name' => 'Reading',
+					'types' => ['postal_town']
+				]
+			]
+		];
+
+		$addressComponents = GoogleMaps::getAddressComponentsFromResult($result);
+
+		self::assertNotNull($addressComponents);
+		self::assertArrayHasKey('locality', $addressComponents);
+		self::assertSame('Reading', $addressComponents['locality']);
+	}
+
+	public function testGetAddressComponentsWithAdministrativeAreas(): void
+	{
+		$result = [
+			'formatted_address' => 'Test Address',
+			'address_components' => [
+				[
+					'long_name' => 'California',
+					'types' => ['administrative_area_level_1']
+				],
+				[
+					'long_name' => 'Los Angeles County',
+					'types' => ['administrative_area_level_2']
+				],
+				[
+					'long_name' => 'District 3',
+					'types' => ['administrative_area_level_3']
+				]
+			]
+		];
+
+		$addressComponents = GoogleMaps::getAddressComponentsFromResult($result);
+
+		self::assertNotNull($addressComponents);
+		self::assertArrayHasKey('administrative_area_level_1', $addressComponents);
+		self::assertArrayHasKey('administrative_area_level_2', $addressComponents);
+		self::assertSame('California', $addressComponents['administrative_area_level_1']);
+		self::assertSame('Los Angeles County', $addressComponents['administrative_area_level_2']);
+		self::assertSame('District 3', $addressComponents['locality']); // admin_area_level_3 maps to locality
+	}
+
+	public function testGetAddressComponentsStreetExtraction(): void
+	{
+		$result = [
+			'formatted_address' => '131, Avenue Charles de Gaulle, 92200 Neuilly-sur-Seine, France',
+			'address_components' => [
+				[
+					'long_name' => '131',
+					'types' => ['street_number']
+				],
+				[
+					'long_name' => 'Avenue Charles de Gaulle',
+					'types' => ['route']
+				]
+			]
+		];
+
+		$addressComponents = GoogleMaps::getAddressComponentsFromResult($result);
+
+		self::assertNotNull($addressComponents);
+		self::assertArrayHasKey('street', $addressComponents);
+		self::assertStringContainsString('131', $addressComponents['street']);
+		self::assertStringContainsString('Avenue Charles de Gaulle', $addressComponents['street']);
+	}
+
+	public function testGetAddressComponentsStreetWithoutRouteInFormattedAddress(): void
+	{
+		$result = [
+			'formatted_address' => 'Some Building, Paris, France',
+			'address_components' => [
+				[
+					'long_name' => '42',
+					'types' => ['street_number']
+				],
+				[
+					'long_name' => 'Unknown Street',
+					'types' => ['route']
+				]
+			]
+		];
+
+		$addressComponents = GoogleMaps::getAddressComponentsFromResult($result);
+
+		self::assertNotNull($addressComponents);
+		self::assertArrayHasKey('street', $addressComponents);
+		// Should fallback to concatenation since route is not in formatted_address
+		self::assertSame('42 Unknown Street', $addressComponents['street']);
+	}
+
+	public function testReverseGeocodingUsesCache(): void
+	{
+		$responseData = $this->createGeocodingResponse(self::TEST_ADDRESS, self::TEST_LATITUDE, self::TEST_LONGITUDE);
+
+		$httpClient = $this->createMock(ClientInterface::class);
+		$httpClient->expects(self::once()) // Only called once, second call uses cache
+			->method('sendRequest')
+			->willReturn($this->createJsonResponse($responseData));
+
+		$googleMaps = new GoogleMaps(self::TEST_API_KEY, httpClient: $httpClient);
+
+		// First call - hits API
+		$result1 = $googleMaps->reverseGeocoding(self::TEST_COORDINATES);
+		// Second call - uses cache
+		$result2 = $googleMaps->reverseGeocoding(self::TEST_COORDINATES);
+
+		self::assertNotNull($result1);
+		self::assertNotNull($result2);
+		self::assertSame($result1, $result2);
+	}
 }

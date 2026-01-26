@@ -31,7 +31,8 @@ class SendinBlue
 		private ?string $apiKey = null,
 		private readonly LoggerInterface $logger=new NullLogger(),
 		ClientInterface $httpClient = new HTTPClient(),
-	) {
+	)
+	{
 		$this->requestExecutor = new HTTPRequestExecutor($httpClient, $logger);
 	}
 
