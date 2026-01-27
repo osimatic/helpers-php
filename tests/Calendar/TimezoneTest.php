@@ -9,43 +9,392 @@ use PHPUnit\Framework\TestCase;
 
 final class TimezoneTest extends TestCase
 {
-	/* ===================== check() ===================== */
+	// ========== Current Timezone Methods ==========
 
-	public function testCheckWithValidTimezone(): void
+	public function testGetCurrentTimezone(): void
 	{
-		$this->assertTrue(Timezone::check('Europe/Paris'));
-		$this->assertTrue(Timezone::check('America/New_York'));
-		$this->assertTrue(Timezone::check('Asia/Tokyo'));
-		$this->assertTrue(Timezone::check('UTC'));
+		$timezone = Timezone::getCurrentTimezone();
+		$this->assertIsString($timezone);
+		$this->assertNotEmpty($timezone);
+		$this->assertTrue(Timezone::isValid($timezone));
 	}
 
-	public function testCheckWithInvalidTimezone(): void
+	public function testSetCurrentTimezone(): void
 	{
-		$this->assertFalse(Timezone::check('Invalid/Timezone'));
-		$this->assertFalse(Timezone::check('Europe/InvalidCity'));
-		$this->assertFalse(Timezone::check(''));
-		$this->assertFalse(Timezone::check('Not A Timezone'));
+		$originalTimezone = Timezone::getCurrentTimezone();
+
+		$result = Timezone::setCurrentTimezone('Europe/Paris');
+		$this->assertTrue($result);
+		$this->assertEquals('Europe/Paris', Timezone::getCurrentTimezone());
+
+		$result = Timezone::setCurrentTimezone('America/New_York');
+		$this->assertTrue($result);
+		$this->assertEquals('America/New_York', Timezone::getCurrentTimezone());
+
+		// Restore original
+		Timezone::setCurrentTimezone($originalTimezone);
 	}
 
-	public function testCheckWithCountryCode(): void
+	public function testSetCurrentTimezoneWithInvalidTimezone(): void
+	{
+		$originalTimezone = Timezone::getCurrentTimezone();
+
+		$result = Timezone::setCurrentTimezone('Invalid/Timezone');
+		$this->assertFalse($result);
+
+		// Should not have changed
+		$this->assertEquals($originalTimezone, Timezone::getCurrentTimezone());
+	}
+
+	// ========== Validation Methods ==========
+
+	public function testIsValidWithValidTimezone(): void
+	{
+		$this->assertTrue(Timezone::isValid('Europe/Paris'));
+		$this->assertTrue(Timezone::isValid('America/New_York'));
+		$this->assertTrue(Timezone::isValid('Asia/Tokyo'));
+		$this->assertTrue(Timezone::isValid('UTC'));
+	}
+
+	public function testIsValidWithInvalidTimezone(): void
+	{
+		$this->assertFalse(Timezone::isValid('Invalid/Timezone'));
+		$this->assertFalse(Timezone::isValid('Europe/InvalidCity'));
+		$this->assertFalse(Timezone::isValid(''));
+		$this->assertFalse(Timezone::isValid('Not A Timezone'));
+	}
+
+	public function testIsValidWithCountryCode(): void
 	{
 		// Europe/Paris is valid for France
-		$this->assertTrue(Timezone::check('Europe/Paris', 'FR'));
+		$this->assertTrue(Timezone::isValid('Europe/Paris', 'FR'));
 
 		// Europe/Paris is not valid for USA
-		$this->assertFalse(Timezone::check('Europe/Paris', 'US'));
+		$this->assertFalse(Timezone::isValid('Europe/Paris', 'US'));
 
 		// America/New_York is valid for USA
-		$this->assertTrue(Timezone::check('America/New_York', 'US'));
+		$this->assertTrue(Timezone::isValid('America/New_York', 'US'));
 	}
 
-	public function testCheckWithNullCountryCode(): void
+	public function testIsValidWithNullCountryCode(): void
 	{
-		$this->assertTrue(Timezone::check('Europe/Paris', null));
-		$this->assertTrue(Timezone::check('America/New_York', null));
+		$this->assertTrue(Timezone::isValid('Europe/Paris', null));
+		$this->assertTrue(Timezone::isValid('America/New_York', null));
 	}
 
-	/* ===================== format() ===================== */
+	public function testIsValidWithSpecialCharacters(): void
+	{
+		$this->assertFalse(Timezone::isValid('Europe/Paris@#$'));
+		$this->assertFalse(Timezone::isValid('América/São_Paulo')); // Special characters
+	}
+
+	// ========== Information Methods ==========
+
+	public function testGetOffset(): void
+	{
+		// UTC should have 0 offset
+		$offset = Timezone::getOffset('UTC');
+		$this->assertEquals(0, $offset);
+
+		// Europe/Paris should have +1 or +2 hour offset (depending on DST)
+		$offset = Timezone::getOffset('Europe/Paris');
+		$this->assertTrue($offset === 3600 || $offset === 7200);
+
+		// America/New_York should have negative offset
+		$offset = Timezone::getOffset('America/New_York');
+		$this->assertLessThan(0, $offset);
+	}
+
+	public function testGetOffsetWithDateTime(): void
+	{
+		// Summer time (DST active in Europe/Paris)
+		$summerDate = new \DateTime('2024-07-15');
+		$offset = Timezone::getOffset('Europe/Paris', $summerDate);
+		$this->assertEquals(7200, $offset); // +2 hours
+
+		// Winter time (DST not active in Europe/Paris)
+		$winterDate = new \DateTime('2024-01-15');
+		$offset = Timezone::getOffset('Europe/Paris', $winterDate);
+		$this->assertEquals(3600, $offset); // +1 hour
+	}
+
+	public function testGetOffsetWithInvalidTimezone(): void
+	{
+		$offset = Timezone::getOffset('Invalid/Timezone');
+		$this->assertEquals(0, $offset);
+	}
+
+	public function testGetAbbreviation(): void
+	{
+		$abbr = Timezone::getAbbreviation('Europe/Paris');
+		$this->assertIsString($abbr);
+		$this->assertNotEmpty($abbr);
+		// Should be CET or CEST
+		$this->assertTrue(in_array($abbr, ['CET', 'CEST']));
+
+		$abbr = Timezone::getAbbreviation('America/New_York');
+		$this->assertIsString($abbr);
+		// Should be EST or EDT
+		$this->assertTrue(in_array($abbr, ['EST', 'EDT']));
+	}
+
+	public function testGetAbbreviationWithInvalidTimezone(): void
+	{
+		$abbr = Timezone::getAbbreviation('Invalid/Timezone');
+		$this->assertEquals('', $abbr);
+	}
+
+	public function testIsDaylightSavingTime(): void
+	{
+		// Test with summer date (DST active in Europe/Paris)
+		$summerDate = new \DateTime('2024-07-15');
+		$isDST = Timezone::isDaylightSavingTime('Europe/Paris', $summerDate);
+		$this->assertTrue($isDST);
+
+		// Test with winter date (DST not active in Europe/Paris)
+		$winterDate = new \DateTime('2024-01-15');
+		$isDST = Timezone::isDaylightSavingTime('Europe/Paris', $winterDate);
+		$this->assertFalse($isDST);
+
+		// UTC never has DST
+		$isDST = Timezone::isDaylightSavingTime('UTC');
+		$this->assertFalse($isDST);
+	}
+
+	public function testIsDaylightSavingTimeWithInvalidTimezone(): void
+	{
+		$isDST = Timezone::isDaylightSavingTime('Invalid/Timezone');
+		$this->assertFalse($isDST);
+	}
+
+	public function testGetOffsetFormatted(): void
+	{
+		// UTC should be +00:00
+		$formatted = Timezone::getOffsetFormatted('UTC');
+		$this->assertEquals('+00:00', $formatted);
+
+		// Europe/Paris should be +01:00 or +02:00
+		$formatted = Timezone::getOffsetFormatted('Europe/Paris');
+		$this->assertTrue(in_array($formatted, ['+01:00', '+02:00']));
+
+		// America/New_York should have negative offset
+		$formatted = Timezone::getOffsetFormatted('America/New_York');
+		$this->assertStringStartsWith('-', $formatted);
+		$this->assertMatchesRegularExpression('/^[+-]\d{2}:\d{2}$/', $formatted);
+	}
+
+	public function testGetOffsetFormattedWithSpecificDateTime(): void
+	{
+		// Summer time - Europe/Paris should be +02:00
+		$summerDate = new \DateTime('2024-07-15');
+		$formatted = Timezone::getOffsetFormatted('Europe/Paris', $summerDate);
+		$this->assertEquals('+02:00', $formatted);
+
+		// Winter time - Europe/Paris should be +01:00
+		$winterDate = new \DateTime('2024-01-15');
+		$formatted = Timezone::getOffsetFormatted('Europe/Paris', $winterDate);
+		$this->assertEquals('+01:00', $formatted);
+	}
+
+	public function testGetTransitions(): void
+	{
+		// Get transitions for Europe/Paris
+		$transitions = Timezone::getTransitions('Europe/Paris');
+		$this->assertIsArray($transitions);
+		// Should have at least 2 transitions (to/from DST)
+		$this->assertGreaterThanOrEqual(2, count($transitions));
+
+		// Each transition should have expected keys
+		foreach ($transitions as $transition) {
+			$this->assertArrayHasKey('ts', $transition);
+			$this->assertArrayHasKey('time', $transition);
+			$this->assertArrayHasKey('offset', $transition);
+			$this->assertArrayHasKey('isdst', $transition);
+			$this->assertArrayHasKey('abbr', $transition);
+		}
+	}
+
+	public function testGetTransitionsWithCustomRange(): void
+	{
+		$start = mktime(0, 0, 0, 1, 1, 2024);
+		$end = mktime(23, 59, 59, 12, 31, 2024);
+
+		$transitions = Timezone::getTransitions('Europe/Paris', $start, $end);
+		$this->assertIsArray($transitions);
+
+		// All transitions should be within the specified range
+		foreach ($transitions as $transition) {
+			$this->assertGreaterThanOrEqual($start, $transition['ts']);
+			$this->assertLessThanOrEqual($end, $transition['ts']);
+		}
+	}
+
+	public function testGetTransitionsWithInvalidTimezone(): void
+	{
+		$transitions = Timezone::getTransitions('Invalid/Timezone');
+		$this->assertIsArray($transitions);
+		$this->assertEmpty($transitions);
+	}
+
+	// ========== Lookup Methods ==========
+
+	public function testGetAllTimezones(): void
+	{
+		$timezones = Timezone::getAllTimezones();
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertGreaterThan(400, count($timezones)); // Should have many timezones
+
+		// Check some common timezones exist
+		$this->assertContains('UTC', $timezones);
+		$this->assertContains('Europe/Paris', $timezones);
+		$this->assertContains('America/New_York', $timezones);
+	}
+
+	public function testGetAllTimezonesWithGroup(): void
+	{
+		// Get only European timezones
+		$europeanTimezones = Timezone::getAllTimezones(\DateTimeZone::EUROPE);
+		$this->assertIsArray($europeanTimezones);
+		$this->assertNotEmpty($europeanTimezones);
+
+		// All should start with "Europe/"
+		foreach ($europeanTimezones as $timezone) {
+			$this->assertStringStartsWith('Europe/', $timezone);
+		}
+	}
+
+	public function testGetTimezonesByOffset(): void
+	{
+		// Get all timezones with UTC+01:00 offset (3600 seconds)
+		$timezones = Timezone::getTimezonesByOffset(3600);
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+
+		// Verify all have the correct offset (accounting for current DST status)
+		foreach ($timezones as $timezone) {
+			$offset = Timezone::getOffset($timezone);
+			// Note: offset might differ due to DST, so we just check it's a valid timezone
+			$this->assertTrue(Timezone::isValid($timezone));
+		}
+	}
+
+	public function testGetTimezonesByOffsetZero(): void
+	{
+		// Get all timezones with UTC offset (0 seconds)
+		$timezones = Timezone::getTimezonesByOffset(0);
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertContains('UTC', $timezones);
+	}
+
+	public function testGetTimezonesByCountryForFrance(): void
+	{
+		$timezones = Timezone::getTimezonesByCountry('FR');
+
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertContains('Europe/Paris', $timezones);
+	}
+
+	public function testGetTimezonesByCountryForUSA(): void
+	{
+		$timezones = Timezone::getTimezonesByCountry('US');
+
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertContains('America/New_York', $timezones);
+		$this->assertContains('America/Los_Angeles', $timezones);
+		$this->assertContains('America/Chicago', $timezones);
+	}
+
+	public function testGetTimezonesByCountryForJapan(): void
+	{
+		$timezones = Timezone::getTimezonesByCountry('JP');
+
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertContains('Asia/Tokyo', $timezones);
+	}
+
+	public function testGetTimezonesByCountryForInvalidCountry(): void
+	{
+		$timezones = Timezone::getTimezonesByCountry('XX');
+
+		$this->assertIsArray($timezones);
+		$this->assertEmpty($timezones);
+	}
+
+	public function testGetTimezonesByCountryReturnsMultipleForLargeCountries(): void
+	{
+		// USA should have multiple timezones
+		$timezones = Timezone::getTimezonesByCountry('US');
+		$this->assertGreaterThan(1, count($timezones));
+
+		// Russia should have many timezones
+		$timezones = Timezone::getTimezonesByCountry('RU');
+		$this->assertGreaterThan(1, count($timezones));
+	}
+
+	public function testGetTimezonesByCountryWithEmptyString(): void
+	{
+		$timezones = Timezone::getTimezonesByCountry('');
+
+		$this->assertIsArray($timezones);
+		$this->assertEmpty($timezones);
+	}
+
+	public function testGetTimezonesByCountryMultipleCountries(): void
+	{
+		$countries = ['US', 'FR', 'JP', 'GB', 'DE', 'CN', 'AU', 'BR', 'CA', 'MX'];
+
+		foreach ($countries as $countryCode) {
+			$timezones = Timezone::getTimezonesByCountry($countryCode);
+			$this->assertNotEmpty($timezones, "$countryCode should have at least one timezone");
+		}
+	}
+
+	public function testGetPrimaryTimezoneOfCountryForFrance(): void
+	{
+		$timezone = Timezone::getPrimaryTimezoneOfCountry('FR');
+
+		$this->assertNotNull($timezone);
+		$this->assertSame('Europe/Paris', $timezone);
+	}
+
+	public function testGetPrimaryTimezoneOfCountryForUSA(): void
+	{
+		$timezone = Timezone::getPrimaryTimezoneOfCountry('US');
+
+		$this->assertNotNull($timezone);
+		$this->assertIsString($timezone);
+		$this->assertStringStartsWith('America/', $timezone);
+	}
+
+	public function testGetPrimaryTimezoneOfCountryForInvalidCountry(): void
+	{
+		$timezone = Timezone::getPrimaryTimezoneOfCountry('XX');
+
+		$this->assertNull($timezone);
+	}
+
+	public function testGetPrimaryTimezoneOfCountryReturnsFirstTimezone(): void
+	{
+		// Should return the first timezone from the list
+		$list = Timezone::getTimezonesByCountry('US');
+		$first = Timezone::getPrimaryTimezoneOfCountry('US');
+
+		$this->assertSame($list[0], $first);
+	}
+
+	public function testGetPrimaryTimezoneOfCountryWithEmptyString(): void
+	{
+		$timezone = Timezone::getPrimaryTimezoneOfCountry('');
+
+		$this->assertNull($timezone);
+	}
+
+	// ========== Formatting Methods ==========
 
 	public function testFormatWithValidTimezone(): void
 	{
@@ -96,7 +445,23 @@ final class TimezoneTest extends TestCase
 		$this->assertSame($result1, $result3);
 	}
 
-	/* ===================== formatWithData() ===================== */
+	public function testFormatWithEmptyString(): void
+	{
+		$result = Timezone::format('');
+
+		$this->assertSame('', $result);
+	}
+
+	public function testFormatProducesReadableOutput(): void
+	{
+		$formatted = Timezone::format('Europe/Paris', true, true);
+
+		// Should contain all key elements in a readable format
+		$this->assertNotEmpty($formatted);
+		$this->assertStringContainsString('UTC', $formatted);
+		$this->assertStringContainsString('Europe/Paris', $formatted);
+		$this->assertStringContainsString(' - ', $formatted);
+	}
 
 	public function testFormatWithDataBasic(): void
 	{
@@ -182,104 +547,24 @@ final class TimezoneTest extends TestCase
 		$this->assertStringContainsString(':', $result);
 	}
 
-	/* ===================== getListTimeZonesOfCountry() ===================== */
-
-	public function testGetListTimeZonesOfCountryForFrance(): void
+	public function testFormatWithDataWithEmptyTimezone(): void
 	{
-		$timezones = Timezone::getListTimeZonesOfCountry('FR');
+		$result = Timezone::formatWithData('', 'UTC+00:00', 'FR', [], true, true);
 
-		$this->assertIsArray($timezones);
-		$this->assertNotEmpty($timezones);
-		$this->assertContains('Europe/Paris', $timezones);
+		$this->assertStringContainsString('UTC+00:00', $result);
 	}
 
-	public function testGetListTimeZonesOfCountryForUSA(): void
+	public function testGetFormattedLabelsReturnsArray(): void
 	{
-		$timezones = Timezone::getListTimeZonesOfCountry('US');
-
-		$this->assertIsArray($timezones);
-		$this->assertNotEmpty($timezones);
-		$this->assertContains('America/New_York', $timezones);
-		$this->assertContains('America/Los_Angeles', $timezones);
-		$this->assertContains('America/Chicago', $timezones);
-	}
-
-	public function testGetListTimeZonesOfCountryForJapan(): void
-	{
-		$timezones = Timezone::getListTimeZonesOfCountry('JP');
-
-		$this->assertIsArray($timezones);
-		$this->assertNotEmpty($timezones);
-		$this->assertContains('Asia/Tokyo', $timezones);
-	}
-
-	public function testGetListTimeZonesOfCountryForInvalidCountry(): void
-	{
-		$timezones = Timezone::getListTimeZonesOfCountry('XX');
-
-		$this->assertIsArray($timezones);
-		$this->assertEmpty($timezones);
-	}
-
-	public function testGetListTimeZonesOfCountryReturnsMultipleForLargeCountries(): void
-	{
-		// USA should have multiple timezones
-		$timezones = Timezone::getListTimeZonesOfCountry('US');
-		$this->assertGreaterThan(1, count($timezones));
-
-		// Russia should have many timezones
-		$timezones = Timezone::getListTimeZonesOfCountry('RU');
-		$this->assertGreaterThan(1, count($timezones));
-	}
-
-	/* ===================== getTimeZoneOfCountry() ===================== */
-
-	public function testGetTimeZoneOfCountryForFrance(): void
-	{
-		$timezone = Timezone::getTimeZoneOfCountry('FR');
-
-		$this->assertNotNull($timezone);
-		$this->assertSame('Europe/Paris', $timezone);
-	}
-
-	public function testGetTimeZoneOfCountryForUSA(): void
-	{
-		$timezone = Timezone::getTimeZoneOfCountry('US');
-
-		$this->assertNotNull($timezone);
-		$this->assertIsString($timezone);
-		$this->assertStringStartsWith('America/', $timezone);
-	}
-
-	public function testGetTimeZoneOfCountryForInvalidCountry(): void
-	{
-		$timezone = Timezone::getTimeZoneOfCountry('XX');
-
-		$this->assertNull($timezone);
-	}
-
-	public function testGetTimeZoneOfCountryReturnsFirstTimezone(): void
-	{
-		// Should return the first timezone from the list
-		$list = Timezone::getListTimeZonesOfCountry('US');
-		$first = Timezone::getTimeZoneOfCountry('US');
-
-		$this->assertSame($list[0], $first);
-	}
-
-	/* ===================== getListTimeZonesLabel() ===================== */
-
-	public function testGetListTimeZonesLabelReturnsArray(): void
-	{
-		$labels = Timezone::getListTimeZonesLabel();
+		$labels = Timezone::getFormattedLabels();
 
 		$this->assertIsArray($labels);
 		$this->assertNotEmpty($labels);
 	}
 
-	public function testGetListTimeZonesLabelHasTimezoneAsKeys(): void
+	public function testGetFormattedLabelsHasTimezoneAsKeys(): void
 	{
-		$labels = Timezone::getListTimeZonesLabel();
+		$labels = Timezone::getFormattedLabels();
 
 		// Check that some common timezones exist as keys
 		$this->assertArrayHasKey('Europe/Paris', $labels);
@@ -287,18 +572,18 @@ final class TimezoneTest extends TestCase
 		$this->assertArrayHasKey('Asia/Tokyo', $labels);
 	}
 
-	public function testGetListTimeZonesLabelValuesContainTimezoneNames(): void
+	public function testGetFormattedLabelsValuesContainTimezoneNames(): void
 	{
-		$labels = Timezone::getListTimeZonesLabel();
+		$labels = Timezone::getFormattedLabels();
 
 		foreach ($labels as $timezone => $label) {
 			$this->assertStringContainsString($timezone, $label);
 		}
 	}
 
-	public function testGetListTimeZonesLabelWithCountryAndCities(): void
+	public function testGetFormattedLabelsWithCountryAndCities(): void
 	{
-		$labels = Timezone::getListTimeZonesLabel(true, true);
+		$labels = Timezone::getFormattedLabels(true, true);
 
 		$this->assertIsArray($labels);
 		$this->assertNotEmpty($labels);
@@ -314,9 +599,9 @@ final class TimezoneTest extends TestCase
 		$this->assertTrue($hasParentheses, 'At least some labels should contain parentheses for country/cities');
 	}
 
-	public function testGetListTimeZonesLabelWithoutCountryAndCities(): void
+	public function testGetFormattedLabelsWithoutCountryAndCities(): void
 	{
-		$labels = Timezone::getListTimeZonesLabel(false, false);
+		$labels = Timezone::getFormattedLabels(false, false);
 
 		$this->assertIsArray($labels);
 		$this->assertNotEmpty($labels);
@@ -328,9 +613,9 @@ final class TimezoneTest extends TestCase
 		}
 	}
 
-	public function testGetListTimeZonesLabelStructure(): void
+	public function testGetFormattedLabelsStructure(): void
 	{
-		$labels = Timezone::getListTimeZonesLabel(true, true);
+		$labels = Timezone::getFormattedLabels(true, true);
 
 		// Each label should follow the format: UTC - TimezoneName
 		// UTC format can be "UTC", "UTC-11", or "UTC-11:00"
@@ -339,19 +624,19 @@ final class TimezoneTest extends TestCase
 		}
 	}
 
-	/* ===================== getListTimeZones() ===================== */
+	// ========== Configuration Methods ==========
 
-	public function testGetListTimeZonesReturnsArray(): void
+	public function testGetConfigurationDataReturnsArray(): void
 	{
-		$timezones = Timezone::getListTimeZones();
+		$timezones = Timezone::getConfigurationData();
 
 		$this->assertIsArray($timezones);
 		$this->assertNotEmpty($timezones);
 	}
 
-	public function testGetListTimeZonesHasExpectedStructure(): void
+	public function testGetConfigurationDataHasExpectedStructure(): void
 	{
-		$timezones = Timezone::getListTimeZones();
+		$timezones = Timezone::getConfigurationData();
 
 		// Check that it has some common timezones
 		$this->assertArrayHasKey('Europe/Paris', $timezones);
@@ -359,9 +644,9 @@ final class TimezoneTest extends TestCase
 		$this->assertArrayHasKey('Asia/Tokyo', $timezones);
 	}
 
-	public function testGetListTimeZonesDataStructure(): void
+	public function testGetConfigurationDataStructure(): void
 	{
-		$timezones = Timezone::getListTimeZones();
+		$timezones = Timezone::getConfigurationData();
 
 		// Check data structure for a specific timezone
 		if (isset($timezones['Europe/Paris'])) {
@@ -372,9 +657,9 @@ final class TimezoneTest extends TestCase
 		}
 	}
 
-	public function testGetListTimeZonesUtcFormat(): void
+	public function testGetConfigurationDataUtcFormat(): void
 	{
-		$timezones = Timezone::getListTimeZones();
+		$timezones = Timezone::getConfigurationData();
 
 		foreach ($timezones as $timezone => $data) {
 			if (isset($data['utc'])) {
@@ -384,9 +669,9 @@ final class TimezoneTest extends TestCase
 		}
 	}
 
-	public function testGetListTimeZonesHasCitiesForSomeTimezones(): void
+	public function testGetConfigurationDataHasCitiesForSomeTimezones(): void
 	{
-		$timezones = Timezone::getListTimeZones();
+		$timezones = Timezone::getConfigurationData();
 
 		// Check that at least some timezones have cities data
 		$hasCities = false;
@@ -401,12 +686,12 @@ final class TimezoneTest extends TestCase
 		$this->assertTrue($hasCities, 'At least some timezones should have cities data');
 	}
 
-	/* ===================== Integration tests ===================== */
+	// ========== Integration Tests ==========
 
-	public function testFormatUsesGetListTimeZones(): void
+	public function testFormatUsesGetConfigurationData(): void
 	{
-		// Format should use data from getListTimeZones
-		$timezones = Timezone::getListTimeZones();
+		// Format should use data from getConfigurationData
+		$timezones = Timezone::getConfigurationData();
 
 		foreach ($timezones as $timezone => $data) {
 			$formatted = Timezone::format($timezone, true, true);
@@ -421,11 +706,11 @@ final class TimezoneTest extends TestCase
 		}
 	}
 
-	public function testGetListTimeZonesLabelUsesFormatWithData(): void
+	public function testGetFormattedLabelsUsesFormatWithData(): void
 	{
-		// getListTimeZonesLabel should produce consistent results with formatWithData
-		$timezones = Timezone::getListTimeZones();
-		$labels = Timezone::getListTimeZonesLabel(true, true);
+		// getFormattedLabels should produce consistent results with formatWithData
+		$timezones = Timezone::getConfigurationData();
+		$labels = Timezone::getFormattedLabels(true, true);
 
 		// Check a few specific timezones
 		foreach (['Europe/Paris', 'America/New_York', 'Asia/Tokyo'] as $timezone) {
@@ -445,37 +730,6 @@ final class TimezoneTest extends TestCase
 		}
 	}
 
-	/* ===================== Edge cases ===================== */
-
-	public function testFormatWithEmptyString(): void
-	{
-		$result = Timezone::format('');
-
-		$this->assertSame('', $result);
-	}
-
-	public function testCheckWithSpecialCharacters(): void
-	{
-		$this->assertFalse(Timezone::check('Europe/Paris@#$'));
-		$this->assertFalse(Timezone::check('América/São_Paulo')); // Special characters
-	}
-
-	public function testGetTimeZoneOfCountryWithEmptyString(): void
-	{
-		$timezone = Timezone::getTimeZoneOfCountry('');
-
-		$this->assertNull($timezone);
-	}
-
-	public function testFormatWithDataWithEmptyTimezone(): void
-	{
-		$result = Timezone::formatWithData('', 'UTC+00:00', 'FR', [], true, true);
-
-		$this->assertStringContainsString('UTC+00:00', $result);
-	}
-
-	/* ===================== Real-world scenarios ===================== */
-
 	public function testCommonTimezonesAreValid(): void
 	{
 		$commonTimezones = [
@@ -492,28 +746,53 @@ final class TimezoneTest extends TestCase
 		];
 
 		foreach ($commonTimezones as $timezone) {
-			$this->assertTrue(Timezone::check($timezone), "$timezone should be valid");
+			$this->assertTrue(Timezone::isValid($timezone), "$timezone should be valid");
 		}
 	}
 
-	public function testMultipleCountriesHaveTimezones(): void
-	{
-		$countries = ['US', 'FR', 'JP', 'GB', 'DE', 'CN', 'AU', 'BR', 'CA', 'MX'];
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
 
-		foreach ($countries as $countryCode) {
-			$timezones = Timezone::getListTimeZonesOfCountry($countryCode);
-			$this->assertNotEmpty($timezones, "$countryCode should have at least one timezone");
-		}
+	public function testCheckMethodStillWorks(): void
+	{
+		// Deprecated method should still work
+		$this->assertTrue(Timezone::check('Europe/Paris'));
+		$this->assertFalse(Timezone::check('Invalid/Timezone'));
 	}
 
-	public function testFormatProducesReadableOutput(): void
+	public function testCheckWithCountryCodeStillWorks(): void
 	{
-		$formatted = Timezone::format('Europe/Paris', true, true);
+		$this->assertTrue(Timezone::check('Europe/Paris', 'FR'));
+		$this->assertFalse(Timezone::check('Europe/Paris', 'US'));
+	}
 
-		// Should contain all key elements in a readable format
-		$this->assertNotEmpty($formatted);
-		$this->assertStringContainsString('UTC', $formatted);
-		$this->assertStringContainsString('Europe/Paris', $formatted);
-		$this->assertStringContainsString(' - ', $formatted);
+	public function testGetListTimeZonesOfCountryStillWorks(): void
+	{
+		$timezones = Timezone::getListTimeZonesOfCountry('FR');
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertContains('Europe/Paris', $timezones);
+	}
+
+	public function testGetTimeZoneOfCountryStillWorks(): void
+	{
+		$timezone = Timezone::getTimeZoneOfCountry('FR');
+		$this->assertNotNull($timezone);
+		$this->assertSame('Europe/Paris', $timezone);
+	}
+
+	public function testGetListTimeZonesLabelStillWorks(): void
+	{
+		$labels = Timezone::getListTimeZonesLabel();
+		$this->assertIsArray($labels);
+		$this->assertNotEmpty($labels);
+		$this->assertArrayHasKey('Europe/Paris', $labels);
+	}
+
+	public function testGetListTimeZonesStillWorks(): void
+	{
+		$timezones = Timezone::getListTimeZones();
+		$this->assertIsArray($timezones);
+		$this->assertNotEmpty($timezones);
+		$this->assertArrayHasKey('Europe/Paris', $timezones);
 	}
 }

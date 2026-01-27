@@ -5,14 +5,22 @@ namespace Osimatic\Calendar;
 /**
  * Utility class for SQL DATE format manipulation and operations.
  * Handles date strings in SQL DATE format (YYYY-MM-DD).
- * Provides methods for:
- * - Parsing and validating SQL DATE strings
- * - Extracting date components (year, month, day)
- * - Creating SQL DATE strings from components
- * - Getting first/last days of weeks and months
+ * This class works exclusively with SQL DATE strings, not DateTime objects.
+ *
+ * Organized categories:
+ * - Parsing & Validation: Parse and validate SQL DATE strings
+ * - Extraction: Extract date components (year, month, day)
+ * - Creation: Create SQL DATE strings from components
+ * - Conversion: Convert between SQL DATE and other formats
+ * - Calculation: Add/subtract time units, calculate differences
+ * - Week Methods: Get first/last days of weeks
+ * - Month Methods: Get first/last days of months
+ * - Year Methods: Year-related calculations
+ * - Formatting: Format SQL DATE strings
  */
 class SqlDate
 {
+	// ========== Parsing & Validation Methods ==========
 
 	/**
 	 * Parses various date formats and returns a SQL DATE string.
@@ -36,13 +44,12 @@ class SqlDate
 			$date = ($dateArr[2]??null).'-'.($dateArr[1]??null).'-'.($dateArr[0]??null);
 		}
 
-		//if (false === ($date = date('Y-m-d', strtotime($date.' 00:00:00')))) {
 		if (false === ($timestamp = strtotime($date.' 00:00:00')) || empty($parsedDate = date('Y-m-d', $timestamp))) {
 			return null;
 		}
 
 		// Verify that the parsed date is valid and matches the input
-		if (!self::check($parsedDate)) {
+		if (!self::isValid($parsedDate)) {
 			return null;
 		}
 
@@ -65,7 +72,7 @@ class SqlDate
 	 * @param string|null $date SQL DATE string to validate (e.g., "2024-01-15")
 	 * @return bool True if valid date, false otherwise
 	 */
-	public static function check(?string $date): bool
+	public static function isValid(?string $date): bool
 	{
 		if (empty($date)) {
 			return false;
@@ -81,33 +88,45 @@ class SqlDate
 
 	/**
 	 * Extracts the year component from a SQL DATE string.
+	 * Uses substr for optimal performance.
 	 * @param string $sqlDate SQL DATE format string (e.g., "2024-01-15")
 	 * @return int The year (e.g., 2024)
-	 * TODO: Extract via substr for better performance
 	 */
 	public static function getYear(string $sqlDate): int
 	{
-		return (int) date('Y', strtotime($sqlDate.' 00:00:00'));
+		return (int) substr($sqlDate, 0, 4);
 	}
 
 	/**
 	 * Extracts the month component from a SQL DATE string.
+	 * Uses substr for optimal performance.
 	 * @param string $sqlDate SQL DATE format string (e.g., "2024-01-15")
 	 * @return int The month (1-12)
 	 */
 	public static function getMonth(string $sqlDate): int
 	{
-		return (int) date('m', strtotime($sqlDate.' 00:00:00'));
+		return (int) substr($sqlDate, 5, 2);
 	}
 
 	/**
 	 * Extracts the day component from a SQL DATE string.
+	 * Uses substr for optimal performance.
 	 * @param string $sqlDate SQL DATE format string (e.g., "2024-01-15")
 	 * @return int The day of month (1-31)
 	 */
 	public static function getDay(string $sqlDate): int
 	{
-		return (int) date('d', strtotime($sqlDate.' 00:00:00'));
+		return (int) substr($sqlDate, 8, 2);
+	}
+
+	/**
+	 * Gets the day of week for a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @return int Day of week (1=Monday, 7=Sunday, ISO-8601)
+	 */
+	public static function getDayOfWeek(string $sqlDate): int
+	{
+		return (int) date('N', strtotime($sqlDate.' 00:00:00'));
 	}
 
 	// ========== Creation Methods ==========
@@ -120,11 +139,177 @@ class SqlDate
 	 * @param int $day The day of month (1-31)
 	 * @return string SQL DATE format string (YYYY-MM-DD)
 	 */
-	public static function get(int $year, int $month, int $day): string
+	public static function create(int $year, int $month, int $day): string
 	{
 		return $year.'-'.sprintf('%02d', $month).'-'.sprintf('%02d', $day);
 	}
 
+	/**
+	 * Creates a SQL DATE string for today's date.
+	 * @return string SQL DATE format string for today
+	 */
+	public static function today(): string
+	{
+		return date('Y-m-d');
+	}
+
+	/**
+	 * Creates a SQL DATE string for yesterday's date.
+	 * @return string SQL DATE format string for yesterday
+	 */
+	public static function yesterday(): string
+	{
+		return date('Y-m-d', strtotime('-1 day'));
+	}
+
+	/**
+	 * Creates a SQL DATE string for tomorrow's date.
+	 * @return string SQL DATE format string for tomorrow
+	 */
+	public static function tomorrow(): string
+	{
+		return date('Y-m-d', strtotime('+1 day'));
+	}
+
+	// ========== Conversion Methods ==========
+
+	/**
+	 * Converts a SQL DATE string to a DateTime object.
+	 * Time is set to midnight (00:00:00).
+	 * @param string $sqlDate SQL DATE format string
+	 * @return \DateTime|null DateTime object, or null if parsing fails
+	 */
+	public static function toDateTime(string $sqlDate): ?\DateTime
+	{
+		return DateTime::parseFromSqlDateTime($sqlDate.' 00:00:00');
+	}
+
+	/**
+	 * Converts a SQL DATE string to a Unix timestamp.
+	 * Time is set to midnight (00:00:00).
+	 * @param string $sqlDate SQL DATE format string
+	 * @return int Unix timestamp
+	 */
+	public static function toTimestamp(string $sqlDate): int
+	{
+		return strtotime($sqlDate.' 00:00:00');
+	}
+
+	// ========== Calculation Methods ==========
+
+	/**
+	 * Adds days to a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param int $days Number of days to add
+	 * @return string New SQL DATE format string
+	 */
+	public static function addDays(string $sqlDate, int $days): string
+	{
+		return date('Y-m-d', strtotime($sqlDate.' 00:00:00') + ($days * 86400));
+	}
+
+	/**
+	 * Subtracts days from a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param int $days Number of days to subtract
+	 * @return string New SQL DATE format string
+	 */
+	public static function subDays(string $sqlDate, int $days): string
+	{
+		return date('Y-m-d', strtotime($sqlDate.' 00:00:00') - ($days * 86400));
+	}
+
+	/**
+	 * Adds months to a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param int $months Number of months to add
+	 * @return string New SQL DATE format string
+	 */
+	public static function addMonths(string $sqlDate, int $months): string
+	{
+		return date('Y-m-d', strtotime($sqlDate.' 00:00:00 +'.$months.' months'));
+	}
+
+	/**
+	 * Subtracts months from a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param int $months Number of months to subtract
+	 * @return string New SQL DATE format string
+	 */
+	public static function subMonths(string $sqlDate, int $months): string
+	{
+		return date('Y-m-d', strtotime($sqlDate.' 00:00:00 -'.$months.' months'));
+	}
+
+	/**
+	 * Adds years to a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param int $years Number of years to add
+	 * @return string New SQL DATE format string
+	 */
+	public static function addYears(string $sqlDate, int $years): string
+	{
+		return date('Y-m-d', strtotime($sqlDate.' 00:00:00 +'.$years.' years'));
+	}
+
+	/**
+	 * Subtracts years from a SQL DATE string.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param int $years Number of years to subtract
+	 * @return string New SQL DATE format string
+	 */
+	public static function subYears(string $sqlDate, int $years): string
+	{
+		return date('Y-m-d', strtotime($sqlDate.' 00:00:00 -'.$years.' years'));
+	}
+
+	/**
+	 * Calculates the number of days between two SQL DATE strings.
+	 * @param string $sqlDate1 First SQL DATE string
+	 * @param string $sqlDate2 Second SQL DATE string
+	 * @return int Number of days between the dates (positive if date1 is after date2)
+	 */
+	public static function getDaysBetween(string $sqlDate1, string $sqlDate2): int
+	{
+		$timestamp1 = strtotime($sqlDate1.' 00:00:00');
+		$timestamp2 = strtotime($sqlDate2.' 00:00:00');
+		return (int) (($timestamp1 - $timestamp2) / 86400);
+	}
+
+	// ========== Comparison Methods ==========
+
+	/**
+	 * Checks if the first date is before the second date.
+	 * @param string $sqlDate1 First SQL DATE string
+	 * @param string $sqlDate2 Second SQL DATE string
+	 * @return bool True if date1 is before date2
+	 */
+	public static function isBefore(string $sqlDate1, string $sqlDate2): bool
+	{
+		return $sqlDate1 < $sqlDate2;
+	}
+
+	/**
+	 * Checks if the first date is after the second date.
+	 * @param string $sqlDate1 First SQL DATE string
+	 * @param string $sqlDate2 Second SQL DATE string
+	 * @return bool True if date1 is after date2
+	 */
+	public static function isAfter(string $sqlDate1, string $sqlDate2): bool
+	{
+		return $sqlDate1 > $sqlDate2;
+	}
+
+	/**
+	 * Checks if two dates are equal.
+	 * @param string $sqlDate1 First SQL DATE string
+	 * @param string $sqlDate2 Second SQL DATE string
+	 * @return bool True if dates are equal
+	 */
+	public static function isEqual(string $sqlDate1, string $sqlDate2): bool
+	{
+		return $sqlDate1 === $sqlDate2;
+	}
 
 	// ========== Week Methods ==========
 
@@ -137,20 +322,20 @@ class SqlDate
 	 */
 	public static function getFirstDayOfWeek(int $year, int $week): string
 	{
-		$timeStampPremierJanvier = strtotime($year . '-01-01 00:00:00');
-		$jourPremierJanvier = (int) date('w', $timeStampPremierJanvier);
+		$timestampFirstJanuary = strtotime($year . '-01-01 00:00:00');
+		$dayFirstJanuary = (int) date('w', $timestampFirstJanuary);
 
 		// Find the week number of January 1st
-		$numSemainePremierJanvier = (int) date('W', $timeStampPremierJanvier);
+		$weekNumberFirstJanuary = (int) date('W', $timestampFirstJanuary);
 
-		// Number to add based on the previous number
-		$decallage = ($numSemainePremierJanvier === 1) ? $week - 1 : $week;
+		// Offset to add based on the week number
+		$offset = ($weekNumberFirstJanuary === 1) ? $week - 1 : $week;
 
 		// Timestamp of the day in the searched week
-		$timeStampDate = strtotime('+' . $decallage . ' weeks', $timeStampPremierJanvier);
+		$timestampDate = strtotime('+' . $offset . ' weeks', $timestampFirstJanuary);
 
-		// Find the Monday of the week based on the previous line
-		return date('Y-m-d', ($jourPremierJanvier === 1) ? $timeStampDate : strtotime('last monday', $timeStampDate));
+		// Find the Monday of the week
+		return date('Y-m-d', ($dayFirstJanuary === 1) ? $timestampDate : strtotime('last monday', $timestampDate));
 	}
 
 	/**
@@ -162,7 +347,7 @@ class SqlDate
 	 */
 	public static function getLastDayOfWeek(int $year, int $week): string
 	{
-		return date('Y-m-d', strtotime(self::getFirstDayOfWeek($year, $week).' 00:00:00')+(6*3600*24));
+		return date('Y-m-d', strtotime(self::getFirstDayOfWeek($year, $week).' 00:00:00')+(6*86400));
 	}
 
 	// ========== Month Methods ==========
@@ -191,4 +376,125 @@ class SqlDate
 		return date('Y-m-t', mktime(0, 0, 0, $month, 1, $year));
 	}
 
+	// ========== Year Methods ==========
+
+	/**
+	 * Gets the first day of a specific year (January 1st).
+	 * @param int $year The year (e.g., 2024)
+	 * @return string SQL DATE format string (YYYY-01-01)
+	 */
+	public static function getFirstDayOfYear(int $year): string
+	{
+		return $year.'-01-01';
+	}
+
+	/**
+	 * Gets the last day of a specific year (December 31st).
+	 * @param int $year The year (e.g., 2024)
+	 * @return string SQL DATE format string (YYYY-12-31)
+	 */
+	public static function getLastDayOfYear(int $year): string
+	{
+		return $year.'-12-31';
+	}
+
+	// ========== Formatting Methods ==========
+
+	/**
+	 * Formats a SQL DATE string using IntlDateFormatter.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param string|null $locale Optional locale code
+	 * @param int $dateType IntlDateFormatter date type constant
+	 * @return string Formatted date string
+	 */
+	public static function format(string $sqlDate, ?string $locale = null, int $dateType = \IntlDateFormatter::MEDIUM): string
+	{
+		$dateTime = self::toDateTime($sqlDate);
+		return $dateTime ? DateTime::formatDate($dateTime, $locale, $dateType) : '';
+	}
+
+	/**
+	 * Formats a SQL DATE string in long localized format.
+	 * @param string $sqlDate SQL DATE format string
+	 * @param string|null $locale Optional locale code
+	 * @return string Formatted date string
+	 */
+	public static function formatInLong(string $sqlDate, ?string $locale = null): string
+	{
+		$dateTime = self::toDateTime($sqlDate);
+		return $dateTime ? DateTime::formatDateInLong($dateTime, $locale) : '';
+	}
+
+	/**
+	 * Formats a SQL DATE string in short format (DD/MM/YYYY or MM/DD/YYYY depending on lang).
+	 * @param string $sqlDate SQL DATE format string
+	 * @param string $separator Separator between date components (default: '/')
+	 * @param string $lang Language code for date order: 'US' (MM/DD/YYYY) or 'EU'/'FR' (DD/MM/YYYY) (default: 'EU')
+	 * @return string Formatted date string
+	 */
+	public static function formatShort(string $sqlDate, string $separator = '/', string $lang = 'EU'): string
+	{
+		$dateTime = self::toDateTime($sqlDate);
+		return $dateTime ? DateTime::formatDateShort($dateTime, $separator, $lang) : '';
+	}
+
+	/**
+	 * Formats a SQL DATE string in medium format (e.g., "15 Jan 2024").
+	 * @param string $sqlDate SQL DATE format string
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR')
+	 * @return string Formatted date string
+	 */
+	public static function formatMedium(string $sqlDate, ?string $locale = null): string
+	{
+		$dateTime = self::toDateTime($sqlDate);
+		return $dateTime ? DateTime::formatDateMedium($dateTime, $locale) : '';
+	}
+
+	/**
+	 * Formats a SQL DATE string in long format (e.g., "15 January 2024").
+	 * @param string $sqlDate SQL DATE format string
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR')
+	 * @return string Formatted date string
+	 */
+	public static function formatLong(string $sqlDate, ?string $locale = null): string
+	{
+		$dateTime = self::toDateTime($sqlDate);
+		return $dateTime ? DateTime::formatDateLong($dateTime, $locale) : '';
+	}
+
+	/**
+	 * Formats a SQL DATE string in ISO 8601 format (YYYY-MM-DD).
+	 * This simply returns the input as SQL DATE is already in ISO format.
+	 * @param string $sqlDate SQL DATE format string
+	 * @return string Date in ISO format (YYYY-MM-DD)
+	 */
+	public static function formatISO(string $sqlDate): string
+	{
+		return $sqlDate;
+	}
+
+	// ========== DEPRECATED METHODS ==========
+	// Backward compatibility. Will be removed in a future major version. Please update your code to use the new method names.
+
+	/**
+	 * @deprecated Use isValid() instead
+	 * @param string|null $date SQL DATE string to validate
+	 * @return bool True if valid date, false otherwise
+	 */
+	public static function check(?string $date): bool
+	{
+		return self::isValid($date);
+	}
+
+	/**
+	 * @deprecated Use create() instead
+	 * @param int $year The year
+	 * @param int $month The month (1-12)
+	 * @param int $day The day of month (1-31)
+	 * @return string SQL DATE format string
+	 */
+	public static function get(int $year, int $month, int $day): string
+	{
+		return self::create($year, $month, $day);
+	}
 }

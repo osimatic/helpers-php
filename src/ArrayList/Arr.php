@@ -778,11 +778,8 @@ class Arr
 		return $result;
 	}
 
-	// ========================================
-	// DEPRECATED METHODS (Backward Compatibility)
-	// ========================================
-	// These methods are kept for backward compatibility and will be removed in a future major version.
-	// Please update your code to use the new method names.
+	// ========== DEPRECATED METHODS ==========
+	// Backward compatibility. Will be removed in a future major version. Please update your code to use the new method names.
 
 	/**
 	 * @deprecated Use searchByCallback() instead

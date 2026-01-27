@@ -7,7 +7,60 @@ use PHPUnit\Framework\TestCase;
 
 final class DateTimeTest extends TestCase
 {
-	/* ===================== Parsing ===================== */
+	/* ===================== Basic Methods ===================== */
+
+	public function testGetCurrentDateTime(): void
+	{
+		$result = DateTime::getCurrentDateTime();
+		$this->assertInstanceOf(\DateTime::class, $result);
+	}
+
+	public function testGetCurrentDate(): void
+	{
+		$result = DateTime::getCurrentDate();
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('00:00:00', $result->format('H:i:s'));
+	}
+
+	/* ===================== Creation Methods ===================== */
+
+	public function testCreate(): void
+	{
+		$result = DateTime::create(2024, 1, 15, 14, 30, 45);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+		$this->assertEquals('14:30:45', $result->format('H:i:s'));
+
+		// Invalid date
+		$this->assertNull(DateTime::create(2024, 13, 1));
+	}
+
+	public function testCreateDate(): void
+	{
+		$result = DateTime::createDate(2024, 1, 15);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+		$this->assertEquals('00:00:00', $result->format('H:i:s'));
+	}
+
+	public function testCreateTime(): void
+	{
+		$result = DateTime::createTime(14, 30, 45);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('14:30:45', $result->format('H:i:s'));
+
+		// Invalid time
+		$this->assertNull(DateTime::createTime(25, 0, 0));
+	}
+
+	/* ===================== Parsing Methods ===================== */
+
+	public function testParse(): void
+	{
+		$result = DateTime::parse('2024-01-15');
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+	}
 
 	public function testParseFromSqlDateTime(): void
 	{
@@ -39,7 +92,15 @@ final class DateTimeTest extends TestCase
 		$this->assertNull($result);
 	}
 
-	/* ===================== Formatting ===================== */
+	/* ===================== Formatting Methods ===================== */
+
+	public function testFormat(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+		$this->assertIsString($formatted);
+		$this->assertNotEmpty($formatted);
+	}
 
 	public function testFormatDateTime(): void
 	{
@@ -72,6 +133,8 @@ final class DateTimeTest extends TestCase
 		$this->assertIsString($formatted);
 		$this->assertNotEmpty($formatted);
 	}
+
+	/* ===================== Twig Formatting Methods ===================== */
 
 	public function testFormatFromTwig(): void
 	{
@@ -109,7 +172,93 @@ final class DateTimeTest extends TestCase
 		$this->assertNull(DateTime::formatTimeFromTwig(null));
 	}
 
-	/* ===================== UTC Conversion ===================== */
+	/* ===================== Date Formatting Methods ===================== */
+
+	public function testFormatDateShort(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+
+		// Default separator
+		$formatted = DateTime::formatDateShort($dateTime);
+		$this->assertEquals('15/01/2024', $formatted);
+
+		// Custom separator
+		$formatted = DateTime::formatDateShort($dateTime, '-');
+		$this->assertEquals('15-01-2024', $formatted);
+	}
+
+	public function testFormatDateMedium(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$formatted = DateTime::formatDateMedium($dateTime, 'en_US');
+		$this->assertIsString($formatted);
+		$this->assertStringContainsString('15', $formatted);
+		$this->assertStringContainsString('Jan', $formatted);
+		$this->assertStringContainsString('2024', $formatted);
+	}
+
+	public function testFormatDateLong(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$formatted = DateTime::formatDateLong($dateTime, 'en_US');
+		$this->assertIsString($formatted);
+		$this->assertStringContainsString('January', $formatted);
+		$this->assertStringContainsString('15', $formatted);
+		$this->assertStringContainsString('2024', $formatted);
+	}
+
+	public function testFormatDateISO(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+		$formatted = DateTime::formatDateISO($dateTime);
+		$this->assertEquals('2024-01-15', $formatted);
+	}
+
+	/* ===================== Time Formatting Methods ===================== */
+
+	public function testFormatTimeString(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+		$formatted = DateTime::formatTimeString($dateTime);
+		$this->assertEquals('14:30:45', $formatted);
+	}
+
+	public function testFormatTimeShort(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+		$formatted = DateTime::formatTimeShort($dateTime);
+		$this->assertEquals('14:30', $formatted);
+	}
+
+	public function testFormatTimeLong(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+
+		// With seconds (default)
+		$formatted = DateTime::formatTimeLong($dateTime);
+		$this->assertEquals('14:30:45', $formatted);
+
+		// Without seconds
+		$formatted = DateTime::formatTimeLong($dateTime, false);
+		$this->assertEquals('14:30', $formatted);
+	}
+
+	public function testFormatTimeISO(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+		$formatted = DateTime::formatTimeISO($dateTime);
+		$this->assertEquals('14:30:45', $formatted);
+
+		$dateTime = new \DateTime('2024-01-15 00:00:00');
+		$formatted = DateTime::formatTimeISO($dateTime);
+		$this->assertEquals('00:00:00', $formatted);
+
+		$dateTime = new \DateTime('2024-01-15 23:59:59');
+		$formatted = DateTime::formatTimeISO($dateTime);
+		$this->assertEquals('23:59:59', $formatted);
+	}
+
+	/* ===================== UTC & Timezone Methods ===================== */
 
 	public function testGetUTCSqlDate(): void
 	{
@@ -141,7 +290,277 @@ final class DateTimeTest extends TestCase
 		$this->assertNull(DateTime::getUTCSqlDateTime(null));
 	}
 
-	/* ===================== Comparaison ===================== */
+	public function testConvertToTimezone(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45', new \DateTimeZone('UTC'));
+		$result = DateTime::convertToTimezone($dateTime, 'Europe/Paris');
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('Europe/Paris', $result->getTimezone()->getName());
+
+		// Original unchanged
+		$this->assertEquals('UTC', $dateTime->getTimezone()->getName());
+	}
+
+	public function testConvertToUTC(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45', new \DateTimeZone('Europe/Paris'));
+		$result = DateTime::convertToUTC($dateTime);
+		$this->assertInstanceOf(\DateTime::class, $result);
+		$this->assertEquals('UTC', $result->getTimezone()->getName());
+	}
+
+	public function testGetTimezoneName(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45', new \DateTimeZone('Europe/Paris'));
+		$this->assertEquals('Europe/Paris', DateTime::getTimezoneName($dateTime));
+	}
+
+	public function testGetTimezoneOffset(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45', new \DateTimeZone('Europe/Paris'));
+		$offset = DateTime::getTimezoneOffset($dateTime);
+		$this->assertIsInt($offset);
+	}
+
+	/* ===================== Time Manipulation Methods ===================== */
+
+	public function testAddHours(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:00:00');
+		$result = DateTime::addHours($dateTime, 3);
+		$this->assertEquals('13:00:00', $result->format('H:i:s'));
+
+		// Original unchanged
+		$this->assertEquals('10:00:00', $dateTime->format('H:i:s'));
+	}
+
+	public function testSubHours(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 15:00:00');
+		$result = DateTime::subHours($dateTime, 3);
+		$this->assertEquals('12:00:00', $result->format('H:i:s'));
+	}
+
+	public function testAddMinutes(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:00:00');
+		$result = DateTime::addMinutes($dateTime, 45);
+		$this->assertEquals('10:45:00', $result->format('H:i:s'));
+	}
+
+	public function testSubMinutes(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:45:00');
+		$result = DateTime::subMinutes($dateTime, 30);
+		$this->assertEquals('10:15:00', $result->format('H:i:s'));
+	}
+
+	public function testAddSeconds(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:00:00');
+		$result = DateTime::addSeconds($dateTime, 90);
+		$this->assertEquals('10:01:30', $result->format('H:i:s'));
+	}
+
+	public function testSubSeconds(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:01:30');
+		$result = DateTime::subSeconds($dateTime, 45);
+		$this->assertEquals('10:00:45', $result->format('H:i:s'));
+	}
+
+	/* ===================== Date Manipulation Methods ===================== */
+
+	public function testAddDays(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$result = DateTime::addDays($dateTime, 5);
+		$this->assertEquals('2024-01-20', $result->format('Y-m-d'));
+	}
+
+	public function testSubDays(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$result = DateTime::subDays($dateTime, 5);
+		$this->assertEquals('2024-01-10', $result->format('Y-m-d'));
+	}
+
+	public function testMoveBackOfNbDays(): void
+	{
+		$date = new \DateTime('2024-01-15');
+		$result = DateTime::moveBackOfNbDays($date, 5);
+		$this->assertEquals('2024-01-10', $result->format('Y-m-d'));
+
+		// Vérifier que l'original n'est pas modifié
+		$this->assertEquals('2024-01-15', $date->format('Y-m-d'));
+	}
+
+	public function testMoveForwardOfNbDays(): void
+	{
+		$date = new \DateTime('2024-01-15');
+		$result = DateTime::moveForwardOfNbDays($date, 5);
+		$this->assertEquals('2024-01-20', $result->format('Y-m-d'));
+
+		// Vérifier que l'original n'est pas modifié
+		$this->assertEquals('2024-01-15', $date->format('Y-m-d'));
+	}
+
+	public function testAddMonths(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$result = DateTime::addMonths($dateTime, 2);
+		$this->assertEquals('2024-03-15', $result->format('Y-m-d'));
+	}
+
+	public function testSubMonths(): void
+	{
+		$dateTime = new \DateTime('2024-03-15');
+		$result = DateTime::subMonths($dateTime, 2);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+	}
+
+	public function testMoveBackOfNbMonths(): void
+	{
+		$date = new \DateTime('2024-03-15');
+		$result = DateTime::moveBackOfNbMonths($date, 2);
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+		$this->assertEquals('2024-03-15', $date->format('Y-m-d')); // Original unchanged
+	}
+
+	public function testMoveForwardOfNbMonths(): void
+	{
+		$date = new \DateTime('2024-01-15');
+		$result = DateTime::moveForwardOfNbMonths($date, 2);
+		$this->assertEquals('2024-03-15', $result->format('Y-m-d'));
+		$this->assertEquals('2024-01-15', $date->format('Y-m-d')); // Original unchanged
+	}
+
+	public function testAddYears(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$result = DateTime::addYears($dateTime, 2);
+		$this->assertEquals('2026-01-15', $result->format('Y-m-d'));
+	}
+
+	public function testSubYears(): void
+	{
+		$dateTime = new \DateTime('2024-01-15');
+		$result = DateTime::subYears($dateTime, 2);
+		$this->assertEquals('2022-01-15', $result->format('Y-m-d'));
+	}
+
+	/* ===================== Time Rounding Methods ===================== */
+
+	public function testFloorToHour(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:45:30');
+		$result = DateTime::floorToHour($dateTime);
+		$this->assertEquals('14:00:00', $result->format('H:i:s'));
+	}
+
+	public function testCeilToHour(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:01:00');
+		$result = DateTime::ceilToHour($dateTime);
+		$this->assertEquals('15:00:00', $result->format('H:i:s'));
+
+		// Already on the hour
+		$dateTime = new \DateTime('2024-01-15 14:00:00');
+		$result = DateTime::ceilToHour($dateTime);
+		$this->assertEquals('14:00:00', $result->format('H:i:s'));
+	}
+
+	public function testRoundToHour(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:25:00');
+		$result = DateTime::roundToHour($dateTime);
+		$this->assertEquals('14:00:00', $result->format('H:i:s'));
+
+		$dateTime = new \DateTime('2024-01-15 14:35:00');
+		$result = DateTime::roundToHour($dateTime);
+		$this->assertEquals('15:00:00', $result->format('H:i:s'));
+	}
+
+	public function testFloorToMinutes(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:37:30');
+		$result = DateTime::floorToMinutes($dateTime, 15);
+		$this->assertEquals('14:30:00', $result->format('H:i:s'));
+	}
+
+	public function testCeilToMinutes(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 14:31:00');
+		$result = DateTime::ceilToMinutes($dateTime, 15);
+		$this->assertEquals('14:45:00', $result->format('H:i:s'));
+	}
+
+	/* ===================== DateTime Comparison Methods ===================== */
+
+	public function testIsInThePast(): void
+	{
+		$past = new \DateTime('-1 day');
+		$this->assertTrue(DateTime::isInThePast($past));
+
+		$future = new \DateTime('+1 day');
+		$this->assertFalse(DateTime::isInThePast($future));
+	}
+
+	public function testIsInTheFuture(): void
+	{
+		$future = new \DateTime('+1 day');
+		$this->assertTrue(DateTime::isInTheFuture($future));
+
+		$past = new \DateTime('-1 day');
+		$this->assertFalse(DateTime::isInTheFuture($past));
+	}
+
+	public function testIsSameDateTime(): void
+	{
+		$dateTime1 = new \DateTime('2024-01-15 14:30:45');
+		$dateTime2 = new \DateTime('2024-01-15 14:30:45');
+		$this->assertTrue(DateTime::isSameDateTime($dateTime1, $dateTime2));
+
+		$dateTime3 = new \DateTime('2024-01-15 14:30:46');
+		$this->assertFalse(DateTime::isSameDateTime($dateTime1, $dateTime3));
+	}
+
+	public function testIsSameTime(): void
+	{
+		$dateTime1 = new \DateTime('2024-01-15 14:30:45');
+		$dateTime2 = new \DateTime('2024-01-20 14:30:45'); // Different date
+		$this->assertTrue(DateTime::isSameTime($dateTime1, $dateTime2));
+
+		$dateTime3 = new \DateTime('2024-01-15 14:30:46');
+		$this->assertFalse(DateTime::isSameTime($dateTime1, $dateTime3));
+	}
+
+	public function testIsSameHour(): void
+	{
+		$dateTime1 = new \DateTime('2024-01-15 14:30:45');
+		$dateTime2 = new \DateTime('2024-01-15 14:45:00'); // Same hour
+		$this->assertTrue(DateTime::isSameHour($dateTime1, $dateTime2));
+
+		$dateTime3 = new \DateTime('2024-01-15 15:30:45');
+		$this->assertFalse(DateTime::isSameHour($dateTime1, $dateTime3));
+	}
+
+	public function testIsBetweenDateTimes(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 12:00:00');
+		$start = new \DateTime('2024-01-15 10:00:00');
+		$end = new \DateTime('2024-01-15 14:00:00');
+		$this->assertTrue(DateTime::isBetweenDateTimes($dateTime, $start, $end));
+
+		$dateTime2 = new \DateTime('2024-01-15 16:00:00');
+		$this->assertFalse(DateTime::isBetweenDateTimes($dateTime2, $start, $end));
+
+		// Test boundaries
+		$this->assertTrue(DateTime::isBetweenDateTimes($start, $start, $end, true));
+		$this->assertFalse(DateTime::isBetweenDateTimes($start, $start, $end, false));
+	}
+
+	/* ===================== Date Comparison Methods ===================== */
 
 	public function testIsDateAfter(): void
 	{
@@ -167,24 +586,6 @@ final class DateTimeTest extends TestCase
 		$this->assertFalse(DateTime::isDateBefore($date1, $date3));
 	}
 
-	public function testIsInThePast(): void
-	{
-		$past = new \DateTime('-1 day');
-		$this->assertTrue(DateTime::isInThePast($past));
-
-		$future = new \DateTime('+1 day');
-		$this->assertFalse(DateTime::isInThePast($future));
-	}
-
-	public function testIsInTheFuture(): void
-	{
-		$future = new \DateTime('+1 day');
-		$this->assertTrue(DateTime::isInTheFuture($future));
-
-		$past = new \DateTime('-1 day');
-		$this->assertFalse(DateTime::isInTheFuture($past));
-	}
-
 	public function testIsDateInThePast(): void
 	{
 		$yesterday = new \DateTime('yesterday');
@@ -203,7 +604,26 @@ final class DateTimeTest extends TestCase
 		$this->assertFalse(DateTime::isDateInTheFuture($yesterday));
 	}
 
-	/* ===================== Jours de la semaine ===================== */
+	public function testIsSameDay(): void
+	{
+		$date1 = new \DateTime('2024-01-15 10:00:00');
+		$date2 = new \DateTime('2024-01-15 18:00:00');
+		$this->assertTrue(DateTime::isSameDay($date1, $date2));
+
+		$date3 = new \DateTime('2024-01-16');
+		$this->assertFalse(DateTime::isSameDay($date1, $date3));
+	}
+
+	public function testIsToday(): void
+	{
+		$today = new \DateTime();
+		$this->assertTrue(DateTime::isToday($today));
+
+		$yesterday = new \DateTime('yesterday');
+		$this->assertFalse(DateTime::isToday($yesterday));
+	}
+
+	/* ===================== Day of Week Methods ===================== */
 
 	public function testIsWeekend(): void
 	{
@@ -224,29 +644,41 @@ final class DateTimeTest extends TestCase
 		$this->assertFalse(DateTime::isWeekend($friday));
 	}
 
-	/* ===================== Déplacement de dates ===================== */
-
-	public function testMoveBackOfNbDays(): void
+	public function testIsWeekday(): void
 	{
-		$date = new \DateTime('2024-01-15');
-		$result = DateTime::moveBackOfNbDays($date, 5);
-		$this->assertEquals('2024-01-10', $result->format('Y-m-d'));
+		$monday = new \DateTime('2024-01-15');
+		$this->assertTrue(DateTime::isWeekday($monday));
 
-		// Vérifier que l'original n'est pas modifié
-		$this->assertEquals('2024-01-15', $date->format('Y-m-d'));
+		$saturday = new \DateTime('2024-01-20');
+		$this->assertFalse(DateTime::isWeekday($saturday));
 	}
 
-	public function testMoveForwardOfNbDays(): void
+	public function testGetDayOfWeek(): void
 	{
-		$date = new \DateTime('2024-01-15');
-		$result = DateTime::moveForwardOfNbDays($date, 5);
-		$this->assertEquals('2024-01-20', $result->format('Y-m-d'));
+		$monday = new \DateTime('2024-01-15');
+		$this->assertEquals(1, DateTime::getDayOfWeek($monday));
 
-		// Vérifier que l'original n'est pas modifié
-		$this->assertEquals('2024-01-15', $date->format('Y-m-d'));
+		$sunday = new \DateTime('2024-01-21');
+		$this->assertEquals(7, DateTime::getDayOfWeek($sunday));
 	}
 
-	/* ===================== Semaine ===================== */
+	public function testGetNextWeekDay(): void
+	{
+		$monday = new \DateTime('2024-01-15'); // Monday
+		$result = DateTime::getNextWeekDay($monday, 5); // Find Friday
+		$this->assertEquals('5', $result->format('N'));
+		$this->assertEquals('2024-01-19', $result->format('Y-m-d'));
+	}
+
+	public function testGetPreviousWeekDay(): void
+	{
+		$friday = new \DateTime('2024-01-19'); // Friday
+		$result = DateTime::getPreviousWeekDay($friday, 1); // Find Monday
+		$this->assertEquals('1', $result->format('N'));
+		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+	}
+
+	/* ===================== Week Methods ===================== */
 
 	public function testGetWeekNumber(): void
 	{
@@ -342,31 +774,7 @@ final class DateTimeTest extends TestCase
 		$this->assertEquals('7', $result->format('N'));
 	}
 
-	public function testGetNextWeekDay(): void
-	{
-		$monday = new \DateTime('2024-01-15'); // Monday
-		$result = DateTime::getNextWeekDay($monday, 5); // Find Friday
-		$this->assertEquals('5', $result->format('N'));
-		$this->assertEquals('2024-01-19', $result->format('Y-m-d'));
-	}
-
-	/* ===================== Mois ===================== */
-
-	public function testMoveBackOfNbMonths(): void
-	{
-		$date = new \DateTime('2024-03-15');
-		$result = DateTime::moveBackOfNbMonths($date, 2);
-		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
-		$this->assertEquals('2024-03-15', $date->format('Y-m-d')); // Original unchanged
-	}
-
-	public function testMoveForwardOfNbMonths(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$result = DateTime::moveForwardOfNbMonths($date, 2);
-		$this->assertEquals('2024-03-15', $result->format('Y-m-d'));
-		$this->assertEquals('2024-01-15', $date->format('Y-m-d')); // Original unchanged
-	}
+	/* ===================== Month Methods ===================== */
 
 	public function testGetFirstDayOfCurrentMonth(): void
 	{
@@ -485,7 +893,7 @@ final class DateTimeTest extends TestCase
 		$this->assertNull($result);
 	}
 
-	/* ===================== Année ===================== */
+	/* ===================== Year Methods ===================== */
 
 	public function testCalculateAge(): void
 	{
@@ -498,7 +906,63 @@ final class DateTimeTest extends TestCase
 		$this->assertEquals(25, $age);
 	}
 
-	/* ===================== Working Days ===================== */
+	public function testGetAge(): void
+	{
+		$birthDate = new \DateTime('-30 years');
+		$age = DateTime::getAge($birthDate);
+		$this->assertEquals(30, $age);
+	}
+
+	/* ===================== Time Calculation Methods ===================== */
+
+	public function testGetHoursBetween(): void
+	{
+		$start = new \DateTime('2024-01-15 10:00:00');
+		$end = new \DateTime('2024-01-15 13:30:00');
+		$hours = DateTime::getHoursBetween($start, $end);
+		$this->assertEquals(3.5, $hours);
+
+		// Test absolute
+		$this->assertEquals(3.5, DateTime::getHoursBetween($end, $start));
+
+		// Test non-absolute
+		$this->assertEquals(-3.5, DateTime::getHoursBetween($end, $start, false));
+	}
+
+	public function testGetMinutesBetween(): void
+	{
+		$start = new \DateTime('2024-01-15 10:00:00');
+		$end = new \DateTime('2024-01-15 10:45:00');
+		$minutes = DateTime::getMinutesBetween($start, $end);
+		$this->assertEquals(45, $minutes);
+	}
+
+	public function testGetSecondsBetween(): void
+	{
+		$start = new \DateTime('2024-01-15 10:00:00');
+		$end = new \DateTime('2024-01-15 10:01:30');
+		$seconds = DateTime::getSecondsBetween($start, $end);
+		$this->assertEquals(90, $seconds);
+	}
+
+	public function testGetTimestamp(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:00:00');
+		$timestamp = DateTime::getTimestamp($dateTime);
+		$this->assertIsInt($timestamp);
+		$this->assertGreaterThan(0, $timestamp);
+	}
+
+	public function testGetMilliseconds(): void
+	{
+		$dateTime = new \DateTime('2024-01-15 10:00:00');
+		$milliseconds = DateTime::getMilliseconds($dateTime);
+		$this->assertIsInt($milliseconds);
+		$this->assertGreaterThan(0, $milliseconds);
+		$this->assertEquals(DateTime::getTimestamp($dateTime) * 1000, $milliseconds);
+	}
+
+	/* ===================== Working Days & Business Days Methods ===================== */
 
 	public function testIsWorkingDay(): void
 	{
@@ -530,34 +994,87 @@ final class DateTimeTest extends TestCase
 		$this->assertFalse(DateTime::isBusinessDay($sunday, false));
 	}
 
-	/* ===================== getCurrentDateTime ===================== */
-
-	public function testGetCurrentDateTime(): void
+	public function testGetBusinessDays(): void
 	{
-		$result = DateTime::getCurrentDateTime();
-		$this->assertInstanceOf(\DateTime::class, $result);
+		// Monday to Friday (same week)
+		$monday = new \DateTime('2024-01-15'); // Monday
+		$friday = new \DateTime('2024-01-19'); // Friday
+		$businessDays = DateTime::getBusinessDays($monday, $friday);
+		$this->assertEquals(5, $businessDays);
+
+		// Friday to next Monday (over weekend)
+		$friday = new \DateTime('2024-01-19'); // Friday
+		$nextMonday = new \DateTime('2024-01-22'); // Monday
+		$businessDays = DateTime::getBusinessDays($friday, $nextMonday);
+		$this->assertEquals(2, $businessDays); // Friday and Monday
+
+		// Same day
+		$date = new \DateTime('2024-01-15'); // Monday
+		$businessDays = DateTime::getBusinessDays($date, $date);
+		$this->assertEquals(1, $businessDays);
+
+		// Reversed dates (should swap automatically)
+		$businessDays = DateTime::getBusinessDays($friday, $monday);
+		$this->assertEquals(5, $businessDays);
 	}
 
-	/* ===================== format ===================== */
-
-	public function testFormat(): void
+	public function testAddBusinessDays(): void
 	{
-		$dateTime = new \DateTime('2024-01-15 14:30:45');
-		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
-		$this->assertIsString($formatted);
-		$this->assertNotEmpty($formatted);
+		// Add 5 business days from Monday (should land on next Monday)
+		$monday = new \DateTime('2024-01-15'); // Monday
+		$result = DateTime::addBusinessDays($monday, 5);
+		$this->assertEquals('2024-01-22', $result->format('Y-m-d')); // Next Monday
+
+		// Add business days from Friday (should skip weekend)
+		$friday = new \DateTime('2024-01-19'); // Friday
+		$result = DateTime::addBusinessDays($friday, 1);
+		$this->assertEquals('2024-01-22', $result->format('Y-m-d')); // Monday
+
+		// Original unchanged
+		$this->assertEquals('2024-01-19', $friday->format('Y-m-d'));
 	}
 
-	/* ===================== parse ===================== */
-
-	public function testParse(): void
+	public function testSubBusinessDays(): void
 	{
-		$result = DateTime::parse('2024-01-15');
-		$this->assertInstanceOf(\DateTime::class, $result);
-		$this->assertEquals('2024-01-15', $result->format('Y-m-d'));
+		// Subtract 5 business days from Friday (should land on previous Friday)
+		$friday = new \DateTime('2024-01-19'); // Friday
+		$result = DateTime::subBusinessDays($friday, 5);
+		$this->assertEquals('2024-01-12', $result->format('Y-m-d')); // Previous Friday
+
+		// Subtract business days from Monday (should skip weekend)
+		$monday = new \DateTime('2024-01-22'); // Monday
+		$result = DateTime::subBusinessDays($monday, 1);
+		$this->assertEquals('2024-01-19', $result->format('Y-m-d')); // Previous Friday
+
+		// Original unchanged
+		$this->assertEquals('2024-01-22', $monday->format('Y-m-d'));
 	}
 
-	/* ===================== parseDate (deprecated) ===================== */
+	/* ===================== Validation Methods ===================== */
+
+	public function testIsValidRange(): void
+	{
+		$minDate = new \DateTime('2024-01-01');
+		$maxDate = new \DateTime('2024-12-31');
+
+		// Valid - within range
+		$validDate = new \DateTime('2024-06-15');
+		$this->assertTrue(DateTime::isValidRange($validDate, $minDate, $maxDate));
+
+		// Valid - on boundaries
+		$this->assertTrue(DateTime::isValidRange($minDate, $minDate, $maxDate));
+		$this->assertTrue(DateTime::isValidRange($maxDate, $minDate, $maxDate));
+
+		// Invalid - before range
+		$beforeDate = new \DateTime('2023-12-31');
+		$this->assertFalse(DateTime::isValidRange($beforeDate, $minDate, $maxDate));
+
+		// Invalid - after range
+		$afterDate = new \DateTime('2025-01-01');
+		$this->assertFalse(DateTime::isValidRange($afterDate, $minDate, $maxDate));
+	}
+
+	/* ===================== Deprecated Methods ===================== */
 
 	public function testParseDate(): void
 	{

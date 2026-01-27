@@ -441,7 +441,8 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	}
 
 
-	// DEPRECATED
+	// ========== DEPRECATED METHODS ==========
+	// Backward compatibility. Will be removed in a future major version. Please update your code to use the new method names.
 
 	/**
 	 * @deprecated

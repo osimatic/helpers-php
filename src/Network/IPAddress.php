@@ -224,7 +224,8 @@ class IPAddress
 
 
 
-	// deprecated
+	// ========== DEPRECATED METHODS ==========
+	// Backward compatibility. Will be removed in a future major version. Please update your code to use the new method names.
 
 	/**
 	 * Checks if an IP address is using a VPN (deprecated - use VPNAPI or Incolumitas directly)

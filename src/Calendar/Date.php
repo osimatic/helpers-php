@@ -3,12 +3,17 @@
 namespace Osimatic\Calendar;
 
 /**
- * Utility class for date parsing, formatting, and calendar calculations.
- * Provides methods for:
- * - Parsing date strings in various formats
- * - Getting localized names of days and months
- * - Calculating the number of days in months and years
- * - Leap year detection
+ * Date utility class providing static methods for date parsing, calculations, and formatting.
+ * This class contains methods that do NOT take DateTime objects as parameters.
+ * For methods that work with DateTime objects, see the DateTime class.
+ *
+ * Organized categories:
+ * - Parsing: Parse date strings
+ * - Day Names: Get localized day names
+ * - Month Names: Get localized month names
+ * - Calendar Info: Days in month/year, leap years, weeks in year
+ * - Formatting: Format date components
+ * - Validation: Validate date strings
  */
 class Date
 {
@@ -35,8 +40,16 @@ class Date
 			return $dateTime;
 		}
 
+		// Format YYYYMMDD
+		if (strlen($str) === strlen('yyyymmdd') && ctype_digit($str)) {
+			$sqlDate = substr($str, 0, 4).'-'.substr($str, 4, 2).'-'.substr($str, 6, 2);
+			if (null !== ($dateTime = DateTime::parseFromSqlDateTime($sqlDate.' 00:00:00'))) {
+				return $dateTime;
+			}
+		}
+
 		// Format YYYYmmddHHiiss
-		if (strlen($str) === strlen('yyyymmddhhiiss')) {
+		if (strlen($str) === strlen('yyyymmddhhiiss') && ctype_digit($str)) {
 			$sqlDate = substr($str, 0, 4).'-'.substr($str, 4, 2).'-'.substr($str, 6, 2);
 			$sqlTime = substr($str, 8, 2).':'.substr($str, 10, 2).':'.substr($str, 12, 2);
 
@@ -45,7 +58,6 @@ class Date
 			}
 		}
 
-		//if (false !== SqlDate::check($sqlDate = SqlDate::parse($str))) {
 		if (null !== ($sqlDate = SqlDate::parse($str)) && false !== SqlDate::check($sqlDate)) {
 			return DateTime::parseFromSqlDateTime($sqlDate.' 00:00:00');
 		}
@@ -53,8 +65,32 @@ class Date
 		return null;
 	}
 
+	/**
+	 * Alias for parse() with explicit null return.
+	 * @param string $str The date string to parse
+	 * @return \DateTime|null A DateTime object if parsing succeeds, null otherwise
+	 */
+	public static function parseOrNull(string $str): ?\DateTime
+	{
+		return self::parse($str);
+	}
 
-	// ========== Day of Week Methods ==========
+	/**
+	 * Parses a date string and throws an exception if parsing fails.
+	 * @param string $str The date string to parse
+	 * @return \DateTime A DateTime object
+	 * @throws \InvalidArgumentException If parsing fails
+	 */
+	public static function parseOrThrow(string $str): \DateTime
+	{
+		$result = self::parse($str);
+		if ($result === null) {
+			throw new \InvalidArgumentException("Unable to parse date string: {$str}");
+		}
+		return $result;
+	}
+
+	// ========== Day Names ==========
 
 	/**
 	 * Gets the localized name of a day of the week.
@@ -70,12 +106,23 @@ class Date
 		$timestamp = strtotime('monday this week')+(($dayOfWeek-1)*3600*24);
 		return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
 			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'EEEE')?->format($timestamp) ?? '');
-		//return ucfirst(strftime('%A', ($timestamp+($dayOfWeek*3600*24))));
 	}
 
-	// ========== Day of Month Methods ==========
+	/**
+	 * Gets the localized short name of a day of the week.
+	 * Returns abbreviated day name (e.g., "Mon", "Tue", "Wed").
+	 * @param int $dayOfWeek ISO-8601 numeric representation of the day (1 for Monday through 7 for Sunday)
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The localized short name of the day (e.g., "Mon", "Lun")
+	 */
+	public static function getDayNameShort(int $dayOfWeek, ?string $locale=null): string
+	{
+		$timestamp = strtotime('monday this week')+(($dayOfWeek-1)*3600*24);
+		return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
+			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'EEE')?->format($timestamp) ?? '');
+	}
 
-	// ========== Month Methods ==========
+	// ========== Month Names ==========
 
 	/**
 	 * Gets the localized name of a month.
@@ -92,9 +139,40 @@ class Date
 			return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
 				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMMM')?->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')) ?? '');
 		} catch (\Exception) {}
-		//return ucfirst(strftime('%B', mktime(0, 0, 0, $month)));
 		return '';
 	}
+
+	/**
+	 * Gets the localized short name of a month.
+	 * Returns abbreviated month name (e.g., "Jan", "Feb", "Mar").
+	 * @param int $month Numeric representation of a month (1-12)
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The localized short name of the month (e.g., "Jan", "Janv"), or empty string on error
+	 */
+	public static function getMonthNameShort(int $month, ?string $locale=null): string
+	{
+		try {
+			return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
+				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMM')?->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')) ?? '');
+		} catch (\Exception) {}
+		return '';
+	}
+
+	/**
+	 * Gets an array of all month names for a year.
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return array<int, string> Array indexed 1-12 with month names
+	 */
+	public static function getMonthsInYearArray(?string $locale=null): array
+	{
+		$months = [];
+		for ($month = 1; $month <= 12; $month++) {
+			$months[$month] = self::getMonthName($month, $locale);
+		}
+		return $months;
+	}
+
+	// ========== Calendar Info Methods ==========
 
 	/**
 	 * Gets the number of days in a specific month.
@@ -105,21 +183,40 @@ class Date
 	 */
 	public static function getNumberOfDaysInMonth(int $year, int $month): int
 	{
-		return date('t', mktime(0, 0, 0, $month, 1, $year));
+		return (int) date('t', mktime(0, 0, 0, $month, 1, $year));
 	}
 
-	// ========== Year Methods ==========
+	/**
+	 * Gets an array of all days in a month.
+	 * @param int $year The year
+	 * @param int $month The month (1-12)
+	 * @return array<int, \DateTime> Array of DateTime objects for each day in the month
+	 */
+	public static function getDaysInMonthArray(int $year, int $month): array
+	{
+		$days = [];
+		$numDays = self::getNumberOfDaysInMonth($year, $month);
+
+		for ($day = 1; $day <= $numDays; $day++) {
+			$dateTime = new \DateTime();
+			$dateTime->setDate($year, $month, $day);
+			$dateTime->setTime(0, 0, 0);
+			$days[] = $dateTime;
+		}
+
+		return $days;
+	}
 
 	/**
 	 * Checks if a year is a leap year.
 	 * A leap year is divisible by 4, except for years divisible by 100 (unless also divisible by 400).
 	 * Examples: 2020 is a leap year, 1900 is not, 2000 is a leap year.
 	 * @param int $year The year to check (e.g., 2024)
-	 * @return int Returns 1 if leap year, 0 if not
+	 * @return bool True if leap year, false otherwise
 	 */
-	public static function isLeapYear(int $year): int
+	public static function isLeapYear(int $year): bool
 	{
-		return ((($year % 4) === 0) && ((($year % 100) !== 0) || (($year %400) === 0)));
+		return ((($year % 4) === 0) && ((($year % 100) !== 0) || (($year % 400) === 0)));
 	}
 
 	/**
@@ -131,6 +228,38 @@ class Date
 	public static function getNumberOfDaysInYear(int $year): int
 	{
 		return self::isLeapYear($year) ? 366 : 365;
+	}
+
+	/**
+	 * Gets the number of weeks in a year according to ISO-8601.
+	 * Most years have 52 weeks, but some have 53.
+	 * @param int $year The year to check
+	 * @return int Number of weeks in the year (52 or 53)
+	 */
+	public static function getWeeksInYear(int $year): int
+	{
+		$lastDay = new \DateTime($year . '-12-31');
+		$weekNumber = (int) $lastDay->format('W');
+
+		// If Dec 31 is in week 1 of next year, check Dec 28 (always in last week)
+		if ($weekNumber === 1) {
+			$lastDay = new \DateTime($year . '-12-28');
+			$weekNumber = (int) $lastDay->format('W');
+		}
+
+		return $weekNumber;
+	}
+
+	// ========== Validation Methods ==========
+
+	/**
+	 * Checks if a date string can be successfully parsed.
+	 * @param string $dateString The date string to validate
+	 * @return bool True if valid and parseable, false otherwise
+	 */
+	public static function isValid(string $dateString): bool
+	{
+		return self::parse($dateString) !== null;
 	}
 
 }
