@@ -700,6 +700,84 @@ class Arr
 		return $result;
 	}
 
+	/**
+	 * Generates all possible combinations of k elements from an array.
+	 * Order is NOT important (unlike permutations). Elements are joined with spaces.
+	 * Mathematical note: Returns C(n,k) = n! / (k! * (n-k)!) combinations.
+	 * Example: getCombinations(['a', 'b', 'c'], 2) returns ['a b', 'a c', 'b c']
+	 * Example: getCombinations(['1', '2', '3', '4'], 3) returns ['1 2 3', '1 2 4', '1 3 4', '2 3 4']
+	 * @param array $items Array of items to combine
+	 * @param int $size Number of elements in each combination (must be > 0 and <= count($items))
+	 * @return array Array of all combinations as space-separated strings
+	 */
+	public static function getCombinations(array $items, int $size): array
+	{
+		$items = array_values($items); // Reindex to ensure numeric keys
+		$n = count($items);
+
+		if ($size <= 0 || $size > $n) {
+			return [];
+		}
+
+		if ($size === 1) {
+			return $items;
+		}
+
+		if ($size === $n) {
+			return [implode(' ', $items)];
+		}
+
+		$result = [];
+		for ($i = 0; $i <= $n - $size; ++$i) {
+			$first = $items[$i];
+			$remaining = array_slice($items, $i + 1);
+			$subCombinations = self::getCombinations($remaining, $size - 1);
+
+			foreach ($subCombinations as $combination) {
+				$result[] = $first . ' ' . $combination;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Generates the power set of an array (all possible combinations of all sizes).
+	 * Returns all subsets from size 0 (empty set) to size n (full set).
+	 * Mathematical note: Returns 2^n subsets for n elements.
+	 * Example: getPowerSet(['a', 'b']) returns [[], ['a'], ['b'], ['a', 'b']]
+	 * Example: getPowerSet(['x', 'y', 'z']) returns 8 subsets (2^3)
+	 * @param array $items Array of items
+	 * @param bool $includeEmpty If true, includes empty subset; if false, excludes it (default: true)
+	 * @return array Array of all subsets (each subset is an array)
+	 */
+	public static function getPowerSet(array $items, bool $includeEmpty = true): array
+	{
+		$items = array_values($items); // Reindex
+		$n = count($items);
+		$powerSetSize = pow(2, $n);
+		$result = [];
+
+		for ($i = 0; $i < $powerSetSize; ++$i) {
+			$subset = [];
+			for ($j = 0; $j < $n; ++$j) {
+				// Check if jth bit is set in counter i
+				if ($i & (1 << $j)) {
+					$subset[] = $items[$j];
+				}
+			}
+
+			// Skip empty subset if requested
+			if (!$includeEmpty && empty($subset)) {
+				continue;
+			}
+
+			$result[] = $subset;
+		}
+
+		return $result;
+	}
+
 	// ========================================
 	// DEPRECATED METHODS (Backward Compatibility)
 	// ========================================

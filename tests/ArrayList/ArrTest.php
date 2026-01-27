@@ -787,6 +787,151 @@ final class ArrTest extends TestCase
 		$this->assertContains('3 2 1', $result);
 	}
 
+	public function testGetCombinationsWithTwoFromThree(): void
+	{
+		$items = ['a', 'b', 'c'];
+		$result = Arr::getCombinations($items, 2);
+
+		// C(3,2) = 3 combinations
+		$this->assertCount(3, $result);
+		$this->assertContains('a b', $result);
+		$this->assertContains('a c', $result);
+		$this->assertContains('b c', $result);
+		// Should NOT contain reverse orders (not permutations)
+		$this->assertNotContains('b a', $result);
+	}
+
+	public function testGetCombinationsWithThreeFromFour(): void
+	{
+		$items = ['1', '2', '3', '4'];
+		$result = Arr::getCombinations($items, 3);
+
+		// C(4,3) = 4 combinations
+		$this->assertCount(4, $result);
+		$this->assertContains('1 2 3', $result);
+		$this->assertContains('1 2 4', $result);
+		$this->assertContains('1 3 4', $result);
+		$this->assertContains('2 3 4', $result);
+	}
+
+	public function testGetCombinationsWithSizeOne(): void
+	{
+		$items = ['a', 'b', 'c'];
+		$result = Arr::getCombinations($items, 1);
+
+		$this->assertCount(3, $result);
+		$this->assertEquals(['a', 'b', 'c'], $result);
+	}
+
+	public function testGetCombinationsWithFullSize(): void
+	{
+		$items = ['x', 'y', 'z'];
+		$result = Arr::getCombinations($items, 3);
+
+		// Only one way to choose all elements
+		$this->assertCount(1, $result);
+		$this->assertEquals(['x y z'], $result);
+	}
+
+	public function testGetCombinationsWithInvalidSize(): void
+	{
+		$items = ['a', 'b', 'c'];
+
+		// Size too large
+		$result = Arr::getCombinations($items, 4);
+		$this->assertEquals([], $result);
+
+		// Size zero
+		$result = Arr::getCombinations($items, 0);
+		$this->assertEquals([], $result);
+
+		// Negative size
+		$result = Arr::getCombinations($items, -1);
+		$this->assertEquals([], $result);
+	}
+
+	public function testGetCombinationsWithEmptyArray(): void
+	{
+		$result = Arr::getCombinations([], 1);
+		$this->assertEquals([], $result);
+	}
+
+	public function testGetPowerSetWithTwoElements(): void
+	{
+		$items = ['a', 'b'];
+		$result = Arr::getPowerSet($items);
+
+		// 2^2 = 4 subsets
+		$this->assertCount(4, $result);
+		$this->assertContains([], $result);
+		$this->assertContains(['a'], $result);
+		$this->assertContains(['b'], $result);
+		$this->assertContains(['a', 'b'], $result);
+	}
+
+	public function testGetPowerSetWithThreeElements(): void
+	{
+		$items = ['x', 'y', 'z'];
+		$result = Arr::getPowerSet($items);
+
+		// 2^3 = 8 subsets
+		$this->assertCount(8, $result);
+		$this->assertContains([], $result);
+		$this->assertContains(['x'], $result);
+		$this->assertContains(['y'], $result);
+		$this->assertContains(['z'], $result);
+		$this->assertContains(['x', 'y'], $result);
+		$this->assertContains(['x', 'z'], $result);
+		$this->assertContains(['y', 'z'], $result);
+		$this->assertContains(['x', 'y', 'z'], $result);
+	}
+
+	public function testGetPowerSetWithoutEmpty(): void
+	{
+		$items = ['a', 'b'];
+		$result = Arr::getPowerSet($items, false);
+
+		// 2^2 - 1 = 3 subsets (excluding empty set)
+		$this->assertCount(3, $result);
+		$this->assertNotContains([], $result);
+		$this->assertContains(['a'], $result);
+		$this->assertContains(['b'], $result);
+		$this->assertContains(['a', 'b'], $result);
+	}
+
+	public function testGetPowerSetWithSingleElement(): void
+	{
+		$items = ['x'];
+		$result = Arr::getPowerSet($items);
+
+		// 2^1 = 2 subsets
+		$this->assertCount(2, $result);
+		$this->assertContains([], $result);
+		$this->assertContains(['x'], $result);
+	}
+
+	public function testGetPowerSetWithEmptyArray(): void
+	{
+		$result = Arr::getPowerSet([]);
+
+		// 2^0 = 1 subset (only empty set)
+		$this->assertCount(1, $result);
+		$this->assertEquals([[]], $result);
+	}
+
+	public function testGetPowerSetPreservesValues(): void
+	{
+		$items = ['first', 'second'];
+		$result = Arr::getPowerSet($items);
+
+		// Verify each subset contains only original values
+		foreach ($result as $subset) {
+			foreach ($subset as $value) {
+				$this->assertContains($value, $items);
+			}
+		}
+	}
+
 	/* ===================== DEPRECATED METHODS ===================== */
 
 	public function testArraySearchFunc(): void
