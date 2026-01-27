@@ -4,11 +4,18 @@ namespace Osimatic\Media;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use InvalidArgumentException;
 
 /**
  * Class ImageResizer
  * Provides intelligent image resizing capabilities with automatic sharpening, cropping, and transparency handling.
- * Supports JPG, PNG, and GIF formats with optimized quality settings.
+ * Supports JPG, PNG, GIF, and WebP formats with optimized quality settings.
+ * Features include:
+ * - Multiple crop positions (center, top, bottom, left, right, corners)
+ * - Configurable sharpening intensity
+ * - Multiple resize modes (fit, fill, stretch, cover)
+ * - Separate output file support
+ * - Parameter validation
  * Based on Smart Image Resizer by Joe Lencioni (http://shiftingpixel.com)
  */
 class ImageResizer
@@ -41,23 +48,89 @@ class ImageResizer
 	}
 
 	/**
+	 * Validates the quality parameter.
+	 * @param int $quality Quality value to validate
+	 * @throws InvalidArgumentException If quality is not between 0 and 100
+	 */
+	private function validateQuality(int $quality): void
+	{
+		if ($quality < 0 || $quality > 100) {
+			throw new InvalidArgumentException("Quality must be between 0 and 100, got: $quality");
+		}
+	}
+
+	/**
+	 * Validates the color parameter (hex color format).
+	 * @param string $color Color value to validate
+	 * @throws InvalidArgumentException If color is not a valid hex color
+	 */
+	private function validateColor(string $color): void
+	{
+		if (!preg_match('/^#?[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/', $color)) {
+			throw new InvalidArgumentException("Invalid hex color format: $color. Expected format: #RGB or #RRGGBB (with or without #)");
+		}
+	}
+
+	/**
+	 * Validates the ratio parameter (format: width:height).
+	 * @param string $ratio Ratio value to validate
+	 * @throws InvalidArgumentException If ratio format is invalid or contains zero/negative numbers
+	 */
+	private function validateRatio(string $ratio): void
+	{
+		if (!preg_match('/^\d+:\d+$/', $ratio)) {
+			throw new InvalidArgumentException("Invalid ratio format: $ratio. Expected format: width:height (e.g., 16:9 or 1:1)");
+		}
+
+		$parts = explode(':', $ratio);
+		if ((int)$parts[0] <= 0 || (int)$parts[1] <= 0) {
+			throw new InvalidArgumentException("Ratio values must be positive integers: $ratio");
+		}
+	}
+
+	/**
 	 * Resizes images with intelligent sharpening, aspect ratio cropping, and transparency handling.
-	 * Supports JPG, PNG, and GIF formats with automatic format conversion for GIFs.
-	 * The image is replaced in place at the original path.
-	 * Code from Smart Image Resizer 1.4.1.
-	 * @author Joe Lencioni (http://shiftingpixel.com)
+	 * Supports JPG, PNG, GIF, and WebP formats with configurable sharpening, crop positioning, and resize modes.
+	 * Can save to a separate output file or replace the original.
 	 * @see http://veryraw.com/history/2005/03/image-resizing-with-php/
 	 * @param string $imagePath The path to the image to resize
 	 * @param int $maxWidth Maximum width of final image in pixels, 0 to keep original width (default 0)
 	 * @param int $maxHeight Maximum height of final image in pixels, 0 to keep original height (default 0)
 	 * @param int|null $quality Quality of output image, between 0 and 100 (default null, will use 90)
-	 * @param string|null $color Background hex color for filling transparent PNGs, without # (default null)
-	 * @param string|null $ratio Ratio of width to height to crop final image (e.g. 1:1 or 3:2), null to skip cropping (default null)
+	 * @param string|null $color Background hex color for filling transparent areas (e.g., #FF0000 or FFF), null to preserve transparency (default null)
+	 * @param string|null $ratio Ratio of width to height to crop final image (e.g., 1:1 or 16:9), null to skip cropping (default null)
+	 * @param string|null $outputPath Path where to save the resized image, null to replace original (default null)
+	 * @param ImageSharpeningIntensity $sharpeningIntensity Intensity of sharpening to apply (default: MEDIUM)
+	 * @param ImageCropPosition $cropPosition Position for ratio-based cropping (default: CENTER)
+	 * @param ImageResizeMode $resizeMode Mode for resizing (fit, fill, stretch, cover) (default: FIT)
 	 * @return bool True if the image was resized successfully, false otherwise
+	 * @throws InvalidArgumentException If quality, color, or ratio parameters are invalid
 	 */
-	public function resize(string $imagePath, int $maxWidth=0, int $maxHeight=0, ?int $quality=null, ?string $color=null, ?string $ratio=null): bool
+	public function resize(
+		string $imagePath,
+		int $maxWidth = 0,
+		int $maxHeight = 0,
+		?int $quality = null,
+		?string $color = null,
+		?string $ratio = null,
+		?string $outputPath = null,
+		ImageSharpeningIntensity $sharpeningIntensity = ImageSharpeningIntensity::MEDIUM,
+		ImageCropPosition $cropPosition = ImageCropPosition::CENTER,
+		ImageResizeMode $resizeMode = ImageResizeMode::FIT
+	): bool
 	{
 		$this->logger->info('Image resized: '.$imagePath);
+
+		// Validate parameters
+		if ($quality !== null) {
+			$this->validateQuality($quality);
+		}
+		if ($color !== null) {
+			$this->validateColor($color);
+		}
+		if ($ratio !== null) {
+			$this->validateRatio($ratio);
+		}
 
 		$size = getimagesize($imagePath);
 		if ($size === false) {
@@ -70,6 +143,11 @@ class ImageResizer
 		if (!str_starts_with($mime, 'image/')) {
 			$this->logger->error('Image format not supported.');
 			return false;
+		}
+
+		// Determine output path (use input path if not specified)
+		if ($outputPath === null) {
+			$outputPath = $imagePath;
 		}
 
 		[$width, $height] = $size;
@@ -114,29 +192,68 @@ class ImageResizer
 				// Image is too tall so we will crop the top and bottom
 				$origHeight	= $height;
 				$height		= $width / $cropRatioComputed;
-				$offsetY	= ($origHeight - $height) / 2;
+
+				// Calculate vertical offset based on crop position
+				$offsetY = match($cropPosition) {
+					ImageCropPosition::TOP, ImageCropPosition::TOP_LEFT, ImageCropPosition::TOP_RIGHT => 0,
+					ImageCropPosition::BOTTOM, ImageCropPosition::BOTTOM_LEFT, ImageCropPosition::BOTTOM_RIGHT => $origHeight - $height,
+					default => ($origHeight - $height) / 2, // CENTER and others
+				};
 			}
 			else if ($ratioComputed > $cropRatioComputed) {
 				// Image is too wide so we will crop off the left and right sides
 				$origWidth	= $width;
 				$width		= $height * $cropRatioComputed;
-				$offsetX	= ($origWidth - $width) / 2;
+
+				// Calculate horizontal offset based on crop position
+				$offsetX = match($cropPosition) {
+					ImageCropPosition::LEFT, ImageCropPosition::TOP_LEFT, ImageCropPosition::BOTTOM_LEFT => 0,
+					ImageCropPosition::RIGHT, ImageCropPosition::TOP_RIGHT, ImageCropPosition::BOTTOM_RIGHT => $origWidth - $width,
+					default => ($origWidth - $width) / 2, // CENTER and others
+				};
 			}
 		}
 
-		// Setting up the ratios needed for resizing. We will compare these below to determine how to resize the image (based on height or based on width)
+		// Calculate target dimensions based on resize mode
 		$xRatio		= $maxWidth / $width;
 		$yRatio		= $maxHeight / $height;
 
-		if ($xRatio * $height < $maxHeight) {
-			// Resize the image based on width
-			$tnHeight	= ceil($xRatio * $height);
-			$tnWidth	= $maxWidth;
-		}
-		else {
-			// Resize the image based on height
-			$tnWidth	= ceil($yRatio * $width);
-			$tnHeight	= $maxHeight;
+		switch ($resizeMode) {
+			case ImageResizeMode::STRETCH:
+				// Stretch mode: Ignore aspect ratio, fill exact dimensions
+				$tnWidth	= $maxWidth;
+				$tnHeight	= $maxHeight;
+				break;
+
+			case ImageResizeMode::FILL:
+			case ImageResizeMode::COVER:
+				// Fill/Cover mode: Scale to cover entire area, may crop edges
+				// Use the larger ratio to ensure the entire area is covered
+				if ($xRatio > $yRatio) {
+					$tnWidth	= $maxWidth;
+					$tnHeight	= ceil($xRatio * $height);
+				}
+				else {
+					$tnWidth	= ceil($yRatio * $width);
+					$tnHeight	= $maxHeight;
+				}
+				break;
+
+			case ImageResizeMode::FIT:
+			default:
+				// Fit mode: Scale to fit within dimensions, preserve aspect ratio
+				// Use the smaller ratio to ensure the image fits entirely
+				if ($xRatio * $height < $maxHeight) {
+					// Resize the image based on width
+					$tnHeight	= ceil($xRatio * $height);
+					$tnWidth	= $maxWidth;
+				}
+				else {
+					// Resize the image based on height
+					$tnWidth	= ceil($yRatio * $width);
+					$tnHeight	= $maxHeight;
+				}
+				break;
 		}
 
 		// Determine the quality of the output image
@@ -168,6 +285,13 @@ class ImageResizer
 				$quality			= (int) round(10 - ($quality / 10));
 				break;
 
+			case 'image/webp':
+				$creationFunction	= 'ImageCreateFromWebp';
+				$outputFunction		= 'ImageWebp';
+				$doSharpen			= true;
+				// WebP quality from 0 (worst) to 100 (best)
+				break;
+
 			default:
 				$creationFunction	= 'ImageCreateFromJpeg';
 				$outputFunction	 	= 'ImageJpeg';
@@ -178,7 +302,7 @@ class ImageResizer
 		// Read in the original image
 		$src = $creationFunction($imagePath);
 
-		if (in_array($size['mime'], ['image/gif', 'image/png'])) {
+		if (in_array($size['mime'], ['image/gif', 'image/png', 'image/webp'])) {
 			if (!$color) {
 				// If this is a GIF or a PNG, we need to set up transparency
 				imagealphablending($dst, false);
@@ -208,15 +332,16 @@ class ImageResizer
 		// Resample the original image into the resized canvas we set up earlier
 		ImageCopyResampled($dst, $src, 0, 0, $offsetX, $offsetY, $tnWidth, $tnHeight, $width, $height);
 
-		if ($doSharpen) {
+		if ($doSharpen && $sharpeningIntensity->shouldApply()) {
 			// Sharpen the image based on two things:
 			//	(1) the difference between the original size and the final size
 			//	(2) the final size
-
 			// Code from Ryan Rud (http://adryrun.com)
 			$final	= $tnWidth * (self::SHARPENING_SCALE_FACTOR / $width);
 			$result = self::SHARPENING_CONSTANT_A + self::SHARPENING_CONSTANT_B * $final + self::SHARPENING_CONSTANT_C * $final * $final;
-			$sharpness	= max(round($result), 0);
+
+			// Apply sharpening intensity multiplier
+			$sharpness	= max(round($result * $sharpeningIntensity->getMultiplier()), 0);
 
 			$sharpenMatrix	= array(
 				array(-1, -2, -1),
@@ -228,30 +353,13 @@ class ImageResizer
 			imageconvolution($dst, $sharpenMatrix, $divisor, $offset);
 		}
 
-		// Write the resized image to the dest path
-		$outputFunction($dst, $imagePath, $quality);
+		// Write the resized image to the output path
+		$outputFunction($dst, $outputPath, $quality);
 
 		// Clean up the memory
 		ImageDestroy($src);
 		ImageDestroy($dst);
 
 		return true;
-
-		/*
-		$return = array('width' => $width, 'height' => $height);
-
-		// If the ratio > goal ratio and the width > goal width resize down to goal width
-		if ($width/$height > $goal_width/$goal_height && $width > $goal_width) {
-			$return['width'] = $goal_width;
-			$return['height'] = $goal_width/$width * $height;
-		}
-		// Otherwise, if the height > goal, resize down to goal height
-		else if ($height > $goal_height) {
-			$return['width'] = $goal_height/$height * $width;
-			$return['height'] = $goal_height;
-		}
-
-		return $return;
-		*/
 	}
 }
