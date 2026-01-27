@@ -270,6 +270,51 @@ class File
 		return true;
 	}
 
+	// ========== File Name Management ==========
+
+	/**
+	 * Adds a prefix to a filename.
+	 * Preserves the full directory path and file extension. Only the filename part is prefixed.
+	 * Useful for creating variant filenames (e.g., "/path/to/backup_file.ext" from "/path/to/file.ext").
+	 * @param string $filePath Original file path or filename
+	 * @param string $prefix Prefix to add to the filename
+	 * @return string File path with prefix added to filename
+	 */
+	public static function addPrefixToFilename(string $filePath, string $prefix): string
+	{
+		$info = pathinfo($filePath);
+		$dirname = $info['dirname'] ?? '';
+		$basename = $info['basename'] ?? '';
+
+		// Detect the separator used in the original path
+		$separator = str_contains($filePath, '/') ? '/' : DIRECTORY_SEPARATOR;
+
+		// pathinfo() returns '.' for files without path, we should not include it
+		$pathPrefix = ($dirname && $dirname !== '.') ? $dirname . $separator : '';
+
+		return $pathPrefix . $prefix . $basename;
+	}
+
+	/**
+	 * Adds a suffix to a filename before its extension.
+	 * Preserves the full path and file extension. Useful for creating variant filenames (e.g., "file_converted.ext").
+	 * @param string $filePath Original file path or filename
+	 * @param string $suffix Suffix to insert before the file extension
+	 * @return string File path with suffix added to filename before extension
+	 */
+	public static function addSuffixToFilename(string $filePath, string $suffix): string
+	{
+		if (false === ($lastDotPosition = strrpos($filePath, '.'))) {
+			// No extension found, just append suffix
+			return $filePath . $suffix;
+		}
+
+		$basePathWithoutExtension = substr($filePath, 0, $lastDotPosition);
+		$originalExtension = substr($filePath, $lastDotPosition);
+
+		return $basePathWithoutExtension . $suffix . $originalExtension;
+	}
+
 	// ========== File Extension Management ==========
 
 	/**

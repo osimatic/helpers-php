@@ -367,4 +367,586 @@ final class AudioTest extends TestCase
 		$result = Audio::checkWavFile('/non/existent/file.wav', 'test.wav');
 		$this->assertFalse($result);
 	}
+
+	/* ===================== HTTP Response Methods ===================== */
+
+	public function testGetHttpResponseWithNonExistentFile(): void
+	{
+		$response = Audio::getHttpResponse('/non/existent/file.mp3', false);
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals('file_not_found', $response->getContent());
+	}
+
+	/* ===================== Edge Cases ===================== */
+
+	public function testCheckFileWithEmptyFilePath(): void
+	{
+		$result = Audio::checkFile('', 'test.mp3');
+
+		$this->assertFalse($result);
+	}
+
+	/* ===================== Real Audio Files Tests with Fixtures ===================== */
+
+	public function testGetFormatWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::getFormat($wavFile);
+
+		$this->assertSame(Audio::WAV_FORMAT, $result);
+	}
+
+	public function testGetFormatWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getFormat($mp3File);
+
+		$this->assertSame(Audio::MP3_FORMAT, $result);
+	}
+
+	public function testGetInfosWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::getInfos($wavFile);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('fileformat', $result);
+		$this->assertArrayHasKey('audio', $result);
+	}
+
+	public function testGetInfosWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getInfos($mp3File);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('fileformat', $result);
+		$this->assertArrayHasKey('audio', $result);
+	}
+
+	public function testGetDurationWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::getDuration($wavFile);
+
+		$this->assertIsFloat($result);
+		$this->assertGreaterThan(0.0, $result);
+		$this->assertLessThan(1.0, $result); // Should be around 0.125 seconds
+	}
+
+	public function testGetDurationWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getDuration($mp3File);
+
+		$this->assertIsFloat($result);
+		$this->assertGreaterThan(0.0, $result);
+	}
+
+	public function testGetBitrateWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::getBitrate($wavFile);
+
+		$this->assertIsInt($result);
+		$this->assertGreaterThan(0, $result);
+	}
+
+	public function testGetBitrateWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getBitrate($mp3File);
+
+		$this->assertIsInt($result);
+		$this->assertEquals(128000, $result); // 128kbps
+	}
+
+	public function testGetSampleRateWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::getSampleRate($wavFile);
+
+		$this->assertIsInt($result);
+		$this->assertEquals(8000, $result);
+	}
+
+	public function testGetSampleRateWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getSampleRate($mp3File);
+
+		$this->assertIsInt($result);
+		$this->assertEquals(44100, $result);
+	}
+
+	public function testGetChannelsWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::getChannels($wavFile);
+
+		$this->assertIsInt($result);
+		$this->assertEquals(1, $result); // Mono
+	}
+
+	public function testGetChannelsWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getChannels($mp3File);
+
+		$this->assertIsInt($result);
+		$this->assertEquals(2, $result); // Stereo
+	}
+
+	public function testGetTagsWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getTags($mp3File);
+
+		$this->assertIsArray($result);
+		$this->assertArrayHasKey('artist', $result);
+		$this->assertArrayHasKey('title', $result);
+		$this->assertArrayHasKey('album', $result);
+		$this->assertArrayHasKey('year', $result);
+		$this->assertArrayHasKey('genre', $result);
+		$this->assertArrayHasKey('comment', $result);
+		$this->assertArrayHasKey('track_number', $result);
+	}
+
+	public function testGetTitleWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getTitle($mp3File);
+
+		// The file has a title tag
+		$this->assertIsString($result);
+		$this->assertStringContainsString('Test', $result);
+	}
+
+	public function testCheckFileWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::checkFile($wavFile, 'test.wav');
+
+		$this->assertTrue($result);
+	}
+
+	public function testCheckFileWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::checkFile($mp3File, 'test.mp3');
+
+		$this->assertTrue($result);
+	}
+
+	public function testCheckMp3FileWithRealMp3(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::checkMp3File($mp3File, 'test.mp3');
+
+		$this->assertTrue($result);
+	}
+
+	public function testCheckMp3FileWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		// WAV file should not pass MP3 check
+		$result = Audio::checkMp3File($wavFile, 'test.wav');
+
+		$this->assertFalse($result);
+	}
+
+	public function testCheckWavFileWithRealWavFile(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		$result = Audio::checkWavFile($wavFile, 'test.wav');
+
+		$this->assertTrue($result);
+	}
+
+	public function testCheckWavFileWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		// MP3 file should not pass WAV check
+		$result = Audio::checkWavFile($mp3File, 'test.mp3');
+
+		$this->assertFalse($result);
+	}
+
+	public function testGetHttpResponseWithRealMp3File(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$response = Audio::getHttpResponse($mp3File, false);
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertNotEmpty($response->getContent());
+		$this->assertGreaterThan(2000, strlen($response->getContent()));
+	}
+
+	public function testGetHttpResponseWithStreamModeAndRealFile(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		$response = Audio::getHttpResponse($mp3File, true);
+
+		$this->assertInstanceOf(\Symfony\Component\HttpFoundation\Response::class, $response);
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertNotEmpty($response->getContent());
+	}
+
+	public function testCheckFileWithInvalidExtension(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		// File is WAV but we claim it's .ogg (not in allowed list)
+		$result = Audio::checkFile($wavFile, 'test.ogg');
+
+		$this->assertFalse($result);
+	}
+
+	public function testCheckMp3FileWithInvalidExtension(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		// File is MP3 but we claim it's .wav
+		$result = Audio::checkMp3File($mp3File, 'test.wav');
+
+		$this->assertFalse($result);
+	}
+
+	public function testCheckWavFileWithInvalidExtension(): void
+	{
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		// File is WAV but we claim it's .mp3
+		$result = Audio::checkWavFile($wavFile, 'test.mp3');
+
+		$this->assertFalse($result);
+	}
+
+	/* ===================== Tests with Complete ID3 Tags ===================== */
+
+	public function testGetArtistWithCompleteTags(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getArtist($mp3File);
+
+		$this->assertIsString($result);
+		$this->assertEquals('Test Artist', $result);
+	}
+
+	public function testGetTitleWithCompleteTags(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getTitle($mp3File);
+
+		$this->assertIsString($result);
+		$this->assertEquals('Test Title', $result);
+	}
+
+	public function testGetAlbumWithCompleteTags(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getAlbum($mp3File);
+
+		$this->assertIsString($result);
+		$this->assertEquals('Test Album', $result);
+	}
+
+	public function testGetYearWithCompleteTags(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getYear($mp3File);
+
+		$this->assertIsString($result);
+		$this->assertEquals('2024', $result);
+	}
+
+	public function testGetTagsWithCompleteTags(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getTags($mp3File);
+
+		$this->assertIsArray($result);
+		$this->assertEquals('Test Artist', $result['artist']);
+		$this->assertEquals('Test Title', $result['title']);
+		$this->assertEquals('Test Album', $result['album']);
+		$this->assertEquals('2024', $result['year']);
+		$this->assertEquals('Rock', $result['genre']);
+		$this->assertEquals('Test Comment', $result['comment']);
+		$this->assertEquals('5', $result['track_number']);
+	}
+
+	public function testGetFormatWithCompleteTaggedFile(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::getFormat($mp3File);
+
+		$this->assertSame(Audio::MP3_FORMAT, $result);
+	}
+
+	public function testCheckMp3FileWithCompleteTaggedFile(): void
+	{
+		$mp3File = __DIR__ . '/../fixtures/audio/test_with_tags.mp3';
+		$this->assertFileExists($mp3File);
+
+		$result = Audio::checkMp3File($mp3File, 'music.mp3');
+
+		$this->assertTrue($result);
+	}
+
+	/* ===================== Additional Edge Cases ===================== */
+
+	public function testGetFormatWithEmptyInfos(): void
+	{
+		// Create an invalid file that getID3 can't parse
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid audio data');
+
+		$result = Audio::getFormat($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testCheckFileWithWrongFormat(): void
+	{
+		// Create a file that has wrong format
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'RIFF....WAVEfmt '); // WAV signature
+
+		$result = Audio::checkFile($tempFile, 'test.mp3');
+
+		$this->assertFalse($result); // Should fail because format doesn't match
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetDurationReturnsZeroForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getDuration($tempFile);
+
+		$this->assertSame(0.0, $result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetBitrateReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getBitrate($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetSampleRateReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getSampleRate($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetChannelsReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getChannels($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetTagsReturnsEmptyArrayForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getTags($tempFile);
+
+		$this->assertIsArray($result);
+		// getTags() returns an array with keys but null values for invalid files
+		$this->assertNull($result['artist']);
+		$this->assertNull($result['title']);
+		$this->assertNull($result['album']);
+		$this->assertNull($result['year']);
+		$this->assertNull($result['genre']);
+		$this->assertNull($result['comment']);
+		$this->assertNull($result['track_number']);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetArtistReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getArtist($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetTitleReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getTitle($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetAlbumReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getAlbum($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testGetYearReturnsNullForInvalidFile(): void
+	{
+		$tempFile = tempnam(sys_get_temp_dir(), 'test_') . '.mp3';
+		file_put_contents($tempFile, 'invalid');
+
+		$result = Audio::getYear($tempFile);
+
+		$this->assertNull($result);
+
+		// Cleanup
+		unlink($tempFile);
+	}
+
+	public function testCheckMp3FileFailsWhenFormatDoesNotMatch(): void
+	{
+		// Create a WAV file
+		$wavFile = __DIR__ . '/../fixtures/audio/test_mono_8000hz.wav';
+		$this->assertFileExists($wavFile);
+
+		// Try to check it as MP3 with correct extension
+		$result = Audio::checkMp3File($wavFile, 'audio.mp3');
+
+		$this->assertFalse($result);
+	}
+
+	public function testCheckWavFileFailsWhenFormatDoesNotMatch(): void
+	{
+		// Create an MP3 file
+		$mp3File = __DIR__ . '/../fixtures/audio/test_stereo_128kbps.mp3';
+		$this->assertFileExists($mp3File);
+
+		// Try to check it as WAV with correct extension
+		$result = Audio::checkWavFile($mp3File, 'audio.wav');
+
+		$this->assertFalse($result);
+	}
+
+	public function testCheckIsmnWithValidIsmnVariations(): void
+	{
+		// Test multiple valid ISMN formats
+		$this->assertTrue(Audio::checkIsmn('979-0-2600-0043-8'));
+		$this->assertTrue(Audio::checkIsmn('9790260000438'));
+		$this->assertTrue(Audio::checkIsmn('979 0 2600 0043 8'));
+		$this->assertTrue(Audio::checkIsmn('  9790260000438  '));
+	}
+
+	public function testCheckIsmnWithInvalidChecksumDigit(): void
+	{
+		// Valid format but wrong checksum
+		$this->assertFalse(Audio::checkIsmn('979-0-2306-7118-8')); // Should be 7, not 8
+		$this->assertFalse(Audio::checkIsmn('9790230671188'));
+	}
 }

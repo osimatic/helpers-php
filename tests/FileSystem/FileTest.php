@@ -93,6 +93,61 @@ final class FileTest extends TestCase
 		$this->assertEquals('noext.txt', File::replaceExtension('noext', 'txt'));
 	}
 
+	public function testAddSuffixToFilename(): void
+	{
+		// Simple filename with extension
+		$this->assertEquals('file_backup.txt', File::addSuffixToFilename('file.txt', '_backup'));
+		$this->assertEquals('document_v2.pdf', File::addSuffixToFilename('document.pdf', '_v2'));
+
+		// Filename with full path (Unix-style)
+		$this->assertEquals('/path/to/file_backup.txt', File::addSuffixToFilename('/path/to/file.txt', '_backup'));
+		$this->assertEquals('/var/www/document_converted.pdf', File::addSuffixToFilename('/var/www/document.pdf', '_converted'));
+
+		// Filename with full path (Windows-style)
+		$this->assertEquals('C:\Users\test\file_copy.docx', File::addSuffixToFilename('C:\Users\test\file.docx', '_copy'));
+
+		// Filename without extension
+		$this->assertEquals('readme_old', File::addSuffixToFilename('readme', '_old'));
+
+		// Multiple dots in filename
+		$this->assertEquals('archive.tar_backup.gz', File::addSuffixToFilename('archive.tar.gz', '_backup'));
+
+		// Empty suffix
+		$this->assertEquals('file.txt', File::addSuffixToFilename('file.txt', ''));
+
+		// Suffix with special characters
+		$this->assertEquals('file-2024-01-26.txt', File::addSuffixToFilename('file.txt', '-2024-01-26'));
+	}
+
+	public function testAddPrefixToFilename(): void
+	{
+		// Simple filename with extension
+		$this->assertEquals('backup_file.txt', File::addPrefixToFilename('file.txt', 'backup_'));
+		$this->assertEquals('draft_document.pdf', File::addPrefixToFilename('document.pdf', 'draft_'));
+
+		// Filename with full path (Unix-style)
+		$this->assertEquals('/path/to/backup_file.txt', File::addPrefixToFilename('/path/to/file.txt', 'backup_'));
+		$this->assertEquals('/var/www/temp_document.pdf', File::addPrefixToFilename('/var/www/document.pdf', 'temp_'));
+
+		// Filename with full path (Windows-style)
+		$this->assertEquals('C:\Users\test\old_file.docx', File::addPrefixToFilename('C:\Users\test\file.docx', 'old_'));
+
+		// Filename without extension
+		$this->assertEquals('new_readme', File::addPrefixToFilename('readme', 'new_'));
+
+		// Multiple dots in filename
+		$this->assertEquals('copy_archive.tar.gz', File::addPrefixToFilename('archive.tar.gz', 'copy_'));
+
+		// Empty prefix
+		$this->assertEquals('file.txt', File::addPrefixToFilename('file.txt', ''));
+
+		// Prefix with special characters
+		$this->assertEquals('2024-01-26_file.txt', File::addPrefixToFilename('file.txt', '2024-01-26_'));
+
+		// Prefix with numbers
+		$this->assertEquals('123_document.pdf', File::addPrefixToFilename('document.pdf', '123_'));
+	}
+
 	/* ===================== File Size Formatting ===================== */
 
 	public function testFormatSize(): void

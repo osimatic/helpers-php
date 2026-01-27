@@ -82,14 +82,23 @@ class AudioConverter
 	}
 
 	/**
-	 * Convert an audio file to WAV format with CCITT A-Law encoding.
-	 * Converts MP3 or WAV files to WAV format with A-Law encoding, mono channel, and 8000 Hz sample rate using SoX.
+	 * Convert an audio file to WAV format with configurable encoding parameters.
+	 * Converts MP3 or WAV files to WAV format with customizable encoding, channels, and sample rate using SoX.
 	 * If destination path is not provided, adds "_converted" suffix to source filename.
 	 * @param string $srcAudioFilePath Path to the source audio file (MP3 or WAV format)
 	 * @param string|null $destAudioFilePath Path to the destination WAV file (optional, will be auto-generated if not provided)
+	 * @param AudioEncoding $encoding Audio encoding format (default: SIGNED_INTEGER for standard PCM)
+	 * @param int $channels Number of audio channels: 1 for mono, 2 for stereo (default: 2 for stereo)
+	 * @param int $sampleRate Sample rate in Hz (default: 44100 for CD quality). Common values: 8000, 16000, 22050, 44100, 48000
 	 * @return bool True if conversion succeeded, false otherwise
 	 */
-	public function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath=null): bool
+	public function convertToWav(
+		string $srcAudioFilePath,
+		?string $destAudioFilePath = null,
+		AudioEncoding $encoding = AudioEncoding::SIGNED_INTEGER,
+		int $channels = 2,
+		int $sampleRate = 44100
+	): bool
 	{
 		// Check that the file is a WAV or MP3 file
 		$fileFormat = Audio::getFormat($srcAudioFilePath);
@@ -100,7 +109,7 @@ class AudioConverter
 
 		// Check if destination audio file is specified. If not specified, use the source audio file name (adding the wav extension if not already present)
 		if (empty($destAudioFilePath)) {
-			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted'.substr($srcAudioFilePath, strrpos($srcAudioFilePath, '.'));
+			$destAudioFilePath = \Osimatic\FileSystem\File::addSuffixToFilename($srcAudioFilePath, '_converted');
 		}
 		if ($fileFormat !== Audio::WAV_FORMAT) {
 			$destAudioFilePath = \Osimatic\FileSystem\File::replaceExtension($destAudioFilePath, 'wav');
@@ -111,11 +120,25 @@ class AudioConverter
 			$fileFormat === Audio::MP3_FORMAT ? '-t' : null,
 			$fileFormat === Audio::MP3_FORMAT ? 'mp3' : null,
 			$srcAudioFilePath,
-			'-e', 'a-law',
-			'-c', '1',
-			'-r', '8000',
+			'-e', $encoding->value,
+			'-c', (string) $channels,
+			'-r', (string) $sampleRate,
 			$destAudioFilePath
 		]);
+	}
+
+
+	/**
+	 * Convert an audio file to WAV format with CCITT A-Law encoding.
+	 * Converts MP3 or WAV files to WAV format with A-Law encoding, mono channel, and 8000 Hz sample rate using SoX.
+	 * If destination path is not provided, adds "_converted" suffix to source filename.
+	 * @param string $srcAudioFilePath Path to the source audio file (MP3 or WAV format)
+	 * @param string|null $destAudioFilePath Path to the destination WAV file (optional, will be auto-generated if not provided)
+	 * @return bool True if conversion succeeded, false otherwise
+	 */
+	public function convertToWavCcittALaw(string $srcAudioFilePath, ?string $destAudioFilePath = null): bool
+	{
+		return $this->convertToWav($srcAudioFilePath, $destAudioFilePath, AudioEncoding::A_LAW, 1, 8000);
 	}
 
 	/**
@@ -125,9 +148,16 @@ class AudioConverter
 	 * Command example: sox -t wav -r 8000 -c 1 file.wav -t mp3 file.mp3
 	 * @param string $srcAudioFilePath Path to the source WAV file
 	 * @param string|null $destAudioFilePath Path to the destination MP3 file (optional, will be auto-generated if not provided)
+	 * @param int $sampleRate Sample rate in Hz (default: 8000). Common values: 8000, 16000, 22050, 44100, 48000
+	 * @param int $channels Number of audio channels (default: 1 for mono). Use 2 for stereo
 	 * @return bool True if conversion succeeded, false otherwise
 	 */
-	public function convertWavToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
+	public function convertWavToMp3(
+		string $srcAudioFilePath,
+		?string $destAudioFilePath = null,
+		int $sampleRate = 8000,
+		int $channels = 1
+	): bool
 	{
 		// Check that the file is a WAV file
 		if (Audio::getFormat($srcAudioFilePath) !== Audio::WAV_FORMAT) {
@@ -137,14 +167,15 @@ class AudioConverter
 
 		// Check if destination audio file is specified. If not specified, use the source audio file name (with mp3 extension)
 		if (empty($destAudioFilePath)) {
-			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
+			$destAudioFilePath = \Osimatic\FileSystem\File::addSuffixToFilename($srcAudioFilePath, '_converted');
+			$destAudioFilePath = \Osimatic\FileSystem\File::replaceExtension($destAudioFilePath, 'mp3');
 		}
 
 		return (new \Osimatic\System\Command($this->logger))->run([
 			$this->getSoxBinaryPath(),
 			'-t', 'wav',
-			'-r', '8000',
-			'-c', '1',
+			'-r', (string) $sampleRate,
+			'-c', (string) $channels,
 			$srcAudioFilePath,
 			'-t', 'mp3',
 			$destAudioFilePath
@@ -158,9 +189,16 @@ class AudioConverter
 	 * Deletes the destination file if it already exists before conversion.
 	 * @param string $srcAudioFilePath Path to the source WebM file
 	 * @param string|null $destAudioFilePath Path to the destination MP3 file (optional, will be auto-generated if not provided)
+	 * @param string $bitrate Audio bitrate (default: '160k'). Common values: '128k', '160k', '192k', '256k', '320k'
+	 * @param int $sampleRate Sample rate in Hz (default: 44100). Common values: 8000, 16000, 22050, 44100, 48000
 	 * @return bool True if conversion succeeded, false otherwise
 	 */
-	public function convertWebMToMp3(string $srcAudioFilePath, ?string $destAudioFilePath=null) : bool
+	public function convertWebMToMp3(
+		string $srcAudioFilePath,
+		?string $destAudioFilePath = null,
+		string $bitrate = '160k',
+		int $sampleRate = 44100
+	): bool
 	{
 		// Check that the file is in WebM format
 		if (Audio::getFormat($srcAudioFilePath) !== Audio::WEBM_FORMAT) {
@@ -170,7 +208,8 @@ class AudioConverter
 
 		// Check if destination audio file is specified. If not specified, use the source audio file name (with mp3 extension)
 		if (empty($destAudioFilePath)) {
-			$destAudioFilePath = substr($srcAudioFilePath, 0, strrpos($srcAudioFilePath, '.')).'_converted.mp3';
+			$destAudioFilePath = \Osimatic\FileSystem\File::addSuffixToFilename($srcAudioFilePath, '_converted');
+			$destAudioFilePath = \Osimatic\FileSystem\File::replaceExtension($destAudioFilePath, 'mp3');
 		}
 
 		if (file_exists($destAudioFilePath)) {
@@ -180,8 +219,8 @@ class AudioConverter
 		return (new \Osimatic\System\Command($this->logger))->run([
 			$this->getFfmpegBinaryPath(),
 			'-i', $srcAudioFilePath,
-			'-ab', '160k',
-			'-ar', '44100',
+			'-ab', $bitrate,
+			'-ar', (string) $sampleRate,
 			$destAudioFilePath
 		]);
 	}

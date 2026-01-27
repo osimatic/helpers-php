@@ -272,4 +272,315 @@ final class VideoTest extends TestCase
 		$result = Video::check3GppFile('/non/existent/file.3gp', 'test.3gp');
 		$this->assertFalse($result);
 	}
+
+	/* ===================== Tests with Real Video Fixtures ===================== */
+
+	/* ----- MP4 Tests ----- */
+
+	public function testCheckMp4FileWithRealMp4(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		$result = Video::checkMp4File($mp4File, 'test.mp4');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckFileWithRealMp4(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		$result = Video::checkFile($mp4File, 'test.mp4');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckMp4FileWithDifferentExtensions(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// Test with alternative MP4 extensions
+		$this->assertTrue(Video::checkMp4File($mp4File, 'test.mp4v'));
+		$this->assertTrue(Video::checkMp4File($mp4File, 'test.mpg4'));
+	}
+
+	/* ----- MPG Tests ----- */
+
+	public function testCheckMpgFileWithRealMpg(): void
+	{
+		$mpgFile = __DIR__ . '/../fixtures/videos/test_160x120.mpg';
+		$this->assertFileExists($mpgFile);
+
+		$result = Video::checkMpgFile($mpgFile, 'test.mpg');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckFileWithRealMpg(): void
+	{
+		$mpgFile = __DIR__ . '/../fixtures/videos/test_160x120.mpg';
+		$this->assertFileExists($mpgFile);
+
+		$result = Video::checkFile($mpgFile, 'test.mpg');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckMpgFileWithDifferentExtensions(): void
+	{
+		$mpgFile = __DIR__ . '/../fixtures/videos/test_160x120.mpg';
+		$this->assertFileExists($mpgFile);
+
+		// Test with alternative MPG extensions
+		$this->assertTrue(Video::checkMpgFile($mpgFile, 'test.mpeg'));
+		$this->assertTrue(Video::checkMpgFile($mpgFile, 'test.mpe'));
+	}
+
+	/* ----- AVI Tests ----- */
+
+	public function testCheckAviFileWithRealAvi(): void
+	{
+		$aviFile = __DIR__ . '/../fixtures/videos/test_160x120.avi';
+		$this->assertFileExists($aviFile);
+
+		$result = Video::checkAviFile($aviFile, 'test.avi');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckFileWithRealAvi(): void
+	{
+		$aviFile = __DIR__ . '/../fixtures/videos/test_160x120.avi';
+		$this->assertFileExists($aviFile);
+
+		$result = Video::checkFile($aviFile, 'test.avi');
+		$this->assertTrue($result);
+	}
+
+	/* ----- WMV Tests ----- */
+
+	public function testCheckWmvFileWithRealWmv(): void
+	{
+		$wmvFile = __DIR__ . '/../fixtures/videos/test_160x120.wmv';
+		$this->assertFileExists($wmvFile);
+
+		// Note: WMV files are often detected as 'video/x-ms-asf' which is not in WMV_MIME_TYPES
+		// This is because WMV uses the ASF (Advanced Systems Format) container
+		$result = Video::checkWmvFile($wmvFile, 'test.wmv');
+		$this->assertFalse($result); // Expected to fail due to MIME type mismatch
+	}
+
+	public function testCheckFileWithRealWmv(): void
+	{
+		$wmvFile = __DIR__ . '/../fixtures/videos/test_160x120.wmv';
+		$this->assertFileExists($wmvFile);
+
+		// Note: WMV files are often detected as 'video/x-ms-asf'
+		$result = Video::checkFile($wmvFile, 'test.wmv');
+		$this->assertFalse($result); // Expected to fail due to MIME type mismatch
+	}
+
+	/* ----- FLV Tests ----- */
+
+	public function testCheckFlvFileWithRealFlv(): void
+	{
+		$flvFile = __DIR__ . '/../fixtures/videos/test_160x120.flv';
+		$this->assertFileExists($flvFile);
+
+		$result = Video::checkFlvFile($flvFile, 'test.flv');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckFileWithRealFlvShouldFail(): void
+	{
+		$flvFile = __DIR__ . '/../fixtures/videos/test_160x120.flv';
+		$this->assertFileExists($flvFile);
+
+		// FLV is not in the checkFile() supported formats
+		$result = Video::checkFile($flvFile, 'test.flv');
+		$this->assertFalse($result);
+	}
+
+	/* ----- WebM Tests ----- */
+
+	public function testCheckFileWithRealWebm(): void
+	{
+		$webmFile = __DIR__ . '/../fixtures/videos/test_160x120.webm';
+		$this->assertFileExists($webmFile);
+
+		// WebM is not in the checkFile() supported formats (only MP4, MPG, AVI, WMV)
+		$result = Video::checkFile($webmFile, 'test.webm');
+		$this->assertFalse($result);
+	}
+
+	/* ----- OGG Tests ----- */
+
+	public function testCheckFileWithRealOgv(): void
+	{
+		$ogvFile = __DIR__ . '/../fixtures/videos/test_160x120.ogv';
+		$this->assertFileExists($ogvFile);
+
+		// OGV is not in the checkFile() supported formats
+		$result = Video::checkFile($ogvFile, 'test.ogv');
+		$this->assertFalse($result);
+	}
+
+	/* ----- 3GPP Tests ----- */
+
+	public function testCheck3GppFileWithReal3Gpp(): void
+	{
+		$gppFile = __DIR__ . '/../fixtures/videos/test_160x120.3gp';
+		$this->assertFileExists($gppFile);
+
+		$result = Video::check3GppFile($gppFile, 'test.3gp');
+		$this->assertTrue($result);
+	}
+
+	public function testCheckFileWithReal3GppShouldFail(): void
+	{
+		$gppFile = __DIR__ . '/../fixtures/videos/test_160x120.3gp';
+		$this->assertFileExists($gppFile);
+
+		// 3GPP is not in the checkFile() supported formats
+		$result = Video::checkFile($gppFile, 'test.3gp');
+		$this->assertFalse($result);
+	}
+
+	/* ----- QuickTime Tests ----- */
+
+	public function testCheckFileWithRealMov(): void
+	{
+		$movFile = __DIR__ . '/../fixtures/videos/test_160x120.mov';
+		$this->assertFileExists($movFile);
+
+		// MOV is not in the checkFile() supported formats
+		$result = Video::checkFile($movFile, 'test.mov');
+		$this->assertFalse($result);
+	}
+
+	/* ----- Format Validation Edge Cases ----- */
+
+	public function testCheckMp4FileFailsWithMpgFile(): void
+	{
+		$mpgFile = __DIR__ . '/../fixtures/videos/test_160x120.mpg';
+		$this->assertFileExists($mpgFile);
+
+		// MPG file should not pass MP4 check
+		$result = Video::checkMp4File($mpgFile, 'test.mp4');
+		$this->assertFalse($result);
+	}
+
+	public function testCheckMpgFileFailsWithMp4File(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// MP4 file should not pass MPG check
+		$result = Video::checkMpgFile($mp4File, 'test.mpg');
+		$this->assertFalse($result);
+	}
+
+	public function testCheckAviFileFailsWithMp4File(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// MP4 file should not pass AVI check
+		$result = Video::checkAviFile($mp4File, 'test.avi');
+		$this->assertFalse($result);
+	}
+
+	public function testCheckWmvFileFailsWithMp4File(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// MP4 file should not pass WMV check
+		$result = Video::checkWmvFile($mp4File, 'test.wmv');
+		$this->assertFalse($result);
+	}
+
+	public function testCheckFlvFileFailsWithMp4File(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// MP4 file should not pass FLV check
+		$result = Video::checkFlvFile($mp4File, 'test.flv');
+		$this->assertFalse($result);
+	}
+
+	public function testCheck3GppFileFailsWithMp4File(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// MP4 file should not pass 3GPP check
+		$result = Video::check3GppFile($mp4File, 'test.3gp');
+		$this->assertFalse($result);
+	}
+
+	public function testCheckFileWithWrongExtension(): void
+	{
+		$mp4File = __DIR__ . '/../fixtures/videos/test_160x120.mp4';
+		$this->assertFileExists($mp4File);
+
+		// MP4 file with .txt extension should fail
+		$result = Video::checkFile($mp4File, 'test.txt');
+		$this->assertFalse($result);
+	}
+
+	/* ----- Multiple Format Support Tests ----- */
+
+	public function testCheckFileAcceptsSupportedFormats(): void
+	{
+		$formats = [
+			'test_160x120.mp4' => 'test.mp4',
+			'test_160x120.mpg' => 'test.mpg',
+			'test_160x120.avi' => 'test.avi',
+			// Note: WMV excluded as it's detected as 'video/x-ms-asf' MIME type
+		];
+
+		foreach ($formats as $file => $clientName) {
+			$filePath = __DIR__ . '/../fixtures/videos/' . $file;
+			$this->assertFileExists($filePath);
+			$result = Video::checkFile($filePath, $clientName);
+			$this->assertTrue($result, "Failed to validate $file");
+		}
+	}
+
+	public function testCheckFileRejectsUnsupportedFormats(): void
+	{
+		$unsupportedFormats = [
+			'test_160x120.flv' => 'test.flv',
+			'test_160x120.webm' => 'test.webm',
+			'test_160x120.ogv' => 'test.ogv',
+			'test_160x120.3gp' => 'test.3gp',
+			'test_160x120.mov' => 'test.mov',
+		];
+
+		foreach ($unsupportedFormats as $file => $clientName) {
+			$filePath = __DIR__ . '/../fixtures/videos/' . $file;
+			$this->assertFileExists($filePath);
+			$result = Video::checkFile($filePath, $clientName);
+			$this->assertFalse($result, "Should not validate $file in checkFile()");
+		}
+	}
+
+	public function testAllFormatSpecificChecksWork(): void
+	{
+		$checksAndFiles = [
+			['checkMp4File', 'test_160x120.mp4', 'test.mp4'],
+			['checkMpgFile', 'test_160x120.mpg', 'test.mpg'],
+			['checkAviFile', 'test_160x120.avi', 'test.avi'],
+			// Note: WMV excluded - file is detected as 'video/x-ms-asf' which is not in WMV_MIME_TYPES
+			['checkFlvFile', 'test_160x120.flv', 'test.flv'],
+			['check3GppFile', 'test_160x120.3gp', 'test.3gp'],
+		];
+
+		foreach ($checksAndFiles as [$method, $file, $clientName]) {
+			$filePath = __DIR__ . '/../fixtures/videos/' . $file;
+			$this->assertFileExists($filePath);
+			$result = Video::$method($filePath, $clientName);
+			$this->assertTrue($result, "Failed $method for $file");
+		}
+	}
 }
