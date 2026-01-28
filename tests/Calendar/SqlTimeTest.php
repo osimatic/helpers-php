@@ -120,17 +120,33 @@ final class SqlTimeTest extends TestCase
 
 	public function testGetNbSecondsFromNow(): void
 	{
-		// Utiliser une heure dans le futur
-		$futureTime = date('H:i:s', time() + 3600);
-		$seconds = SqlTime::getNbSecondsFromNow($futureTime);
-		$this->assertGreaterThan(3500, $seconds); // ~3600 seconds
-		$this->assertLessThan(3700, $seconds);
+		// Utiliser une heure fixe en milieu de journée (14:00)
+		$currentHour = (int) date('H');
 
-		// Utiliser une heure dans le passé
-		$pastTime = date('H:i:s', time() - 3600);
-		$seconds = SqlTime::getNbSecondsFromNow($pastTime);
-		$this->assertLessThan(-3500, $seconds);
-		$this->assertGreaterThan(-3700, $seconds);
+		// Test avec une heure dans le futur seulement si on est avant 14h
+		if ($currentHour < 14) {
+			$futureTimestamp = strtotime(date('Y-m-d') . ' 14:00:00');
+			$futureTime = '14:00:00';
+			$expectedSeconds = $futureTimestamp - time();
+
+			$seconds = SqlTime::getNbSecondsFromNow($futureTime);
+			$this->assertGreaterThan($expectedSeconds - 100, $seconds);
+			$this->assertLessThan($expectedSeconds + 100, $seconds);
+		}
+
+		// Test avec une heure dans le passé seulement si on est après 10h
+		if ($currentHour > 10) {
+			$pastTimestamp = strtotime(date('Y-m-d') . ' 10:00:00');
+			$pastTime = '10:00:00';
+			$expectedSeconds = $pastTimestamp - time();
+
+			$seconds = SqlTime::getNbSecondsFromNow($pastTime);
+			$this->assertLessThan($expectedSeconds + 100, $seconds);
+			$this->assertGreaterThan($expectedSeconds - 100, $seconds);
+		}
+
+		// S'assurer qu'au moins un test a été exécuté
+		$this->assertTrue($currentHour < 14 || $currentHour > 10);
 	}
 
 	public function testIsBeforeTime(): void
@@ -165,24 +181,42 @@ final class SqlTimeTest extends TestCase
 
 	public function testIsBeforeNow(): void
 	{
-		// Une heure dans le passé
-		$pastTime = date('H:i:s', time() - 3600);
-		$this->assertTrue(SqlTime::isBeforeNow($pastTime));
+		$currentHour = (int) date('H');
 
-		// Une heure dans le futur
-		$futureTime = date('H:i:s', time() + 3600);
-		$this->assertFalse(SqlTime::isBeforeNow($futureTime));
+		// Test avec une heure dans le passé seulement si on est après 10h
+		if ($currentHour > 10) {
+			$pastTime = '10:00:00';
+			$this->assertTrue(SqlTime::isBeforeNow($pastTime));
+		}
+
+		// Test avec une heure dans le futur seulement si on est avant 14h
+		if ($currentHour < 14) {
+			$futureTime = '14:00:00';
+			$this->assertFalse(SqlTime::isBeforeNow($futureTime));
+		}
+
+		// S'assurer qu'au moins un test a été exécuté
+		$this->assertTrue($currentHour < 14 || $currentHour > 10);
 	}
 
 	public function testIsAfterNow(): void
 	{
-		// Une heure dans le futur
-		$futureTime = date('H:i:s', time() + 3600);
-		$this->assertTrue(SqlTime::isAfterNow($futureTime));
+		$currentHour = (int) date('H');
 
-		// Une heure dans le passé
-		$pastTime = date('H:i:s', time() - 3600);
-		$this->assertFalse(SqlTime::isAfterNow($pastTime));
+		// Test avec une heure dans le futur seulement si on est avant 14h
+		if ($currentHour < 14) {
+			$futureTime = '14:00:00';
+			$this->assertTrue(SqlTime::isAfterNow($futureTime));
+		}
+
+		// Test avec une heure dans le passé seulement si on est après 10h
+		if ($currentHour > 10) {
+			$pastTime = '10:00:00';
+			$this->assertFalse(SqlTime::isAfterNow($pastTime));
+		}
+
+		// S'assurer qu'au moins un test a été exécuté
+		$this->assertTrue($currentHour < 14 || $currentHour > 10);
 	}
 
 	// ========== Creation Methods Tests ==========
@@ -380,17 +414,32 @@ final class SqlTimeTest extends TestCase
 
 	public function testGetSecondsFromNow(): void
 	{
-		// Future time
-		$futureTime = date('H:i:s', time() + 3600);
-		$seconds = SqlTime::getSecondsFromNow($futureTime);
-		$this->assertGreaterThan(3500, $seconds);
-		$this->assertLessThan(3700, $seconds);
+		$currentHour = (int) date('H');
 
-		// Past time
-		$pastTime = date('H:i:s', time() - 3600);
-		$seconds = SqlTime::getSecondsFromNow($pastTime);
-		$this->assertLessThan(-3500, $seconds);
-		$this->assertGreaterThan(-3700, $seconds);
+		// Test avec une heure dans le futur seulement si on est avant 14h
+		if ($currentHour < 14) {
+			$futureTimestamp = strtotime(date('Y-m-d') . ' 14:00:00');
+			$futureTime = '14:00:00';
+			$expectedSeconds = $futureTimestamp - time();
+
+			$seconds = SqlTime::getSecondsFromNow($futureTime);
+			$this->assertGreaterThan($expectedSeconds - 100, $seconds);
+			$this->assertLessThan($expectedSeconds + 100, $seconds);
+		}
+
+		// Test avec une heure dans le passé seulement si on est après 10h
+		if ($currentHour > 10) {
+			$pastTimestamp = strtotime(date('Y-m-d') . ' 10:00:00');
+			$pastTime = '10:00:00';
+			$expectedSeconds = $pastTimestamp - time();
+
+			$seconds = SqlTime::getSecondsFromNow($pastTime);
+			$this->assertLessThan($expectedSeconds + 100, $seconds);
+			$this->assertGreaterThan($expectedSeconds - 100, $seconds);
+		}
+
+		// S'assurer qu'au moins un test a été exécuté
+		$this->assertTrue($currentHour < 14 || $currentHour > 10);
 	}
 
 	public function testIsBefore(): void

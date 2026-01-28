@@ -3,31 +3,44 @@
 namespace Tests\Calendar;
 
 use Osimatic\Calendar\DatePeriod;
+use Osimatic\Calendar\PeriodType;
 use PHPUnit\Framework\TestCase;
 
 final class DatePeriodTest extends TestCase
 {
-	/* ===================== Jours ===================== */
+	// ========== Counting Methods ==========
 
 	public function testGetNbDays(): void
 	{
-		// Même jour
+		// Same day
 		$start = new \DateTime('2024-01-15 10:00:00');
 		$end = new \DateTime('2024-01-15 14:00:00');
 		$this->assertEquals(0, DatePeriod::getNbDays($start, $end));
 
-		// Avec l'heure prise en compte
+		// With times included
 		$this->assertLessThan(1, DatePeriod::getNbDays($start, $end, true));
 
-		// 5 jours
+		// 5 days
 		$start = new \DateTime('2024-01-15');
 		$end = new \DateTime('2024-01-20');
 		$this->assertEquals(5, DatePeriod::getNbDays($start, $end));
 
-		// Période négative (end avant start)
+		// Negative period (end before start)
 		$start = new \DateTime('2024-01-20');
 		$end = new \DateTime('2024-01-15');
 		$this->assertEquals(-5, DatePeriod::getNbDays($start, $end));
+
+		// Same DateTime
+		$date = new \DateTime('2024-01-15 12:00:00');
+		$this->assertEquals(0, DatePeriod::getNbDays($date, $date));
+		$this->assertEquals(0, DatePeriod::getNbDays($date, $date, true));
+
+		// Large period (several years)
+		$start = new \DateTime('2020-01-01');
+		$end = new \DateTime('2024-12-31');
+		$nbDays = DatePeriod::getNbDays($start, $end);
+		$this->assertGreaterThan(1000, $nbDays);
+		$this->assertEquals(1826, $nbDays); // 5 years with one leap year
 	}
 
 	public function testGetNbRemainingDays(): void
@@ -36,11 +49,750 @@ final class DatePeriodTest extends TestCase
 		$end = new \DateTime('2024-01-20');
 		$this->assertEquals(5, DatePeriod::getNbRemainingDays($start, $end));
 
-		// Même jour
+		// Same day
 		$start = new \DateTime('2024-01-15');
 		$end = new \DateTime('2024-01-15');
 		$this->assertEquals(0, DatePeriod::getNbRemainingDays($start, $end));
+
+		// Same DateTime
+		$date = new \DateTime('2024-01-15 12:00:00');
+		$this->assertEquals(0, DatePeriod::getNbRemainingDays($date, $date));
+
+		// Full month
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-02-01');
+		$remaining = DatePeriod::getNbRemainingDays($start, $end);
+		$this->assertEquals(0, $remaining); // 1 month and 0 days remaining
 	}
+
+	public function testGetNbFullWeeks(): void
+	{
+		// 14 days = 2 full weeks
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-29');
+		$this->assertEquals(2, DatePeriod::getNbFullWeeks($start, $end));
+
+		// 10 days = 1 full week
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-25');
+		$this->assertEquals(1, DatePeriod::getNbFullWeeks($start, $end));
+
+		// 6 days = 0 full weeks
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-21');
+		$this->assertEquals(0, DatePeriod::getNbFullWeeks($start, $end));
+
+		// Zero days
+		$date = new \DateTime('2024-01-15');
+		$this->assertEquals(0, DatePeriod::getNbFullWeeks($date, $date));
+	}
+
+	public function testGetNbWeeks(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-29');
+		$nbWeeks = DatePeriod::getNbWeeks($start, $end);
+		$this->assertGreaterThan(0, $nbWeeks);
+
+		// Same date
+		$date = new \DateTime('2024-01-15');
+		$nbWeeks = DatePeriod::getNbWeeks($date, $date);
+		$this->assertGreaterThanOrEqual(0, $nbWeeks);
+	}
+
+	public function testGetNbFullMonths(): void
+	{
+		// 2 full months
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-15');
+		$this->assertEquals(2, DatePeriod::getNbFullMonths($start, $end));
+
+		// Same month
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-20');
+		$this->assertEquals(0, DatePeriod::getNbFullMonths($start, $end));
+
+		// 12 months = 1 year
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2025-01-01');
+		$this->assertEquals(12, DatePeriod::getNbFullMonths($start, $end));
+
+		// Same date
+		$date = new \DateTime('2024-01-15');
+		$this->assertEquals(0, DatePeriod::getNbFullMonths($date, $date));
+	}
+
+	public function testGetNbMonths(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-15');
+		$nbMonths = DatePeriod::getNbMonths($start, $end);
+		$this->assertGreaterThan(0, $nbMonths);
+
+		// Same date
+		$date = new \DateTime('2024-01-15');
+		$nbMonths = DatePeriod::getNbMonths($date, $date);
+		$this->assertGreaterThanOrEqual(0, $nbMonths);
+	}
+
+	public function testGetNbYears(): void
+	{
+		// 1 year
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2025-01-01');
+		$this->assertEquals(1, DatePeriod::getNbYears($start, $end));
+
+		// 2 years
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2026-01-01');
+		$this->assertEquals(2, DatePeriod::getNbYears($start, $end));
+
+		// 3 years
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2027-01-01');
+		$this->assertEquals(3, DatePeriod::getNbYears($start, $end));
+
+		// Less than one year
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-06-01');
+		$this->assertEquals(0, DatePeriod::getNbYears($start, $end));
+
+		// Zero days
+		$date = new \DateTime('2024-01-15');
+		$this->assertEquals(0, DatePeriod::getNbYears($date, $date));
+	}
+
+	// ========== List Generation Methods ==========
+
+	public function testGetDays(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-17');
+
+		$days = DatePeriod::getDays($start, $end);
+		$this->assertCount(3, $days);
+		$this->assertInstanceOf(\DateTime::class, $days[0]);
+		$this->assertEquals('2024-01-15', $days[0]->format('Y-m-d'));
+		$this->assertEquals('2024-01-16', $days[1]->format('Y-m-d'));
+		$this->assertEquals('2024-01-17', $days[2]->format('Y-m-d'));
+
+		// Single day
+		$date = new \DateTime('2024-01-15');
+		$days = DatePeriod::getDays($date, $date);
+		$this->assertCount(1, $days);
+		$this->assertEquals('2024-01-15', $days[0]->format('Y-m-d'));
+	}
+
+	public function testGetDaysWithWeekDaysFilter(): void
+	{
+		// Monday 15 to Friday 19 January 2024
+		$start = new \DateTime('2024-01-15'); // Monday
+		$end = new \DateTime('2024-01-19');   // Friday
+
+		// Filter only Monday (1) and Friday (5)
+		$days = DatePeriod::getDays($start, $end, [1, 5]);
+		$this->assertCount(2, $days);
+		$this->assertEquals('2024-01-15', $days[0]->format('Y-m-d')); // Monday
+		$this->assertEquals('2024-01-19', $days[1]->format('Y-m-d')); // Friday
+
+		// Empty filter (no days match)
+		$days = DatePeriod::getDays($start, $end, []);
+		$this->assertCount(0, $days);
+
+		// Non-existent day in period (Sunday = 7)
+		$days = DatePeriod::getDays($start, $end, [7]);
+		$this->assertCount(0, $days);
+	}
+
+	public function testGetDaysFormatted(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-17');
+
+		$days = DatePeriod::getDaysFormatted($start, $end);
+		$this->assertEquals(['2024-01-15', '2024-01-16', '2024-01-17'], $days);
+
+		// Custom format
+		$days = DatePeriod::getDaysFormatted($start, $end, null, 'd/m/Y');
+		$this->assertEquals(['15/01/2024', '16/01/2024', '17/01/2024'], $days);
+
+		// Full format
+		$days = DatePeriod::getDaysFormatted($start, $end, null, 'l, d F Y');
+		$this->assertCount(3, $days);
+		$this->assertIsString($days[0]);
+	}
+
+	public function testGetWeeks(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-02-15');
+
+		$weeks = DatePeriod::getWeeks($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
+		$this->assertInstanceOf(\DateTime::class, $weeks[0]);
+
+		// Each element should be a Monday
+		foreach ($weeks as $week) {
+			$this->assertEquals(1, (int) $week->format('N')); // N=1 for Monday
+		}
+
+		// Same week
+		$start = new \DateTime('2024-01-15'); // Monday
+		$end = new \DateTime('2024-01-19');   // Friday (same week)
+		$weeks = DatePeriod::getWeeks($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThanOrEqual(1, count($weeks));
+
+		// Across year boundary
+		$start = new \DateTime('2024-12-15');
+		$end = new \DateTime('2025-01-15');
+		$weeks = DatePeriod::getWeeks($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
+	}
+
+	public function testGetWeeksFormatted(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-02-15');
+
+		// Default ISO week format
+		$weeks = DatePeriod::getWeeksFormatted($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
+		foreach ($weeks as $week) {
+			$this->assertMatchesRegularExpression('/\d{4}-\d{2}/', $week);
+		}
+
+		// Custom date format
+		$weeks = DatePeriod::getWeeksFormatted($start, $end, 'Y-m-d');
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
+		$this->assertIsString($weeks[0]);
+		$this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2}/', $weeks[0]);
+	}
+
+	public function testGetMonths(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-04-15');
+
+		$months = DatePeriod::getMonths($start, $end);
+		$this->assertIsArray($months);
+		$this->assertGreaterThan(0, count($months));
+		$this->assertInstanceOf(\DateTime::class, $months[0]);
+
+		// Each element should be the first day of a month
+		foreach ($months as $month) {
+			$this->assertEquals(1, (int) $month->format('d'));
+		}
+
+		// Same month
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-25');
+		$months = DatePeriod::getMonths($start, $end);
+		$this->assertIsArray($months);
+		$this->assertGreaterThanOrEqual(1, count($months));
+		$this->assertEquals('2024-01-01', $months[0]->format('Y-m-d'));
+
+		// Across year boundary
+		$start = new \DateTime('2024-11-15');
+		$end = new \DateTime('2025-02-15');
+		$months = DatePeriod::getMonths($start, $end);
+		$this->assertIsArray($months);
+		$this->assertGreaterThan(2, count($months));
+
+		// Verify months cross year boundary
+		$yearChanges = false;
+		for ($i = 0; $i < count($months) - 1; $i++) {
+			if ($months[$i]->format('Y') !== $months[$i + 1]->format('Y')) {
+				$yearChanges = true;
+				break;
+			}
+		}
+		$this->assertTrue($yearChanges);
+	}
+
+	public function testGetMonthsFormatted(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-15');
+
+		// Default format
+		$months = DatePeriod::getMonthsFormatted($start, $end);
+		$this->assertGreaterThan(0, count($months));
+		$this->assertIsString($months[0]);
+
+		// Custom year-month format
+		$months = DatePeriod::getMonthsFormatted($start, $end, 'Y-m');
+		$this->assertIsArray($months);
+		$this->assertGreaterThan(0, count($months));
+		$this->assertIsString($months[0]);
+		$this->assertMatchesRegularExpression('/\d{4}-\d{2}/', $months[0]);
+
+		// Month name format
+		$months = DatePeriod::getMonthsFormatted($start, $end, 'F Y');
+		$this->assertIsArray($months);
+		$this->assertGreaterThan(0, count($months));
+		$this->assertIsString($months[0]);
+	}
+
+	// ========== Validation Methods ==========
+
+	public function testIsFullWeek(): void
+	{
+		// Monday to Sunday
+		$start = new \DateTime('2024-01-15 00:00:00'); // Monday
+		$end = new \DateTime('2024-01-21 23:59:59');   // Sunday
+		$this->assertTrue(DatePeriod::isFullWeek($start, $end));
+
+		// Exactly 7 days from Monday 00:00:00 to Sunday 23:59:59
+		$start = new \DateTime('2024-01-15 00:00:00'); // Monday
+		$end = new \DateTime('2024-01-21 23:59:59');   // Sunday
+		$this->assertTrue(DatePeriod::isFullWeek($start, $end));
+
+		// Tuesday to Sunday (not a full week)
+		$start = new \DateTime('2024-01-16 00:00:00'); // Tuesday
+		$end = new \DateTime('2024-01-21 23:59:59');   // Sunday
+		$this->assertFalse(DatePeriod::isFullWeek($start, $end));
+
+		// Monday to Saturday (not a full week)
+		$start = new \DateTime('2024-01-15 00:00:00'); // Monday
+		$end = new \DateTime('2024-01-20 23:59:59');   // Saturday
+		$this->assertFalse(DatePeriod::isFullWeek($start, $end));
+
+		// Monday to Friday (only 4 days difference)
+		$start = new \DateTime('2024-01-15 00:00:00'); // Monday
+		$end = new \DateTime('2024-01-19 23:59:59');   // Friday
+		$this->assertFalse(DatePeriod::isFullWeek($start, $end));
+	}
+
+	public function testIsFullWeeks(): void
+	{
+		// Monday to Sunday (1 week)
+		$start = new \DateTime('2024-01-15'); // Monday
+		$end = new \DateTime('2024-01-21');   // Sunday
+		$this->assertTrue(DatePeriod::isFullWeeks($start, $end));
+
+		// Monday to Sunday (2 weeks)
+		$start = new \DateTime('2024-01-15'); // Monday
+		$end = new \DateTime('2024-01-28');   // Sunday
+		$this->assertTrue(DatePeriod::isFullWeeks($start, $end));
+
+		// Monday 1st to Sunday 28th January 2024 (4 full weeks)
+		$start = new \DateTime('2024-01-01'); // Monday
+		$end = new \DateTime('2024-01-28');   // Sunday
+		$this->assertTrue(DatePeriod::isFullWeeks($start, $end));
+
+		// Tuesday to Sunday
+		$start = new \DateTime('2024-01-16'); // Tuesday
+		$end = new \DateTime('2024-01-21');   // Sunday
+		$this->assertFalse(DatePeriod::isFullWeeks($start, $end));
+	}
+
+	public function testIsFullMonth(): void
+	{
+		// Full month (January 2024)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-01-31');
+		$this->assertTrue(DatePeriod::isFullMonth($start, $end));
+
+		// February (leap year)
+		$start = new \DateTime('2024-02-01');
+		$end = new \DateTime('2024-02-29');
+		$this->assertTrue(DatePeriod::isFullMonth($start, $end));
+
+		// February (non-leap year)
+		$start = new \DateTime('2023-02-01');
+		$end = new \DateTime('2023-02-28');
+		$this->assertTrue(DatePeriod::isFullMonth($start, $end));
+
+		// Not a full month (starts on 2nd)
+		$start = new \DateTime('2024-01-02');
+		$end = new \DateTime('2024-01-31');
+		$this->assertFalse(DatePeriod::isFullMonth($start, $end));
+
+		// Not a full month (ends on 30th)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-01-30');
+		$this->assertFalse(DatePeriod::isFullMonth($start, $end));
+
+		// Multiple months (1st January to 31st March)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-03-31');
+		$this->assertFalse(DatePeriod::isFullMonth($start, $end)); // isFullMonth checks for a SINGLE month
+	}
+
+	public function testIsFullMonths(): void
+	{
+		// 2 full months
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-02-29');
+		$this->assertTrue(DatePeriod::isFullMonths($start, $end));
+
+		// January to February (non-leap year)
+		$start = new \DateTime('2023-01-01');
+		$end = new \DateTime('2023-02-28');
+		$this->assertTrue(DatePeriod::isFullMonths($start, $end));
+
+		// Starts on 2nd
+		$start = new \DateTime('2024-01-02');
+		$end = new \DateTime('2024-02-29');
+		$this->assertFalse(DatePeriod::isFullMonths($start, $end));
+
+		// Ends on 28th instead of 29th
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-02-28');
+		$this->assertFalse(DatePeriod::isFullMonths($start, $end));
+	}
+
+	public function testIsFullYear(): void
+	{
+		// Full year 2024
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-31');
+		$this->assertTrue(DatePeriod::isFullYear($start, $end));
+
+		// Not a full year (starts on 2nd)
+		$start = new \DateTime('2024-01-02');
+		$end = new \DateTime('2024-12-31');
+		$this->assertFalse(DatePeriod::isFullYear($start, $end));
+
+		// Not a full year (ends on 30th)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-30');
+		$this->assertFalse(DatePeriod::isFullYear($start, $end));
+
+		// Two different years
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2025-12-31');
+		$this->assertFalse(DatePeriod::isFullYear($start, $end));
+	}
+
+	public function testGetYearFromStartDateAndEndDate(): void
+	{
+		// Valid full year
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-31');
+		$this->assertEquals(2024, DatePeriod::getYearFromStartDateAndEndDate($start, $end));
+
+		// Not a full year (starts on 2nd)
+		$start = new \DateTime('2024-01-02');
+		$end = new \DateTime('2024-12-31');
+		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
+
+		// Not a full year (ends on 30th)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-30');
+		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
+
+		// Different years
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2025-12-31');
+		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
+
+		// Mid-year (1st January to 30th June)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-06-30');
+		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
+	}
+
+	// ========== Period Operations ==========
+
+	public function testContains(): void
+	{
+		$periodStart = new \DateTime('2024-01-15');
+		$periodEnd = new \DateTime('2024-01-20');
+
+		// Date within period
+		$date = new \DateTime('2024-01-17');
+		$this->assertTrue(DatePeriod::contains($date, $periodStart, $periodEnd));
+
+		// Date at start boundary
+		$date = new \DateTime('2024-01-15');
+		$this->assertTrue(DatePeriod::contains($date, $periodStart, $periodEnd));
+
+		// Date at end boundary
+		$date = new \DateTime('2024-01-20');
+		$this->assertTrue(DatePeriod::contains($date, $periodStart, $periodEnd));
+
+		// Date before period
+		$date = new \DateTime('2024-01-10');
+		$this->assertFalse(DatePeriod::contains($date, $periodStart, $periodEnd));
+
+		// Date after period
+		$date = new \DateTime('2024-01-25');
+		$this->assertFalse(DatePeriod::contains($date, $periodStart, $periodEnd));
+	}
+
+	public function testOverlaps(): void
+	{
+		// Overlapping periods
+		$p1Start = new \DateTime('2024-01-15');
+		$p1End = new \DateTime('2024-01-20');
+		$p2Start = new \DateTime('2024-01-18');
+		$p2End = new \DateTime('2024-01-25');
+		$this->assertTrue(DatePeriod::overlaps($p1Start, $p1End, $p2Start, $p2End));
+
+		// Touching periods (end = start)
+		$p1Start = new \DateTime('2024-01-15');
+		$p1End = new \DateTime('2024-01-20');
+		$p2Start = new \DateTime('2024-01-20');
+		$p2End = new \DateTime('2024-01-25');
+		$this->assertTrue(DatePeriod::overlaps($p1Start, $p1End, $p2Start, $p2End));
+
+		// Non-overlapping periods
+		$p1Start = new \DateTime('2024-01-15');
+		$p1End = new \DateTime('2024-01-20');
+		$p2Start = new \DateTime('2024-01-25');
+		$p2End = new \DateTime('2024-01-30');
+		$this->assertFalse(DatePeriod::overlaps($p1Start, $p1End, $p2Start, $p2End));
+
+		// Period 2 completely contains period 1
+		$p1Start = new \DateTime('2024-01-17');
+		$p1End = new \DateTime('2024-01-19');
+		$p2Start = new \DateTime('2024-01-15');
+		$p2End = new \DateTime('2024-01-25');
+		$this->assertTrue(DatePeriod::overlaps($p1Start, $p1End, $p2Start, $p2End));
+	}
+
+	public function testGetOverlap(): void
+	{
+		// Overlapping periods
+		$p1Start = new \DateTime('2024-01-15');
+		$p1End = new \DateTime('2024-01-20');
+		$p2Start = new \DateTime('2024-01-18');
+		$p2End = new \DateTime('2024-01-25');
+
+		$overlap = DatePeriod::getOverlap($p1Start, $p1End, $p2Start, $p2End);
+		$this->assertIsArray($overlap);
+		$this->assertArrayHasKey('start', $overlap);
+		$this->assertArrayHasKey('end', $overlap);
+		$this->assertEquals('2024-01-18', $overlap['start']->format('Y-m-d'));
+		$this->assertEquals('2024-01-20', $overlap['end']->format('Y-m-d'));
+
+		// Non-overlapping periods
+		$p1Start = new \DateTime('2024-01-15');
+		$p1End = new \DateTime('2024-01-20');
+		$p2Start = new \DateTime('2024-01-25');
+		$p2End = new \DateTime('2024-01-30');
+		$overlap = DatePeriod::getOverlap($p1Start, $p1End, $p2Start, $p2End);
+		$this->assertNull($overlap);
+
+		// Period 2 completely contains period 1
+		$p1Start = new \DateTime('2024-01-17');
+		$p1End = new \DateTime('2024-01-19');
+		$p2Start = new \DateTime('2024-01-15');
+		$p2End = new \DateTime('2024-01-25');
+		$overlap = DatePeriod::getOverlap($p1Start, $p1End, $p2Start, $p2End);
+		$this->assertIsArray($overlap);
+		$this->assertEquals('2024-01-17', $overlap['start']->format('Y-m-d'));
+		$this->assertEquals('2024-01-19', $overlap['end']->format('Y-m-d'));
+	}
+
+	public function testSplit(): void
+	{
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-01-10');
+
+		// Split into 2 parts
+		$parts = DatePeriod::split($start, $end, 2);
+		$this->assertCount(2, $parts);
+		$this->assertArrayHasKey('start', $parts[0]);
+		$this->assertArrayHasKey('end', $parts[0]);
+		$this->assertInstanceOf(\DateTime::class, $parts[0]['start']);
+		$this->assertInstanceOf(\DateTime::class, $parts[0]['end']);
+
+		// Split into 3 parts
+		$parts = DatePeriod::split($start, $end, 3);
+		$this->assertCount(3, $parts);
+
+		// Verify continuity (end of part N + 1 day = start of part N+1)
+		$this->assertEquals(
+			$parts[0]['end']->format('Y-m-d'),
+			(clone $parts[1]['start'])->modify('-1 day')->format('Y-m-d')
+		);
+
+		// Split into 0 parts (invalid)
+		$parts = DatePeriod::split($start, $end, 0);
+		$this->assertEmpty($parts);
+
+		// Split into negative parts (invalid)
+		$parts = DatePeriod::split($start, $end, -1);
+		$this->assertEmpty($parts);
+	}
+
+	// ========== Labeling Methods ==========
+
+	public function testGetLabel(): void
+	{
+		// Same day
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-15');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('le', $label);
+		$this->assertStringContainsString('15', $label);
+
+		// Same day - specific test
+		$date = new \DateTime('2024-03-15');
+		$label = DatePeriod::getLabel($date, $date);
+		$this->assertStringContainsString('le', $label);
+		$this->assertStringContainsString('15', $label);
+		$this->assertStringContainsString('mars', strtolower($label));
+		$this->assertStringContainsString('2024', $label);
+
+		// Full month
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-01-31');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsStringIgnoringCase('janvier', $label);
+		$this->assertStringContainsString('2024', $label);
+
+		// Full month - March
+		$start = new \DateTime('2024-03-01');
+		$end = new \DateTime('2024-03-31');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('en', $label);
+		$this->assertStringContainsString('mars', strtolower($label));
+		$this->assertStringContainsString('2024', $label);
+
+		// Full year
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-31');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('en', $label);
+		$this->assertStringContainsString('2024', $label);
+		$this->assertStringNotContainsString('du', $label);
+
+		// Arbitrary period
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-20');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('du', $label);
+		$this->assertStringContainsString('au', $label);
+
+		// Different years
+		$start = new \DateTime('2024-12-15');
+		$end = new \DateTime('2025-01-15');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('du', $label);
+		$this->assertStringContainsString('au', $label);
+		$this->assertStringContainsString('2024', $label);
+		$this->assertStringContainsString('2025', $label);
+
+		// Same year, multiple months
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-20');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('du', $label);
+		$this->assertStringContainsString('au', $label);
+
+		// Partial month
+		$start = new \DateTime('2024-01-10');
+		$end = new \DateTime('2024-01-20');
+		$label = DatePeriod::getLabel($start, $end);
+		$this->assertStringContainsString('du', $label);
+		$this->assertStringContainsString('au', $label);
+	}
+
+	// ========== Generic Utilities ==========
+
+	public function testGetPeriodUnits(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-15');
+
+		// Test HOUR - should return null (static type, use getPeriodUnitsFormatted instead)
+		$result = DatePeriod::getPeriodUnits(PeriodType::HOUR, $start, $end);
+		$this->assertNull($result);
+
+		// Test DAY_OF_MONTH - should return DateTime[]
+		$result = DatePeriod::getPeriodUnits(PeriodType::DAY_OF_MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertInstanceOf(\DateTime::class, $result[0]);
+
+		// Test WEEK - should return DateTime[]
+		$result = DatePeriod::getPeriodUnits(PeriodType::WEEK, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertInstanceOf(\DateTime::class, $result[0]);
+
+		// Test MONTH - should return DateTime[]
+		$result = DatePeriod::getPeriodUnits(PeriodType::MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertInstanceOf(\DateTime::class, $result[0]);
+
+		// Test YEAR - should return DateTime[] (Jan 1st of each year)
+		$startYear = new \DateTime('2023-03-15');
+		$endYear = new \DateTime('2025-10-20');
+		$result = DatePeriod::getPeriodUnits(PeriodType::YEAR, $startYear, $endYear);
+		$this->assertIsArray($result);
+		$this->assertCount(3, $result); // 2023, 2024, 2025
+		$this->assertInstanceOf(\DateTime::class, $result[0]);
+		$this->assertEquals('2023-01-01', $result[0]->format('Y-m-d'));
+		$this->assertEquals('2024-01-01', $result[1]->format('Y-m-d'));
+		$this->assertEquals('2025-01-01', $result[2]->format('Y-m-d'));
+
+		// Test DAY_OF_WEEK - should return null (static type, use getPeriodUnitsFormatted instead)
+		$result = DatePeriod::getPeriodUnits(PeriodType::DAY_OF_WEEK, $start, $end);
+		$this->assertNull($result);
+	}
+
+	public function testGetPeriodUnitsFormatted(): void
+	{
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-15');
+
+		// Test HOUR - should return string[]
+		$result = DatePeriod::getPeriodUnitsFormatted(PeriodType::HOUR, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertCount(24, $result);
+		$this->assertContains('0', $result);
+		$this->assertContains('23', $result);
+
+		// Test DAY_OF_MONTH - should return string[] with date format
+		$result = DatePeriod::getPeriodUnitsFormatted(PeriodType::DAY_OF_MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertIsString($result[0]);
+		$this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2}/', $result[0]);
+
+		// Test WEEK - should return string[] with week format
+		$result = DatePeriod::getPeriodUnitsFormatted(PeriodType::WEEK, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertIsString($result[0]);
+		$this->assertMatchesRegularExpression('/\d{4}-\d{2}/', $result[0]);
+
+		// Test MONTH - should return string[] with month format
+		$result = DatePeriod::getPeriodUnitsFormatted(PeriodType::MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertIsString($result[0]);
+
+		// Test DAY_OF_WEEK - should return string[]
+		$result = DatePeriod::getPeriodUnitsFormatted(PeriodType::DAY_OF_WEEK, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertCount(7, $result);
+		$this->assertContains('1', $result);
+		$this->assertContains('7', $result);
+
+		// Test YEAR - should return string[] with year format
+		$startYear = new \DateTime('2023-03-15');
+		$endYear = new \DateTime('2025-10-20');
+		$result = DatePeriod::getPeriodUnitsFormatted(PeriodType::YEAR, $startYear, $endYear);
+		$this->assertIsArray($result);
+		$this->assertCount(3, $result); // 2023, 2024, 2025
+		$this->assertIsString($result[0]);
+		$this->assertEquals('2023', $result[0]);
+		$this->assertEquals('2024', $result[1]);
+		$this->assertEquals('2025', $result[2]);
+	}
+
+	// ========== Deprecated Methods Tests ==========
 
 	public function testGetListOfDateDaysOfTheMonth(): void
 	{
@@ -50,22 +802,6 @@ final class DatePeriodTest extends TestCase
 		$days = DatePeriod::getListOfDateDaysOfTheMonth($start, $end);
 		$this->assertCount(3, $days);
 		$this->assertInstanceOf(\DateTime::class, $days[0]);
-		$this->assertEquals('2024-01-15', $days[0]->format('Y-m-d'));
-		$this->assertEquals('2024-01-16', $days[1]->format('Y-m-d'));
-		$this->assertEquals('2024-01-17', $days[2]->format('Y-m-d'));
-	}
-
-	public function testGetListOfDateDaysOfTheMonthWithWeekDaysFilter(): void
-	{
-		// Du lundi 15 au vendredi 19 janvier 2024
-		$start = new \DateTime('2024-01-15'); // Lundi
-		$end = new \DateTime('2024-01-19');   // Vendredi
-
-		// Filtrer seulement lundi (1) et vendredi (5)
-		$days = DatePeriod::getListOfDateDaysOfTheMonth($start, $end, [1, 5]);
-		$this->assertCount(2, $days);
-		$this->assertEquals('2024-01-15', $days[0]->format('Y-m-d')); // Lundi
-		$this->assertEquals('2024-01-19', $days[1]->format('Y-m-d')); // Vendredi
 	}
 
 	public function testGetListOfDaysOfTheMonth(): void
@@ -75,102 +811,38 @@ final class DatePeriodTest extends TestCase
 
 		$days = DatePeriod::getListOfDaysOfTheMonth($start, $end);
 		$this->assertEquals(['2024-01-15', '2024-01-16', '2024-01-17'], $days);
-
-		// Format personnalisé
-		$days = DatePeriod::getListOfDaysOfTheMonth($start, $end, null, 'd/m/Y');
-		$this->assertEquals(['15/01/2024', '16/01/2024', '17/01/2024'], $days);
 	}
 
-	/* ===================== Semaines ===================== */
-
-	public function testGetNbFullWeeks(): void
+	public function testGetListOfDateWeeks(): void
 	{
-		// 14 jours = 2 semaines pleines
 		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-29');
-		$this->assertEquals(2, DatePeriod::getNbFullWeeks($start, $end));
+		$end = new \DateTime('2024-02-15');
 
-		// 10 jours = 1 semaine pleine
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-25');
-		$this->assertEquals(1, DatePeriod::getNbFullWeeks($start, $end));
-
-		// 6 jours = 0 semaine pleine
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-21');
-		$this->assertEquals(0, DatePeriod::getNbFullWeeks($start, $end));
+		$weeks = DatePeriod::getListOfDateWeeks($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
+		$this->assertInstanceOf(\DateTime::class, $weeks[0]);
 	}
 
-	public function testGetNbWeeks(): void
+	public function testGetListOfWeeks(): void
 	{
 		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-29');
-		$nbWeeks = DatePeriod::getNbWeeks($start, $end);
-		$this->assertGreaterThan(0, $nbWeeks);
+		$end = new \DateTime('2024-02-15');
+
+		$weeks = DatePeriod::getListOfWeeks($start, $end);
+		$this->assertIsArray($weeks);
+		$this->assertGreaterThan(0, count($weeks));
 	}
 
-	public function testIsFullWeek(): void
-	{
-		// Du lundi au dimanche
-		$start = new \DateTime('2024-01-15 00:00:00'); // Lundi
-		$end = new \DateTime('2024-01-21 23:59:59');   // Dimanche
-		$this->assertTrue(DatePeriod::isFullWeek($start, $end));
-
-		// Du mardi au dimanche (pas une semaine complète)
-		$start = new \DateTime('2024-01-16 00:00:00'); // Mardi
-		$end = new \DateTime('2024-01-21 23:59:59');   // Dimanche
-		$this->assertFalse(DatePeriod::isFullWeek($start, $end));
-
-		// Du lundi au samedi (pas une semaine complète)
-		$start = new \DateTime('2024-01-15 00:00:00'); // Lundi
-		$end = new \DateTime('2024-01-20 23:59:59');   // Samedi
-		$this->assertFalse(DatePeriod::isFullWeek($start, $end));
-	}
-
-	public function testIsFullWeeks(): void
-	{
-		// Du lundi au dimanche
-		$start = new \DateTime('2024-01-15'); // Lundi
-		$end = new \DateTime('2024-01-21');   // Dimanche
-		$this->assertTrue(DatePeriod::isFullWeeks($start, $end));
-
-		// Du lundi au dimanche (2 semaines)
-		$start = new \DateTime('2024-01-15'); // Lundi
-		$end = new \DateTime('2024-01-28');   // Dimanche
-		$this->assertTrue(DatePeriod::isFullWeeks($start, $end));
-
-		// Du mardi au dimanche
-		$start = new \DateTime('2024-01-16'); // Mardi
-		$end = new \DateTime('2024-01-21');   // Dimanche
-		$this->assertFalse(DatePeriod::isFullWeeks($start, $end));
-	}
-
-	/* ===================== Mois ===================== */
-
-	public function testGetNbFullMonths(): void
-	{
-		// 2 mois complets
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-03-15');
-		$this->assertEquals(2, DatePeriod::getNbFullMonths($start, $end));
-
-		// Même mois
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-20');
-		$this->assertEquals(0, DatePeriod::getNbFullMonths($start, $end));
-
-		// 12 mois = 1 an
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2025-01-01');
-		$this->assertEquals(12, DatePeriod::getNbFullMonths($start, $end));
-	}
-
-	public function testGetNbMonths(): void
+	public function testGetListOfDateMonths(): void
 	{
 		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-03-15');
-		$nbMonths = DatePeriod::getNbMonths($start, $end);
-		$this->assertGreaterThan(0, $nbMonths);
+		$end = new \DateTime('2024-04-15');
+
+		$months = DatePeriod::getListOfDateMonths($start, $end);
+		$this->assertIsArray($months);
+		$this->assertGreaterThan(0, count($months));
+		$this->assertInstanceOf(\DateTime::class, $months[0]);
 	}
 
 	public function testGetListOfMonths(): void
@@ -183,217 +855,8 @@ final class DatePeriodTest extends TestCase
 		$this->assertIsString($months[0]);
 	}
 
-	public function testIsFullMonth(): void
-	{
-		// Mois complet (janvier 2024)
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-01-31');
-		$this->assertTrue(DatePeriod::isFullMonth($start, $end));
-
-		// Février (année bissextile)
-		$start = new \DateTime('2024-02-01');
-		$end = new \DateTime('2024-02-29');
-		$this->assertTrue(DatePeriod::isFullMonth($start, $end));
-
-		// Pas un mois complet (commence au 2)
-		$start = new \DateTime('2024-01-02');
-		$end = new \DateTime('2024-01-31');
-		$this->assertFalse(DatePeriod::isFullMonth($start, $end));
-
-		// Pas un mois complet (termine au 30)
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-01-30');
-		$this->assertFalse(DatePeriod::isFullMonth($start, $end));
-	}
-
-	public function testIsFullMonths(): void
-	{
-		// 2 mois complets
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-02-29');
-		$this->assertTrue(DatePeriod::isFullMonths($start, $end));
-
-		// Commence au 2
-		$start = new \DateTime('2024-01-02');
-		$end = new \DateTime('2024-02-29');
-		$this->assertFalse(DatePeriod::isFullMonths($start, $end));
-
-		// Termine au 28 au lieu de 29
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-02-28');
-		$this->assertFalse(DatePeriod::isFullMonths($start, $end));
-	}
-
-	/* ===================== Année ===================== */
-
-	public function testIsFullYear(): void
-	{
-		// Année complète 2024
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-12-31');
-		$this->assertTrue(DatePeriod::isFullYear($start, $end));
-
-		// Pas une année complète (commence au 2)
-		$start = new \DateTime('2024-01-02');
-		$end = new \DateTime('2024-12-31');
-		$this->assertFalse(DatePeriod::isFullYear($start, $end));
-
-		// Pas une année complète (termine au 30)
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-12-30');
-		$this->assertFalse(DatePeriod::isFullYear($start, $end));
-
-		// Deux années différentes
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2025-12-31');
-		$this->assertFalse(DatePeriod::isFullYear($start, $end));
-	}
-
-	public function testGetNbYears(): void
-	{
-		// 1 an
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2025-01-01');
-		$this->assertEquals(1, DatePeriod::getNbYears($start, $end));
-
-		// 2 ans
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2026-01-01');
-		$this->assertEquals(2, DatePeriod::getNbYears($start, $end));
-
-		// Moins d'un an
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-06-01');
-		$this->assertEquals(0, DatePeriod::getNbYears($start, $end));
-	}
-
-	public function testGetYearFromStartDateAndEndDate(): void
-	{
-		// Année complète valide
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-12-31');
-		$this->assertEquals(2024, DatePeriod::getYearFromStartDateAndEndDate($start, $end));
-
-		// Pas une année complète (commence au 2)
-		$start = new \DateTime('2024-01-02');
-		$end = new \DateTime('2024-12-31');
-		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
-
-		// Pas une année complète (termine au 30)
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-12-30');
-		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
-
-		// Années différentes
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2025-12-31');
-		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
-	}
-
-	/* ===================== Interval / Label ===================== */
-
-	public function testGetLabel(): void
-	{
-		// Même jour
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-15');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('le', $label);
-		$this->assertStringContainsString('15', $label);
-
-		// Mois complet
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-01-31');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsStringIgnoringCase('janvier', $label);
-		$this->assertStringContainsString('2024', $label);
-
-		// Année complète
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-12-31');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('2024', $label);
-
-		// Période quelconque
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-03-20');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('du', $label);
-		$this->assertStringContainsString('au', $label);
-	}
-
-	public function testGetListOfPeriod(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-03-15');
-
-		// Test HOUR
-		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::HOUR, $start, $end);
-		$this->assertIsArray($result);
-		$this->assertCount(24, $result);
-		$this->assertContains('0', $result);
-		$this->assertContains('23', $result);
-
-		// Test DAY_OF_MONTH
-		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::DAY_OF_MONTH, $start, $end);
-		$this->assertIsArray($result);
-		$this->assertGreaterThan(0, count($result));
-
-		// Test WEEK
-		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::WEEK, $start, $end);
-		$this->assertIsArray($result);
-		$this->assertGreaterThan(0, count($result));
-
-		// Test MONTH
-		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::MONTH, $start, $end);
-		$this->assertIsArray($result);
-		$this->assertGreaterThan(0, count($result));
-
-		// Test DAY_OF_WEEK
-		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::DAY_OF_WEEK, $start, $end);
-		$this->assertIsArray($result);
-		$this->assertCount(7, $result);
-		$this->assertContains('1', $result);
-		$this->assertContains('7', $result);
-	}
-
-	public function testGetListOfDateWeeks(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-02-15');
-
-		$weeks = DatePeriod::getListOfDateWeeks($start, $end);
-		$this->assertIsArray($weeks);
-		$this->assertGreaterThan(0, count($weeks));
-		$this->assertInstanceOf(\DateTime::class, $weeks[0]);
-
-		// Vérifier que chaque élément est un lundi
-		foreach ($weeks as $week) {
-			$this->assertEquals(1, (int) $week->format('N')); // N=1 pour lundi
-		}
-	}
-
-	public function testGetListOfDateMonths(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-04-15');
-
-		$months = DatePeriod::getListOfDateMonths($start, $end);
-		$this->assertIsArray($months);
-		$this->assertGreaterThan(0, count($months));
-		$this->assertInstanceOf(\DateTime::class, $months[0]);
-
-		// Vérifier que chaque élément est le premier jour d'un mois
-		foreach ($months as $month) {
-			$this->assertEquals(1, (int) $month->format('d'));
-		}
-	}
-
-	/* ===================== Deprecated methods ===================== */
-
 	public function testGetListDaysOfMonths(): void
 	{
-		// Test deprecated method (should work like getListOfDateDaysOfTheMonth)
 		$start = new \DateTime('2024-01-15');
 		$end = new \DateTime('2024-01-17');
 
@@ -404,362 +867,41 @@ final class DatePeriodTest extends TestCase
 
 	public function testGetNbDaysBetweenDatesAndTimes(): void
 	{
-		// Test deprecated method (should work like getNbDays with withTimes=true)
 		$start = new \DateTime('2024-01-15 10:00:00');
 		$end = new \DateTime('2024-01-15 14:00:00');
 		$result = DatePeriod::getNbDaysBetweenDatesAndTimes($start, $end);
 		$this->assertLessThan(1, $result);
 	}
 
-	/* ===================== getLabel() - Cas limites ===================== */
-
-	public function testGetLabelWithDifferentYears(): void
-	{
-		// Période sur plusieurs années
-		$start = new \DateTime('2024-12-15');
-		$end = new \DateTime('2025-01-15');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('du', $label);
-		$this->assertStringContainsString('au', $label);
-		$this->assertStringContainsString('2024', $label);
-		$this->assertStringContainsString('2025', $label);
-	}
-
-	public function testGetLabelWithSameYearMultipleMonths(): void
-	{
-		// Période sur plusieurs mois de la même année
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-03-20');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('du', $label);
-		$this->assertStringContainsString('au', $label);
-	}
-
-	public function testGetLabelWithPartialMonth(): void
-	{
-		// Période partielle dans un mois
-		$start = new \DateTime('2024-01-10');
-		$end = new \DateTime('2024-01-20');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('du', $label);
-		$this->assertStringContainsString('au', $label);
-	}
-
-	/* ===================== getListOfPeriod() - Cas non géré ===================== */
-
-	public function testGetListOfPeriodWithUnsupportedType(): void
+	public function testGetListOfPeriod(): void
 	{
 		$start = new \DateTime('2024-01-15');
 		$end = new \DateTime('2024-03-15');
 
-		// Test avec un type non géré (YEAR n'est pas dans la méthode)
-		$result = DatePeriod::getListOfPeriod(\Osimatic\Calendar\PeriodType::YEAR, $start, $end);
-		$this->assertNull($result);
+		// Test deprecated method calls getPeriodUnits() which returns null for static types
+		$result = DatePeriod::getListOfPeriod(PeriodType::HOUR, $start, $end);
+		$this->assertNull($result); // HOUR returns null (use getListOfPeriodFormatted instead)
+
+		// Test date-based types return DateTime[]
+		$result = DatePeriod::getListOfPeriod(PeriodType::DAY_OF_MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertInstanceOf(\DateTime::class, $result[0]);
 	}
 
-	/* ===================== getListOfWeeks() - Format personnalisé ===================== */
-
-	public function testGetListOfWeeksWithCustomFormat(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-02-15');
-
-		// Test avec format personnalisé
-		$weeks = DatePeriod::getListOfWeeks($start, $end, 'Y-m-d');
-		$this->assertIsArray($weeks);
-		$this->assertGreaterThan(0, count($weeks));
-		$this->assertIsString($weeks[0]);
-		$this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2}/', $weeks[0]);
-	}
-
-	public function testGetListOfWeeksWithWeekNumberFormat(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-02-15');
-
-		// Test avec format semaine ISO
-		$weeks = DatePeriod::getListOfWeeks($start, $end, 'Y-W');
-		$this->assertIsArray($weeks);
-		$this->assertGreaterThan(0, count($weeks));
-		foreach ($weeks as $week) {
-			$this->assertMatchesRegularExpression('/\d{4}-\d{2}/', $week);
-		}
-	}
-
-	/* ===================== getListOfMonths() - Format personnalisé ===================== */
-
-	public function testGetListOfMonthsWithCustomFormat(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-04-15');
-
-		// Test avec format personnalisé
-		$months = DatePeriod::getListOfMonths($start, $end, 'Y-m');
-		$this->assertIsArray($months);
-		$this->assertGreaterThan(0, count($months));
-		$this->assertIsString($months[0]);
-		$this->assertMatchesRegularExpression('/\d{4}-\d{2}/', $months[0]);
-	}
-
-	public function testGetListOfMonthsWithMonthNameFormat(): void
+	public function testGetListOfPeriodFormatted(): void
 	{
 		$start = new \DateTime('2024-01-15');
 		$end = new \DateTime('2024-03-15');
 
-		// Test avec format nom de mois
-		$months = DatePeriod::getListOfMonths($start, $end, 'F Y');
-		$this->assertIsArray($months);
-		$this->assertGreaterThan(0, count($months));
-		$this->assertIsString($months[0]);
-	}
+		// Test deprecated method should work like getPeriodsFormatted()
+		$result = DatePeriod::getListOfPeriodFormatted(PeriodType::HOUR, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertCount(24, $result);
 
-	/* ===================== Edge cases et cas limites ===================== */
-
-	public function testGetNbDaysWithSameDateTime(): void
-	{
-		$date = new \DateTime('2024-01-15 12:00:00');
-		$this->assertEquals(0, DatePeriod::getNbDays($date, $date));
-		$this->assertEquals(0, DatePeriod::getNbDays($date, $date, true));
-	}
-
-	public function testGetNbRemainingDaysWithSameDateTime(): void
-	{
-		$date = new \DateTime('2024-01-15 12:00:00');
-		$this->assertEquals(0, DatePeriod::getNbRemainingDays($date, $date));
-	}
-
-	public function testGetListOfDateDaysOfTheMonthWithSingleDay(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$days = DatePeriod::getListOfDateDaysOfTheMonth($date, $date);
-		$this->assertCount(1, $days);
-		$this->assertEquals('2024-01-15', $days[0]->format('Y-m-d'));
-	}
-
-	public function testGetListOfDateDaysOfTheMonthWithEmptyWeekDaysFilter(): void
-	{
-		$start = new \DateTime('2024-01-15'); // Lundi
-		$end = new \DateTime('2024-01-19');   // Vendredi
-
-		// Filtrer avec un tableau vide (aucun jour ne correspond)
-		$days = DatePeriod::getListOfDateDaysOfTheMonth($start, $end, []);
-		$this->assertCount(0, $days);
-	}
-
-	public function testGetListOfDateDaysOfTheMonthWithNonExistentWeekDay(): void
-	{
-		$start = new \DateTime('2024-01-15'); // Lundi
-		$end = new \DateTime('2024-01-19');   // Vendredi
-
-		// Filtrer avec un jour qui n'existe pas dans la période (dimanche = 7)
-		$days = DatePeriod::getListOfDateDaysOfTheMonth($start, $end, [7]);
-		$this->assertCount(0, $days);
-	}
-
-	public function testGetListOfDaysOfTheMonthWithCustomFormat(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-17');
-
-		// Test avec format complet
-		$days = DatePeriod::getListOfDaysOfTheMonth($start, $end, null, 'l, d F Y');
-		$this->assertCount(3, $days);
-		$this->assertIsString($days[0]);
-	}
-
-	public function testGetNbFullWeeksWithZeroDays(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$this->assertEquals(0, DatePeriod::getNbFullWeeks($date, $date));
-	}
-
-	public function testGetNbWeeksWithSameDate(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$nbWeeks = DatePeriod::getNbWeeks($date, $date);
-		$this->assertGreaterThanOrEqual(0, $nbWeeks);
-	}
-
-	public function testIsFullWeekWithExactlySevenDays(): void
-	{
-		// Du lundi 00:00:00 au dimanche 23:59:59
-		$start = new \DateTime('2024-01-15 00:00:00'); // Lundi
-		$end = new \DateTime('2024-01-21 23:59:59');   // Dimanche
-		$this->assertTrue(DatePeriod::isFullWeek($start, $end));
-	}
-
-	public function testIsFullWeekWithFiveDays(): void
-	{
-		// Du lundi au vendredi (seulement 4 jours de différence)
-		$start = new \DateTime('2024-01-15 00:00:00'); // Lundi
-		$end = new \DateTime('2024-01-19 23:59:59');   // Vendredi
-		$this->assertFalse(DatePeriod::isFullWeek($start, $end));
-	}
-
-	public function testGetNbFullMonthsWithSameDate(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$this->assertEquals(0, DatePeriod::getNbFullMonths($date, $date));
-	}
-
-	public function testGetNbMonthsWithSameDate(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$nbMonths = DatePeriod::getNbMonths($date, $date);
-		$this->assertGreaterThanOrEqual(0, $nbMonths);
-	}
-
-	public function testIsFullMonthWithFebruaryNonLeapYear(): void
-	{
-		// Février année non bissextile (2023)
-		$start = new \DateTime('2023-02-01');
-		$end = new \DateTime('2023-02-28');
-		$this->assertTrue(DatePeriod::isFullMonth($start, $end));
-	}
-
-	public function testIsFullMonthsWithFebruaryNonLeapYear(): void
-	{
-		// Période de janvier à février année non bissextile
-		$start = new \DateTime('2023-01-01');
-		$end = new \DateTime('2023-02-28');
-		$this->assertTrue(DatePeriod::isFullMonths($start, $end));
-	}
-
-	public function testIsFullMonthWithDifferentMonths(): void
-	{
-		// Du 1er janvier au 31 mars (plusieurs mois)
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-03-31');
-		$this->assertFalse(DatePeriod::isFullMonth($start, $end)); // isFullMonth vérifie un SEUL mois
-	}
-
-	public function testGetNbYearsWithZeroDays(): void
-	{
-		$date = new \DateTime('2024-01-15');
-		$this->assertEquals(0, DatePeriod::getNbYears($date, $date));
-	}
-
-	public function testGetNbYearsWithThreeYears(): void
-	{
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2027-01-01');
-		$this->assertEquals(3, DatePeriod::getNbYears($start, $end));
-	}
-
-	public function testGetYearFromStartDateAndEndDateWithMidYear(): void
-	{
-		// Du 1er janvier au 30 juin (pas une année complète)
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-06-30');
-		$this->assertNull(DatePeriod::getYearFromStartDateAndEndDate($start, $end));
-	}
-
-	public function testGetListOfDateWeeksWithSameWeek(): void
-	{
-		$start = new \DateTime('2024-01-15'); // Lundi
-		$end = new \DateTime('2024-01-19');   // Vendredi (même semaine)
-
-		$weeks = DatePeriod::getListOfDateWeeks($start, $end);
-		$this->assertIsArray($weeks);
-		$this->assertGreaterThanOrEqual(1, count($weeks));
-	}
-
-	public function testGetListOfDateMonthsWithSameMonth(): void
-	{
-		$start = new \DateTime('2024-01-15');
-		$end = new \DateTime('2024-01-25');
-
-		$months = DatePeriod::getListOfDateMonths($start, $end);
-		$this->assertIsArray($months);
-		$this->assertGreaterThanOrEqual(1, count($months));
-		$this->assertEquals('2024-01-01', $months[0]->format('Y-m-d'));
-	}
-
-	public function testGetListOfDateMonthsAcrossYear(): void
-	{
-		$start = new \DateTime('2024-11-15');
-		$end = new \DateTime('2025-02-15');
-
-		$months = DatePeriod::getListOfDateMonths($start, $end);
-		$this->assertIsArray($months);
-		$this->assertGreaterThan(2, count($months));
-
-		// Vérifier que les mois traversent bien les années
-		$yearChanges = false;
-		for ($i = 0; $i < count($months) - 1; $i++) {
-			if ($months[$i]->format('Y') !== $months[$i + 1]->format('Y')) {
-				$yearChanges = true;
-				break;
-			}
-		}
-		$this->assertTrue($yearChanges);
-	}
-
-	public function testGetListOfDateWeeksAcrossYear(): void
-	{
-		$start = new \DateTime('2024-12-15');
-		$end = new \DateTime('2025-01-15');
-
-		$weeks = DatePeriod::getListOfDateWeeks($start, $end);
-		$this->assertIsArray($weeks);
-		$this->assertGreaterThan(0, count($weeks));
-	}
-
-	public function testGetNbDaysWithLargePeriod(): void
-	{
-		// Période de plusieurs années
-		$start = new \DateTime('2020-01-01');
-		$end = new \DateTime('2024-12-31');
-		$nbDays = DatePeriod::getNbDays($start, $end);
-		$this->assertGreaterThan(1000, $nbDays);
-		$this->assertEquals(1826, $nbDays); // 5 ans (avec une année bissextile)
-	}
-
-	public function testGetNbRemainingDaysWithFullMonth(): void
-	{
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-02-01');
-		$remaining = DatePeriod::getNbRemainingDays($start, $end);
-		// getNbRemainingDays utilise ->d qui retourne les jours après les mois complets
-		// Entre 2024-01-01 et 2024-02-01 il y a 1 mois et 0 jours restants
-		$this->assertEquals(0, $remaining);
-	}
-
-	public function testIsFullWeeksWithMultipleWeeks(): void
-	{
-		// Du lundi 1er au dimanche 28 janvier 2024 (4 semaines complètes)
-		$start = new \DateTime('2024-01-01'); // Lundi
-		$end = new \DateTime('2024-01-28');   // Dimanche
-		$this->assertTrue(DatePeriod::isFullWeeks($start, $end));
-	}
-
-	public function testGetLabelForSameDay(): void
-	{
-		$date = new \DateTime('2024-03-15');
-		$label = DatePeriod::getLabel($date, $date);
-		$this->assertStringContainsString('le', $label);
-		$this->assertStringContainsString('15', $label);
-		$this->assertStringContainsString('mars', strtolower($label));
-		$this->assertStringContainsString('2024', $label);
-	}
-
-	public function testGetLabelForFullYear(): void
-	{
-		$start = new \DateTime('2024-01-01');
-		$end = new \DateTime('2024-12-31');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('en', $label);
-		$this->assertStringContainsString('2024', $label);
-		$this->assertStringNotContainsString('du', $label);
-	}
-
-	public function testGetLabelForFullMonth(): void
-	{
-		$start = new \DateTime('2024-03-01');
-		$end = new \DateTime('2024-03-31');
-		$label = DatePeriod::getLabel($start, $end);
-		$this->assertStringContainsString('en', $label);
-		$this->assertStringContainsString('mars', strtolower($label));
-		$this->assertStringContainsString('2024', $label);
+		$result = DatePeriod::getListOfPeriodFormatted(PeriodType::DAY_OF_MONTH, $start, $end);
+		$this->assertIsArray($result);
+		$this->assertGreaterThan(0, count($result));
+		$this->assertIsString($result[0]);
 	}
 }
