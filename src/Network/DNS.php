@@ -9,14 +9,14 @@ namespace Osimatic\Network;
 class DNS
 {
 
-	// ========== Check ==========
+	// ========== Validation ==========
 
 	/**
 	 * Checks the syntax of a domain name
 	 * @param string $dns the domain name to check
 	 * @return boolean true if the domain name is syntactically correct, false otherwise
 	 */
-	public static function check(string $dns): bool
+	public static function isValid(string $dns): bool
 	{
 		//return filter_var($url, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
 
@@ -90,6 +90,16 @@ class DNS
 	public static function getSecondLevelDomain(string $dns, bool $withTld=true): string
 	{
 		return self::getSld($dns, $withTld);
+	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValid() instead
+	 */
+	public static function check(string $dns): bool
+	{
+		return self::isValid($dns);
 	}
 
 }

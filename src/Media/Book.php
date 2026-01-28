@@ -28,7 +28,7 @@ class Book
 	{
 		$isbn10 = self::normalizeIsbn($isbn10);
 
-		if (!self::checkIsbn10($isbn10)) {
+		if (!self::isValidIsbn10($isbn10)) {
 			return null;
 		}
 
@@ -54,7 +54,7 @@ class Book
 	 * @return bool True if the ISBN is valid, false otherwise
 	 * @link https://en.wikipedia.org/wiki/International_Standard_Book_Number
 	 */
-	public static function checkIsbn(string $isbn): bool
+	public static function isValidIsbn(string $isbn): bool
 	{
 		return self::_checkIsbn($isbn);
 	}
@@ -64,7 +64,7 @@ class Book
 	 * @param string $isbn The ISBN-10 number to validate
 	 * @return bool True if the ISBN-10 is valid, false otherwise
 	 */
-	public static function checkIsbn10(string $isbn): bool
+	public static function isValidIsbn10(string $isbn): bool
 	{
 		return self::_checkIsbn($isbn, 'isbn10');
 	}
@@ -74,7 +74,7 @@ class Book
 	 * @param string $isbn The ISBN-13 number to validate
 	 * @return bool True if the ISBN-13 is valid, false otherwise
 	 */
-	public static function checkIsbn13(string $isbn): bool
+	public static function isValidIsbn13(string $isbn): bool
 	{
 		return self::_checkIsbn($isbn, 'isbn13');
 	}
@@ -232,13 +232,13 @@ class Book
 		if ($length === 10) {
 			$info['type'] = 'isbn10';
 			$info['check_digit'] = substr($normalizedIsbn, -1);
-			$info['is_valid'] = self::checkIsbn10($isbn);
+			$info['is_valid'] = self::isValidIsbn10($isbn);
 		} elseif ($length === 13) {
 			$info['type'] = 'isbn13';
 			$info['prefix'] = substr($normalizedIsbn, 0, 3);
 			$info['registration_group'] = self::getIsbnRegistrationGroup($isbn);
 			$info['check_digit'] = substr($normalizedIsbn, -1);
-			$info['is_valid'] = self::checkIsbn13($isbn);
+			$info['is_valid'] = self::isValidIsbn13($isbn);
 		}
 
 		return $info;
@@ -326,13 +326,47 @@ class Book
 	 * @return bool True if the ISSN is valid, false otherwise
 	 * @link https://en.wikipedia.org/wiki/International_Standard_Serial_Number
 	 */
-	public static function checkIssn(string $issn): bool
+	public static function isValidIssn(string $issn): bool
 	{
 		if (empty($issn) || $issn === '00000000' || $issn === '0000-0000') {
 			return false;
 		}
 
 		return \Osimatic\Validator\Validator::getInstance()->validate($issn, new \Symfony\Component\Validator\Constraints\Issn())->count() === 0;
+	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValidIsbn() instead
+	 */
+	public static function checkIsbn(string $isbn): bool
+	{
+		return self::isValidIsbn($isbn);
+	}
+
+	/**
+	 * @deprecated Use isValidIsbn10() instead
+	 */
+	public static function checkIsbn10(string $isbn): bool
+	{
+		return self::isValidIsbn10($isbn);
+	}
+
+	/**
+	 * @deprecated Use isValidIsbn13() instead
+	 */
+	public static function checkIsbn13(string $isbn): bool
+	{
+		return self::isValidIsbn13($isbn);
+	}
+
+	/**
+	 * @deprecated Use isValidIssn() instead
+	 */
+	public static function checkIssn(string $issn): bool
+	{
+		return self::isValidIssn($issn);
 	}
 
 }

@@ -75,18 +75,18 @@ final class CountryTest extends TestCase
 
 	public function testCheckCountryCodeValid(): void
 	{
-		$this->assertTrue(Country::checkCountryCode('FR'));
-		$this->assertTrue(Country::checkCountryCode('US'));
-		$this->assertTrue(Country::checkCountryCode('DE'));
-		$this->assertTrue(Country::checkCountryCode('GB'));
+		$this->assertTrue(Country::isValidCountryCode('FR'));
+		$this->assertTrue(Country::isValidCountryCode('US'));
+		$this->assertTrue(Country::isValidCountryCode('DE'));
+		$this->assertTrue(Country::isValidCountryCode('GB'));
 	}
 
 	public function testCheckCountryCodeInvalid(): void
 	{
-		$this->assertFalse(Country::checkCountryCode('XX'));
-		$this->assertFalse(Country::checkCountryCode('ZZ'));
-		$this->assertFalse(Country::checkCountryCode(null));
-		$this->assertFalse(Country::checkCountryCode(''));
+		$this->assertFalse(Country::isValidCountryCode('XX'));
+		$this->assertFalse(Country::isValidCountryCode('ZZ'));
+		$this->assertFalse(Country::isValidCountryCode(null));
+		$this->assertFalse(Country::isValidCountryCode(''));
 	}
 
 	public function testGetCountryCodeFromLocale(): void
@@ -329,5 +329,475 @@ final class CountryTest extends TestCase
 	{
 		// As per the class definition, there should be 27 countries
 		$this->assertCount(27, Country::EUROPEAN_UNION);
+	}
+
+	/* ===================== isSchengenArea() ===================== */
+
+	public function testIsSchengenAreaWithSchengenMembers(): void
+	{
+		// Core Schengen countries
+		$this->assertTrue(Country::isSchengenArea('FR')); // France
+		$this->assertTrue(Country::isSchengenArea('DE')); // Germany
+		$this->assertTrue(Country::isSchengenArea('IT')); // Italy
+		$this->assertTrue(Country::isSchengenArea('ES')); // Spain
+		$this->assertTrue(Country::isSchengenArea('NL')); // Netherlands
+		$this->assertTrue(Country::isSchengenArea('BE')); // Belgium
+		$this->assertTrue(Country::isSchengenArea('PT')); // Portugal
+		$this->assertTrue(Country::isSchengenArea('GR')); // Greece
+		$this->assertTrue(Country::isSchengenArea('AT')); // Austria
+		$this->assertTrue(Country::isSchengenArea('LU')); // Luxembourg
+	}
+
+	public function testIsSchengenAreaWithNordicCountries(): void
+	{
+		$this->assertTrue(Country::isSchengenArea('SE')); // Sweden
+		$this->assertTrue(Country::isSchengenArea('DK')); // Denmark
+		$this->assertTrue(Country::isSchengenArea('FI')); // Finland
+		$this->assertTrue(Country::isSchengenArea('NO')); // Norway (not EU but Schengen)
+		$this->assertTrue(Country::isSchengenArea('IS')); // Iceland (not EU but Schengen)
+	}
+
+	public function testIsSchengenAreaWithEasternEuropeMembers(): void
+	{
+		$this->assertTrue(Country::isSchengenArea('PL')); // Poland
+		$this->assertTrue(Country::isSchengenArea('CZ')); // Czech Republic
+		$this->assertTrue(Country::isSchengenArea('SK')); // Slovakia
+		$this->assertTrue(Country::isSchengenArea('HU')); // Hungary
+		$this->assertTrue(Country::isSchengenArea('SI')); // Slovenia
+		$this->assertTrue(Country::isSchengenArea('EE')); // Estonia
+		$this->assertTrue(Country::isSchengenArea('LV')); // Latvia
+		$this->assertTrue(Country::isSchengenArea('LT')); // Lithuania
+	}
+
+	public function testIsSchengenAreaWithSmallCountries(): void
+	{
+		$this->assertTrue(Country::isSchengenArea('MT')); // Malta
+		$this->assertTrue(Country::isSchengenArea('LI')); // Liechtenstein (not EU but Schengen)
+		$this->assertTrue(Country::isSchengenArea('CH')); // Switzerland (not EU but Schengen)
+	}
+
+	public function testIsSchengenAreaWithNonSchengenEUCountries(): void
+	{
+		// EU countries that are NOT in Schengen
+		$this->assertFalse(Country::isSchengenArea('IE')); // Ireland (EU but not Schengen)
+		$this->assertFalse(Country::isSchengenArea('RO')); // Romania (EU but not Schengen yet)
+		$this->assertFalse(Country::isSchengenArea('BG')); // Bulgaria (EU but not Schengen yet)
+		$this->assertFalse(Country::isSchengenArea('HR')); // Croatia (EU but not Schengen yet)
+		$this->assertFalse(Country::isSchengenArea('CY')); // Cyprus (EU but not Schengen)
+	}
+
+	public function testIsSchengenAreaWithNonEuropeanCountries(): void
+	{
+		$this->assertFalse(Country::isSchengenArea('US')); // United States
+		$this->assertFalse(Country::isSchengenArea('CA')); // Canada
+		$this->assertFalse(Country::isSchengenArea('AU')); // Australia
+		$this->assertFalse(Country::isSchengenArea('JP')); // Japan
+		$this->assertFalse(Country::isSchengenArea('CN')); // China
+		$this->assertFalse(Country::isSchengenArea('BR')); // Brazil
+	}
+
+	public function testIsSchengenAreaWithBrexitCountry(): void
+	{
+		// UK left both EU and Schengen (was never in Schengen)
+		$this->assertFalse(Country::isSchengenArea('GB'));
+	}
+
+	public function testIsSchengenAreaWithOtherEuropeanNonSchengen(): void
+	{
+		$this->assertFalse(Country::isSchengenArea('GB')); // United Kingdom
+		$this->assertFalse(Country::isSchengenArea('RU')); // Russia
+		$this->assertFalse(Country::isSchengenArea('UA')); // Ukraine
+		$this->assertFalse(Country::isSchengenArea('TR')); // Turkey
+		$this->assertFalse(Country::isSchengenArea('RS')); // Serbia
+		$this->assertFalse(Country::isSchengenArea('AL')); // Albania
+	}
+
+	public function testIsSchengenAreaTotalCount(): void
+	{
+		// Verify we have all 26 Schengen countries
+		$schengenCountries = [
+			'AT', 'BE', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
+			'IS', 'IT', 'LV', 'LI', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL',
+			'PT', 'SK', 'SI', 'ES', 'SE', 'CH',
+		];
+
+		foreach ($schengenCountries as $country) {
+			$this->assertTrue(Country::isSchengenArea($country), "Country $country should be in Schengen");
+		}
+
+		$this->assertCount(26, $schengenCountries);
+	}
+
+	/* ===================== getCountriesByContinent() ===================== */
+
+	public function testGetCountriesByContinentEurope(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::EUROPE);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check major European countries
+		$this->assertContains('FR', $countries); // France
+		$this->assertContains('DE', $countries); // Germany
+		$this->assertContains('IT', $countries); // Italy
+		$this->assertContains('ES', $countries); // Spain
+		$this->assertContains('GB', $countries); // United Kingdom
+		$this->assertContains('PL', $countries); // Poland
+		$this->assertContains('RU', $countries); // Russia
+		$this->assertContains('UA', $countries); // Ukraine
+		$this->assertContains('SE', $countries); // Sweden
+		$this->assertContains('NO', $countries); // Norway
+		$this->assertContains('CH', $countries); // Switzerland
+		$this->assertContains('GR', $countries); // Greece
+
+		// Should NOT contain non-European countries
+		$this->assertNotContains('US', $countries);
+		$this->assertNotContains('CN', $countries);
+		$this->assertNotContains('BR', $countries);
+
+		// Should have a significant number of countries (40+)
+		$this->assertGreaterThan(40, count($countries));
+	}
+
+	public function testGetCountriesByContinentAsia(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::ASIA);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check major Asian countries
+		$this->assertContains('CN', $countries); // China
+		$this->assertContains('JP', $countries); // Japan
+		$this->assertContains('IN', $countries); // India
+		$this->assertContains('KR', $countries); // South Korea
+		$this->assertContains('TH', $countries); // Thailand
+		$this->assertContains('VN', $countries); // Vietnam
+		$this->assertContains('ID', $countries); // Indonesia
+		$this->assertContains('PK', $countries); // Pakistan
+		$this->assertContains('BD', $countries); // Bangladesh
+		$this->assertContains('PH', $countries); // Philippines
+		$this->assertContains('MY', $countries); // Malaysia
+		$this->assertContains('SG', $countries); // Singapore
+
+		// Should NOT contain non-Asian countries
+		$this->assertNotContains('FR', $countries);
+		$this->assertNotContains('US', $countries);
+		$this->assertNotContains('AU', $countries);
+	}
+
+	public function testGetCountriesByContinentAfrica(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::AFRICA);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check major African countries
+		$this->assertContains('EG', $countries); // Egypt
+		$this->assertContains('ZA', $countries); // South Africa
+		$this->assertContains('NG', $countries); // Nigeria
+		$this->assertContains('KE', $countries); // Kenya
+		$this->assertContains('MA', $countries); // Morocco
+		$this->assertContains('DZ', $countries); // Algeria
+		$this->assertContains('TN', $countries); // Tunisia
+		$this->assertContains('ET', $countries); // Ethiopia
+		$this->assertContains('GH', $countries); // Ghana
+		$this->assertContains('SN', $countries); // Senegal
+
+		// Should NOT contain non-African countries
+		$this->assertNotContains('US', $countries);
+		$this->assertNotContains('FR', $countries);
+		$this->assertNotContains('BR', $countries);
+
+		// Should have 50+ countries
+		$this->assertGreaterThan(50, count($countries));
+	}
+
+	public function testGetCountriesByContinentNorthAmerica(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::NORTH_AMERICA);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check major North American countries
+		$this->assertContains('US', $countries); // United States
+		$this->assertContains('CA', $countries); // Canada
+		$this->assertContains('MX', $countries); // Mexico
+		$this->assertContains('GT', $countries); // Guatemala
+		$this->assertContains('CR', $countries); // Costa Rica
+		$this->assertContains('PA', $countries); // Panama
+		$this->assertContains('CU', $countries); // Cuba
+		$this->assertContains('HT', $countries); // Haiti
+		$this->assertContains('DO', $countries); // Dominican Republic
+		$this->assertContains('JM', $countries); // Jamaica
+
+		// Should NOT contain South American countries
+		$this->assertNotContains('BR', $countries);
+		$this->assertNotContains('AR', $countries);
+		$this->assertNotContains('CL', $countries);
+	}
+
+	public function testGetCountriesByContinentSouthAmerica(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::SOUTH_AMERICA);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check all South American countries
+		$this->assertContains('BR', $countries); // Brazil
+		$this->assertContains('AR', $countries); // Argentina
+		$this->assertContains('CL', $countries); // Chile
+		$this->assertContains('CO', $countries); // Colombia
+		$this->assertContains('PE', $countries); // Peru
+		$this->assertContains('VE', $countries); // Venezuela
+		$this->assertContains('EC', $countries); // Ecuador
+		$this->assertContains('BO', $countries); // Bolivia
+		$this->assertContains('PY', $countries); // Paraguay
+		$this->assertContains('UY', $countries); // Uruguay
+		$this->assertContains('GY', $countries); // Guyana
+		$this->assertContains('SR', $countries); // Suriname
+
+		// Should NOT contain North American countries
+		$this->assertNotContains('US', $countries);
+		$this->assertNotContains('CA', $countries);
+		$this->assertNotContains('MX', $countries);
+
+		// Should have exactly 12 countries
+		$this->assertCount(12, $countries);
+	}
+
+	public function testGetCountriesByContinentOceania(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::OCEANIA);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check major Oceania countries
+		$this->assertContains('AU', $countries); // Australia
+		$this->assertContains('NZ', $countries); // New Zealand
+		$this->assertContains('FJ', $countries); // Fiji
+		$this->assertContains('PG', $countries); // Papua New Guinea
+		$this->assertContains('WS', $countries); // Samoa
+		$this->assertContains('TO', $countries); // Tonga
+		$this->assertContains('VU', $countries); // Vanuatu
+		$this->assertContains('SB', $countries); // Solomon Islands
+
+		// Should NOT contain Asian countries
+		$this->assertNotContains('JP', $countries);
+		$this->assertNotContains('CN', $countries);
+		$this->assertNotContains('ID', $countries);
+	}
+
+	public function testGetCountriesByContinentMiddleEast(): void
+	{
+		$countries = Country::getCountriesByContinent(\Osimatic\Location\Continent::MIDDLE_EAST);
+
+		$this->assertIsArray($countries);
+		$this->assertNotEmpty($countries);
+
+		// Check major Middle Eastern countries
+		$this->assertContains('SA', $countries); // Saudi Arabia
+		$this->assertContains('AE', $countries); // United Arab Emirates
+		$this->assertContains('IL', $countries); // Israel
+		$this->assertContains('JO', $countries); // Jordan
+		$this->assertContains('LB', $countries); // Lebanon
+		$this->assertContains('SY', $countries); // Syria
+		$this->assertContains('IQ', $countries); // Iraq
+		$this->assertContains('IR', $countries); // Iran
+		$this->assertContains('YE', $countries); // Yemen
+		$this->assertContains('OM', $countries); // Oman
+		$this->assertContains('KW', $countries); // Kuwait
+		$this->assertContains('QA', $countries); // Qatar
+		$this->assertContains('BH', $countries); // Bahrain
+		$this->assertContains('TR', $countries); // Turkey
+
+		// Should NOT contain non-Middle Eastern countries
+		$this->assertNotContains('PK', $countries); // Pakistan is in Asia
+		$this->assertNotContains('AF', $countries); // Afghanistan is in Asia
+		$this->assertNotContains('EG', $countries); // Egypt is in Africa
+	}
+
+	public function testGetCountriesByContinentReturnsUniqueCountries(): void
+	{
+		// Test that each continent returns unique country codes (no duplicates)
+		$continents = [
+			\Osimatic\Location\Continent::EUROPE,
+			\Osimatic\Location\Continent::ASIA,
+			\Osimatic\Location\Continent::AFRICA,
+			\Osimatic\Location\Continent::NORTH_AMERICA,
+			\Osimatic\Location\Continent::SOUTH_AMERICA,
+			\Osimatic\Location\Continent::OCEANIA,
+		];
+
+		foreach ($continents as $continent) {
+			$countries = Country::getCountriesByContinent($continent);
+			$unique = array_unique($countries);
+			$this->assertCount(count($countries), $unique, "Continent {$continent->name} should have unique country codes");
+		}
+	}
+
+	/* ===================== getContinentByCountry() ===================== */
+
+	public function testGetContinentByCountryEuropeanCountries(): void
+	{
+		// Major European countries
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('FR'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('DE'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('IT'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('ES'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('GB'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('PL'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('RU'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('CH'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('NO'));
+		$this->assertSame(\Osimatic\Location\Continent::EUROPE, Country::getContinentByCountry('SE'));
+	}
+
+	public function testGetContinentByCountryAsianCountries(): void
+	{
+		// Major Asian countries
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('CN'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('JP'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('IN'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('KR'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('TH'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('VN'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('ID'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('PK'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('BD'));
+		$this->assertSame(\Osimatic\Location\Continent::ASIA, Country::getContinentByCountry('MY'));
+	}
+
+	public function testGetContinentByCountryAfricanCountries(): void
+	{
+		// Major African countries
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('EG'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('ZA'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('NG'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('KE'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('MA'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('DZ'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('TN'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('ET'));
+		$this->assertSame(\Osimatic\Location\Continent::AFRICA, Country::getContinentByCountry('GH'));
+	}
+
+	public function testGetContinentByCountryNorthAmericanCountries(): void
+	{
+		// Major North American countries
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('US'));
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('CA'));
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('MX'));
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('CU'));
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('JM'));
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('HT'));
+		$this->assertSame(\Osimatic\Location\Continent::NORTH_AMERICA, Country::getContinentByCountry('DO'));
+	}
+
+	public function testGetContinentByCountrySouthAmericanCountries(): void
+	{
+		// All South American countries
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('BR'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('AR'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('CL'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('CO'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('PE'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('VE'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('EC'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('BO'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('PY'));
+		$this->assertSame(\Osimatic\Location\Continent::SOUTH_AMERICA, Country::getContinentByCountry('UY'));
+	}
+
+	public function testGetContinentByCountryOceaniaCountries(): void
+	{
+		// Major Oceania countries
+		$this->assertSame(\Osimatic\Location\Continent::OCEANIA, Country::getContinentByCountry('AU'));
+		$this->assertSame(\Osimatic\Location\Continent::OCEANIA, Country::getContinentByCountry('NZ'));
+		$this->assertSame(\Osimatic\Location\Continent::OCEANIA, Country::getContinentByCountry('FJ'));
+		$this->assertSame(\Osimatic\Location\Continent::OCEANIA, Country::getContinentByCountry('PG'));
+		$this->assertSame(\Osimatic\Location\Continent::OCEANIA, Country::getContinentByCountry('WS'));
+	}
+
+	public function testGetContinentByCountryMiddleEastCountries(): void
+	{
+		// Middle Eastern countries
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('SA'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('AE'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('IL'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('JO'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('LB'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('IQ'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('KW'));
+		$this->assertSame(\Osimatic\Location\Continent::MIDDLE_EAST, Country::getContinentByCountry('QA'));
+	}
+
+	public function testGetContinentByCountryInvalidCountryCode(): void
+	{
+		// Invalid or non-existent country codes should return null
+		$this->assertNull(Country::getContinentByCountry('XX'));
+		$this->assertNull(Country::getContinentByCountry('ZZ'));
+		$this->assertNull(Country::getContinentByCountry('AAA'));
+		$this->assertNull(Country::getContinentByCountry(''));
+	}
+
+	public function testGetContinentByCountryConsistency(): void
+	{
+		// Test that getContinentByCountry is consistent with getCountriesByContinent
+		$continents = [
+			\Osimatic\Location\Continent::EUROPE,
+			\Osimatic\Location\Continent::ASIA,
+			\Osimatic\Location\Continent::AFRICA,
+			\Osimatic\Location\Continent::NORTH_AMERICA,
+			\Osimatic\Location\Continent::SOUTH_AMERICA,
+			\Osimatic\Location\Continent::OCEANIA,
+			\Osimatic\Location\Continent::MIDDLE_EAST,
+		];
+
+		foreach ($continents as $continent) {
+			$countries = Country::getCountriesByContinent($continent);
+			foreach ($countries as $countryCode) {
+				$foundContinent = Country::getContinentByCountry($countryCode);
+				$this->assertNotNull($foundContinent, "Country $countryCode from {$continent->name} should have a continent");
+			}
+		}
+	}
+
+	public function testGetContinentByCountryReturnsFirstMatch(): void
+	{
+		// Countries that appear in multiple regions should return the first match found
+		// For example, Mexico appears in both NORTH_AMERICA and CENTRAL_AMERICA
+		$continent = Country::getContinentByCountry('MX');
+		$this->assertNotNull($continent);
+		$this->assertInstanceOf(\Osimatic\Location\Continent::class, $continent);
+
+		// Cuba appears in both NORTH_AMERICA and CARIBBEAN
+		$continent = Country::getContinentByCountry('CU');
+		$this->assertNotNull($continent);
+		$this->assertInstanceOf(\Osimatic\Location\Continent::class, $continent);
+	}
+
+	public function testGetContinentByCountryAllContinentsHaveCountries(): void
+	{
+		// Verify that all continents (except Antarctica) have at least one country
+		$continentsWithCountries = [
+			\Osimatic\Location\Continent::EUROPE,
+			\Osimatic\Location\Continent::ASIA,
+			\Osimatic\Location\Continent::AFRICA,
+			\Osimatic\Location\Continent::NORTH_AMERICA,
+			\Osimatic\Location\Continent::SOUTH_AMERICA,
+			\Osimatic\Location\Continent::OCEANIA,
+			\Osimatic\Location\Continent::MIDDLE_EAST,
+		];
+
+		foreach ($continentsWithCountries as $continent) {
+			$countries = Country::getCountriesByContinent($continent);
+			$this->assertNotEmpty($countries, "Continent {$continent->name} should have at least one country");
+		}
 	}
 }

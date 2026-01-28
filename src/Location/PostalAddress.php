@@ -29,7 +29,7 @@ class PostalAddress
 	 * @param string|null $value The street address to validate
 	 * @return bool True if valid
 	 */
-	public static function checkStreet(?string $value): bool
+	public static function isValidStreet(?string $value): bool
 	{
 		//return preg_match('/(([0-9]+ )?[a-zA-Z ]){1,200}$/', $value);
 		return preg_match('/^(.){1,200}$/u', $value);
@@ -41,7 +41,7 @@ class PostalAddress
 	 * @param string|null $country The ISO 3166-1 alpha-2 country code for country-specific validation
 	 * @return bool True if valid
 	 */
-	public static function checkPostalCode(?string $value, ?string $country=null): bool
+	public static function isValidPostalCode(?string $value, ?string $country=null): bool
 	{
 		// If country is provided, validate using country-specific postal code format
 		if (null !== $country) {
@@ -55,13 +55,13 @@ class PostalAddress
 	}
 
 	/**
-	 * Alias for checkPostalCode().
+	 * Alias for isValidPostalCode().
 	 * @param string|null $value The ZIP code to validate
 	 * @return bool True if valid
 	 */
-	public static function checkZipCode(?string $value): bool
+	public static function isValidZipCode(?string $value): bool
 	{
-		return self::checkPostalCode($value);
+		return self::isValidPostalCode($value);
 	}
 
 	/**
@@ -69,7 +69,7 @@ class PostalAddress
 	 * @param string|null $value The city name to validate
 	 * @return bool True if valid
 	 */
-	public static function checkCity(?string $value): bool
+	public static function isValidCity(?string $value): bool
 	{
 		// /^([a-zA-Z'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]){2-100}$/
 		//return preg_match('/^[a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]+$/u', $value);
@@ -198,7 +198,48 @@ class PostalAddress
 
 
 
-	// ========== DEPRECATED ==========
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValidStreet() instead
+	 * @param string|null $value The street address to validate
+	 * @return bool True if valid
+	 */
+	public static function checkStreet(?string $value): bool
+	{
+		return self::isValidStreet($value);
+	}
+
+	/**
+	 * @deprecated Use isValidPostalCode() instead
+	 * @param string|null $value The postal code to validate
+	 * @param string|null $country The ISO 3166-1 alpha-2 country code for country-specific validation
+	 * @return bool True if valid
+	 */
+	public static function checkPostalCode(?string $value, ?string $country=null): bool
+	{
+		return self::isValidPostalCode($value, $country);
+	}
+
+	/**
+	 * @deprecated Use isValidZipCode() instead
+	 * @param string|null $value The ZIP code to validate
+	 * @return bool True if valid
+	 */
+	public static function checkZipCode(?string $value): bool
+	{
+		return self::isValidZipCode($value);
+	}
+
+	/**
+	 * @deprecated Use isValidCity() instead
+	 * @param string|null $value The city name to validate
+	 * @return bool True if valid
+	 */
+	public static function checkCity(?string $value): bool
+	{
+		return self::isValidCity($value);
+	}
 
 	/**
 	 * @deprecated use formatInline instead

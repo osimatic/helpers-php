@@ -88,44 +88,44 @@ final class TimeTest extends TestCase
 
 	// ========== Validation Methods Tests ==========
 
-	public function testCheck(): void
+	public function testIsValid(): void
 	{
 		// Valid times
-		$this->assertTrue(Time::check(0, 0, 0));
-		$this->assertTrue(Time::check(12, 30, 45));
-		$this->assertTrue(Time::check(23, 59, 59));
-		$this->assertTrue(Time::check(14, 30)); // Default seconds = 0
+		$this->assertTrue(Time::isValid(0, 0, 0));
+		$this->assertTrue(Time::isValid(12, 30, 45));
+		$this->assertTrue(Time::isValid(23, 59, 59));
+		$this->assertTrue(Time::isValid(14, 30)); // Default seconds = 0
 
 		// Invalid times - hour out of range
-		$this->assertFalse(Time::check(24, 0, 0));
-		$this->assertFalse(Time::check(-1, 0, 0));
+		$this->assertFalse(Time::isValid(24, 0, 0));
+		$this->assertFalse(Time::isValid(-1, 0, 0));
 
 		// Invalid times - minute out of range
-		$this->assertFalse(Time::check(12, 60, 0));
-		$this->assertFalse(Time::check(12, -1, 0));
+		$this->assertFalse(Time::isValid(12, 60, 0));
+		$this->assertFalse(Time::isValid(12, -1, 0));
 
 		// Invalid times - second out of range
-		$this->assertFalse(Time::check(12, 30, 60));
-		$this->assertFalse(Time::check(12, 30, -1));
+		$this->assertFalse(Time::isValid(12, 30, 60));
+		$this->assertFalse(Time::isValid(12, 30, -1));
 	}
 
-	public function testCheckValue(): void
+	public function testIsValidValue(): void
 	{
 		// Valid values
-		$this->assertTrue(Time::checkValue('14:30:45'));
-		$this->assertTrue(Time::checkValue('00:00:00'));
-		$this->assertTrue(Time::checkValue('23:59:59'));
-		$this->assertTrue(Time::checkValue('14h30', 'h'));
+		$this->assertTrue(Time::isValidValue('14:30:45'));
+		$this->assertTrue(Time::isValidValue('00:00:00'));
+		$this->assertTrue(Time::isValidValue('23:59:59'));
+		$this->assertTrue(Time::isValidValue('14h30', 'h'));
 
 		// Invalid values - time component out of range
-		$this->assertFalse(Time::checkValue('24:00:00'));
-		$this->assertFalse(Time::checkValue('12:60:00'));
-		$this->assertFalse(Time::checkValue('12:30:60'));
+		$this->assertFalse(Time::isValidValue('24:00:00'));
+		$this->assertFalse(Time::isValidValue('12:60:00'));
+		$this->assertFalse(Time::isValidValue('12:30:60'));
 
 		// Invalid values - format
-		$this->assertFalse(Time::checkValue('invalid'));
-		$this->assertFalse(Time::checkValue(null));
-		$this->assertFalse(Time::checkValue(''));
+		$this->assertFalse(Time::isValidValue('invalid'));
+		$this->assertFalse(Time::isValidValue(null));
+		$this->assertFalse(Time::isValidValue(''));
 	}
 
 	// ========== Formatting Methods Tests ==========

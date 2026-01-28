@@ -162,70 +162,70 @@ final class StrTest extends TestCase
 		$this->assertStringContainsString('&hellip;', $result);
 	}
 
-	/* ===================== checkLowercase() ===================== */
+	/* ===================== isLowercase() ===================== */
 
-	public function testCheckLowercase(): void
+	public function testIsLowercase(): void
 	{
-		$this->assertTrue(Str::checkLowercase('hello'));
-		$this->assertFalse(Str::checkLowercase('Hello'));
-		$this->assertFalse(Str::checkLowercase('HELLO'));
+		$this->assertTrue(Str::isLowercase('hello'));
+		$this->assertFalse(Str::isLowercase('Hello'));
+		$this->assertFalse(Str::isLowercase('HELLO'));
 	}
 
-	/* ===================== checkUppercase() ===================== */
+	/* ===================== isUppercase() ===================== */
 
-	public function testCheckUppercase(): void
+	public function testIsUppercase(): void
 	{
-		$this->assertTrue(Str::checkUppercase('HELLO'));
-		$this->assertFalse(Str::checkUppercase('Hello'));
-		$this->assertFalse(Str::checkUppercase('hello'));
+		$this->assertTrue(Str::isUppercase('HELLO'));
+		$this->assertFalse(Str::isUppercase('Hello'));
+		$this->assertFalse(Str::isUppercase('hello'));
 	}
 
-	/* ===================== checkLength() ===================== */
+	/* ===================== hasLengthBetween() ===================== */
 
-	public function testCheckLength(): void
+	public function testHasLengthBetween(): void
 	{
-		$this->assertTrue(Str::checkLength('test', 3, 5));
-		$this->assertTrue(Str::checkLength('test', 4, 4));
-		$this->assertFalse(Str::checkLength('test', 5, 10));
-		$this->assertFalse(Str::checkLength('test', 1, 3));
+		$this->assertTrue(Str::hasLengthBetween('test', 3, 5));
+		$this->assertTrue(Str::hasLengthBetween('test', 4, 4));
+		$this->assertFalse(Str::hasLengthBetween('test', 5, 10));
+		$this->assertFalse(Str::hasLengthBetween('test', 1, 3));
 	}
 
-	public function testCheckLengthInvalidRange(): void
+	public function testHasLengthBetweenInvalidRange(): void
 	{
-		$this->assertFalse(Str::checkLength('test', 10, 5));
+		$this->assertFalse(Str::hasLengthBetween('test', 10, 5));
 	}
 
-	/* ===================== checkForAlphabeticCharacters() ===================== */
+	/* ===================== isAlphabeticWithLength() ===================== */
 
-	public function testCheckForAlphabeticCharacters(): void
+	public function testIsAlphabeticWithLength(): void
 	{
-		$this->assertTrue(Str::checkForAlphabeticCharacters('test', 3, 5));
-		$this->assertFalse(Str::checkForAlphabeticCharacters('test123', 3, 10));
-		$this->assertFalse(Str::checkForAlphabeticCharacters('te', 3, 5));
+		$this->assertTrue(Str::isAlphabeticWithLength('test', 3, 5));
+		$this->assertFalse(Str::isAlphabeticWithLength('test123', 3, 10));
+		$this->assertFalse(Str::isAlphabeticWithLength('te', 3, 5));
 	}
 
-	/* ===================== checkForAlphanumericCharacters() ===================== */
+	/* ===================== isAlphanumericWithLength() ===================== */
 
-	public function testCheckForAlphanumericCharacters(): void
+	public function testIsAlphanumericWithLength(): void
 	{
-		$this->assertTrue(Str::checkForAlphanumericCharacters('test123', 5, 10));
-		$this->assertFalse(Str::checkForAlphanumericCharacters('test-123', 5, 10));
-		$this->assertFalse(Str::checkForAlphanumericCharacters('te', 5, 10));
+		$this->assertTrue(Str::isAlphanumericWithLength('test123', 5, 10));
+		$this->assertFalse(Str::isAlphanumericWithLength('test-123', 5, 10));
+		$this->assertFalse(Str::isAlphanumericWithLength('te', 5, 10));
 	}
 
-	/* ===================== checkForNumericCharacters() ===================== */
+	/* ===================== isNumericWithLength() ===================== */
 
-	public function testCheckForNumericCharacters(): void
+	public function testIsNumericWithLength(): void
 	{
-		$this->assertTrue(Str::checkForNumericCharacters('12345', 3, 10));
-		$this->assertFalse(Str::checkForNumericCharacters('123a5', 3, 10));
-		$this->assertFalse(Str::checkForNumericCharacters('12', 3, 10));
+		$this->assertTrue(Str::isNumericWithLength('12345', 3, 10));
+		$this->assertFalse(Str::isNumericWithLength('123a5', 3, 10));
+		$this->assertFalse(Str::isNumericWithLength('12', 3, 10));
 	}
 
-	public function testCheckForNumericCharactersStartWithZero(): void
+	public function testIsNumericWithLengthStartWithZero(): void
 	{
-		$this->assertTrue(Str::checkForNumericCharacters('01234', 3, 10, canStartWithZero: true));
-		$this->assertFalse(Str::checkForNumericCharacters('01234', 3, 10, canStartWithZero: false));
+		$this->assertTrue(Str::isNumericWithLength('01234', 3, 10, canStartWithZero: true));
+		$this->assertFalse(Str::isNumericWithLength('01234', 3, 10, canStartWithZero: false));
 	}
 
 	/* ===================== ctype_alpha_and_num() ===================== */
@@ -481,6 +481,71 @@ final class StrTest extends TestCase
 		$this->assertSame('', Str::repeater('test', 0));
 	}
 
+	/* ===================== wrapWord() ===================== */
+
+	public function testWrapWordShortText(): void
+	{
+		// Text shorter than charlim should not be wrapped
+		$str = 'Short text';
+		$result = Str::wrapWord($str, 50);
+		$this->assertSame('Short text', $result);
+	}
+
+	public function testWrapWordLongText(): void
+	{
+		// Long text should be wrapped
+		$str = 'This is a very long text that needs to be wrapped at a certain character limit to ensure readability';
+		$result = Str::wrapWord($str, 40);
+		$this->assertStringContainsString("\n", $result);
+		$lines = explode("\n", $result);
+		foreach ($lines as $line) {
+			$this->assertLessThanOrEqual(41, strlen($line)); // Allow some flexibility
+		}
+	}
+
+	public function testWrapWordWithUrls(): void
+	{
+		// URLs should not be wrapped
+		$str = 'Check this link http://example.com/very/long/url/that/should/not/be/wrapped please';
+		$result = Str::wrapWord($str, 20);
+		$this->assertStringContainsString('http://example.com/very/long/url/that/should/not/be/wrapped', $result);
+	}
+
+	public function testWrapWordWithUnwrapTags(): void
+	{
+		// Content within {unwrap}{/unwrap} tags should not be wrapped
+		$str = 'This is text {unwrap}this is a very long sentence that should not be wrapped at all{/unwrap} more text';
+		$result = Str::wrapWord($str, 20);
+		$this->assertStringContainsString('this is a very long sentence that should not be wrapped at all', $result);
+	}
+
+	public function testWrapWordMultipleSpaces(): void
+	{
+		// Multiple spaces should be reduced to single spaces
+		$str = 'Text  with    multiple     spaces';
+		$result = Str::wrapWord($str, 50);
+		$this->assertStringNotContainsString('  ', $result);
+		$this->assertSame('Text with multiple spaces', $result);
+	}
+
+	public function testWrapWordDifferentLineBreaks(): void
+	{
+		// Different line break types should be normalized
+		$str = "Line1\r\nLine2\rLine3\nLine4";
+		$result = Str::wrapWord($str, 50);
+		$lines = explode("\n", $result);
+		$this->assertCount(4, $lines);
+	}
+
+	public function testWrapWordVeryLongWords(): void
+	{
+		// Very long words exceeding charlim should be split
+		$str = 'Thisisaverylongwordthatexceedsthecharacterlimit';
+		$result = Str::wrapWord($str, 20);
+		$lines = explode("\n", $result);
+		$this->assertGreaterThan(1, count($lines));
+	}
+
 	/* ===================== censorWord() ===================== */
 
 	public function testCensorWord(): void
@@ -497,6 +562,62 @@ final class StrTest extends TestCase
 		$censored = ['bad'];
 		$result = Str::censorWord($str, $censored, '***');
 		$this->assertSame('This is a *** word', $result);
+	}
+
+	public function testCensorWordMultipleWords(): void
+	{
+		// Multiple words should be censored
+		$str = 'This is a bad word and another ugly thing';
+		$censored = ['bad', 'ugly'];
+		$result = Str::censorWord($str, $censored);
+		$this->assertSame('This is a #### word and another #### thing', $result);
+	}
+
+	public function testCensorWordWithWildcards(): void
+	{
+		// Wildcards should match multiple words
+		$str = 'This is a badword and another bad thing';
+		$censored = ['bad*'];
+		$result = Str::censorWord($str, $censored);
+		$this->assertSame('This is a #### and another #### thing', $result);
+	}
+
+	public function testCensorWordCaseSensitive(): void
+	{
+		// Should be case-insensitive by default
+		$str = 'This is a BAD word and a Bad thing';
+		$censored = ['bad'];
+		$result = Str::censorWord($str, $censored);
+		$this->assertSame('This is a #### word and a #### thing', $result);
+	}
+
+	public function testCensorWordEmptyList(): void
+	{
+		// Empty censored list should not change the string
+		$str = 'This is a bad word';
+		$censored = [];
+		$result = Str::censorWord($str, $censored);
+		$this->assertSame('This is a bad word', $result);
+	}
+
+	public function testCensorWordCustomReplacementEmpty(): void
+	{
+		// Empty replacement should use hashes matching word length
+		$str = 'This is a bad word';
+		$censored = ['bad'];
+		$result = Str::censorWord($str, $censored, '');
+		$this->assertStringContainsString('###', $result);
+	}
+
+	public function testCensorWordAtStartAndEnd(): void
+	{
+		// Words at start and end of sentence should be censored
+		$str = 'bad word in the middle and ugly';
+		$censored = ['bad', 'ugly'];
+		$result = Str::censorWord($str, $censored);
+		$this->assertStringContainsString('####', $result);
+		$this->assertStringStartsWith('####', $result);
+		$this->assertStringEndsWith('####', $result);
 	}
 
 	/* ===================== removeAccents() ===================== */
@@ -528,5 +649,77 @@ final class StrTest extends TestCase
 	{
 		$this->assertSame('Hello', Str::mb_ucfirst('hello'));
 		$this->assertSame('École', Str::mb_ucfirst('école'));
+	}
+
+	/* ===================== DEPRECATED METHODS (Backward Compatibility) ===================== */
+
+	/**
+	 * @deprecated Tests for checkLowercase() - Use isLowercase() instead
+	 */
+	public function testCheckLowercaseDeprecated(): void
+	{
+		$this->assertTrue(Str::checkLowercase('hello'));
+		$this->assertFalse(Str::checkLowercase('Hello'));
+		$this->assertFalse(Str::checkLowercase('HELLO'));
+	}
+
+	/**
+	 * @deprecated Tests for checkUppercase() - Use isUppercase() instead
+	 */
+	public function testCheckUppercaseDeprecated(): void
+	{
+		$this->assertTrue(Str::checkUppercase('HELLO'));
+		$this->assertFalse(Str::checkUppercase('Hello'));
+		$this->assertFalse(Str::checkUppercase('hello'));
+	}
+
+	/**
+	 * @deprecated Tests for checkLength() - Use hasLengthBetween() instead
+	 */
+	public function testCheckLengthDeprecated(): void
+	{
+		$this->assertTrue(Str::checkLength('test', 3, 5));
+		$this->assertTrue(Str::checkLength('test', 4, 4));
+		$this->assertFalse(Str::checkLength('test', 5, 10));
+		$this->assertFalse(Str::checkLength('test', 1, 3));
+	}
+
+	/**
+	 * @deprecated Tests for checkForAlphabeticCharacters() - Use isAlphabeticWithLength() instead
+	 */
+	public function testCheckForAlphabeticCharactersDeprecated(): void
+	{
+		$this->assertTrue(Str::checkForAlphabeticCharacters('test', 3, 5));
+		$this->assertFalse(Str::checkForAlphabeticCharacters('test123', 3, 10));
+		$this->assertFalse(Str::checkForAlphabeticCharacters('te', 3, 5));
+	}
+
+	/**
+	 * @deprecated Tests for checkForAlphanumericCharacters() - Use isAlphanumericWithLength() instead
+	 */
+	public function testCheckForAlphanumericCharactersDeprecated(): void
+	{
+		$this->assertTrue(Str::checkForAlphanumericCharacters('test123', 5, 10));
+		$this->assertFalse(Str::checkForAlphanumericCharacters('test-123', 5, 10));
+		$this->assertFalse(Str::checkForAlphanumericCharacters('te', 5, 10));
+	}
+
+	/**
+	 * @deprecated Tests for checkForNumericCharacters() - Use isNumericWithLength() instead
+	 */
+	public function testCheckForNumericCharactersDeprecated(): void
+	{
+		$this->assertTrue(Str::checkForNumericCharacters('12345', 3, 10));
+		$this->assertFalse(Str::checkForNumericCharacters('123a5', 3, 10));
+		$this->assertFalse(Str::checkForNumericCharacters('12', 3, 10));
+	}
+
+	/**
+	 * @deprecated Tests for checkForNumericCharacters() with canStartWithZero - Use isNumericWithLength() instead
+	 */
+	public function testCheckForNumericCharactersStartWithZeroDeprecated(): void
+	{
+		$this->assertTrue(Str::checkForNumericCharacters('01234', 3, 10, canStartWithZero: true));
+		$this->assertFalse(Str::checkForNumericCharacters('01234', 3, 10, canStartWithZero: false));
 	}
 }

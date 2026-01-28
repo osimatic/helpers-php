@@ -277,7 +277,7 @@ class Duration
 	 * @param int $secondPos the position of seconds (default: 3)
 	 * @return bool true if valid duration, false otherwise
 	 */
-	public static function check(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
+	public static function isValid(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
 		return (null !== self::_parse($enteredDuration, $separator, $hourPos, $minutePos, $secondPos));
 	}
@@ -427,7 +427,15 @@ class Duration
 
 
 
-	// ========== DEPRECATED ==========
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated use isValid instead
+	 */
+	public static function check(mixed $enteredDuration, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
+	{
+		return self::isValid($enteredDuration, $separator, $hourPos, $minutePos, $secondPos);
+	}
 
 	/**
 	 * @deprecated use formatNbHours instead

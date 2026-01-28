@@ -21,7 +21,7 @@ class Name
 	 * @param string|int|null $value The civility code to validate
 	 * @return bool True if valid, false otherwise
 	 */
-	public static function checkCivility(string|int|null $value): bool
+	public static function isValidCivility(string|int|null $value): bool
 	{
 		return preg_match('/[0-2]/', $value);
 	}
@@ -34,21 +34,21 @@ class Name
 	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
 	 * @return bool True if valid, false otherwise
 	 */
-	public static function checkFirstName(?string $value, bool $numbersAllowed=false): bool
+	public static function isValidFirstName(?string $value, bool $numbersAllowed=false): bool
 	{
 		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{3,120})$/u', $value);
 	}
 
 	/**
-	 * Validates a given name format (alias for checkFirstName).
-	 * This method is an alias for checkFirstName, following Schema.org naming conventions.
+	 * Validates a given name format (alias for isValidFirstName).
+	 * This method is an alias for isValidFirstName, following Schema.org naming conventions.
 	 * @param string|null $value The given name to validate
 	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
 	 * @return bool True if valid, false otherwise
 	 */
-	public static function checkGivenName(?string $value, bool $numbersAllowed=false): bool
+	public static function isValidGivenName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return self::checkFirstName($value, $numbersAllowed);
+		return self::isValidFirstName($value, $numbersAllowed);
 	}
 
 	/**
@@ -59,21 +59,21 @@ class Name
 	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
 	 * @return bool True if valid, false otherwise
 	 */
-	public static function checkLastName(?string $value, bool $numbersAllowed=false): bool
+	public static function isValidLastName(?string $value, bool $numbersAllowed=false): bool
 	{
 		return preg_match('/^(['.($numbersAllowed?'0-9':'').'a-zA-Z\'àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\s-]{2,120})$/u', $value);
 	}
 
 	/**
-	 * Validates a family name format (alias for checkLastName).
-	 * This method is an alias for checkLastName, following Schema.org naming conventions.
+	 * Validates a family name format (alias for isValidLastName).
+	 * This method is an alias for isValidLastName, following Schema.org naming conventions.
 	 * @param string|null $value The family name to validate
 	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
 	 * @return bool True if valid, false otherwise
 	 */
-	public static function checkFamilyName(?string $value, bool $numbersAllowed=false): bool
+	public static function isValidFamilyName(?string $value, bool $numbersAllowed=false): bool
 	{
-		return self::checkLastName($value, $numbersAllowed);
+		return self::isValidLastName($value, $numbersAllowed);
 	}
 
 
@@ -328,5 +328,66 @@ class Name
 		$this->lastName = $lastName;
 
 		return $this;
+	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * Validates a civility/title code.
+	 * @deprecated Use isValidCivility() instead
+	 * @param string|int|null $value The civility code to validate
+	 * @return bool True if valid, false otherwise
+	 */
+	public static function checkCivility(string|int|null $value): bool
+	{
+		return self::isValidCivility($value);
+	}
+
+	/**
+	 * Validates a first name format.
+	 * @deprecated Use isValidFirstName() instead
+	 * @param string|null $value The first name to validate
+	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
+	 * @return bool True if valid, false otherwise
+	 */
+	public static function checkFirstName(?string $value, bool $numbersAllowed=false): bool
+	{
+		return self::isValidFirstName($value, $numbersAllowed);
+	}
+
+	/**
+	 * Validates a given name format.
+	 * @deprecated Use isValidGivenName() instead
+	 * @param string|null $value The given name to validate
+	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
+	 * @return bool True if valid, false otherwise
+	 */
+	public static function checkGivenName(?string $value, bool $numbersAllowed=false): bool
+	{
+		return self::isValidGivenName($value, $numbersAllowed);
+	}
+
+	/**
+	 * Validates a last name format.
+	 * @deprecated Use isValidLastName() instead
+	 * @param string|null $value The last name to validate
+	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
+	 * @return bool True if valid, false otherwise
+	 */
+	public static function checkLastName(?string $value, bool $numbersAllowed=false): bool
+	{
+		return self::isValidLastName($value, $numbersAllowed);
+	}
+
+	/**
+	 * Validates a family name format.
+	 * @deprecated Use isValidFamilyName() instead
+	 * @param string|null $value The family name to validate
+	 * @param bool $numbersAllowed Whether numbers are allowed in the name (default: false)
+	 * @return bool True if valid, false otherwise
+	 */
+	public static function checkFamilyName(?string $value, bool $numbersAllowed=false): bool
+	{
+		return self::isValidFamilyName($value, $numbersAllowed);
 	}
 }

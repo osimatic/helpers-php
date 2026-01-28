@@ -33,12 +33,12 @@ class BankAccount
 	 * Automatically removes spaces and normalizes the input
 	 * @param string $iban The IBAN to validate (with or without spaces)
 	 * @return bool True if the IBAN is valid, false otherwise
-	 * @example checkIban('FR7630006000011234567890189') returns true
-	 * @example checkIban('FR76 3000 6000 0112 3456 7890 189') returns true
-	 * @example checkIban('DE89370400440532013000') returns true
-	 * @example checkIban('invalid') returns false
+	 * @example isValidIban('FR7630006000011234567890189') returns true
+	 * @example isValidIban('FR76 3000 6000 0112 3456 7890 189') returns true
+	 * @example isValidIban('DE89370400440532013000') returns true
+	 * @example isValidIban('invalid') returns false
 	 */
-	public static function checkIban(string $iban): bool
+	public static function isValidIban(string $iban): bool
 	{
 		// Remove spaces and trim
 		$iban = str_replace(' ', '', trim($iban));
@@ -79,12 +79,12 @@ class BankAccount
 	 * Automatically removes spaces and normalizes the input
 	 * @param string $bic The BIC/SWIFT code to validate (8 or 11 characters)
 	 * @return bool True if the BIC is valid, false otherwise
-	 * @example checkBic('BNPAFRPP') returns true (8 characters)
-	 * @example checkBic('BNPAFRPPXXX') returns true (11 characters)
-	 * @example checkBic('BNPA FRPP XXX') returns true (spaces removed)
-	 * @example checkBic('invalid') returns false
+	 * @example isValidBic('BNPAFRPP') returns true (8 characters)
+	 * @example isValidBic('BNPAFRPPXXX') returns true (11 characters)
+	 * @example isValidBic('BNPA FRPP XXX') returns true (spaces removed)
+	 * @example isValidBic('invalid') returns false
 	 */
-	public static function checkBic(string $bic): bool
+	public static function isValidBic(string $bic): bool
 	{
 		// Remove spaces and trim
 		$bic = str_replace(' ', '', trim($bic));
@@ -94,6 +94,30 @@ class BankAccount
 		}
 
 		return \Osimatic\Validator\Validator::getInstance()->validate($bic, new \Symfony\Component\Validator\Constraints\Bic())->count() === 0;
+	}
+
+	// ========================================
+	// DEPRECATED METHODS (Backward Compatibility)
+	// ========================================
+
+	/**
+	 * @deprecated Use isValidIban() instead
+	 * @param string $iban The IBAN to validate
+	 * @return bool True if the IBAN is valid, false otherwise
+	 */
+	public static function checkIban(string $iban): bool
+	{
+		return self::isValidIban($iban);
+	}
+
+	/**
+	 * @deprecated Use isValidBic() instead
+	 * @param string $bic The BIC/SWIFT code to validate
+	 * @return bool True if the BIC is valid, false otherwise
+	 */
+	public static function checkBic(string $bic): bool
+	{
+		return self::isValidBic($bic);
 	}
 
 }

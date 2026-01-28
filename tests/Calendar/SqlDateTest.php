@@ -44,20 +44,20 @@ final class SqlDateTest extends TestCase
 		$this->assertFalse(SqlDate::isValid(null));
 	}
 
-	public function testCheck(): void
+	public function testIsValidMethod(): void
 	{
 		// Dates valides
-		$this->assertTrue(SqlDate::check('2024-01-15'));
-		$this->assertTrue(SqlDate::check('2024-12-31'));
-		$this->assertTrue(SqlDate::check('2024-02-29')); // Année bissextile
+		$this->assertTrue(SqlDate::isValid('2024-01-15'));
+		$this->assertTrue(SqlDate::isValid('2024-12-31'));
+		$this->assertTrue(SqlDate::isValid('2024-02-29')); // Année bissextile
 
 		// Dates invalides
-		$this->assertFalse(SqlDate::check('2023-02-29')); // Pas année bissextile
-		$this->assertFalse(SqlDate::check('2024-13-01')); // Mois invalide
-		$this->assertFalse(SqlDate::check('2024-01-32')); // Jour invalide
-		$this->assertFalse(SqlDate::check('2024-00-15')); // Mois 0
-		$this->assertFalse(SqlDate::check('invalid'));
-		$this->assertFalse(SqlDate::check(null));
+		$this->assertFalse(SqlDate::isValid('2023-02-29')); // Pas année bissextile
+		$this->assertFalse(SqlDate::isValid('2024-13-01')); // Mois invalide
+		$this->assertFalse(SqlDate::isValid('2024-01-32')); // Jour invalide
+		$this->assertFalse(SqlDate::isValid('2024-00-15')); // Mois 0
+		$this->assertFalse(SqlDate::isValid('invalid'));
+		$this->assertFalse(SqlDate::isValid(null));
 	}
 
 	// ========== Extraction Methods Tests ==========
@@ -466,5 +466,32 @@ final class SqlDateTest extends TestCase
 		// SQL DATE is already ISO format, so should return as-is
 		$this->assertEquals('2024-01-15', SqlDate::formatISO('2024-01-15'));
 		$this->assertEquals('2023-12-31', SqlDate::formatISO('2023-12-31'));
+	}
+
+	public function testFormatInLongWithEnLocale(): void
+	{
+		$formatted = SqlDate::formatInLong('2024-01-15', 'en_US');
+		$this->assertEquals('January 15, 2024', $formatted);
+	}
+
+	public function testFormatInLongWithFrLocale(): void
+	{
+		$formatted = SqlDate::formatInLong('2024-01-15', 'fr_FR');
+		$this->assertEquals('15 janvier 2024', $formatted);
+	}
+
+	public function testFormatInLongWithNullLocale(): void
+	{
+		// With null locale, should use default locale
+		$formatted = SqlDate::formatInLong('2024-01-15', null);
+		$this->assertNotEmpty($formatted);
+		$this->assertIsString($formatted);
+	}
+
+	public function testFormatInLongWithEmptyDate(): void
+	{
+		// Empty date should return empty string
+		$formatted = SqlDate::formatInLong('', null);
+		$this->assertEquals('', $formatted);
 	}
 }

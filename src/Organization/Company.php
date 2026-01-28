@@ -13,7 +13,7 @@ class Company
 	 * @param string $companyName the company name to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkCompanyName(string $companyName): bool
+	public static function isValidCompanyName(string $companyName): bool
 	{
 		return preg_match('/^([0-9a-zA-Z\'&àâäéèêëìîïòôöùûüçÀÂÄÉÈÊËÌÎÏÒÔÖÙÛÜÇ\.\(\)\s\/-]{3,100})$/u', $companyName);
 	}
@@ -24,11 +24,11 @@ class Company
 	 * @param string $companyNumber the company number to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkCompanyNumber(string $countryCode, string $companyNumber): bool
+	public static function isValidCompanyNumber(string $countryCode, string $companyNumber): bool
 	{
 		// France
 		if ('FR' === $countryCode) {
-			return self::checkFranceSiren($companyNumber);
+			return self::isValidFranceSiren($companyNumber);
 		}
 
 		return true;
@@ -43,7 +43,7 @@ class Company
 	 * @param string $siren the SIREN number to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkFranceSiren(string $siren): bool
+	public static function isValidFranceSiren(string $siren): bool
 	{
 		// Syntax validation
 		if (!preg_match('#^[0-9]{9}$#', $siren)) {
@@ -62,7 +62,7 @@ class Company
 	 * @param string $siret the SIRET number to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkFranceSiret(string $siret): bool
+	public static function isValidFranceSiret(string $siret): bool
 	{
 		// Syntax validation
 		if (!preg_match('#^[0-9]{14}$#', $siret)) {
@@ -70,7 +70,7 @@ class Company
 		}
 		// SIREN validation
 		$siren = substr($siret, 0, 9);
-		if (!self::checkFranceSiren($siren)) {
+		if (!self::isValidFranceSiren($siren)) {
 			return false;
 		}
 		// SIRET validity check using Luhn algorithm (key "1-2")
@@ -94,9 +94,9 @@ class Company
 	 * @param string $codeApe the APE code to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkFranceCodeApe(string $codeApe): bool
+	public static function isValidFranceCodeApe(string $codeApe): bool
 	{
-		return self::checkFranceCodeNaf($codeApe);
+		return self::isValidFranceCodeNaf($codeApe);
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Company
 	 * @param string $codeNaf the NAF code to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkFranceCodeNaf(string $codeNaf): bool
+	public static function isValidFranceCodeNaf(string $codeNaf): bool
 	{
 		// Accepts formats with or without dot: 01.11Z or 0111Z
 		if (!preg_match('#^[0-9]{2}\.?[0-9]{2}[A-Za-z]$#', $codeNaf)) {
@@ -148,9 +148,85 @@ class Company
 	 * @param string $nis the NIS number to validate
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function checkMonacoNis(string $nis): bool
+	public static function isValidMonacoNis(string $nis): bool
 	{
 		return preg_match('#^[0-9A-Z]{5,10}$#', $nis);
+	}
+
+
+	// ========================================
+	// DEPRECATED METHODS (Backward Compatibility)
+	// ========================================
+
+	/**
+	 * @deprecated Use isValidCompanyName() instead
+	 * @param string $companyName the company name to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkCompanyName(string $companyName): bool
+	{
+		return self::isValidCompanyName($companyName);
+	}
+
+	/**
+	 * @deprecated Use isValidCompanyNumber() instead
+	 * @param string $countryCode the ISO 3166-1 alpha-2 country code
+	 * @param string $companyNumber the company number to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkCompanyNumber(string $countryCode, string $companyNumber): bool
+	{
+		return self::isValidCompanyNumber($countryCode, $companyNumber);
+	}
+
+	/**
+	 * @deprecated Use isValidFranceSiren() instead
+	 * @param string $siren the SIREN number to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkFranceSiren(string $siren): bool
+	{
+		return self::isValidFranceSiren($siren);
+	}
+
+	/**
+	 * @deprecated Use isValidFranceSiret() instead
+	 * @param string $siret the SIRET number to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkFranceSiret(string $siret): bool
+	{
+		return self::isValidFranceSiret($siret);
+	}
+
+	/**
+	 * @deprecated Use isValidFranceCodeApe() instead
+	 * @param string $codeApe the APE code to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkFranceCodeApe(string $codeApe): bool
+	{
+		return self::isValidFranceCodeApe($codeApe);
+	}
+
+	/**
+	 * @deprecated Use isValidFranceCodeNaf() instead
+	 * @param string $codeNaf the NAF code to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkFranceCodeNaf(string $codeNaf): bool
+	{
+		return self::isValidFranceCodeNaf($codeNaf);
+	}
+
+	/**
+	 * @deprecated Use isValidMonacoNis() instead
+	 * @param string $nis the NIS number to validate
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function checkMonacoNis(string $nis): bool
+	{
+		return self::isValidMonacoNis($nis);
 	}
 
 }

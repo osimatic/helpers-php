@@ -19,7 +19,7 @@ class CompanyNameValidator extends ConstraintValidator
 		}
 
 		/** @var CompanyName $constraint */
-		if (!\Osimatic\Organization\Company::checkCompanyName($value)) {
+		if (!\Osimatic\Organization\Company::isValidCompanyName($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

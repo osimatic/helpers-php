@@ -9,40 +9,40 @@ use PHPUnit\Framework\TestCase;
 
 final class EmailAddressTest extends TestCase
 {
-	/* ===================== check() ===================== */
+	/* ===================== isValid() ===================== */
 
-	public function testCheckWithValidEmails(): void
+	public function testIsValidWithValidEmails(): void
 	{
-		$this->assertTrue(EmailAddress::check('user@example.com'));
-		$this->assertTrue(EmailAddress::check('test.user@example.com'));
-		$this->assertTrue(EmailAddress::check('user+tag@example.com'));
-		$this->assertTrue(EmailAddress::check('user_name@example.com'));
-		$this->assertTrue(EmailAddress::check('user123@example.co.uk'));
-		$this->assertTrue(EmailAddress::check('user@subdomain.example.com'));
+		$this->assertTrue(EmailAddress::isValid('user@example.com'));
+		$this->assertTrue(EmailAddress::isValid('test.user@example.com'));
+		$this->assertTrue(EmailAddress::isValid('user+tag@example.com'));
+		$this->assertTrue(EmailAddress::isValid('user_name@example.com'));
+		$this->assertTrue(EmailAddress::isValid('user123@example.co.uk'));
+		$this->assertTrue(EmailAddress::isValid('user@subdomain.example.com'));
 	}
 
-	public function testCheckWithInvalidEmails(): void
+	public function testIsValidWithInvalidEmails(): void
 	{
-		$this->assertFalse(EmailAddress::check('invalid'));
-		$this->assertFalse(EmailAddress::check('invalid@'));
-		$this->assertFalse(EmailAddress::check('@example.com'));
-		$this->assertFalse(EmailAddress::check('user @example.com'));
-		$this->assertFalse(EmailAddress::check('user@example'));
-		$this->assertFalse(EmailAddress::check(''));
+		$this->assertFalse(EmailAddress::isValid('invalid'));
+		$this->assertFalse(EmailAddress::isValid('invalid@'));
+		$this->assertFalse(EmailAddress::isValid('@example.com'));
+		$this->assertFalse(EmailAddress::isValid('user @example.com'));
+		$this->assertFalse(EmailAddress::isValid('user@example'));
+		$this->assertFalse(EmailAddress::isValid(''));
 	}
 
-	public function testCheckWithSpecialCharacters(): void
+	public function testIsValidWithSpecialCharacters(): void
 	{
-		$this->assertTrue(EmailAddress::check('user.name+tag@example.com'));
-		$this->assertTrue(EmailAddress::check('user_name@example.com'));
-		$this->assertTrue(EmailAddress::check('123@example.com'));
+		$this->assertTrue(EmailAddress::isValid('user.name+tag@example.com'));
+		$this->assertTrue(EmailAddress::isValid('user_name@example.com'));
+		$this->assertTrue(EmailAddress::isValid('123@example.com'));
 	}
 
-	public function testCheckWithInternationalDomains(): void
+	public function testIsValidWithInternationalDomains(): void
 	{
-		$this->assertTrue(EmailAddress::check('user@example.fr'));
-		$this->assertTrue(EmailAddress::check('user@example.co.uk'));
-		$this->assertTrue(EmailAddress::check('user@example.org'));
+		$this->assertTrue(EmailAddress::isValid('user@example.fr'));
+		$this->assertTrue(EmailAddress::isValid('user@example.co.uk'));
+		$this->assertTrue(EmailAddress::isValid('user@example.org'));
 	}
 
 	/* ===================== getHost() ===================== */

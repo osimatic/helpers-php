@@ -9,121 +9,121 @@ use PHPUnit\Framework\TestCase;
 
 final class PostalAddressTest extends TestCase
 {
-	/* ===================== checkStreet() ===================== */
+	/* ===================== isValidStreet() ===================== */
 
 	public function testCheckStreetValid(): void
 	{
-		$this->assertTrue(PostalAddress::checkStreet('123 Main Street'));
-		$this->assertTrue(PostalAddress::checkStreet('Rue de la Paix'));
-		$this->assertTrue(PostalAddress::checkStreet('1'));
-		$this->assertTrue(PostalAddress::checkStreet('Avenue des Champs-Élysées'));
+		$this->assertTrue(PostalAddress::isValidStreet('123 Main Street'));
+		$this->assertTrue(PostalAddress::isValidStreet('Rue de la Paix'));
+		$this->assertTrue(PostalAddress::isValidStreet('1'));
+		$this->assertTrue(PostalAddress::isValidStreet('Avenue des Champs-Élysées'));
 	}
 
 	public function testCheckStreetMaxLength(): void
 	{
 		$longStreet = str_repeat('a', 200);
-		$this->assertTrue(PostalAddress::checkStreet($longStreet));
+		$this->assertTrue(PostalAddress::isValidStreet($longStreet));
 
 		$tooLongStreet = str_repeat('a', 201);
-		$this->assertFalse(PostalAddress::checkStreet($tooLongStreet));
+		$this->assertFalse(PostalAddress::isValidStreet($tooLongStreet));
 	}
 
 	public function testCheckStreetEmpty(): void
 	{
-		$this->assertFalse(PostalAddress::checkStreet(''));
+		$this->assertFalse(PostalAddress::isValidStreet(''));
 	}
 
 	public function testCheckStreetNull(): void
 	{
-		$this->assertFalse(PostalAddress::checkStreet(null));
+		$this->assertFalse(PostalAddress::isValidStreet(null));
 	}
 
-	/* ===================== checkPostalCode() ===================== */
+	/* ===================== isValidPostalCode() ===================== */
 
 	public function testCheckPostalCodeValid(): void
 	{
-		$this->assertTrue(PostalAddress::checkPostalCode('75001'));
-		$this->assertTrue(PostalAddress::checkPostalCode('12345'));
-		$this->assertTrue(PostalAddress::checkPostalCode('AB1 2CD'));
-		$this->assertTrue(PostalAddress::checkPostalCode('123-456'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('75001'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('12345'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('AB1 2CD'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('123-456'));
 	}
 
 	public function testCheckPostalCodeFranceValid(): void
 	{
-		$this->assertTrue(PostalAddress::checkPostalCode('75001', 'FR'));
-		$this->assertTrue(PostalAddress::checkPostalCode('69001', 'FR'));
-		$this->assertTrue(PostalAddress::checkPostalCode('97400', 'FR')); // Réunion
+		$this->assertTrue(PostalAddress::isValidPostalCode('75001', 'FR'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('69001', 'FR'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('97400', 'FR')); // Réunion
 	}
 
 	public function testCheckPostalCodeFranceInvalid(): void
 	{
-		$this->assertFalse(PostalAddress::checkPostalCode('ABC', 'FR'));
-		$this->assertFalse(PostalAddress::checkPostalCode('1234', 'FR')); // trop court
-		$this->assertFalse(PostalAddress::checkPostalCode('123456', 'FR')); // trop long
+		$this->assertFalse(PostalAddress::isValidPostalCode('ABC', 'FR'));
+		$this->assertFalse(PostalAddress::isValidPostalCode('1234', 'FR')); // trop court
+		$this->assertFalse(PostalAddress::isValidPostalCode('123456', 'FR')); // trop long
 	}
 
 	public function testCheckPostalCodeUSValid(): void
 	{
-		$this->assertTrue(PostalAddress::checkPostalCode('12345', 'US'));
-		$this->assertTrue(PostalAddress::checkPostalCode('12345-6789', 'US'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('12345', 'US'));
+		$this->assertTrue(PostalAddress::isValidPostalCode('12345-6789', 'US'));
 	}
 
 	public function testCheckPostalCodeMinMaxLength(): void
 	{
-		$this->assertTrue(PostalAddress::checkPostalCode('123'));
-		$this->assertTrue(PostalAddress::checkPostalCode(str_repeat('1', 15)));
+		$this->assertTrue(PostalAddress::isValidPostalCode('123'));
+		$this->assertTrue(PostalAddress::isValidPostalCode(str_repeat('1', 15)));
 
-		$this->assertFalse(PostalAddress::checkPostalCode('12')); // trop court
-		$this->assertFalse(PostalAddress::checkPostalCode(str_repeat('1', 16))); // trop long
+		$this->assertFalse(PostalAddress::isValidPostalCode('12')); // trop court
+		$this->assertFalse(PostalAddress::isValidPostalCode(str_repeat('1', 16))); // trop long
 	}
 
 	public function testCheckPostalCodeNull(): void
 	{
-		$this->assertFalse(PostalAddress::checkPostalCode(null));
+		$this->assertFalse(PostalAddress::isValidPostalCode(null));
 	}
 
-	/* ===================== checkZipCode() ===================== */
+	/* ===================== isValidZipCode() ===================== */
 
 	public function testCheckZipCodeValid(): void
 	{
-		$this->assertTrue(PostalAddress::checkZipCode('75001'));
-		$this->assertTrue(PostalAddress::checkZipCode('12345'));
+		$this->assertTrue(PostalAddress::isValidZipCode('75001'));
+		$this->assertTrue(PostalAddress::isValidZipCode('12345'));
 	}
 
 	public function testCheckZipCodeInvalid(): void
 	{
-		$this->assertFalse(PostalAddress::checkZipCode('12'));
-		$this->assertFalse(PostalAddress::checkZipCode(null));
+		$this->assertFalse(PostalAddress::isValidZipCode('12'));
+		$this->assertFalse(PostalAddress::isValidZipCode(null));
 	}
 
-	/* ===================== checkCity() ===================== */
+	/* ===================== isValidCity() ===================== */
 
 	public function testCheckCityValid(): void
 	{
-		$this->assertTrue(PostalAddress::checkCity('Paris'));
-		$this->assertTrue(PostalAddress::checkCity('New York'));
-		$this->assertTrue(PostalAddress::checkCity('Saint-Étienne'));
-		$this->assertTrue(PostalAddress::checkCity("Aix-en-Provence"));
-		$this->assertTrue(PostalAddress::checkCity('München'));
+		$this->assertTrue(PostalAddress::isValidCity('Paris'));
+		$this->assertTrue(PostalAddress::isValidCity('New York'));
+		$this->assertTrue(PostalAddress::isValidCity('Saint-Étienne'));
+		$this->assertTrue(PostalAddress::isValidCity("Aix-en-Provence"));
+		$this->assertTrue(PostalAddress::isValidCity('München'));
 	}
 
 	public function testCheckCityMaxLength(): void
 	{
 		$longCity = str_repeat('a', 100);
-		$this->assertTrue(PostalAddress::checkCity($longCity));
+		$this->assertTrue(PostalAddress::isValidCity($longCity));
 
 		$tooLongCity = str_repeat('a', 101);
-		$this->assertFalse(PostalAddress::checkCity($tooLongCity));
+		$this->assertFalse(PostalAddress::isValidCity($tooLongCity));
 	}
 
 	public function testCheckCityEmpty(): void
 	{
-		$this->assertFalse(PostalAddress::checkCity(''));
+		$this->assertFalse(PostalAddress::isValidCity(''));
 	}
 
 	public function testCheckCityNull(): void
 	{
-		$this->assertFalse(PostalAddress::checkCity(null));
+		$this->assertFalse(PostalAddress::isValidCity(null));
 	}
 
 	/* ===================== replaceSpecialChar() ===================== */

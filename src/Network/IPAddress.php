@@ -38,9 +38,9 @@ class IPAddress
 	 * @param string $ipAddress the IP address to check
 	 * @return boolean true if the IP address is syntactically correct, false otherwise
 	 */
-	public static function check(string $ipAddress): bool
+	public static function isValid(string $ipAddress): bool
 	{
-		return self::checkIpV4($ipAddress);
+		return self::isValidIpV4($ipAddress);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class IPAddress
 	 * @param string $ipAddress the IP address to check
 	 * @return boolean true if the IP address is syntactically correct, false otherwise
 	 */
-	public static function checkIpV4(string $ipAddress): bool
+	public static function isValidIpV4(string $ipAddress): bool
 	{
 		return filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
 	}
@@ -58,7 +58,7 @@ class IPAddress
 	 * @param string $ipAddress the IP address to check
 	 * @return boolean true if the IP address is syntactically correct, false otherwise
 	 */
-	public static function checkIpV6(string $ipAddress): bool
+	public static function isValidIpV6(string $ipAddress): bool
 	{
 		return filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
 	}
@@ -69,14 +69,14 @@ class IPAddress
 	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
 	 * @return bool true if both start and end IPs are valid IPv4 addresses, false otherwise
 	 */
-	public static function checkRange(string $ipAddressRange, string $rangeSeparator='-'): bool
+	public static function isValidRange(string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
 		if (!str_contains($ipAddressRange, $rangeSeparator)) {
 			return false;
 		}
 
 		[$rangeStartIp, $rangeEndIp] = explode($rangeSeparator, $ipAddressRange);
-		return self::checkIpV4(trim($rangeStartIp)) && self::checkIpV4(trim($rangeEndIp));
+		return self::isValidIpV4(trim($rangeStartIp)) && self::isValidIpV4(trim($rangeEndIp));
 	}
 
 	/**
@@ -85,14 +85,14 @@ class IPAddress
 	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
 	 * @return bool true if both start and end IPs are valid IPv6 addresses, false otherwise
 	 */
-	public static function checkRangeOfIpV6(string $ipAddressRange, string $rangeSeparator='-'): bool
+	public static function isValidRangeOfIpV6(string $ipAddressRange, string $rangeSeparator='-'): bool
 	{
 		if (!str_contains($ipAddressRange, $rangeSeparator)) {
 			return false;
 		}
 
 		[$rangeStartIp, $rangeEndIp] = explode($rangeSeparator, $ipAddressRange);
-		return self::checkIpV6(trim($rangeStartIp)) && self::checkIpV6(trim($rangeEndIp));
+		return self::isValidIpV6(trim($rangeStartIp)) && self::isValidIpV6(trim($rangeEndIp));
 	}
 
 	// ========== IP Address Information ==========
@@ -197,7 +197,7 @@ class IPAddress
 	public static function isIpAddressInListOfIpAddress(string $ipAddressToCheck, array $ipAddressList): bool
 	{
 		foreach ($ipAddressList as $ipAddress) {
-			if (self::checkRange($ipAddress)) {
+			if (self::isValidRange($ipAddress)) {
 				// It's an IP range
 				if (self::isInRangeOfIpAddressRange($ipAddressToCheck, $ipAddress)) {
 					return true;
@@ -224,7 +224,7 @@ class IPAddress
 
 
 
-	// ========== DEPRECATED METHODS ==========
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
 	// Backward compatibility. Will be removed in a future major version. Please update your code to use the new method names.
 
 	/**
@@ -241,6 +241,63 @@ class IPAddress
 			return false;
 		}
 		return Incolumitas::isVpn($result);
+	}
+
+	/**
+	 * Checks the syntax of an IPv4 address
+	 * @deprecated Use isValid() instead
+	 * @param string $ipAddress the IP address to check
+	 * @return boolean true if the IP address is syntactically correct, false otherwise
+	 */
+	public static function check(string $ipAddress): bool
+	{
+		return self::isValid($ipAddress);
+	}
+
+	/**
+	 * Checks the syntax of an IPv4 address
+	 * @deprecated Use isValidIpV4() instead
+	 * @param string $ipAddress the IP address to check
+	 * @return boolean true if the IP address is syntactically correct, false otherwise
+	 */
+	public static function checkIpV4(string $ipAddress): bool
+	{
+		return self::isValidIpV4($ipAddress);
+	}
+
+	/**
+	 * Checks the syntax of an IPv6 address
+	 * @deprecated Use isValidIpV6() instead
+	 * @param string $ipAddress the IP address to check
+	 * @return boolean true if the IP address is syntactically correct, false otherwise
+	 */
+	public static function checkIpV6(string $ipAddress): bool
+	{
+		return self::isValidIpV6($ipAddress);
+	}
+
+	/**
+	 * Checks the syntax of an IPv4 address range
+	 * @deprecated Use isValidRange() instead
+	 * @param string $ipAddressRange the IP address range in format "start-end"
+	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
+	 * @return bool true if both start and end IPs are valid IPv4 addresses, false otherwise
+	 */
+	public static function checkRange(string $ipAddressRange, string $rangeSeparator='-'): bool
+	{
+		return self::isValidRange($ipAddressRange, $rangeSeparator);
+	}
+
+	/**
+	 * Checks the syntax of an IPv6 address range
+	 * @deprecated Use isValidRangeOfIpV6() instead
+	 * @param string $ipAddressRange the IP address range in format "start-end"
+	 * @param string $rangeSeparator the separator between start and end IP (default: '-')
+	 * @return bool true if both start and end IPs are valid IPv6 addresses, false otherwise
+	 */
+	public static function checkRangeOfIpV6(string $ipAddressRange, string $rangeSeparator='-'): bool
+	{
+		return self::isValidRangeOfIpV6($ipAddressRange, $rangeSeparator);
 	}
 
 }

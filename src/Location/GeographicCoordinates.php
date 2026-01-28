@@ -14,7 +14,7 @@ class GeographicCoordinates
 	 * @param string $coordinates The coordinate string to validate (e.g., "48.8566, 2.3522")
 	 * @return bool True if the coordinates are valid
 	 */
-	public static function check(string $coordinates): bool
+	public static function isValid(string $coordinates): bool
 	{
 		return preg_match('/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/', $coordinates);
 	}
@@ -118,6 +118,16 @@ class GeographicCoordinates
 			return 0;
 		}
 		return (float)$parts[0] / (float)$parts[1];
+	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValid() instead
+	 */
+	public static function check(string $coordinates): bool
+	{
+		return self::isValid($coordinates);
 	}
 
 }

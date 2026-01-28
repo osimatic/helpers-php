@@ -147,7 +147,7 @@ class Number
 	 * @param bool $positiveAllowed whether positive values are allowed (default: true)
 	 * @return bool true if valid float, false otherwise
 	 */
-	public static function checkFloat(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	public static function isValidFloat(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		// Check for multiple decimal separators before cleaning
 		$strCheck = str_replace([' ', ','], [' ', '.'], (string) $str);
@@ -157,7 +157,7 @@ class Number
 
 		$str = self::clean((string) $str);
 
-		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
+		if (false === self::isValid($str, $negativeAllowed, $positiveAllowed)) {
 			return false;
 		}
 
@@ -176,11 +176,11 @@ class Number
 	 * @param bool $positiveAllowed whether positive values are allowed (default: true)
 	 * @return bool true if valid integer, false otherwise
 	 */
-	public static function checkInt(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	public static function isValidInt(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		$str = self::clean((string) $str, false);
 
-		if (false === self::check($str, $negativeAllowed, $positiveAllowed)) {
+		if (false === self::isValid($str, $negativeAllowed, $positiveAllowed)) {
 			return false;
 		}
 
@@ -198,7 +198,7 @@ class Number
 	 * @param bool $positiveAllowed whether positive values are allowed
 	 * @return bool true if valid, false otherwise
 	 */
-	private static function check(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	private static function isValid(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
 	{
 		// Negative not allowed
 		if (false === $negativeAllowed && str_contains($str, '-')) {
@@ -436,4 +436,21 @@ class Number
 		return $randomFloat;
 	}
 
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated use isValidFloat instead
+	 */
+	public static function checkFloat(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	{
+		return self::isValidFloat($str, $negativeAllowed, $positiveAllowed);
+	}
+
+	/**
+	 * @deprecated use isValidInt instead
+	 */
+	public static function checkInt(mixed $str, bool $negativeAllowed=true, bool $positiveAllowed=true): bool
+	{
+		return self::isValidInt($str, $negativeAllowed, $positiveAllowed);
+	}
 }

@@ -26,7 +26,7 @@ class Time
 	 */
 	public static function create(int $hour, int $minute = 0, int $second = 0): ?\DateTime
 	{
-		if (!self::check($hour, $minute, $second)) {
+		if (!self::isValid($hour, $minute, $second)) {
 			return null;
 		}
 
@@ -136,7 +136,7 @@ class Time
 		$minute = (int) $timeArray[$minutePos];
 		$second = (int) ($timeArray[$secondPos] ?? 0);
 
-		if (!self::check($hour, $minute, $second)) {
+		if (!self::isValid($hour, $minute, $second)) {
 			return null;
 		}
 
@@ -153,7 +153,7 @@ class Time
 	 * @param int $second The second (0-59), default 0
 	 * @return bool True if all components are valid, false otherwise
 	 */
-	public static function check(int $hour, int $minute, int $second=0): bool
+	public static function isValid(int $hour, int $minute, int $second=0): bool
 	{
 		return ($hour >= 0 && $hour < 24 && $minute >= 0 && $minute < 60 && $second >= 0 && $second < 60);
 	}
@@ -168,7 +168,7 @@ class Time
 	 * @param int $secondPos The position of second in the string (1-indexed, default: 3)
 	 * @return bool True if the time string is valid and parseable, false otherwise
 	 */
-	public static function checkValue(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
+	public static function isValidValue(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
 	{
 		return null !== self::_parse($enteredTime, $separator, $hourPos, $minutePos, $secondPos);
 	}
@@ -215,4 +215,23 @@ class Time
 
 		return implode(' ', $parts);
 	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValid() instead
+	 */
+	public static function check(int $hour, int $minute, int $second=0): bool
+	{
+		return self::isValid($hour, $minute, $second);
+	}
+
+	/**
+	 * @deprecated Use isValidValue() instead
+	 */
+	public static function checkValue(?string $enteredTime, string $separator=':', int $hourPos=1, int $minutePos=2, int $secondPos=3): bool
+	{
+		return self::isValidValue($enteredTime, $separator, $hourPos, $minutePos, $secondPos);
+	}
+
 }

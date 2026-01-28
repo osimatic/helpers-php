@@ -19,7 +19,7 @@ class CompanyRegistrationNumberValidator extends ConstraintValidator
 		}
 
 		/** @var CompanyRegistrationNumber $constraint */
-		if ($constraint->companyCountry === 'FR' && !\Osimatic\Organization\Company::checkFranceSiret($value)) {
+		if ($constraint->companyCountry === 'FR' && !\Osimatic\Organization\Company::isValidFranceSiret($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

@@ -43,7 +43,7 @@ class Color
 	 * @param string $hexColor The hexadecimal color string to validate (e.g., '#FF0000' or '#F00')
 	 * @return bool True if valid hexadecimal color, false otherwise
 	 */
-	public static function checkHexColor(string $hexColor): bool
+	public static function isValidHexColor(string $hexColor): bool
 	{
 		return preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $hexColor) === 1;
 	}
@@ -853,6 +853,7 @@ class Color
 
 
 
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
 
 	/**
 	 * @deprecated Use rgbToHex() with $alpha parameter instead
@@ -882,11 +883,19 @@ class Color
 	}
 
 	/**
-	 * @deprecated Use checkHexColor() instead
+	 * @deprecated Use isValidHexColor() instead
+	 */
+	public static function checkHexColor(string $hexColor): bool
+	{
+		return self::isValidHexColor($hexColor);
+	}
+
+	/**
+	 * @deprecated Use isValidHexColor() instead
 	 */
 	public static function checkHexaColor(string $hexaColor): bool
 	{
-		return self::checkHexColor($hexaColor);
+		return self::isValidHexColor($hexaColor);
 	}
 
 }

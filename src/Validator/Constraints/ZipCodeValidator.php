@@ -19,7 +19,7 @@ class ZipCodeValidator extends ConstraintValidator
 		}
 
 		/** @var ZipCode $constraint */
-		if (!\Osimatic\Location\PostalAddress::checkZipCode($value)) {
+		if (!\Osimatic\Location\PostalAddress::isValidZipCode($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

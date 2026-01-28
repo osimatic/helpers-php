@@ -9,27 +9,27 @@ use PHPUnit\Framework\TestCase;
 
 final class CurrencyTest extends TestCase
 {
-	/* ===================== check() ===================== */
+	/* ===================== isValid() ===================== */
 
 	public function testCheckWithValidCurrency(): void
 	{
-		$this->assertTrue(Currency::check('EUR'));
-		$this->assertTrue(Currency::check('USD'));
-		$this->assertTrue(Currency::check('GBP'));
-		$this->assertTrue(Currency::check('JPY'));
-		$this->assertTrue(Currency::check('CHF'));
-		$this->assertTrue(Currency::check('CAD'));
-		$this->assertTrue(Currency::check('AUD'));
+		$this->assertTrue(Currency::isValid('EUR'));
+		$this->assertTrue(Currency::isValid('USD'));
+		$this->assertTrue(Currency::isValid('GBP'));
+		$this->assertTrue(Currency::isValid('JPY'));
+		$this->assertTrue(Currency::isValid('CHF'));
+		$this->assertTrue(Currency::isValid('CAD'));
+		$this->assertTrue(Currency::isValid('AUD'));
 	}
 
 	public function testCheckWithInvalidCurrency(): void
 	{
-		$this->assertFalse(Currency::check('INVALID'));
-		$this->assertFalse(Currency::check('ZZZ'));
-		$this->assertFalse(Currency::check('123'));
-		$this->assertFalse(Currency::check(''));
-		$this->assertFalse(Currency::check('EU'));
-		$this->assertFalse(Currency::check('EURO'));
+		$this->assertFalse(Currency::isValid('INVALID'));
+		$this->assertFalse(Currency::isValid('ZZZ'));
+		$this->assertFalse(Currency::isValid('123'));
+		$this->assertFalse(Currency::isValid(''));
+		$this->assertFalse(Currency::isValid('EU'));
+		$this->assertFalse(Currency::isValid('EURO'));
 	}
 
 	/* ===================== getNumericCode() ===================== */
@@ -241,7 +241,7 @@ final class CurrencyTest extends TestCase
 		$currencies = ['EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY', 'INR', 'BRL'];
 
 		foreach ($currencies as $currency) {
-			$this->assertTrue(Currency::check($currency), "Currency $currency should be valid");
+			$this->assertTrue(Currency::isValid($currency), "Currency $currency should be valid");
 		}
 	}
 }

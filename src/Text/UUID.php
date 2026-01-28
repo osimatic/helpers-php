@@ -13,7 +13,7 @@ class UUID
 	 * @param string $uuid The UUID string to validate
 	 * @return bool True if the UUID is valid, false otherwise
 	 */
-	public static function check(string $uuid): bool
+	public static function isValid(string $uuid): bool
 	{
 		return \Osimatic\Validator\Validator::getInstance()->validate($uuid, new \Symfony\Component\Validator\Constraints\Uuid())->count() === 0;
 	}
@@ -65,7 +65,7 @@ class UUID
 	 */
 	public static function getVersion(string $uuid): ?int
 	{
-		if (!self::check($uuid)) {
+		if (!self::isValid($uuid)) {
 			return null;
 		}
 
@@ -81,7 +81,7 @@ class UUID
 	 */
 	public static function getVariant(string $uuid): ?string
 	{
-		if (!self::check($uuid)) {
+		if (!self::isValid($uuid)) {
 			return null;
 		}
 
@@ -98,6 +98,16 @@ class UUID
 			return 'Microsoft';
 		}
 		return 'Reserved';
+	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValid() instead
+	 */
+	public static function check(string $uuid): bool
+	{
+		return self::isValid($uuid);
 	}
 
 }

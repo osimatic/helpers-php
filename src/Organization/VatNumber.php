@@ -26,7 +26,7 @@ class VatNumber
 	 * @param bool $checkValidity whether to verify with VIES service (default: true)
 	 * @return bool true if valid, false otherwise
 	 */
-	public static function check(string $vatNumber, bool $checkValidity=true): bool
+	public static function isValid(string $vatNumber, bool $checkValidity=true): bool
 	{
 		if (empty($vatNumber)) {
 			return false;
@@ -47,7 +47,7 @@ class VatNumber
 			if (strlen($vatNumber) === 11) {
 				// SIREN validation
 				$siren = substr($vatNumber, 2);
-				if (!Company::checkCompanyNumber('FR', $siren)) {
+				if (!Company::isValidCompanyNumber('FR', $siren)) {
 					return false;
 				}
 			}
@@ -68,18 +68,19 @@ class VatNumber
 
 		// Validity check via VIES service
 		if ($checkValidity) {
-			return self::checkValidity($originalVatNumber);
+			return self::verifyWithVies($originalVatNumber);
 		}
 
 		return true;
 	}
 
 	/**
-	 * Validates a VAT number using the EU VIES (VAT Information Exchange System) service
-	 * @param string $vatNumber the VAT number to validate (including country code)
-	 * @return bool true if valid according to VIES, false otherwise
+	 * Verifies a VAT number using the EU VIES (VAT Information Exchange System) service
+	 * Makes an external call to the VIES SOAP service to check if the VAT number is registered
+	 * @param string $vatNumber the VAT number to verify (including country code)
+	 * @return bool true if registered in VIES, false otherwise
 	 */
-	public static function checkValidity(string $vatNumber): bool
+	public static function verifyWithVies(string $vatNumber): bool
 	{
 		$countryCode = substr($vatNumber, 0, 2);
 		$vatNumber = substr($vatNumber, 2);
@@ -115,4 +116,28 @@ class VatNumber
 	}
 
 
+	// ========================================
+	// DEPRECATED METHODS (Backward Compatibility)
+	// ========================================
+
+	/**
+	 * @deprecated Use isValid() instead
+	 * @param string $vatNumber the VAT number to check (including country code)
+	 * @param bool $checkValidity whether to verify with VIES service (default: true)
+	 * @return bool true if valid, false otherwise
+	 */
+	public static function check(string $vatNumber, bool $checkValidity=true): bool
+	{
+		return self::isValid($vatNumber, $checkValidity);
+	}
+
+	/**
+	 * @deprecated Use verifyWithVies() instead
+	 * @param string $vatNumber the VAT number to validate (including country code)
+	 * @return bool true if valid according to VIES, false otherwise
+	 */
+	public static function checkValidity(string $vatNumber): bool
+	{
+		return self::verifyWithVies($vatNumber);
+	}
 }

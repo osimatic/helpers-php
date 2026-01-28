@@ -284,7 +284,7 @@ class Str
 	 * @param bool $numericAllowed If true, allows numeric characters in the string
 	 * @return bool True if the string is all lowercase, false otherwise
 	 */
-	public static function checkLowercase(string $string, bool $numericAllowed=true): bool
+	public static function isLowercase(string $string, bool $numericAllowed=true): bool
 	{
 		if ($numericAllowed) {
 			$string = preg_replace('/\d/', '', $string);
@@ -298,7 +298,7 @@ class Str
 	 * @param bool $numericAllowed If true, allows numeric characters in the string
 	 * @return bool True if the string is all uppercase, false otherwise
 	 */
-	public static function checkUppercase(string $string, bool $numericAllowed=true): bool
+	public static function isUppercase(string $string, bool $numericAllowed=true): bool
 	{
 		if ($numericAllowed) {
 			$string = preg_replace('/\d/', '', $string);
@@ -313,7 +313,7 @@ class Str
 	 * @param int $nbCharMax The maximum number of characters allowed
 	 * @return bool True if the string length is within range, false otherwise
 	 */
-	public static function checkLength(string $string, int $nbCharMin, int $nbCharMax): bool
+	public static function hasLengthBetween(string $string, int $nbCharMin, int $nbCharMax): bool
 	{
 		if ($nbCharMin > $nbCharMax) {
 			return false;
@@ -333,13 +333,13 @@ class Str
 	 * @param int $nbCharMax The maximum number of characters allowed
 	 * @return bool True if the string is all alphabetic and within length range, false otherwise
 	 */
-	public static function checkForAlphabeticCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
+	public static function isAlphabeticWithLength(string $string, int $nbCharMin, int $nbCharMax): bool
 	{
 		if (!ctype_alpha($string)) {
 			return false;
 		}
 
-		return self::checkLength($string, $nbCharMin, $nbCharMax);
+		return self::hasLengthBetween($string, $nbCharMin, $nbCharMax);
 	}
 
 	/**
@@ -349,13 +349,13 @@ class Str
 	 * @param int $nbCharMax The maximum number of characters allowed
 	 * @return bool True if the string is all alphanumeric and within length range, false otherwise
 	 */
-	public static function checkForAlphanumericCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
+	public static function isAlphanumericWithLength(string $string, int $nbCharMin, int $nbCharMax): bool
 	{
 		if (!ctype_alnum($string)) {
 			return false;
 		}
 
-		return self::checkLength($string, $nbCharMin, $nbCharMax);
+		return self::hasLengthBetween($string, $nbCharMin, $nbCharMax);
 	}
 
 	/**
@@ -366,7 +366,7 @@ class Str
 	 * @param bool $canStartWithZero If false, the string cannot start with '0' (default: true)
 	 * @return bool True if the string is all numeric and within length range, false otherwise
 	 */
-	public static function checkForNumericCharacters(string $string, int $nbCharMin, int $nbCharMax, bool $canStartWithZero=true): bool
+	public static function isNumericWithLength(string $string, int $nbCharMin, int $nbCharMax, bool $canStartWithZero=true): bool
 	{
 		if (!ctype_digit($string)) {
 			return false;
@@ -376,7 +376,7 @@ class Str
 			return false;
 		}
 
-		return self::checkLength($string, $nbCharMin, $nbCharMax);
+		return self::hasLengthBetween($string, $nbCharMin, $nbCharMax);
 	}
 
 	/**
@@ -1218,5 +1218,55 @@ class Str
 	public static function getRandomAlphanumericString(int $length, bool $uppercaseEnabled=false, bool $lowercaseEnabled=true): string
 	{
 		return StringGenerator::getRandomAlphanumericString($length, $uppercaseEnabled, $lowercaseEnabled);
+	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isLowercase() instead
+	 */
+	public static function checkLowercase(string $string, bool $numericAllowed=true): bool
+	{
+		return self::isLowercase($string, $numericAllowed);
+	}
+
+	/**
+	 * @deprecated Use isUppercase() instead
+	 */
+	public static function checkUppercase(string $string, bool $numericAllowed=true): bool
+	{
+		return self::isUppercase($string, $numericAllowed);
+	}
+
+	/**
+	 * @deprecated Use hasLengthBetween() instead
+	 */
+	public static function checkLength(string $string, int $nbCharMin, int $nbCharMax): bool
+	{
+		return self::hasLengthBetween($string, $nbCharMin, $nbCharMax);
+	}
+
+	/**
+	 * @deprecated Use isAlphabeticWithLength() instead
+	 */
+	public static function checkForAlphabeticCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
+	{
+		return self::isAlphabeticWithLength($string, $nbCharMin, $nbCharMax);
+	}
+
+	/**
+	 * @deprecated Use isAlphanumericWithLength() instead
+	 */
+	public static function checkForAlphanumericCharacters(string $string, int $nbCharMin, int $nbCharMax): bool
+	{
+		return self::isAlphanumericWithLength($string, $nbCharMin, $nbCharMax);
+	}
+
+	/**
+	 * @deprecated Use isNumericWithLength() instead
+	 */
+	public static function checkForNumericCharacters(string $string, int $nbCharMin, int $nbCharMax, bool $canStartWithZero=true): bool
+	{
+		return self::isNumericWithLength($string, $nbCharMin, $nbCharMax, $canStartWithZero);
 	}
 }

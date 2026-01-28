@@ -19,7 +19,7 @@ class VatNumberValidator extends ConstraintValidator
 		}
 
 		/** @var VatNumber $constraint */
-		if (!\Osimatic\Organization\VatNumber::check($value)) {
+		if (!\Osimatic\Organization\VatNumber::isValid($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

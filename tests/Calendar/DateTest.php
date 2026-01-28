@@ -161,4 +161,75 @@ class DateTest extends TestCase
 		$this->assertFalse(Date::isValid(''));
 		$this->assertFalse(Date::isValid('2024-13-01')); // Invalid month
 	}
+
+	public function testIsValidDateWithValidDates(): void
+	{
+		// Normal valid dates
+		$this->assertTrue(Date::isValidDate(2024, 1, 15));
+		$this->assertTrue(Date::isValidDate(2024, 12, 31));
+		$this->assertTrue(Date::isValidDate(2024, 6, 30));
+
+		// Leap year - February 29th
+		$this->assertTrue(Date::isValidDate(2024, 2, 29));
+		$this->assertTrue(Date::isValidDate(2000, 2, 29));
+
+		// Edge cases - last day of months with 31 days
+		$this->assertTrue(Date::isValidDate(2024, 1, 31));
+		$this->assertTrue(Date::isValidDate(2024, 3, 31));
+		$this->assertTrue(Date::isValidDate(2024, 5, 31));
+		$this->assertTrue(Date::isValidDate(2024, 7, 31));
+		$this->assertTrue(Date::isValidDate(2024, 8, 31));
+		$this->assertTrue(Date::isValidDate(2024, 10, 31));
+		$this->assertTrue(Date::isValidDate(2024, 12, 31));
+
+		// Edge cases - last day of months with 30 days
+		$this->assertTrue(Date::isValidDate(2024, 4, 30));
+		$this->assertTrue(Date::isValidDate(2024, 6, 30));
+		$this->assertTrue(Date::isValidDate(2024, 9, 30));
+		$this->assertTrue(Date::isValidDate(2024, 11, 30));
+	}
+
+	public function testIsValidDateWithInvalidMonths(): void
+	{
+		// Invalid months
+		$this->assertFalse(Date::isValidDate(2024, 0, 15)); // Month 0
+		$this->assertFalse(Date::isValidDate(2024, 13, 15)); // Month 13
+		$this->assertFalse(Date::isValidDate(2024, -1, 15)); // Negative month
+	}
+
+	public function testIsValidDateWithInvalidDays(): void
+	{
+		// Invalid days
+		$this->assertFalse(Date::isValidDate(2024, 1, 0)); // Day 0
+		$this->assertFalse(Date::isValidDate(2024, 1, 32)); // January has 31 days
+		$this->assertFalse(Date::isValidDate(2024, 4, 31)); // April has 30 days
+		$this->assertFalse(Date::isValidDate(2024, 2, 30)); // February never has 30 days
+		$this->assertFalse(Date::isValidDate(2024, 6, -1)); // Negative day
+	}
+
+	public function testIsValidDateWithLeapYears(): void
+	{
+		// Leap year validation - February 29th
+		$this->assertTrue(Date::isValidDate(2024, 2, 29)); // 2024 is leap year
+		$this->assertTrue(Date::isValidDate(2000, 2, 29)); // 2000 is leap year
+
+		// Non-leap years - February 29th should be invalid
+		$this->assertFalse(Date::isValidDate(2023, 2, 29)); // 2023 is not leap year
+		$this->assertFalse(Date::isValidDate(1900, 2, 29)); // 1900 is not leap year (divisible by 100 but not 400)
+		$this->assertFalse(Date::isValidDate(2100, 2, 29)); // 2100 is not leap year
+
+		// Non-leap years - February 28th should be valid
+		$this->assertTrue(Date::isValidDate(2023, 2, 28));
+		$this->assertTrue(Date::isValidDate(1900, 2, 28));
+	}
+
+	public function testIsValidDateWithInvalidYears(): void
+	{
+		// Very old and future years (checkdate supports -4000 to 32767 in PHP)
+		$this->assertTrue(Date::isValidDate(1, 1, 1)); // Year 1 AD
+		$this->assertTrue(Date::isValidDate(9999, 12, 31)); // Far future
+
+		// Negative years should still work with checkdate
+		$this->assertFalse(Date::isValidDate(-1, 2, 29)); // Negative year, invalid Feb 29
+	}
 }

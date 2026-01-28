@@ -9,30 +9,30 @@ use PHPUnit\Framework\TestCase;
 
 final class URLTest extends TestCase
 {
-	/* ===================== check() ===================== */
+	/* ===================== isValid() ===================== */
 
-	public function testCheckWithValidUrls(): void
+	public function testIsValidWithValidUrls(): void
 	{
-		$this->assertTrue(URL::check('http://example.com', true));
-		$this->assertTrue(URL::check('https://example.com', true));
-		$this->assertTrue(URL::check('https://www.example.com', true));
-		$this->assertTrue(URL::check('https://example.com/path', true));
-		$this->assertTrue(URL::check('https://example.com/path?query=1', true));
-		$this->assertTrue(URL::check('https://example.com:8080', true));
-		$this->assertTrue(URL::check('ftp://example.com', true));
+		$this->assertTrue(URL::isValid('http://example.com', true));
+		$this->assertTrue(URL::isValid('https://example.com', true));
+		$this->assertTrue(URL::isValid('https://www.example.com', true));
+		$this->assertTrue(URL::isValid('https://example.com/path', true));
+		$this->assertTrue(URL::isValid('https://example.com/path?query=1', true));
+		$this->assertTrue(URL::isValid('https://example.com:8080', true));
+		$this->assertTrue(URL::isValid('ftp://example.com', true));
 	}
 
-	public function testCheckWithInvalidUrls(): void
+	public function testIsValidWithInvalidUrls(): void
 	{
-		$this->assertFalse(URL::check('not a url', true));
-		$this->assertFalse(URL::check('htp://wrong', true));
-		$this->assertFalse(URL::check('', true));
+		$this->assertFalse(URL::isValid('not a url', true));
+		$this->assertFalse(URL::isValid('htp://wrong', true));
+		$this->assertFalse(URL::isValid('', true));
 	}
 
-	public function testCheckWithoutSchemeValidation(): void
+	public function testIsValidWithoutSchemeValidation(): void
 	{
-		$this->assertTrue(URL::check('http://example.com', false));
-		$this->assertTrue(URL::check('htp://example.com', false)); // schéma invalide mais non vérifié
+		$this->assertTrue(URL::isValid('http://example.com', false));
+		$this->assertTrue(URL::isValid('htp://example.com', false)); // schéma invalide mais non vérifié
 	}
 
 	/* ===================== format() ===================== */

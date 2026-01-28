@@ -233,7 +233,7 @@ class Country
 	 */
 	public static function parse(?string $country): ?string
 	{
-		if (self::checkCountryCode($country)) {
+		if (self::isValidCountryCode($country)) {
 			return $country;
 		}
 		if (null !== ($countryCode = self::getCountryCodeFromCountryName($country))) {
@@ -247,7 +247,7 @@ class Country
 	 * @param string|null $countryIsoCode The country code to validate (e.g., 'FR', 'US', 'GB')
 	 * @return bool True if the code is valid, false otherwise
 	 */
-	public static function checkCountryCode(?string $countryIsoCode): bool
+	public static function isValidCountryCode(?string $countryIsoCode): bool
 	{
 		if (null === $countryIsoCode || '' === $countryIsoCode) {
 			return false;
@@ -446,11 +446,10 @@ class Country
 				'ES', 'SE', 'CH', 'UA', 'GB', 'VA',
 			],
 			Continent::ASIA => [
-				'AF', 'AM', 'AZ', 'BH', 'BD', 'BT', 'BN', 'KH', 'CN', 'GE',
-				'IN', 'ID', 'IR', 'IQ', 'IL', 'JP', 'JO', 'KZ', 'KW', 'KG',
-				'LA', 'LB', 'MY', 'MV', 'MN', 'MM', 'NP', 'KP', 'OM', 'PK',
-				'PS', 'PH', 'QA', 'SA', 'SG', 'KR', 'LK', 'SY', 'TW', 'TJ',
-				'TH', 'TL', 'TR', 'TM', 'AE', 'UZ', 'VN', 'YE',
+				'AF', 'AM', 'AZ', 'BD', 'BT', 'BN', 'KH', 'CN', 'GE',
+				'HK', 'IN', 'ID', 'JP', 'KZ', 'KG', 'LA', 'MO', 'MY',
+				'MV', 'MN', 'MM', 'NP', 'KP', 'PK', 'PH', 'SG', 'KR',
+				'LK', 'TW', 'TJ', 'TH', 'TL', 'TM', 'UZ', 'VN',
 			],
 			Continent::AFRICA => [
 				'DZ', 'AO', 'BJ', 'BW', 'BF', 'BI', 'CM', 'CV', 'CF', 'TD',
@@ -474,15 +473,11 @@ class Country
 				'SB', 'TO', 'TV', 'VU',
 			],
 			Continent::MIDDLE_EAST => [
-				'BH', 'CY', 'EG', 'IR', 'IQ', 'IL', 'JO', 'KW', 'LB', 'OM',
+				'BH', 'IR', 'IQ', 'IL', 'JO', 'KW', 'LB', 'OM',
 				'PS', 'QA', 'SA', 'SY', 'TR', 'AE', 'YE',
 			],
-			Continent::CARIBBEAN => [
-				'AG', 'BS', 'BB', 'CU', 'DM', 'DO', 'GD', 'HT', 'JM', 'KN',
-				'LC', 'VC', 'TT',
-			],
-			Continent::CENTRAL_AMERICA => [
-				'BZ', 'CR', 'SV', 'GT', 'HN', 'MX', 'NI', 'PA',
+			Continent::ANTARCTICA => [
+				// Antarctica has no permanent population or country codes
 			],
 		};
 	}
@@ -544,6 +539,19 @@ class Country
 		//}
 
 		return $countryIsoCode;
+	}
+
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValidCountryCode() instead
+	 * @param string|null $countryIsoCode The country code to validate
+	 * @return bool True if the code is valid, false otherwise
+	 */
+	public static function checkCountryCode(?string $countryIsoCode): bool
+	{
+		return self::isValidCountryCode($countryIsoCode);
 	}
 
 }

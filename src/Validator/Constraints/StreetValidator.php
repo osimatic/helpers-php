@@ -19,7 +19,7 @@ class StreetValidator extends ConstraintValidator
 		}
 
 		/** @var Street $constraint */
-		if (!\Osimatic\Location\PostalAddress::checkStreet($value)) {
+		if (!\Osimatic\Location\PostalAddress::isValidStreet($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

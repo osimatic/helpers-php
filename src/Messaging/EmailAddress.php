@@ -16,7 +16,7 @@ class EmailAddress
 	 * @param string $email The email address to validate
 	 * @return bool True if the email address is valid, false otherwise
 	 */
-	public static function check(string $email): bool
+	public static function isValid(string $email): bool
 	{
 		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 	}
@@ -50,6 +50,14 @@ class EmailAddress
 		return \Osimatic\Network\DNS::getTld($host, $withPoint);
 	}
 
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
 
+	/**
+	 * @deprecated Use isValid() instead
+	 */
+	public static function check(string $email): bool
+	{
+		return self::isValid($email);
+	}
 
 }

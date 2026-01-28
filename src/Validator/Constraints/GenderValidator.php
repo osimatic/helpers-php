@@ -19,7 +19,7 @@ class GenderValidator extends ConstraintValidator
 		}
 
 		/** @var Gender $constraint */
-		if (!\Osimatic\Person\Name::checkCivility($value)) {
+		if (!\Osimatic\Person\Name::isValidCivility($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();

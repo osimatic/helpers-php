@@ -237,38 +237,38 @@ final class AudioTest extends TestCase
 		$this->assertSame('9790230671187', Audio::normalizeIsmn('  979-0-2306-7118-7  '));
 	}
 
-	/* ===================== checkIsmn() ===================== */
+	/* ===================== isValidIsmn() ===================== */
 
 	public function testCheckIsmnWithValidIsmn(): void
 	{
-		$this->assertTrue(Audio::checkIsmn('979-0-2306-7118-7'));
-		$this->assertTrue(Audio::checkIsmn('9790230671187'));
-		$this->assertTrue(Audio::checkIsmn('979-0-001-01234-8'));
+		$this->assertTrue(Audio::isValidIsmn('979-0-2306-7118-7'));
+		$this->assertTrue(Audio::isValidIsmn('9790230671187'));
+		$this->assertTrue(Audio::isValidIsmn('979-0-001-01234-8'));
 	}
 
 	public function testCheckIsmnWithInvalidIsmn(): void
 	{
-		$this->assertFalse(Audio::checkIsmn('invalid'));
-		$this->assertFalse(Audio::checkIsmn('123'));
-		$this->assertFalse(Audio::checkIsmn('9790000000000'));
+		$this->assertFalse(Audio::isValidIsmn('invalid'));
+		$this->assertFalse(Audio::isValidIsmn('123'));
+		$this->assertFalse(Audio::isValidIsmn('9790000000000'));
 	}
 
 	public function testCheckIsmnWithEmptyString(): void
 	{
-		$this->assertFalse(Audio::checkIsmn(''));
+		$this->assertFalse(Audio::isValidIsmn(''));
 	}
 
 	public function testCheckIsmnWithWrongPrefix(): void
 	{
 		// ISMN must start with 9790
-		$this->assertFalse(Audio::checkIsmn('978-0-2306-7118-7'));
-		$this->assertFalse(Audio::checkIsmn('9780230671187'));
+		$this->assertFalse(Audio::isValidIsmn('978-0-2306-7118-7'));
+		$this->assertFalse(Audio::isValidIsmn('9780230671187'));
 	}
 
 	public function testCheckIsmnWithWrongLength(): void
 	{
-		$this->assertFalse(Audio::checkIsmn('97902306711'));
-		$this->assertFalse(Audio::checkIsmn('97902306711870'));
+		$this->assertFalse(Audio::isValidIsmn('97902306711'));
+		$this->assertFalse(Audio::isValidIsmn('97902306711870'));
 	}
 
 	/* ===================== getBitrate() ===================== */
@@ -937,16 +937,16 @@ final class AudioTest extends TestCase
 	public function testCheckIsmnWithValidIsmnVariations(): void
 	{
 		// Test multiple valid ISMN formats
-		$this->assertTrue(Audio::checkIsmn('979-0-2600-0043-8'));
-		$this->assertTrue(Audio::checkIsmn('9790260000438'));
-		$this->assertTrue(Audio::checkIsmn('979 0 2600 0043 8'));
-		$this->assertTrue(Audio::checkIsmn('  9790260000438  '));
+		$this->assertTrue(Audio::isValidIsmn('979-0-2600-0043-8'));
+		$this->assertTrue(Audio::isValidIsmn('9790260000438'));
+		$this->assertTrue(Audio::isValidIsmn('979 0 2600 0043 8'));
+		$this->assertTrue(Audio::isValidIsmn('  9790260000438  '));
 	}
 
 	public function testCheckIsmnWithInvalidChecksumDigit(): void
 	{
 		// Valid format but wrong checksum
-		$this->assertFalse(Audio::checkIsmn('979-0-2306-7118-8')); // Should be 7, not 8
-		$this->assertFalse(Audio::checkIsmn('9790230671188'));
+		$this->assertFalse(Audio::isValidIsmn('979-0-2306-7118-8')); // Should be 7, not 8
+		$this->assertFalse(Audio::isValidIsmn('9790230671188'));
 	}
 }

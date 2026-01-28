@@ -18,12 +18,12 @@ final class VatNumberTest extends TestCase
 		$this->assertSame('FR12345678901', $formatted); // TODO: à implémenter dans la classe
 	}
 
-	/* ===================== check() ===================== */
+	/* ===================== isValid() ===================== */
 
 	public function testCheckValidFrenchVatNumber(): void
 	{
 		// Numéro TVA FR valide : FR 44 732829320 (exemple Wikipédia)
-		$this->assertTrue(VatNumber::check('FR44732829320', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('FR44732829320', checkValidity: false));
 	}
 
 	public function testCheckValidMonacoVatNumber(): void
@@ -37,77 +37,93 @@ final class VatNumberTest extends TestCase
 
 	public function testCheckEmptyVatNumber(): void
 	{
-		$this->assertFalse(VatNumber::check(''));
+		$this->assertFalse(VatNumber::isValid(''));
 	}
 
 	public function testCheckInvalidFormat(): void
 	{
-		$this->assertFalse(VatNumber::check('123456789'));
-		$this->assertFalse(VatNumber::check('FR'));
-		$this->assertFalse(VatNumber::check('FRAB'));
+		$this->assertFalse(VatNumber::isValid('123456789'));
+		$this->assertFalse(VatNumber::isValid('FR'));
+		$this->assertFalse(VatNumber::isValid('FRAB'));
 	}
 
 	public function testCheckInvalidCountryCode(): void
 	{
-		$this->assertFalse(VatNumber::check('12345678901'));
-		$this->assertFalse(VatNumber::check('A1234567890'));
+		$this->assertFalse(VatNumber::isValid('12345678901'));
+		$this->assertFalse(VatNumber::isValid('A1234567890'));
 	}
 
 	public function testCheckInvalidVatNumberLength(): void
 	{
-		$this->assertFalse(VatNumber::check('FR1'));
-		$this->assertFalse(VatNumber::check('FR12345678901234567890'));
+		$this->assertFalse(VatNumber::isValid('FR1'));
+		$this->assertFalse(VatNumber::isValid('FR12345678901234567890'));
 	}
 
 	public function testCheckFranceInvalidSiren(): void
 	{
 		// SIREN invalide (mauvaise clé Luhn)
-		$this->assertFalse(VatNumber::check('FR12123456789', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('FR12123456789', checkValidity: false));
 	}
 
 	public function testCheckFranceInvalidVatKey(): void
 	{
 		// SIREN valide mais clé TVA incorrecte
-		$this->assertFalse(VatNumber::check('FR00552100554', checkValidity: false));
-		$this->assertFalse(VatNumber::check('FR99732829320', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('FR00552100554', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('FR99732829320', checkValidity: false));
 	}
 
 	public function testCheckFranceWrongLength(): void
 	{
 		// Ni 11 ni 9 chiffres
-		$this->assertFalse(VatNumber::check('FR1234567890', checkValidity: false));
-		$this->assertFalse(VatNumber::check('FR123456789012', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('FR1234567890', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('FR123456789012', checkValidity: false));
 	}
 
 	public function testCheckOtherCountryFormat(): void
 	{
 		// Pour les autres pays, vérifie juste le format
-		$this->assertTrue(VatNumber::check('DE123456789', checkValidity: false));
-		$this->assertTrue(VatNumber::check('GB123456789', checkValidity: false));
-		$this->assertTrue(VatNumber::check('ES12345678A', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('DE123456789', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('GB123456789', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('ES12345678A', checkValidity: false));
 	}
 
 	public function testCheckWithValidityCheck(): void
 	{
 		// Ce test va essayer de contacter l'API VIES
 		// On teste juste que la méthode s'exécute sans erreur
-		$result = VatNumber::check('FR32552100554', checkValidity: true);
+		$result = VatNumber::isValid('FR32552100554', checkValidity: true);
 		$this->assertIsBool($result);
 	}
 
-	/* ===================== checkValidity() ===================== */
+	/* ===================== verifyWithVies() ===================== */
 
-	public function testCheckValidityCallsExternalAPI(): void
+	public function testVerifyWithViesCallsExternalAPI(): void
 	{
 		// Ce test appelle l'API VIES
 		// Le résultat dépend de la disponibilité de l'API et de la validité réelle du numéro
+		$result = VatNumber::verifyWithVies('FR32552100554');
+		$this->assertIsBool($result);
+	}
+
+	public function testVerifyWithViesWithInvalidNumber(): void
+	{
+		// Avec un numéro clairement invalide
+		$result = VatNumber::verifyWithVies('FR00000000000');
+		$this->assertFalse($result);
+	}
+
+	/* ===================== DEPRECATED ===================== */
+
+	public function testDeprecatedCheckValidityCallsExternalAPI(): void
+	{
+		// Test backward compatibility: deprecated checkValidity() redirects to verifyWithVies()
 		$result = VatNumber::checkValidity('FR32552100554');
 		$this->assertIsBool($result);
 	}
 
-	public function testCheckValidityWithInvalidNumber(): void
+	public function testDeprecatedCheckValidityWithInvalidNumber(): void
 	{
-		// Avec un numéro clairement invalide
+		// Test backward compatibility: deprecated checkValidity() redirects to verifyWithVies()
 		$result = VatNumber::checkValidity('FR00000000000');
 		$this->assertFalse($result);
 	}
@@ -117,21 +133,21 @@ final class VatNumberTest extends TestCase
 	public function testCheckVatNumberWithSpaces(): void
 	{
 		// Les espaces ne sont pas acceptés
-		$this->assertFalse(VatNumber::check('FR 32 552100554', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('FR 32 552100554', checkValidity: false));
 	}
 
 	public function testCheckVatNumberLowerCase(): void
 	{
 		// Le code pays doit être en majuscules
-		$this->assertFalse(VatNumber::check('fr32552100554', checkValidity: false));
+		$this->assertFalse(VatNumber::isValid('fr32552100554', checkValidity: false));
 	}
 
 	public function testCheckValidVatNumberFormats(): void
 	{
 		// Différents formats selon les pays
-		$this->assertTrue(VatNumber::check('BE0123456789', checkValidity: false));
-		$this->assertTrue(VatNumber::check('NL123456789B01', checkValidity: false));
-		$this->assertTrue(VatNumber::check('IT12345678901', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('BE0123456789', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('NL123456789B01', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('IT12345678901', checkValidity: false));
 	}
 
 	/* ===================== French VAT key calculation ===================== */
@@ -141,10 +157,10 @@ final class VatNumberTest extends TestCase
 		// Vérification de l'algorithme de calcul de la clé TVA française
 		// SIREN: 732829320 -> Clé: 44
 		// Formule: ((SIREN % 97) * 3 + 12) % 97
-		$this->assertTrue(VatNumber::check('FR44732829320', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('FR44732829320', checkValidity: false));
 
 		// SIREN: 552100554 -> Clé: 96 (et non 32)
-		$this->assertTrue(VatNumber::check('FR96552100554', checkValidity: false));
+		$this->assertTrue(VatNumber::isValid('FR96552100554', checkValidity: false));
 	}
 
 	public function testMonacoVatNumberFormat(): void

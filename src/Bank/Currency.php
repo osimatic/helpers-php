@@ -56,7 +56,7 @@ class Currency
 	 * @param string $currencyCode The currency code to validate (e.g., 'EUR', 'USD')
 	 * @return bool True if the currency code is valid, false otherwise
 	 */
-	public static function check(string $currencyCode): bool
+	public static function isValid(string $currencyCode): bool
 	{
 		if (empty($currencyCode)) {
 			return false;
@@ -96,6 +96,20 @@ class Currency
 		$fmt = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
 		$fmt->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 		return \Osimatic\Text\Str::removeNonBreakingSpaces($fmt->format($number)).' '.$currency;
+	}
+
+	// ========================================
+	// DEPRECATED METHODS (Backward Compatibility)
+	// ========================================
+
+	/**
+	 * @deprecated Use isValid() instead
+	 * @param string $currencyCode The currency code to validate
+	 * @return bool True if the currency code is valid, false otherwise
+	 */
+	public static function check(string $currencyCode): bool
+	{
+		return self::isValid($currencyCode);
 	}
 
 }

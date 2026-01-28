@@ -754,7 +754,7 @@ final class TimezoneTest extends TestCase
 
 	public function testCheckMethodStillWorks(): void
 	{
-		// Deprecated method should still work
+		// Method should work
 		$this->assertTrue(Timezone::check('Europe/Paris'));
 		$this->assertFalse(Timezone::check('Invalid/Timezone'));
 	}

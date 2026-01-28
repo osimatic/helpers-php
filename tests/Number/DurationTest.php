@@ -216,13 +216,13 @@ final class DurationTest extends TestCase
 	public function testCheck(): void
 	{
 		// Valid durations as integers (seconds)
-		$this->assertTrue(Duration::check(3600));
-		$this->assertTrue(Duration::check('3600'));
-		$this->assertTrue(Duration::check('0'));
+		$this->assertTrue(Duration::isValid(3600));
+		$this->assertTrue(Duration::isValid('3600'));
+		$this->assertTrue(Duration::isValid('0'));
 
 		// Valid durations as time format
-		$this->assertTrue(Duration::check('10:30:45'));
-		$this->assertTrue(Duration::check('01:00:00'));
+		$this->assertTrue(Duration::isValid('10:30:45'));
+		$this->assertTrue(Duration::isValid('01:00:00'));
 	}
 
 	public function testParse(): void

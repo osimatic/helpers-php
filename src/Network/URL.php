@@ -18,12 +18,12 @@ class URL
 	 * @param bool $checkScheme if true, also validates that the scheme is in the list of valid schemes (default: false)
 	 * @return boolean true if the URL is syntactically correct, false otherwise
 	 */
-	public static function check(string $url, bool $checkScheme=false): bool
+	public static function isValid(string $url, bool $checkScheme=false): bool
 	{
 		if (filter_var($url, FILTER_VALIDATE_URL) === false) {
 			return false;
 		}
-		
+
 		$parsedUrl = parse_url($url);
 		if (false === $parsedUrl || !isset($parsedUrl['host'])) {
 			return false;
@@ -33,7 +33,7 @@ class URL
 		if ($checkScheme && (!isset($parsedUrl['scheme']) || !in_array(strtolower($parsedUrl['scheme']), self::VALID_SCHEMES, true))) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -250,5 +250,19 @@ class URL
 		return $queryString;
 	}
 
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+	// Backward compatibility. Will be removed in a future major version. Please update your code to use the new method names.
+
+	/**
+	 * Checks the syntax of a URL
+	 * @deprecated Use isValid() instead
+	 * @param string $url the URL to check
+	 * @param bool $checkScheme if true, also validates that the scheme is in the list of valid schemes (default: false)
+	 * @return boolean true if the URL is syntactically correct, false otherwise
+	 */
+	public static function check(string $url, bool $checkScheme=false): bool
+	{
+		return self::isValid($url, $checkScheme);
+	}
 
 }

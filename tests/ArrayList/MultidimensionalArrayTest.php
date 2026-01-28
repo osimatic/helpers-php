@@ -60,6 +60,23 @@ final class MultidimensionalArrayTest extends TestCase
 		$this->assertTrue(MultidimensionalArray::isMultidimensional($array));
 	}
 
+	public function testCountWithMixedTypes(): void
+	{
+		$array = [1, 'string', null, false, [2, 3], ['nested' => [4, 5]]];
+		$this->assertEquals(8, MultidimensionalArray::count($array)); // 1, 'string', null, false, 2, 3, 4, 5
+	}
+
+	public function testDepthWithMixedNesting(): void
+	{
+		$array = [
+			1,
+			[2],
+			[[3]],
+			[[[4]]],
+		];
+		$this->assertEquals(4, MultidimensionalArray::depth($array));
+	}
+
 	/* ===================== Transformation ===================== */
 
 	public function testReindexRecursive(): void
@@ -78,6 +95,37 @@ final class MultidimensionalArrayTest extends TestCase
 		$this->assertEquals([1, [2, 3], 4], $result);
 		$this->assertEquals([0, 1, 2], array_keys($result));
 		$this->assertEquals([0, 1], array_keys($result[1]));
+	}
+
+	public function testReindexRecursiveWithOnlyNumeric(): void
+	{
+		$array = [
+			0 => 'first',
+			'name' => 'John',
+			2 => 'third',
+			'age' => [
+				0 => 30,
+				'verified' => true,
+				1 => 'active'
+			]
+		];
+
+		$result = MultidimensionalArray::reindexRecursive($array, true);
+
+		// Numeric keys should be reindexed
+		$this->assertEquals('first', $result[0]);
+		$this->assertEquals('third', $result[1]);
+
+		// Non-numeric keys should be preserved
+		$this->assertArrayHasKey('name', $result);
+		$this->assertEquals('John', $result['name']);
+		$this->assertArrayHasKey('age', $result);
+
+		// Check nested array
+		$this->assertEquals(30, $result['age'][0]);
+		$this->assertEquals('active', $result['age'][1]);
+		$this->assertArrayHasKey('verified', $result['age']);
+		$this->assertTrue($result['age']['verified']);
 	}
 
 	public function testMapRecursive(): void
@@ -150,6 +198,31 @@ final class MultidimensionalArrayTest extends TestCase
 		$array = [1, 2, 3, 4, 5];
 		$result = MultidimensionalArray::flatten($array);
 		$this->assertEquals([1, 2, 3, 4, 5], $result);
+	}
+
+	public function testFlattenWithDepthZero(): void
+	{
+		$array = [1, [2, [3, 4]]];
+		$result = MultidimensionalArray::flatten($array, 0);
+		$this->assertEquals([1, [2, [3, 4]]], $result);
+	}
+
+	public function testFilterRecursiveRemovesEmptyNestedArrays(): void
+	{
+		$array = [
+			1,
+			[2, [99]], // Inner array will be empty after filtering
+			3,
+		];
+
+		$result = MultidimensionalArray::filterRecursive($array, fn($v) => $v < 10, true);
+
+		// The nested array [2] remains even though the inner [99] is filtered out
+		$this->assertCount(3, $result); // 1, [2], and 3 remain
+		$this->assertEquals(1, $result[0]);
+		$this->assertIsArray($result[1]); // Nested array with [2]
+		$this->assertEquals(2, $result[1][0]);
+		$this->assertEquals(3, $result[2]);
 	}
 
 	/* ===================== Access & Retrieval (Dot Notation) ===================== */
@@ -243,6 +316,62 @@ final class MultidimensionalArrayTest extends TestCase
 
 		$result = MultidimensionalArray::pluck($array, 'email');
 		$this->assertEquals([], $result);
+	}
+
+	public function testPluckWithCallable(): void
+	{
+		$array = [
+			['id' => 1, 'name' => 'john'],
+			['id' => 2, 'name' => 'jane'],
+			['id' => 3, 'name' => 'bob']
+		];
+
+		// Extract with callback transformation
+		$result = MultidimensionalArray::pluck($array, fn($item) => strtoupper($item['name']));
+		$this->assertEquals(['JOHN', 'JANE', 'BOB'], $result);
+
+		// Extract with callback and indexBy
+		$result = MultidimensionalArray::pluck($array, fn($item) => strtoupper($item['name']), 'id');
+		$this->assertEquals([
+			1 => 'JOHN',
+			2 => 'JANE',
+			3 => 'BOB'
+		], $result);
+	}
+
+	public function testPluckWithObjects(): void
+	{
+		$obj1 = new \stdClass();
+		$obj1->id = 1;
+		$obj1->name = 'John';
+
+		$obj2 = new \stdClass();
+		$obj2->id = 2;
+		$obj2->name = 'Jane';
+
+		$array = [$obj1, $obj2];
+
+		$result = MultidimensionalArray::pluck($array, 'name');
+		$this->assertEquals(['John', 'Jane'], $result);
+
+		$result = MultidimensionalArray::pluck($array, 'name', 'id');
+		$this->assertEquals([1 => 'John', 2 => 'Jane'], $result);
+	}
+
+	public function testPluckWithObjectsAndMissingProperty(): void
+	{
+		$obj1 = new \stdClass();
+		$obj1->id = 1;
+		$obj1->name = 'John';
+
+		$obj2 = new \stdClass();
+		$obj2->id = 2;
+		// No name property
+
+		$array = [$obj1, $obj2];
+
+		$result = MultidimensionalArray::pluck($array, 'name', 'id');
+		$this->assertEquals([1 => 'John', 2 => null], $result);
 	}
 
 	public function testGetValuesByKey(): void
@@ -467,6 +596,91 @@ final class MultidimensionalArrayTest extends TestCase
 
 		$result = MultidimensionalArray::whereIn($array, 'name', []);
 		$this->assertEquals([], $result);
+	}
+
+	public function testWhereInOperator(): void
+	{
+		$array = [
+			['id' => 1, 'status' => 'active'],
+			['id' => 2, 'status' => 'pending'],
+			['id' => 3, 'status' => 'inactive'],
+			['id' => 4, 'status' => 'active'],
+		];
+
+		$result = MultidimensionalArray::where($array, 'status', 'in', ['active', 'pending']);
+		$this->assertCount(3, $result);
+		$this->assertEquals('active', $result[0]['status']);
+		$this->assertEquals('pending', $result[1]['status']);
+		$this->assertEquals('active', $result[3]['status']);
+	}
+
+	public function testWhereNotInOperator(): void
+	{
+		$array = [
+			['id' => 1, 'status' => 'active'],
+			['id' => 2, 'status' => 'pending'],
+			['id' => 3, 'status' => 'inactive'],
+		];
+
+		$result = MultidimensionalArray::where($array, 'status', 'not_in', ['active', 'pending']);
+		$this->assertCount(1, $result);
+		$this->assertEquals('inactive', $result[2]['status']);
+	}
+
+	public function testWhereWithInvalidOperator(): void
+	{
+		$array = [
+			['id' => 1, 'value' => 10],
+			['id' => 2, 'value' => 20],
+		];
+
+		$result = MultidimensionalArray::where($array, 'value', 'INVALID_OP', 10);
+		$this->assertEquals([], $result);
+	}
+
+	public function testWhereWithNonArrayItems(): void
+	{
+		$array = [
+			['id' => 1, 'name' => 'John'],
+			'not an array',
+			['id' => 2, 'name' => 'Jane'],
+			null,
+			['name' => 'Bob'], // Missing 'id' key
+		];
+
+		$result = MultidimensionalArray::where($array, 'id', '=', 2);
+		$this->assertCount(1, $result);
+		$this->assertEquals('Jane', $result[2]['name']);
+	}
+
+	public function testWhereInStrict(): void
+	{
+		$array = [
+			['id' => 1, 'value' => 1],
+			['id' => 2, 'value' => '2'],
+			['id' => 3, 'value' => 3],
+		];
+
+		// Non-strict
+		$result = MultidimensionalArray::whereIn($array, 'value', [1, 2, 3], false);
+		$this->assertCount(3, $result);
+
+		// Strict
+		$result = MultidimensionalArray::whereIn($array, 'value', [1, 2, 3], true);
+		$this->assertCount(2, $result); // Only integer values match
+	}
+
+	public function testWhereInWithNonArrayItems(): void
+	{
+		$array = [
+			['id' => 1, 'name' => 'John'],
+			'not an array',
+			['id' => 2, 'name' => 'Jane'],
+			['name' => 'Bob'], // Missing 'id' key
+		];
+
+		$result = MultidimensionalArray::whereIn($array, 'id', [1, 2]);
+		$this->assertCount(2, $result);
 	}
 
 	public function testWhereNotNull(): void
@@ -901,6 +1115,207 @@ final class MultidimensionalArrayTest extends TestCase
 
 		$subKeys = array_keys($array[1]);
 		$this->assertEquals([1, 2], $subKeys);
+	}
+
+	public function testSortWithSimpleCriterion(): void
+	{
+		$array = [
+			['name' => 'Charlie'],
+			['name' => 'Alice'],
+			['name' => 'Bob'],
+		];
+
+		// Pass single criterion without wrapping in array
+		MultidimensionalArray::sort($array, ['name']);
+
+		$this->assertEquals('Alice', $array[0]['name']);
+		$this->assertEquals('Bob', $array[1]['name']);
+		$this->assertEquals('Charlie', $array[2]['name']);
+	}
+
+	public function testSortWithNumericValues(): void
+	{
+		$array = [
+			['id' => 10, 'value' => 100],
+			['id' => 2, 'value' => 50],
+			['id' => 30, 'value' => 75],
+		];
+
+		MultidimensionalArray::sort($array, [['id', true]]);
+
+		$this->assertEquals(2, $array[0]['id']);
+		$this->assertEquals(10, $array[1]['id']);
+		$this->assertEquals(30, $array[2]['id']);
+	}
+
+	public function testSortWithEqualValuesUsesSecondCriterion(): void
+	{
+		$array = [
+			['priority' => 1, 'name' => 'Zebra'],
+			['priority' => 2, 'name' => 'Apple'],
+			['priority' => 1, 'name' => 'Alpha'],
+			['priority' => 2, 'name' => 'Beta'],
+		];
+
+		MultidimensionalArray::sort($array, [['priority'], ['name']]);
+
+		// Priority 1, then by name
+		$this->assertEquals('Alpha', $array[0]['name']);
+		$this->assertEquals('Zebra', $array[1]['name']);
+		// Priority 2, then by name
+		$this->assertEquals('Apple', $array[2]['name']);
+		$this->assertEquals('Beta', $array[3]['name']);
+	}
+
+	/* ===================== Additional Edge Cases ===================== */
+
+	public function testGetWithNumericKeys(): void
+	{
+		$array = [
+			0 => [
+				1 => [
+					2 => 'value',
+				],
+			],
+		];
+
+		$this->assertEquals('value', MultidimensionalArray::get($array, '0.1.2'));
+	}
+
+	public function testHasWithNumericKeys(): void
+	{
+		$array = [
+			0 => [1 => ['2' => 'value']],
+		];
+
+		$this->assertTrue(MultidimensionalArray::has($array, '0.1.2'));
+		$this->assertFalse(MultidimensionalArray::has($array, '0.1.3'));
+	}
+
+	public function testSetOverridesNonArrayValue(): void
+	{
+		$array = [
+			'user' => 'simple string',
+		];
+
+		// Should override the string with nested array
+		MultidimensionalArray::set($array, 'user.profile.name', 'John');
+
+		$this->assertIsArray($array['user']);
+		$this->assertEquals('John', $array['user']['profile']['name']);
+	}
+
+	public function testForgetWithPartiallyNonExistentPath(): void
+	{
+		$array = ['user' => 'not an array'];
+
+		// Should do nothing when path doesn't exist
+		MultidimensionalArray::forget($array, 'user.profile.name');
+
+		$this->assertEquals(['user' => 'not an array'], $array);
+	}
+
+	public function testForgetWithNonArrayIntermediate(): void
+	{
+		$array = [
+			'user' => [
+				'profile' => 'string value',
+			],
+		];
+
+		MultidimensionalArray::forget($array, 'user.profile.name');
+
+		// Should stop when encountering non-array
+		$this->assertEquals('string value', $array['user']['profile']);
+	}
+
+	public function testAddKeyAndValueRecursiveAvoidsInfiniteLoop(): void
+	{
+		$array = [
+			'level1' => [
+				'level2' => 'value',
+			],
+		];
+
+		// Add 'newkey' at all levels
+		MultidimensionalArray::addKeyAndValueRecursive($array, 'newkey', 'newvalue');
+
+		$this->assertEquals('newvalue', $array['newkey']);
+		$this->assertEquals('newvalue', $array['level1']['newkey']);
+		// level2 is a string, it won't have the new key added
+		$this->assertIsString($array['level1']['level2']);
+		$this->assertEquals('value', $array['level1']['level2']);
+	}
+
+	public function testIntersectWithEmptyArray(): void
+	{
+		$result = MultidimensionalArray::intersect();
+		$this->assertEquals([], $result);
+	}
+
+	public function testDiffRecursiveWithKeyOnlyInFirstArray(): void
+	{
+		$array1 = [
+			'user' => [
+				'name' => 'John',
+				'email' => 'john@example.com',
+			],
+		];
+
+		$array2 = [
+			'user' => [
+				'name' => 'John',
+			],
+		];
+
+		$result = MultidimensionalArray::diffRecursive($array1, $array2);
+
+		$this->assertArrayHasKey('user', $result);
+		$this->assertEquals(['email' => 'john@example.com'], $result['user']);
+	}
+
+	public function testDiffRecursiveWithIdenticalArrays(): void
+	{
+		$array1 = [
+			'user' => [
+				'name' => 'John',
+				'age' => 30,
+			],
+		];
+
+		$array2 = $array1;
+
+		$result = MultidimensionalArray::diffRecursive($array1, $array2);
+		$this->assertEquals([], $result);
+	}
+
+	public function testDiffRecursiveWithDifferentValues(): void
+	{
+		$array1 = ['key' => 'value1'];
+		$array2 = ['key' => 'value2'];
+
+		$result = MultidimensionalArray::diffRecursive($array1, $array2);
+		$this->assertEquals(['key' => 'value1'], $result);
+	}
+
+	public function testMergeRecursiveOverridesScalarWithArray(): void
+	{
+		$array1 = ['key' => 'scalar value'];
+		$array2 = ['key' => ['nested' => 'array']];
+
+		$result = MultidimensionalArray::mergeRecursive($array1, $array2);
+
+		$this->assertEquals(['nested' => 'array'], $result['key']);
+	}
+
+	public function testMergeRecursiveOverridesArrayWithScalar(): void
+	{
+		$array1 = ['key' => ['nested' => 'array']];
+		$array2 = ['key' => 'scalar value'];
+
+		$result = MultidimensionalArray::mergeRecursive($array1, $array2);
+
+		$this->assertEquals('scalar value', $result['key']);
 	}
 
 	/* ===================== DEPRECATED METHODS ===================== */

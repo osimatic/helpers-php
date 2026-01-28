@@ -262,4 +262,17 @@ class Date
 		return self::parse($dateString) !== null;
 	}
 
+	/**
+	 * Validates date components (year, month, day).
+	 * Checks if the given date components form a valid calendar date using PHP's checkdate() function. This includes validation of leap years and the number of days in each month.
+	 * @param int $year The year (e.g., 2024)
+	 * @param int $month The month (1-12)
+	 * @param int $day The day (1-31, depending on month)
+	 * @return bool True if the date components are valid, false otherwise
+	 */
+	public static function isValidDate(int $year, int $month, int $day): bool
+	{
+		return checkdate($month, $day, $year);
+	}
+
 }

@@ -329,7 +329,7 @@ class Audio
 	 * @return bool True if the ISMN is valid, false otherwise
 	 * @link https://en.wikipedia.org/wiki/International_Standard_Music_Number
 	 */
-	public static function checkIsmn(string $ismn): bool
+	public static function isValidIsmn(string $ismn): bool
 	{
 		if (empty($ismn)) {
 			return false;
@@ -610,4 +610,15 @@ class Audio
 
 		exit();
 	}
+
+	// ========== DEPRECATED METHODS (Backward Compatibility) ==========
+
+	/**
+	 * @deprecated Use isValidIsmn() instead
+	 */
+	public static function checkIsmn(string $ismn): bool
+	{
+		return self::isValidIsmn($ismn);
+	}
+
 }

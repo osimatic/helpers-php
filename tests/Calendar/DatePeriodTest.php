@@ -696,6 +696,53 @@ final class DatePeriodTest extends TestCase
 		$this->assertStringContainsString('au', $label);
 	}
 
+	/* getLabelEn() */
+
+	public function testGetLabelEnSingleDay(): void
+	{
+		// Single day (January 15, 2024)
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-01-15');
+		$label = DatePeriod::getLabel($start, $end, 'en');
+		$this->assertEquals('January 15, 2024', $label);
+	}
+
+	public function testGetLabelEnFullMonth(): void
+	{
+		// Full month (January 2024)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-01-31');
+		$label = DatePeriod::getLabel($start, $end, 'en');
+		$this->assertEquals('January 2024', $label);
+	}
+
+	public function testGetLabelEnFullYear(): void
+	{
+		// Full year (2024)
+		$start = new \DateTime('2024-01-01');
+		$end = new \DateTime('2024-12-31');
+		$label = DatePeriod::getLabel($start, $end, 'en');
+		$this->assertEquals('2024', $label);
+	}
+
+	public function testGetLabelEnNormalPeriod(): void
+	{
+		// Normal multi-day period (January 15 to March 20, 2024)
+		$start = new \DateTime('2024-01-15');
+		$end = new \DateTime('2024-03-20');
+		$label = DatePeriod::getLabel($start, $end, 'en');
+		$this->assertEquals('January 15, 2024 to March 20, 2024', $label);
+	}
+
+	public function testGetLabelEnCrossYear(): void
+	{
+		// Cross-year period (December 15, 2023 to January 10, 2024)
+		$start = new \DateTime('2023-12-15');
+		$end = new \DateTime('2024-01-10');
+		$label = DatePeriod::getLabel($start, $end, 'en');
+		$this->assertEquals('December 15, 2023 to January 10, 2024', $label);
+	}
+
 	// ========== Generic Utilities ==========
 
 	public function testGetPeriodUnits(): void

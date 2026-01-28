@@ -42,21 +42,21 @@ final class SqlTimeTest extends TestCase
 		$this->assertFalse(SqlTime::isValid(null));
 	}
 
-	public function testCheck(): void
+	public function testIsValidMethod(): void
 	{
 		// Heures valides
-		$this->assertTrue(SqlTime::check('00:00:00'));
-		$this->assertTrue(SqlTime::check('12:30:45'));
-		$this->assertTrue(SqlTime::check('23:59:59'));
-		$this->assertTrue(SqlTime::check('14:30'));
+		$this->assertTrue(SqlTime::isValid('00:00:00'));
+		$this->assertTrue(SqlTime::isValid('12:30:45'));
+		$this->assertTrue(SqlTime::isValid('23:59:59'));
+		$this->assertTrue(SqlTime::isValid('14:30'));
 
 		// Heures invalides
-		$this->assertFalse(SqlTime::check('24:00:00')); // Heure 24
-		$this->assertFalse(SqlTime::check('12:60:00')); // Minute 60
-		$this->assertFalse(SqlTime::check('-1:00:00')); // Heure négative
-		$this->assertFalse(SqlTime::check('12:-1:00')); // Minute négative
-		$this->assertFalse(SqlTime::check('invalid'));
-		$this->assertFalse(SqlTime::check(null));
+		$this->assertFalse(SqlTime::isValid('24:00:00')); // Heure 24
+		$this->assertFalse(SqlTime::isValid('12:60:00')); // Minute 60
+		$this->assertFalse(SqlTime::isValid('-1:00:00')); // Heure négative
+		$this->assertFalse(SqlTime::isValid('12:-1:00')); // Minute négative
+		$this->assertFalse(SqlTime::isValid('invalid'));
+		$this->assertFalse(SqlTime::isValid(null));
 	}
 
 	// ========== Extraction Methods Tests ==========

@@ -10,121 +10,121 @@ use PHPUnit\Framework\TestCase;
 
 final class NameTest extends TestCase
 {
-	/* ===================== checkCivility() ===================== */
+	/* ===================== isValidCivility() ===================== */
 
-	public function testCheckCivilityValid(): void
+	public function testIsValidCivilityValid(): void
 	{
-		$this->assertTrue(Name::checkCivility(0));
-		$this->assertTrue(Name::checkCivility(1));
-		$this->assertTrue(Name::checkCivility(2));
-		$this->assertTrue(Name::checkCivility('0'));
-		$this->assertTrue(Name::checkCivility('1'));
-		$this->assertTrue(Name::checkCivility('2'));
+		$this->assertTrue(Name::isValidCivility(0));
+		$this->assertTrue(Name::isValidCivility(1));
+		$this->assertTrue(Name::isValidCivility(2));
+		$this->assertTrue(Name::isValidCivility('0'));
+		$this->assertTrue(Name::isValidCivility('1'));
+		$this->assertTrue(Name::isValidCivility('2'));
 	}
 
-	public function testCheckCivilityInvalid(): void
+	public function testIsValidCivilityInvalid(): void
 	{
-		$this->assertFalse(Name::checkCivility(3));
-		$this->assertFalse(Name::checkCivility('3'));
-		$this->assertFalse(Name::checkCivility(null));
-		$this->assertFalse(Name::checkCivility(''));
+		$this->assertFalse(Name::isValidCivility(3));
+		$this->assertFalse(Name::isValidCivility('3'));
+		$this->assertFalse(Name::isValidCivility(null));
+		$this->assertFalse(Name::isValidCivility(''));
 	}
 
-	/* ===================== checkFirstName() ===================== */
+	/* ===================== isValidFirstName() ===================== */
 
-	public function testCheckFirstNameValid(): void
+	public function testIsValidFirstNameValid(): void
 	{
-		$this->assertTrue(Name::checkFirstName('Jean'));
-		$this->assertTrue(Name::checkFirstName('Marie'));
-		$this->assertTrue(Name::checkFirstName('Jean-Pierre'));
-		$this->assertTrue(Name::checkFirstName("O'Connor"));
-		$this->assertTrue(Name::checkFirstName('François'));
-		$this->assertTrue(Name::checkFirstName('Björk'));
+		$this->assertTrue(Name::isValidFirstName('Jean'));
+		$this->assertTrue(Name::isValidFirstName('Marie'));
+		$this->assertTrue(Name::isValidFirstName('Jean-Pierre'));
+		$this->assertTrue(Name::isValidFirstName("O'Connor"));
+		$this->assertTrue(Name::isValidFirstName('François'));
+		$this->assertTrue(Name::isValidFirstName('Björk'));
 	}
 
-	public function testCheckFirstNameWithNumbers(): void
+	public function testIsValidFirstNameWithNumbers(): void
 	{
-		$this->assertFalse(Name::checkFirstName('Jean123'));
-		$this->assertTrue(Name::checkFirstName('Jean123', numbersAllowed: true));
+		$this->assertFalse(Name::isValidFirstName('Jean123'));
+		$this->assertTrue(Name::isValidFirstName('Jean123', numbersAllowed: true));
 	}
 
-	public function testCheckFirstNameMinLength(): void
+	public function testIsValidFirstNameMinLength(): void
 	{
-		$this->assertTrue(Name::checkFirstName('Ann'));
-		$this->assertFalse(Name::checkFirstName('Jo')); // trop court
+		$this->assertTrue(Name::isValidFirstName('Ann'));
+		$this->assertFalse(Name::isValidFirstName('Jo')); // trop court
 	}
 
-	public function testCheckFirstNameMaxLength(): void
+	public function testIsValidFirstNameMaxLength(): void
 	{
 		$longName = str_repeat('a', 120);
-		$this->assertTrue(Name::checkFirstName($longName));
+		$this->assertTrue(Name::isValidFirstName($longName));
 
 		$tooLongName = str_repeat('a', 121);
-		$this->assertFalse(Name::checkFirstName($tooLongName));
+		$this->assertFalse(Name::isValidFirstName($tooLongName));
 	}
 
-	public function testCheckFirstNameInvalid(): void
+	public function testIsValidFirstNameInvalid(): void
 	{
-		$this->assertFalse(Name::checkFirstName(''));
-		$this->assertFalse(Name::checkFirstName('A'));
-		$this->assertFalse(Name::checkFirstName('Jean@'));
-		$this->assertFalse(Name::checkFirstName(null));
+		$this->assertFalse(Name::isValidFirstName(''));
+		$this->assertFalse(Name::isValidFirstName('A'));
+		$this->assertFalse(Name::isValidFirstName('Jean@'));
+		$this->assertFalse(Name::isValidFirstName(null));
 	}
 
-	/* ===================== checkGivenName() ===================== */
+	/* ===================== isValidGivenName() ===================== */
 
-	public function testCheckGivenName(): void
+	public function testIsValidGivenName(): void
 	{
-		$this->assertTrue(Name::checkGivenName('Jean'));
-		$this->assertFalse(Name::checkGivenName('Jo'));
+		$this->assertTrue(Name::isValidGivenName('Jean'));
+		$this->assertFalse(Name::isValidGivenName('Jo'));
 	}
 
-	/* ===================== checkLastName() ===================== */
+	/* ===================== isValidLastName() ===================== */
 
-	public function testCheckLastNameValid(): void
+	public function testIsValidLastNameValid(): void
 	{
-		$this->assertTrue(Name::checkLastName('Dupont'));
-		$this->assertTrue(Name::checkLastName('Martin'));
-		$this->assertTrue(Name::checkLastName('De La Fontaine'));
-		$this->assertTrue(Name::checkLastName("O'Brien"));
-		$this->assertTrue(Name::checkLastName('Müller'));
+		$this->assertTrue(Name::isValidLastName('Dupont'));
+		$this->assertTrue(Name::isValidLastName('Martin'));
+		$this->assertTrue(Name::isValidLastName('De La Fontaine'));
+		$this->assertTrue(Name::isValidLastName("O'Brien"));
+		$this->assertTrue(Name::isValidLastName('Müller'));
 	}
 
-	public function testCheckLastNameWithNumbers(): void
+	public function testIsValidLastNameWithNumbers(): void
 	{
-		$this->assertFalse(Name::checkLastName('Smith123'));
-		$this->assertTrue(Name::checkLastName('Smith123', numbersAllowed: true));
+		$this->assertFalse(Name::isValidLastName('Smith123'));
+		$this->assertTrue(Name::isValidLastName('Smith123', numbersAllowed: true));
 	}
 
-	public function testCheckLastNameMinLength(): void
+	public function testIsValidLastNameMinLength(): void
 	{
-		$this->assertTrue(Name::checkLastName('Li'));
-		$this->assertFalse(Name::checkLastName('L')); // trop court
+		$this->assertTrue(Name::isValidLastName('Li'));
+		$this->assertFalse(Name::isValidLastName('L')); // trop court
 	}
 
-	public function testCheckLastNameMaxLength(): void
+	public function testIsValidLastNameMaxLength(): void
 	{
 		$longName = str_repeat('a', 120);
-		$this->assertTrue(Name::checkLastName($longName));
+		$this->assertTrue(Name::isValidLastName($longName));
 
 		$tooLongName = str_repeat('a', 121);
-		$this->assertFalse(Name::checkLastName($tooLongName));
+		$this->assertFalse(Name::isValidLastName($tooLongName));
 	}
 
-	public function testCheckLastNameInvalid(): void
+	public function testIsValidLastNameInvalid(): void
 	{
-		$this->assertFalse(Name::checkLastName(''));
-		$this->assertFalse(Name::checkLastName('A'));
-		$this->assertFalse(Name::checkLastName('Dupont@'));
-		$this->assertFalse(Name::checkLastName(null));
+		$this->assertFalse(Name::isValidLastName(''));
+		$this->assertFalse(Name::isValidLastName('A'));
+		$this->assertFalse(Name::isValidLastName('Dupont@'));
+		$this->assertFalse(Name::isValidLastName(null));
 	}
 
-	/* ===================== checkFamilyName() ===================== */
+	/* ===================== isValidFamilyName() ===================== */
 
-	public function testCheckFamilyName(): void
+	public function testIsValidFamilyName(): void
 	{
-		$this->assertTrue(Name::checkFamilyName('Dupont'));
-		$this->assertFalse(Name::checkFamilyName('L'));
+		$this->assertTrue(Name::isValidFamilyName('Dupont'));
+		$this->assertFalse(Name::isValidFamilyName('L'));
 	}
 
 	/* ===================== getFormattedName() ===================== */

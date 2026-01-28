@@ -65,11 +65,11 @@ class BankCard
 	 * @param string $cardNumber The card number to validate
 	 * @return bool True if the card number is valid, false otherwise
 	 * @link https://en.wikipedia.org/wiki/Payment_card_number
-	 * @example checkCardNumber('4111111111111111') returns true (valid Visa)
-	 * @example checkCardNumber('4111-1111-1111-1111') returns true (spaces/dashes removed)
-	 * @example checkCardNumber('1234567890123456') returns false (invalid Luhn)
+	 * @example isValidCardNumber('4111111111111111') returns true (valid Visa)
+	 * @example isValidCardNumber('4111-1111-1111-1111') returns true (spaces/dashes removed)
+	 * @example isValidCardNumber('1234567890123456') returns false (invalid Luhn)
 	 */
-	public static function checkCardNumber(string $cardNumber): bool
+	public static function isValidCardNumber(string $cardNumber): bool
 	{
 		$cardNumber = trim(str_replace([' ', '-'], '', $cardNumber));
 
@@ -86,12 +86,12 @@ class BankCard
 	 * Checks if the code is numeric and has the correct length (3-4 digits)
 	 * @param string $csc The security code to validate
 	 * @return bool True if the code is valid (numeric and 3-4 digits), false otherwise
-	 * @example checkCardCSC('123') returns true
-	 * @example checkCardCSC('1234') returns true
-	 * @example checkCardCSC('12') returns false (too short)
-	 * @example checkCardCSC('12a') returns false (not numeric)
+	 * @example isValidCardCSC('123') returns true
+	 * @example isValidCardCSC('1234') returns true
+	 * @example isValidCardCSC('12') returns false (too short)
+	 * @example isValidCardCSC('12a') returns false (not numeric)
 	 */
-	public static function checkCardCSC(string $csc): bool
+	public static function isValidCardCSC(string $csc): bool
 	{
 		$csc = trim($csc);
 		$length = strlen($csc);
@@ -201,5 +201,29 @@ class BankCard
 		}
 
 		return null;
+	}
+
+	// ========================================
+	// DEPRECATED METHODS (Backward Compatibility)
+	// ========================================
+
+	/**
+	 * @deprecated Use isValidCardNumber() instead
+	 * @param string $cardNumber The card number to validate
+	 * @return bool True if the card number is valid, false otherwise
+	 */
+	public static function checkCardNumber(string $cardNumber): bool
+	{
+		return self::isValidCardNumber($cardNumber);
+	}
+
+	/**
+	 * @deprecated Use isValidCardCSC() instead
+	 * @param string $csc The security code to validate
+	 * @return bool True if the code is valid, false otherwise
+	 */
+	public static function checkCardCSC(string $csc): bool
+	{
+		return self::isValidCardCSC($csc);
 	}
 }

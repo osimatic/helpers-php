@@ -9,43 +9,43 @@ use PHPUnit\Framework\TestCase;
 
 final class DNSTest extends TestCase
 {
-	/* ===================== check() ===================== */
+	/* ===================== isValid() ===================== */
 
-	public function testCheckWithValidDomains(): void
+	public function testIsValidWithValidDomains(): void
 	{
-		$this->assertTrue(DNS::check('example.com'));
-		$this->assertTrue(DNS::check('www.example.com'));
-		$this->assertTrue(DNS::check('sub.example.com'));
-		$this->assertTrue(DNS::check('example.fr'));
-		$this->assertTrue(DNS::check('my-domain.com'));
-		$this->assertTrue(DNS::check('example123.com'));
-		$this->assertTrue(DNS::check('123example.com'));
+		$this->assertTrue(DNS::isValid('example.com'));
+		$this->assertTrue(DNS::isValid('www.example.com'));
+		$this->assertTrue(DNS::isValid('sub.example.com'));
+		$this->assertTrue(DNS::isValid('example.fr'));
+		$this->assertTrue(DNS::isValid('my-domain.com'));
+		$this->assertTrue(DNS::isValid('example123.com'));
+		$this->assertTrue(DNS::isValid('123example.com'));
 	}
 
-	public function testCheckWithInvalidDomains(): void
+	public function testIsValidWithInvalidDomains(): void
 	{
-		$this->assertFalse(DNS::check(''));
-		$this->assertFalse(DNS::check('not a domain'));
-		$this->assertFalse(DNS::check('-invalid.com'));
-		$this->assertFalse(DNS::check('invalid-.com'));
-		$this->assertFalse(DNS::check('invalid..com'));
-		$this->assertFalse(DNS::check('.invalid.com'));
-		$this->assertFalse(DNS::check('invalid.com.'));
+		$this->assertFalse(DNS::isValid(''));
+		$this->assertFalse(DNS::isValid('not a domain'));
+		$this->assertFalse(DNS::isValid('-invalid.com'));
+		$this->assertFalse(DNS::isValid('invalid-.com'));
+		$this->assertFalse(DNS::isValid('invalid..com'));
+		$this->assertFalse(DNS::isValid('.invalid.com'));
+		$this->assertFalse(DNS::isValid('invalid.com.'));
 	}
 
-	public function testCheckWithSubdomains(): void
+	public function testIsValidWithSubdomains(): void
 	{
-		$this->assertTrue(DNS::check('www.example.com'));
-		$this->assertTrue(DNS::check('api.example.com'));
-		$this->assertTrue(DNS::check('sub.domain.example.com'));
-		$this->assertTrue(DNS::check('very.long.sub.domain.example.com'));
+		$this->assertTrue(DNS::isValid('www.example.com'));
+		$this->assertTrue(DNS::isValid('api.example.com'));
+		$this->assertTrue(DNS::isValid('sub.domain.example.com'));
+		$this->assertTrue(DNS::isValid('very.long.sub.domain.example.com'));
 	}
 
-	public function testCheckWithSpecialCharacters(): void
+	public function testIsValidWithSpecialCharacters(): void
 	{
-		$this->assertFalse(DNS::check('example_test.com')); // underscore not allowed
-		$this->assertFalse(DNS::check('example@test.com')); // @ not allowed
-		$this->assertFalse(DNS::check('example test.com')); // space not allowed
+		$this->assertFalse(DNS::isValid('example_test.com')); // underscore not allowed
+		$this->assertFalse(DNS::isValid('example@test.com')); // @ not allowed
+		$this->assertFalse(DNS::isValid('example test.com')); // space not allowed
 	}
 
 	/* ===================== getTld() / getTopLevelDomain() ===================== */

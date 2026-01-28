@@ -19,7 +19,7 @@ class BusinessActivityCodeValidator extends ConstraintValidator
 		}
 
 		/** @var BusinessActivityCode $constraint */
-		if ($constraint->companyCountry === 'FR' && !\Osimatic\Organization\Company::checkFranceCodeNaf($value)) {
+		if ($constraint->companyCountry === 'FR' && !\Osimatic\Organization\Company::isValidFranceCodeNaf($value)) {
 			$this->context->buildViolation($constraint->message)
 				->setParameter('{{value}}', $value)
 				->addViolation();
