@@ -333,153 +333,186 @@ class Timestamp
 
 	/**
 	 * Formats a timestamp using IntlDateFormatter with custom date and time format levels.
+	 *  Uses ICU IntlDateFormatter for internationalization support.
+	 *  Examples with SHORT/SHORT: en_US: "1/15/24, 2:30 PM" ; fr_FR: "15/01/2024 14:30"
+	 *  Examples with MEDIUM/MEDIUM: en_US: "Jan 15, 2024, 2:30:45 PM" ; fr_FR: "15 janv. 2024, 14:30:45"
+	 *  Examples with LONG/LONG: en_US: "January 15, 2024 at 2:30:45 PM UTC" ; fr_FR: "15 janvier 2024 à 14:30:45 UTC"
+	 *  Examples with FULL/FULL: en_US: "Monday, January 15, 2024 at 2:30:45 PM Coordinated Universal Time" ; fr_FR: "lundi 15 janvier 2024 à 14:30:45 temps universel coordonné"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL)
-	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL)
-	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR')
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted date/time string
 	 */
-	public static function format(int $timestamp, int $dateFormatter, int $timeFormatter, ?string $locale = null): string
+	public static function format(int $timestamp, int $dateFormatter=\IntlDateFormatter::SHORT, int $timeFormatter=\IntlDateFormatter::SHORT, ?string $locale = null): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::format($dateTime, $dateFormatter, $timeFormatter, $locale);
+		return DateTime::format(self::toDateTime($timestamp), $dateFormatter, $timeFormatter, $locale);
 	}
 
 	/**
 	 * Formats a timestamp with SHORT format for both date and time.
+	 *  Uses ICU IntlDateFormatter for internationalization.
+	 *  See exemples in format method.
 	 * @param int $timestamp The Unix timestamp to format
-	 * @param string|null $locale Optional locale code
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
 	 * @return string The formatted date and time string
 	 */
-	public static function formatDateTime(int $timestamp, ?string $locale = null): string
+	public static function formatDateTime(int $timestamp, ?string $locale = null, int $dateFormatter=\IntlDateFormatter::SHORT, int $timeFormatter=\IntlDateFormatter::SHORT): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDateTime($dateTime, $locale);
-	}
-
-	/**
-	 * Formats only the date portion of a timestamp.
-	 * @param int $timestamp The Unix timestamp to format
-	 * @param string|null $locale Optional locale code
-	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT)
-	 * @return string The formatted date string
-	 */
-	public static function formatDate(int $timestamp, ?string $locale = null, int $dateFormatter = \IntlDateFormatter::SHORT): string
-	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDate($dateTime, $locale, $dateFormatter);
-	}
-
-	/**
-	 * Formats a timestamp in LONG or FULL format.
-	 * @param int $timestamp The Unix timestamp to format
-	 * @param string|null $locale Optional locale code
-	 * @param bool $withWeekDay If true, uses FULL format with weekday; if false, uses LONG format
-	 * @return string The formatted date string
-	 */
-	public static function formatDateInLong(int $timestamp, ?string $locale = null, bool $withWeekDay = false): string
-	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDateInLong($dateTime, $locale, $withWeekDay);
-	}
-
-	/**
-	 * Formats only the time portion of a timestamp.
-	 * @param int $timestamp The Unix timestamp to format
-	 * @param string|null $locale Optional locale code
-	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT)
-	 * @return string The formatted time string
-	 */
-	public static function formatTime(int $timestamp, ?string $locale = null, int $timeFormatter = \IntlDateFormatter::SHORT): string
-	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatTime($dateTime, $locale, $timeFormatter);
+		return DateTime::formatDateTime(self::toDateTime($timestamp), $locale, $dateFormatter, $timeFormatter);
 	}
 
 	// Date Formatting Methods
 
 	/**
-	 * Formats a timestamp's date in short format (DD/MM/YYYY or MM/DD/YYYY depending on lang).
+	 * Formats only the date portion of a timestamp.
+	 *  Uses ICU IntlDateFormatter for internationalization.
 	 * @param int $timestamp The Unix timestamp to format
-	 * @param string $separator Separator character (default: '/')
-	 * @param string $lang Language code for date order: 'US' (MM/DD/YYYY) or 'EU'/'FR' (DD/MM/YYYY) (default: 'EU')
-	 * @return string Formatted date string
+	 * @param string|null $locale Optional locale code
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT). Available formats:
+	 *   - SHORT: Numeric date format. Exemples: en_US: "1/15/24" ; fr_FR: "15/01/2024"
+	 *   - MEDIUM: Abbreviated month name with day and year. Exemples: en_US: "Jan 15, 2024" ; fr_FR: "15 janv. 2024"
+	 *   - LONG: Full month name with day and year, without weekday. Exemples: en_US: "January 15, 2024" ; fr_FR: "15 janvier 2024"
+	 *   - FULL: Full format with weekday. Exemples: en_US: "Monday, January 15, 2024" ; fr_FR: "lundi 15 janvier 2024"
+	 * @return string The formatted date string
 	 */
-	public static function formatDateShort(int $timestamp, string $separator = '/', string $lang = 'EU'): string
+	public static function formatDate(int $timestamp, ?string $locale = null, int $dateFormatter = \IntlDateFormatter::SHORT): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDateShort($dateTime, $separator, $lang);
+		return DateTime::formatDate(self::toDateTime($timestamp), $locale, $dateFormatter);
 	}
 
 	/**
-	 * Formats a timestamp's date in medium format with localized month name.
+	 * Formats a timestamp's date in short format (numeric date).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "1/15/24" ; fr_FR: "15/01/2024"
+	 * Examples with separator='-': en_US: "1-15-24" ; fr_FR: "15-01-2024"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @param string|null $locale Optional locale code
-	 * @return string Formatted date string
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param string|null $separator Optional custom separator to replace the default one (e.g., '-', '.', ' ')
+	 * @return string The formatted date string, or empty string on error
+	 */
+	public static function formatDateShort(int $timestamp, ?string $locale = null, ?string $separator = null): string
+	{
+		return DateTime::formatDateShort(self::toDateTime($timestamp), $locale, $separator);
+	}
+
+	/**
+	 * Formats a timestamp's date in medium format (abbreviated month name).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "Jan 15, 2024" ; fr_FR: "15 janv. 2024"
+	 * @param int $timestamp The Unix timestamp to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date string, or empty string on error
 	 */
 	public static function formatDateMedium(int $timestamp, ?string $locale = null): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDateMedium($dateTime, $locale);
+		return DateTime::formatDateMedium(self::toDateTime($timestamp), $locale);
 	}
 
 	/**
-	 * Formats a timestamp's date in long format with localized full month name.
+	 * Formats a timestamp's date in long format (does not include the day of the week) with localized text.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "January 15, 2024" ; fr_FR: "15 janvier 2024"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @param string|null $locale Optional locale code
-	 * @return string Formatted date string
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date string, or empty string on error
 	 */
 	public static function formatDateLong(int $timestamp, ?string $locale = null): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDateLong($dateTime, $locale);
+		return DateTime::formatDateLong(self::toDateTime($timestamp), $locale);
 	}
 
 	/**
-	 * Formats a timestamp's date in ISO 8601 format (YYYY-MM-DD).
+	 * Formats a timestamp's date in full format (includes the day of the week) with localized text.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "Monday, January 15, 2024" ; fr_FR: "lundi 15 janvier 2024"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @return string ISO formatted date string
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date string, or empty string on error
+	 */
+	public static function formatDateFull(int $timestamp, ?string $locale=null): string
+	{
+		return DateTime::formatDateFull(self::toDateTime($timestamp), $locale);
+	}
+
+	/**
+	 * Formats a timestamp's date in ISO 8601 format (YYYY-MM-DD).. Exemple: "2024-01-15"
+	 * @param int $timestamp The Unix timestamp to format
+	 * @return string The ISO formatted date string
 	 */
 	public static function formatDateISO(int $timestamp): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatDateISO($dateTime);
+		return DateTime::formatDateISO(self::toDateTime($timestamp));
 	}
 
 	// Time Formatting Methods
 
 	/**
+	 * Formats only the time portion of a timestamp.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param int $timestamp The Unix timestamp to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT). Available formats:
+	 *   - SHORT: Time without seconds (HH:MM format). Examples: en_US: "2:30 PM" ; fr_FR: "14:30"
+	 *   - MEDIUM: Time with seconds (HH:MM:SS format). Examples: en_US: "2:30:45 PM" ; fr_FR: "14:30:45"
+	 *   - LONG: Time with seconds and timezone. Examples: en_US: "2:30:45 PM UTC" ; fr_FR: "14:30:45 UTC"
+	 *   - FULL: Time with seconds and full timezone name. Examples: en_US: "2:30:45 PM Coordinated Universal Time" ; fr_FR: "14:30:45 temps universel coordonné"
+	 * @return string The formatted time string, or empty string on error
+	 */
+	public static function formatTime(int $timestamp, ?string $locale = null, int $timeFormatter = \IntlDateFormatter::SHORT): string
+	{
+		return DateTime::formatTime(self::toDateTime($timestamp), $locale, $timeFormatter);
+	}
+
+	/**
 	 * Formats a timestamp's time in short HH:MM format (without seconds).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30 PM" ; fr_FR: "14:30"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @return string Formatted time (e.g., "14:30")
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function formatTimeShort(int $timestamp): string
+	public static function formatTimeShort(int $timestamp, ?string $locale = null): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatTimeShort($dateTime);
+		return DateTime::formatTimeShort(self::toDateTime($timestamp), $locale);
 	}
 
 	/**
-	 * Formats a timestamp's time in long format with optional seconds.
+	 * Formats a timestamp's time in medium format (with seconds).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30:45 PM" ; fr_FR: "14:30:45"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @param bool $withSeconds Whether to include seconds (default: true)
-	 * @return string Formatted time (e.g., "14:30:45" or "14:30")
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function formatTimeLong(int $timestamp, bool $withSeconds = true): string
+	public static function formatTimeMedium(int $timestamp, ?string $locale=null): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatTimeLong($dateTime, $withSeconds);
+		return DateTime::formatTimeMedium(self::toDateTime($timestamp), $locale);
 	}
 
 	/**
-	 * Formats a timestamp's time in ISO 8601 format (HH:MM:SS).
+	 * Formats a timestamp's time in long format (with timezone).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30:45 PM UTC" ; fr_FR: "14:30:45 UTC"
 	 * @param int $timestamp The Unix timestamp to format
-	 * @return string ISO 8601 formatted time (e.g., "14:30:45")
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
+	 */
+	public static function formatTimeLong(int $timestamp, ?string $locale = null): string
+	{
+		return DateTime::formatTimeLong(self::toDateTime($timestamp), $locale);
+	}
+
+	/**
+	 * Formats a timestamp's time in ISO 8601 format (HH:MM:SS). Exemple: "14:30:45"
+	 * @param int $timestamp The Unix timestamp to format
+	 * @return string The ISO 8601 formatted time
 	 */
 	public static function formatTimeISO(int $timestamp): string
 	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatTimeISO($dateTime);
+		return DateTime::formatTimeISO(self::toDateTime($timestamp));
 	}
 
 	// ========== DEPRECATED METHODS ==========
@@ -544,4 +577,13 @@ class Timestamp
 	{
 		return self::getPreviousDayOfWeekFromTimestamp($timestamp, $dayOfWeekInNumeric);
 	}
+
+	/**
+	 * @deprecated use formatDateLong if $withWeekDay = false or formatDateFull if $withWeekDay = true instead
+	 */
+	public static function formatDateInLong(int $timestamp, ?string $locale = null, bool $withWeekDay = false): string
+	{
+		return DateTime::formatDateInLong(self::toDateTime($timestamp), $locale, $withWeekDay);
+	}
+
 }

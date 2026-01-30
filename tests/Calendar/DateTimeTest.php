@@ -97,94 +97,194 @@ final class DateTimeTest extends TestCase
 	public function testFormat(): void
 	{
 		$dateTime = new \DateTime('2024-01-15 14:30:45');
-		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
-		$this->assertIsString($formatted);
-		$this->assertNotEmpty($formatted);
+
+		// Short format
+
+		// fr_FR
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT, 'fr_FR');
+		$this->assertEqualsIgnoringCase('15/01/2024 14:30', $formatted);
+
+		// en_GB
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT, 'en_GB');
+		$this->assertEqualsIgnoringCase('15/01/2024, 14:30', $formatted);
+
+		// en_US
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT, 'en_US');
+		$this->assertEqualsIgnoringCase('1/15/24, 2:30 PM', $formatted);
+
+		// Medium format
+
+		// fr_FR
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM, 'fr_FR');
+		$this->assertEqualsIgnoringCase('15 janv. 2024, 14:30:45', $formatted);
+
+		// en_GB
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM, 'en_GB');
+		$this->assertEqualsIgnoringCase('15 Jan 2024, 14:30:45', $formatted);
+
+		// en_US
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM, 'en_US');
+		$this->assertEqualsIgnoringCase('Jan 15, 2024, 2:30:45 PM', $formatted);
+
+		// Long format
+
+		// fr_FR
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::LONG, \IntlDateFormatter::LONG, 'fr_FR');
+		$this->assertEqualsIgnoringCase('15 janvier 2024 à 14:30:45 UTC', $formatted);
+
+		// en_GB
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::LONG, \IntlDateFormatter::LONG, 'en_GB');
+		$this->assertEqualsIgnoringCase('15 January 2024 at 14:30:45 UTC', $formatted);
+
+		// en_US
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::LONG, \IntlDateFormatter::LONG, 'en_US');
+		$this->assertEqualsIgnoringCase('January 15, 2024 at 2:30:45 PM UTC', $formatted);
+
+		// Full format
+
+		// fr_FR
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL, 'fr_FR');
+		$this->assertEqualsIgnoringCase('lundi 15 janvier 2024 à 14:30:45 temps universel coordonné', $formatted);
+
+		// en_GB
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL, 'en_GB');
+		$this->assertEqualsIgnoringCase('Monday 15 January 2024 at 14:30:45 Coordinated Universal Time', $formatted);
+
+		// en_US
+		$formatted = DateTime::format($dateTime, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL, 'en_US');
+		$this->assertEqualsIgnoringCase('Monday, January 15, 2024 at 2:30:45 PM Coordinated Universal Time', $formatted);
 	}
 
 	public function testFormatDateTime(): void
 	{
 		$dateTime = new \DateTime('2024-01-15 14:30:45');
-		$formatted = DateTime::formatDateTime($dateTime);
-		$this->assertIsString($formatted);
-		$this->assertNotEmpty($formatted);
+
+		// Short format
+
+		// fr_FR
+		$formatted = DateTime::formatDateTime($dateTime, 'fr_FR', \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+		$this->assertEqualsIgnoringCase('15/01/2024 14:30', $formatted);
+
+		// en_GB
+		$formatted = DateTime::formatDateTime($dateTime, 'en_GB', \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+		$this->assertEqualsIgnoringCase('15/01/2024, 14:30', $formatted);
+
+		// en_US
+		$formatted = DateTime::formatDateTime($dateTime, 'en_US', \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
+		$this->assertEqualsIgnoringCase('1/15/24, 2:30 PM', $formatted);
+
+		// Medium format
+
+		// fr_FR
+		$formatted = DateTime::formatDateTime($dateTime, 'fr_FR', \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM);
+		$this->assertEqualsIgnoringCase('15 janv. 2024, 14:30:45', $formatted);
+
+		// en_GB
+		$formatted = DateTime::formatDateTime($dateTime, 'en_GB', \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM);
+		$this->assertEqualsIgnoringCase('15 Jan 2024, 14:30:45', $formatted);
+
+		// en_US
+		$formatted = DateTime::formatDateTime($dateTime, 'en_US', \IntlDateFormatter::MEDIUM, \IntlDateFormatter::MEDIUM);
+		$this->assertEqualsIgnoringCase('Jan 15, 2024, 2:30:45 PM', $formatted);
+
+		// Long format
+
+		// fr_FR
+		$formatted = DateTime::formatDateTime($dateTime, 'fr_FR', \IntlDateFormatter::LONG, \IntlDateFormatter::LONG);
+		$this->assertEqualsIgnoringCase('15 janvier 2024 à 14:30:45 UTC', $formatted);
+
+		// en_GB
+		$formatted = DateTime::formatDateTime($dateTime, 'en_GB', \IntlDateFormatter::LONG, \IntlDateFormatter::LONG);
+		$this->assertEqualsIgnoringCase('15 January 2024 at 14:30:45 UTC', $formatted);
+
+		// en_US
+		$formatted = DateTime::formatDateTime($dateTime, 'en_US', \IntlDateFormatter::LONG, \IntlDateFormatter::LONG);
+		$this->assertEqualsIgnoringCase('January 15, 2024 at 2:30:45 PM UTC', $formatted);
+		// Full format
+
+		// fr_FR
+		$formatted = DateTime::formatDateTime($dateTime, 'fr_FR', \IntlDateFormatter::FULL, \IntlDateFormatter::FULL);
+		$this->assertEqualsIgnoringCase('lundi 15 janvier 2024 à 14:30:45 temps universel coordonné', $formatted);
+
+		// en_GB
+		$formatted = DateTime::formatDateTime($dateTime, 'en_GB', \IntlDateFormatter::FULL, \IntlDateFormatter::FULL);
+		$this->assertEqualsIgnoringCase('Monday 15 January 2024 at 14:30:45 Coordinated Universal Time', $formatted);
+
+		// en_US
+		$formatted = DateTime::formatDateTime($dateTime, 'en_US', \IntlDateFormatter::FULL, \IntlDateFormatter::FULL);
+		$this->assertEqualsIgnoringCase('Monday, January 15, 2024 at 2:30:45 PM Coordinated Universal Time', $formatted);
 	}
 
 	// Date Formatting Methods
 
 	public function testFormatDate(): void
 	{
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
+
 		// fr_FR
-		$formatted = DateTime::formatDate(new \DateTime('2024-01-15'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('15/01/2024', $formatted);
-
-		// en_GB
-		$formatted = DateTime::formatDate(new \DateTime('2024-01-15'), 'en_GB');
-		$this->assertEqualsIgnoringCase('15/01/2024', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatDate(new \DateTime('2024-01-15'), 'en_US');
-		$this->assertEqualsIgnoringCase('1/15/24', $formatted);
+		$this->assertEqualsIgnoringCase('15/01/2024', DateTime::formatDate($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15/01/2024', DateTime::formatDate($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('1/15/24', DateTime::formatDate($dateTime, 'en_US'));
 	}
 
 	public function testFormatDateShort(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatDateShort(new \DateTime('2024-01-15'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('15/01/2024', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatDateShort(new \DateTime('2024-01-15'), 'en_GB');
-		$this->assertEqualsIgnoringCase('15/01/2024', $formatted);
+		$this->assertEqualsIgnoringCase('15/01/2024', DateTime::formatDateShort($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15/01/2024', DateTime::formatDateShort($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('1/15/24', DateTime::formatDateShort($dateTime, 'en_US'));
 
-		// en_US
-		$formatted = DateTime::formatDateShort(new \DateTime('2024-01-15'), 'en_US');
-		$this->assertEqualsIgnoringCase('1/15/24', $formatted);
+		// fr_FR with dash separator
+		$formatted = DateTime::formatDateShort($dateTime, 'fr_FR', '-');
+		$this->assertEqualsIgnoringCase('15-01-2024', $formatted);
+
+		// en_GB with dash separator
+		$formatted = DateTime::formatDateShort($dateTime, 'en_GB', '-');
+		$this->assertEqualsIgnoringCase('15-01-2024', $formatted);
+
+		// en_US with dash separator
+		$formatted = DateTime::formatDateShort($dateTime, 'en_US', '-');
+		$this->assertEqualsIgnoringCase('1-15-24', $formatted);
+
+		// fr_FR with dot separator
+		$formatted = DateTime::formatDateShort($dateTime, 'fr_FR', '.');
+		$this->assertEqualsIgnoringCase('15.01.2024', $formatted);
+
+		// en_US with dot separator
+		$formatted = DateTime::formatDateShort($dateTime, 'en_US', '.');
+		$this->assertEqualsIgnoringCase('1.15.24', $formatted);
+
+		// fr_FR with space separator
+		$formatted = DateTime::formatDateShort($dateTime, 'fr_FR', ' ');
+		$this->assertEqualsIgnoringCase('15 01 2024', $formatted);
 	}
 
 	public function testFormatDateMedium(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatDateMedium(new \DateTime('2024-01-15'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('15 janv. 2024', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatDateMedium(new \DateTime('2024-01-15'), 'en_GB');
-		$this->assertEqualsIgnoringCase('15 Jan 2024', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatDateMedium(new \DateTime('2024-01-15'), 'en_US');
-		$this->assertEqualsIgnoringCase('Jan 15, 2024', $formatted);
+		$this->assertEqualsIgnoringCase('15 janv. 2024', DateTime::formatDateMedium($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15 Jan 2024', DateTime::formatDateMedium($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('Jan 15, 2024', DateTime::formatDateMedium($dateTime, 'en_US'));
 	}
 
 	public function testFormatDateLong(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatDateLong(new \DateTime('2024-01-15'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('15 janvier 2024', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatDateLong(new \DateTime('2024-01-15'), 'en_GB');
-		$this->assertEqualsIgnoringCase('15 January 2024', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatDateLong(new \DateTime('2024-01-15'), 'en_US');
-		$this->assertEqualsIgnoringCase('January 15, 2024', $formatted);
+		$this->assertEqualsIgnoringCase('15 janvier 2024', DateTime::formatDateLong($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15 January 2024', DateTime::formatDateLong($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('January 15, 2024', DateTime::formatDateLong($dateTime, 'en_US'));
 	}
 
 	public function testFormatDateFull(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatDateFull(new \DateTime('2024-01-15'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('lundi 15 janvier 2024', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatDateFull(new \DateTime('2024-01-15'), 'en_GB');
-		$this->assertEqualsIgnoringCase('Monday 15 January 2024', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatDateFull(new \DateTime('2024-01-15'), 'en_US');
-		$this->assertEqualsIgnoringCase('Monday, January 15, 2024', $formatted);
+		$this->assertEqualsIgnoringCase('lundi 15 janvier 2024', DateTime::formatDateFull($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('Monday 15 January 2024', DateTime::formatDateFull($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('Monday, January 15, 2024', DateTime::formatDateFull($dateTime, 'en_US'));
 	}
 
 	public function testFormatDateISO(): void
@@ -197,62 +297,38 @@ final class DateTimeTest extends TestCase
 
 	public function testFormatTime(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatTime(new \DateTime('2024-01-15 14:30:45'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('14:30', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatTime(new \DateTime('2024-01-15 14:30:45'), 'en_GB');
-		$this->assertEqualsIgnoringCase('14:30', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatTime(new \DateTime('2024-01-15 14:30:45'), 'en_US');
-		$this->assertEqualsIgnoringCase('2:30 PM', $formatted);
+		$this->assertEqualsIgnoringCase('14:30', DateTime::formatTime($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30', DateTime::formatTime($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30 PM', DateTime::formatTime($dateTime, 'en_US'));
 	}
 
 	public function testFormatTimeShort(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatTimeShort(new \DateTime('2024-01-15 14:30:45'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('14:30', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatTimeShort(new \DateTime('2024-01-15 14:30:45'), 'en_GB');
-		$this->assertEqualsIgnoringCase('14:30', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatTimeShort(new \DateTime('2024-01-15 14:30:45'), 'en_US');
-		$this->assertEqualsIgnoringCase('2:30 PM', $formatted);
+		$this->assertEqualsIgnoringCase('14:30', DateTime::formatTimeShort($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30', DateTime::formatTimeShort($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30 PM', DateTime::formatTimeShort($dateTime, 'en_US'));
 	}
 
 	public function testFormatTimeMedium(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatTimeMedium(new \DateTime('2024-01-15 14:30:45'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('14:30:45', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatTimeMedium(new \DateTime('2024-01-15 14:30:45'), 'en_GB');
-		$this->assertEqualsIgnoringCase('14:30:45', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatTimeMedium(new \DateTime('2024-01-15 14:30:45'), 'en_US');
-		$this->assertEqualsIgnoringCase('2:30:45 PM', $formatted);
+		$this->assertEqualsIgnoringCase('14:30:45', DateTime::formatTimeMedium($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30:45', DateTime::formatTimeMedium($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30:45 PM', DateTime::formatTimeMedium($dateTime, 'en_US'));
 	}
 
 	public function testFormatTimeLong(): void
 	{
-		// fr_FR
-		$formatted = DateTime::formatTimeLong(new \DateTime('2024-01-15 14:30:45'), 'fr_FR');
-		$this->assertEqualsIgnoringCase('14:30:45 UTC', $formatted);
+		$dateTime = new \DateTime('2024-01-15 14:30:45');
 
-		// en_GB
-		$formatted = DateTime::formatTimeLong(new \DateTime('2024-01-15 14:30:45'), 'en_GB');
-		$this->assertEqualsIgnoringCase('14:30:45 UTC', $formatted);
-
-		// en_US
-		$formatted = DateTime::formatTimeLong(new \DateTime('2024-01-15 14:30:45'), 'en_US');
-		$this->assertEqualsIgnoringCase('2:30:45 PM UTC', $formatted);
+		$this->assertEqualsIgnoringCase('14:30:45 UTC', DateTime::formatTimeLong($dateTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30:45 UTC', DateTime::formatTimeLong($dateTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30:45 PM UTC', DateTime::formatTimeLong($dateTime, 'en_US'));
 	}
 
 	public function testFormatTimeISO(): void

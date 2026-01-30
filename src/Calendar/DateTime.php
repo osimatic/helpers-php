@@ -169,6 +169,10 @@ class DateTime
 	/**
 	 * Formats a DateTime using IntlDateFormatter with custom date and time format levels.
 	 * Uses ICU IntlDateFormatter for internationalization support.
+	 * Examples with SHORT/SHORT: en_US: "1/15/24, 2:30 PM" ; fr_FR: "15/01/2024 14:30"
+	 * Examples with MEDIUM/MEDIUM: en_US: "Jan 15, 2024, 2:30:45 PM" ; fr_FR: "15 janv. 2024, 14:30:45"
+	 * Examples with LONG/LONG: en_US: "January 15, 2024 at 2:30:45 PM UTC" ; fr_FR: "15 janvier 2024 à 14:30:45 UTC"
+	 * Examples with FULL/FULL: en_US: "Monday, January 15, 2024 at 2:30:45 PM Coordinated Universal Time" ; fr_FR: "lundi 15 janvier 2024 à 14:30:45 temps universel coordonné"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
 	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
@@ -183,10 +187,11 @@ class DateTime
 	/**
 	 * Formats a DateTime with SHORT format for both date and time.
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * See exemples in format method.
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT)
-	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT)
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
 	 * @return string The formatted date and time string, or empty string on error
 	 */
 	public static function formatDateTime(\DateTime $dateTime, ?string $locale = null, int $dateFormatter=\IntlDateFormatter::SHORT, int $timeFormatter=\IntlDateFormatter::SHORT): string
@@ -201,7 +206,11 @@ class DateTime
 	 * Uses ICU IntlDateFormatter for internationalization.
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT)
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT). Available formats:
+	 *  - SHORT: Numeric date format. Exemples: en_US: "1/15/24" ; fr_FR: "15/01/2024"
+	 *  - MEDIUM: Abbreviated month name with day and year. Exemples: en_US: "Jan 15, 2024" ; fr_FR: "15 janv. 2024"
+	 *  - LONG: Full month name with day and year, without weekday. Exemples: en_US: "January 15, 2024" ; fr_FR: "15 janvier 2024"
+	 *  - FULL: Full format with weekday. Exemples: en_US: "Monday, January 15, 2024" ; fr_FR: "lundi 15 janvier 2024"
 	 * @return string The formatted date string, or empty string on error
 	 */
 	public static function formatDate(\DateTime $dateTime, ?string $locale=null, int $dateFormatter=\IntlDateFormatter::SHORT): string
@@ -210,20 +219,31 @@ class DateTime
 	}
 
 	/**
-	 * Formats a date in short format.
+	 * Formats a date in short format (numeric date).
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "1/15/24" ; fr_FR: "15/01/2024"
+	 * Examples with separator='-': en_US: "1-15-24" ; fr_FR: "15-01-2024"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param string|null $separator Optional custom separator to replace the default one (e.g., '-', '.', ' ')
 	 * @return string The formatted date string, or empty string on error
 	 */
-	public static function formatDateShort(\DateTime $dateTime, ?string $locale = null): string
+	public static function formatDateShort(\DateTime $dateTime, ?string $locale = null, ?string $separator = null): string
 	{
-		return self::formatDate($dateTime, $locale, \IntlDateFormatter::SHORT);
+		$formatted = self::formatDate($dateTime, $locale, \IntlDateFormatter::SHORT);
+
+		if ($separator !== null && $formatted !== '') {
+			// Replace common date separators with the custom one
+			$formatted = preg_replace('/[\/.\-]/', $separator, $formatted);
+		}
+
+		return $formatted;
 	}
 
 	/**
-	 * Formats a date in medium format with localized text.
+	 * Formats a date in medium format (abbreviated month name).
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "Jan 15, 2024" ; fr_FR: "15 janv. 2024"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted date string, or empty string on error
@@ -234,9 +254,9 @@ class DateTime
 	}
 
 	/**
-	 * Formats a date in LONG format (does not include the day of the week) with localized text.
-	 * FULL format includes the day of the week, LONG format does not.
+	 * Formats a date in long format (does not include the day of the week) with localized text.
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "January 15, 2024" ; fr_FR: "15 janvier 2024"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted date string, or empty string on error
@@ -247,8 +267,9 @@ class DateTime
 	}
 
 	/**
-	 * Formats a date in FULL format (includes the day of the week) with localized text.
+	 * Formats a date in full format (includes the day of the week) with localized text.
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "Monday, January 15, 2024" ; fr_FR: "lundi 15 janvier 2024"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted date string, or empty string on error
@@ -275,7 +296,11 @@ class DateTime
 	 * Uses ICU IntlDateFormatter for internationalization.
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT)
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT). Available formats:
+	 *  - SHORT: Time without seconds (HH:MM format). Examples: en_US: "2:30 PM" ; fr_FR: "14:30"
+	 *  - MEDIUM: Time with seconds (HH:MM:SS format). Examples: en_US: "2:30:45 PM" ; fr_FR: "14:30:45"
+	 *  - LONG: Time with seconds and timezone. Examples: en_US: "2:30:45 PM UTC" ; fr_FR: "14:30:45 UTC"
+	 *  - FULL: Time with seconds and full timezone name. Examples: en_US: "2:30:45 PM Coordinated Universal Time" ; fr_FR: "14:30:45 temps universel coordonné"
 	 * @return string The formatted time string, or empty string on error
 	 */
 	public static function formatTime(\DateTime $dateTime, ?string $locale=null, int $timeFormatter=\IntlDateFormatter::SHORT): string
@@ -286,6 +311,7 @@ class DateTime
 	/**
 	 * Formats a time in short HH:MM format (without seconds).
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30 PM" ; fr_FR: "14:30"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted time string, or empty string on error
@@ -296,8 +322,9 @@ class DateTime
 	}
 
 	/**
-	 * Formats a time in long format with optional seconds.
+	 * Formats a time in medium format (with seconds).
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30:45 PM" ; fr_FR: "14:30:45"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted time string, or empty string on error
@@ -308,8 +335,9 @@ class DateTime
 	}
 
 	/**
-	 * Formats a time in long format with optional seconds.
+	 * Formats a time in long format (with timezone).
 	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30:45 PM UTC" ; fr_FR: "14:30:45 UTC"
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted time string, or empty string on error
