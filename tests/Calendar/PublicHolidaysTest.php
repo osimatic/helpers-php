@@ -447,7 +447,18 @@ class PublicHolidaysTest extends TestCase
 	public function testMoroccoHasIslamicHolidays(): void
 	{
 		$holidays = PublicHolidays::getList('MA', 2024);
-		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getCalendar() === PublicHolidayCalendar::HIJRI));
+
+		// Eid al-Fitr (End of Ramadan) - 1 Shawwal 1445 = April 10, 2024
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'aid_el_fitr' && date('Y-m-d', $holiday->getTimestamp()) === '2024-04-10'));
+
+		// Eid al-Adha (Festival of Sacrifice) - 10 Dhu al-Hijjah 1445 = June 16, 2024
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'aid_al_adha' && date('Y-m-d', $holiday->getTimestamp()) === '2024-06-16'));
+
+		// Islamic New Year - 1 Muharram 1446 = July 7, 2024
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'jour_an_hegire' && date('Y-m-d', $holiday->getTimestamp()) === '2024-07-07'));
+
+		// Prophet's Birthday - 12 Rabi' al-awwal 1446 = September 15, 2024
+		self::assertNotEmpty(array_filter($holidays, fn ($holiday) => $holiday->getKey() === 'al_mawlid' && date('Y-m-d', $holiday->getTimestamp()) === '2024-09-15'));
 	}
 
 	// ========================================

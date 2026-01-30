@@ -335,7 +335,11 @@ class PublicHolidays
 	 */
 	private static function getMoroccoHolidays(int $year): array
 	{
-		return [
+		// Convert Gregorian year to Hijri year for Islamic holidays
+		// We check mid-year (July 1) to get the appropriate Hijri year
+		[$hijriYear, ,] = IslamicCalendar::convertGregorianDateToIslamicDate($year, 7, 1);
+
+		$listOfPublicHolidays = [
 			// Civil Holidays
 			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
 			new PublicHoliday('Manifeste de l’Indépendance', mktime(0, 0, 0, 1, 11, $year)), // Independence Manifesto
@@ -346,13 +350,41 @@ class PublicHolidays
 			new PublicHoliday('Fête de la Jeunesse', mktime(0, 0, 0, 8, 21, $year)), // Youth Day
 			new PublicHoliday('La marche verte', mktime(0, 0, 0, 11, 6, $year)), // Green March
 			new PublicHoliday('Fête de l’Indépendance', mktime(0, 0, 0, 11, 18, $year)), // Independence Day
-
-			// Islamic Holidays (Hijri Calendar)
-			new PublicHoliday('Aïd el-Fitr', IslamicCalendar::getTimestamp($year, 10, 1), key: 'aid_el_fitr', calendar: PublicHolidayCalendar::HIJRI), // End of Ramadan
-			new PublicHoliday('Aïd al-Adha', IslamicCalendar::getTimestamp($year, 12, 10), key: 'aid_al_adha', calendar: PublicHolidayCalendar::HIJRI), // Festival of Sacrifice
-			new PublicHoliday('Al-Mawlid', IslamicCalendar::getTimestamp($year, 3, 12), key: 'al_mawlid', calendar: PublicHolidayCalendar::HIJRI), // Prophet's Birthday
-			new PublicHoliday('Jour de l’an hégire', IslamicCalendar::getTimestamp($year, 1, 1), key: 'jour_an_hegire', calendar: PublicHolidayCalendar::HIJRI), // Islamic New Year
 		];
+
+		// Islamic Holidays (Hijri Calendar)
+		// Islamic holidays can span two Hijri years within a single Gregorian year
+		// We calculate holidays for both potential Hijri years and filter those within the requested Gregorian year
+		$startOfYear = mktime(0, 0, 0, 1, 1, $year);
+		$endOfYear = mktime(23, 59, 59, 12, 31, $year);
+
+		// Calculate Islamic holidays for the current Hijri year and the previous one
+		$islamicHolidays = [
+			['name' => 'Aïd el-Fitr', 'key' => 'aid_el_fitr', 'month' => 10, 'day' => 1], // End of Ramadan
+			['name' => 'Aïd al-Adha', 'key' => 'aid_al_adha', 'month' => 12, 'day' => 10], // Festival of Sacrifice
+			['name' => 'Jour de l’an hégire', 'key' => 'jour_an_hegire', 'month' => 1, 'day' => 1], // Islamic New Year
+			['name' => 'Al-Mawlid', 'key' => 'al_mawlid', 'month' => 3, 'day' => 12], // Prophet's Birthday
+		];
+
+		foreach ($islamicHolidays as $holiday) {
+			// Try the previous, current and next Hijri year to cover all possibilities
+			foreach ([$hijriYear - 1, $hijriYear, $hijriYear + 1] as $tryYear) {
+				$timestamp = IslamicCalendar::getTimestamp($tryYear, $holiday['month'], $holiday['day']);
+
+				// Only add if it falls within the requested Gregorian year
+				if ($timestamp >= $startOfYear && $timestamp <= $endOfYear) {
+					$listOfPublicHolidays[] = new PublicHoliday(
+						$holiday['name'],
+						$timestamp,
+						key: $holiday['key'],
+						calendar: PublicHolidayCalendar::HIJRI
+					);
+					break; // Only add once per holiday
+				}
+			}
+		}
+
+		return $listOfPublicHolidays;
 	}
 
 	// ========== France and French Territories Public Holidays ==========

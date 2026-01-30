@@ -335,7 +335,8 @@ class IslamicCalendar
 			if (false === ($data = file_get_contents($filePath))) {
 				throw new \RuntimeException('Failed to read Um-Al-Qura data file: ' . $filePath);
 			}
-			self::$umAlqoura = $data;
+			// Standardize line endings to \n (Unix format)
+			self::$umAlqoura = str_replace(["\r\n", "\r"], "\n", $data);
 		}
 		return self::$umAlqoura;
 	}
