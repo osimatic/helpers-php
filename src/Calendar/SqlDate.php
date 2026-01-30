@@ -414,15 +414,21 @@ class SqlDate
 	}
 
 	/**
-	 * Formats a SQL DATE string in long localized format.
+	 * Formats a SQL DATE string in LONG or FULL localized format.
+	 *  FULL format includes the day of the week, LONG format does not.
 	 * @param string $sqlDate SQL DATE format string
 	 * @param string|null $locale Optional locale code
-	 * @return string Formatted date string
+	 * @param bool $withWeekDay If true, uses FULL format with weekday; if false, uses LONG format (default: false)
+	 * @return string Formatted date string, or empty string if date is invalid
 	 */
-	public static function formatInLong(string $sqlDate, ?string $locale = null): string
+	public static function formatInLong(string $sqlDate, ?string $locale = null, bool $withWeekDay=false): string
 	{
+		if (empty($sqlDate) || !self::isValid($sqlDate)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlDate);
-		return $dateTime ? DateTime::formatDateInLong($dateTime, $locale) : '';
+		return $dateTime ? DateTime::formatDateInLong($dateTime, $locale, $withWeekDay) : '';
 	}
 
 	/**
@@ -430,10 +436,14 @@ class SqlDate
 	 * @param string $sqlDate SQL DATE format string
 	 * @param string $separator Separator between date components (default: '/')
 	 * @param string $lang Language code for date order: 'US' (MM/DD/YYYY) or 'EU'/'FR' (DD/MM/YYYY) (default: 'EU')
-	 * @return string Formatted date string
+	 * @return string Formatted date string, or empty string if date is invalid
 	 */
 	public static function formatShort(string $sqlDate, string $separator = '/', string $lang = 'EU'): string
 	{
+		if (empty($sqlDate) || !self::isValid($sqlDate)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlDate);
 		return $dateTime ? DateTime::formatDateShort($dateTime, $separator, $lang) : '';
 	}
@@ -442,10 +452,14 @@ class SqlDate
 	 * Formats a SQL DATE string in medium format (e.g., "15 Jan 2024").
 	 * @param string $sqlDate SQL DATE format string
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR')
-	 * @return string Formatted date string
+	 * @return string Formatted date string, or empty string if date is invalid
 	 */
 	public static function formatMedium(string $sqlDate, ?string $locale = null): string
 	{
+		if (empty($sqlDate) || !self::isValid($sqlDate)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlDate);
 		return $dateTime ? DateTime::formatDateMedium($dateTime, $locale) : '';
 	}
@@ -454,10 +468,14 @@ class SqlDate
 	 * Formats a SQL DATE string in long format (e.g., "15 January 2024").
 	 * @param string $sqlDate SQL DATE format string
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR')
-	 * @return string Formatted date string
+	 * @return string Formatted date string, or empty string if date is invalid
 	 */
 	public static function formatLong(string $sqlDate, ?string $locale = null): string
 	{
+		if (empty($sqlDate) || !self::isValid($sqlDate)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlDate);
 		return $dateTime ? DateTime::formatDateLong($dateTime, $locale) : '';
 	}
@@ -466,10 +484,14 @@ class SqlDate
 	 * Formats a SQL DATE string in ISO 8601 format (YYYY-MM-DD).
 	 * This simply returns the input as SQL DATE is already in ISO format.
 	 * @param string $sqlDate SQL DATE format string
-	 * @return string Date in ISO format (YYYY-MM-DD)
+	 * @return string Date in ISO format (YYYY-MM-DD), or empty string if date is invalid
 	 */
 	public static function formatISO(string $sqlDate): string
 	{
+		if (empty($sqlDate) || !self::isValid($sqlDate)) {
+			return '';
+		}
+
 		return $sqlDate;
 	}
 

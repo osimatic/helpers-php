@@ -55,6 +55,11 @@ class DateTest extends TestCase
 		// Test French locale (ucfirst is applied)
 		$this->assertEquals('Lundi', Date::getDayName(1, 'fr_FR'));
 		$this->assertEquals('Dimanche', Date::getDayName(7, 'fr_FR'));
+
+		// Invalid
+		$this->assertEquals('', Date::getDayName(0));
+		$this->assertEquals('', Date::getDayName(8));
+		$this->assertEquals('', Date::getDayName(-1));
 	}
 
 	public function testGetDayNameShort(): void
@@ -67,6 +72,11 @@ class DateTest extends TestCase
 		$dayName = Date::getDayNameShort(7, 'en_US');
 		$this->assertNotEmpty($dayName);
 		$this->assertStringContainsString('Sun', $dayName);
+
+		// invalid
+		$this->assertEquals('', Date::getDayNameShort(0));
+		$this->assertEquals('', Date::getDayNameShort(8));
+		$this->assertEquals('', Date::getDayNameShort(-1));
 	}
 
 	// ========== Month Names Tests ==========
@@ -80,6 +90,11 @@ class DateTest extends TestCase
 		// Test French locale (ucfirst is applied)
 		$this->assertEquals('Janvier', Date::getMonthName(1, 'fr_FR'));
 		$this->assertEquals('Décembre', Date::getMonthName(12, 'fr_FR'));
+
+		// invalid
+		$this->assertEquals('', Date::getMonthName(0));
+		$this->assertEquals('', Date::getMonthName(13));
+		$this->assertEquals('', Date::getMonthName(-1));
 	}
 
 	public function testGetMonthNameShort(): void
@@ -92,6 +107,11 @@ class DateTest extends TestCase
 		$monthName = Date::getMonthNameShort(12, 'en_US');
 		$this->assertNotEmpty($monthName);
 		$this->assertStringContainsString('Dec', $monthName);
+
+		// invalid
+		$this->assertEquals('', Date::getMonthNameShort(0));
+		$this->assertEquals('', Date::getMonthNameShort(13));
+		$this->assertEquals('', Date::getMonthNameShort(-1));
 	}
 
 	public function testGetMonthsInYearArray(): void
@@ -162,7 +182,7 @@ class DateTest extends TestCase
 		$this->assertFalse(Date::isValid('2024-13-01')); // Invalid month
 	}
 
-	public function testIsValidDateWithValidDates(): void
+	public function testIsValidDate(): void
 	{
 		// Normal valid dates
 		$this->assertTrue(Date::isValidDate(2024, 1, 15));
@@ -187,28 +207,19 @@ class DateTest extends TestCase
 		$this->assertTrue(Date::isValidDate(2024, 6, 30));
 		$this->assertTrue(Date::isValidDate(2024, 9, 30));
 		$this->assertTrue(Date::isValidDate(2024, 11, 30));
-	}
 
-	public function testIsValidDateWithInvalidMonths(): void
-	{
 		// Invalid months
 		$this->assertFalse(Date::isValidDate(2024, 0, 15)); // Month 0
 		$this->assertFalse(Date::isValidDate(2024, 13, 15)); // Month 13
 		$this->assertFalse(Date::isValidDate(2024, -1, 15)); // Negative month
-	}
 
-	public function testIsValidDateWithInvalidDays(): void
-	{
 		// Invalid days
 		$this->assertFalse(Date::isValidDate(2024, 1, 0)); // Day 0
 		$this->assertFalse(Date::isValidDate(2024, 1, 32)); // January has 31 days
 		$this->assertFalse(Date::isValidDate(2024, 4, 31)); // April has 30 days
 		$this->assertFalse(Date::isValidDate(2024, 2, 30)); // February never has 30 days
 		$this->assertFalse(Date::isValidDate(2024, 6, -1)); // Negative day
-	}
 
-	public function testIsValidDateWithLeapYears(): void
-	{
 		// Leap year validation - February 29th
 		$this->assertTrue(Date::isValidDate(2024, 2, 29)); // 2024 is leap year
 		$this->assertTrue(Date::isValidDate(2000, 2, 29)); // 2000 is leap year
@@ -221,15 +232,15 @@ class DateTest extends TestCase
 		// Non-leap years - February 28th should be valid
 		$this->assertTrue(Date::isValidDate(2023, 2, 28));
 		$this->assertTrue(Date::isValidDate(1900, 2, 28));
-	}
 
-	public function testIsValidDateWithInvalidYears(): void
-	{
 		// Very old and future years (checkdate supports -4000 to 32767 in PHP)
 		$this->assertTrue(Date::isValidDate(1, 1, 1)); // Year 1 AD
 		$this->assertTrue(Date::isValidDate(9999, 12, 31)); // Far future
+		$this->assertFalse(Date::isValidDate(50000, 12, 31)); // Too far future
 
 		// Negative years should still work with checkdate
+		$this->assertTrue(Date::isValidDate(-1, 1, 1)); // Negative year ok
+		$this->assertFalse(Date::isValidDate(-5000, 1, 1)); // Negative year too far
 		$this->assertFalse(Date::isValidDate(-1, 2, 29)); // Negative year, invalid Feb 29
 	}
 }

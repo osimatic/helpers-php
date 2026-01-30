@@ -493,6 +493,132 @@ class DateTime
 		return $dateTime->getOffset();
 	}
 
+	// ========== Date Manipulation Methods ==========
+
+	/**
+	 * Adds days to a DateTime.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime $dateTime The reference datetime
+	 * @param int $days Number of days to add (can be negative)
+	 * @return \DateTime New DateTime with days added
+	 */
+	public static function addDays(\DateTime $dateTime, int $days): \DateTime
+	{
+		$result = clone $dateTime;
+		$result->modify($days >= 0 ? "+{$days} days" : "{$days} days");
+		return $result;
+	}
+
+	/**
+	 * Subtracts days from a DateTime.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime $dateTime The reference datetime
+	 * @param int $days Number of days to subtract
+	 * @return \DateTime New DateTime with days subtracted
+	 */
+	public static function subDays(\DateTime $dateTime, int $days): \DateTime
+	{
+		return self::addDays($dateTime, -$days);
+	}
+
+	/**
+	 * Moves a DateTime backward by a specified number of days.
+	 * Creates a new DateTime object to avoid modifying the original.
+	 * @param \DateTime $dateTime The datetime to move
+	 * @param int $nbDays Number of days to move backward
+	 * @return \DateTime A new DateTime moved backward by the specified days
+	 */
+	public static function moveBackOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
+	{
+		return self::subDays($dateTime, $nbDays);
+	}
+
+	/**
+	 * Moves a DateTime forward by a specified number of days.
+	 * Creates a new DateTime object to avoid modifying the original.
+	 * @param \DateTime $dateTime The datetime to move
+	 * @param int $nbDays Number of days to move forward
+	 * @return \DateTime A new DateTime moved forward by the specified days
+	 */
+	public static function moveForwardOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
+	{
+		return self::addDays($dateTime, $nbDays);
+	}
+
+	/**
+	 * Adds months to a DateTime.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime $dateTime The reference datetime
+	 * @param int $months Number of months to add (can be negative)
+	 * @return \DateTime New DateTime with months added
+	 */
+	public static function addMonths(\DateTime $dateTime, int $months): \DateTime
+	{
+		$result = clone $dateTime;
+		$result->modify($months >= 0 ? "+{$months} months" : "{$months} months");
+		return $result;
+	}
+
+	/**
+	 * Subtracts months from a DateTime.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime $dateTime The reference datetime
+	 * @param int $months Number of months to subtract
+	 * @return \DateTime New DateTime with months subtracted
+	 */
+	public static function subMonths(\DateTime $dateTime, int $months): \DateTime
+	{
+		return self::addMonths($dateTime, -$months);
+	}
+
+	/**
+	 * Moves a DateTime backward by a specified number of months.
+	 * @param \DateTime $dateTime The datetime to move
+	 * @param int $nbMonths Number of months to move backward
+	 * @return \DateTime A new DateTime moved backward by the specified months
+	 */
+	public static function moveBackOfNbMonths(\DateTime $dateTime, int $nbMonths): \DateTime
+	{
+		return self::subMonths($dateTime, $nbMonths);
+	}
+
+	/**
+	 * Moves a DateTime forward by a specified number of months.
+	 * @param \DateTime $dateTime The datetime to move
+	 * @param int $nbMonths Number of months to move forward
+	 * @return \DateTime A new DateTime moved forward by the specified months
+	 */
+	public static function moveForwardOfNbMonths(\DateTime $dateTime, int $nbMonths): \DateTime
+	{
+		return self::addMonths($dateTime, $nbMonths);
+	}
+
+	/**
+	 * Adds years to a DateTime.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime $dateTime The reference datetime
+	 * @param int $years Number of years to add (can be negative)
+	 * @return \DateTime New DateTime with years added
+	 */
+	public static function addYears(\DateTime $dateTime, int $years): \DateTime
+	{
+		$result = clone $dateTime;
+		$result->modify($years >= 0 ? "+{$years} years" : "{$years} years");
+		return $result;
+	}
+
+	/**
+	 * Subtracts years from a DateTime.
+	 * Creates a clone to avoid modifying the original DateTime.
+	 * @param \DateTime $dateTime The reference datetime
+	 * @param int $years Number of years to subtract
+	 * @return \DateTime New DateTime with years subtracted
+	 */
+	public static function subYears(\DateTime $dateTime, int $years): \DateTime
+	{
+		return self::addYears($dateTime, -$years);
+	}
+
 	// ========== Time Manipulation Methods ==========
 
 	/**
@@ -681,132 +807,6 @@ class DateTime
 		}
 
 		return $result;
-	}
-
-	// ========== Date Manipulation Methods ==========
-
-	/**
-	 * Adds days to a DateTime.
-	 * Creates a clone to avoid modifying the original DateTime.
-	 * @param \DateTime $dateTime The reference datetime
-	 * @param int $days Number of days to add (can be negative)
-	 * @return \DateTime New DateTime with days added
-	 */
-	public static function addDays(\DateTime $dateTime, int $days): \DateTime
-	{
-		$result = clone $dateTime;
-		$result->modify($days >= 0 ? "+{$days} days" : "{$days} days");
-		return $result;
-	}
-
-	/**
-	 * Subtracts days from a DateTime.
-	 * Creates a clone to avoid modifying the original DateTime.
-	 * @param \DateTime $dateTime The reference datetime
-	 * @param int $days Number of days to subtract
-	 * @return \DateTime New DateTime with days subtracted
-	 */
-	public static function subDays(\DateTime $dateTime, int $days): \DateTime
-	{
-		return self::addDays($dateTime, -$days);
-	}
-
-	/**
-	 * Moves a DateTime backward by a specified number of days.
-	 * Creates a new DateTime object to avoid modifying the original.
-	 * @param \DateTime $dateTime The datetime to move
-	 * @param int $nbDays Number of days to move backward
-	 * @return \DateTime A new DateTime moved backward by the specified days
-	 */
-	public static function moveBackOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
-	{
-		return self::subDays($dateTime, $nbDays);
-	}
-
-	/**
-	 * Moves a DateTime forward by a specified number of days.
-	 * Creates a new DateTime object to avoid modifying the original.
-	 * @param \DateTime $dateTime The datetime to move
-	 * @param int $nbDays Number of days to move forward
-	 * @return \DateTime A new DateTime moved forward by the specified days
-	 */
-	public static function moveForwardOfNbDays(\DateTime $dateTime, int $nbDays): \DateTime
-	{
-		return self::addDays($dateTime, $nbDays);
-	}
-
-	/**
-	 * Adds months to a DateTime.
-	 * Creates a clone to avoid modifying the original DateTime.
-	 * @param \DateTime $dateTime The reference datetime
-	 * @param int $months Number of months to add (can be negative)
-	 * @return \DateTime New DateTime with months added
-	 */
-	public static function addMonths(\DateTime $dateTime, int $months): \DateTime
-	{
-		$result = clone $dateTime;
-		$result->modify($months >= 0 ? "+{$months} months" : "{$months} months");
-		return $result;
-	}
-
-	/**
-	 * Subtracts months from a DateTime.
-	 * Creates a clone to avoid modifying the original DateTime.
-	 * @param \DateTime $dateTime The reference datetime
-	 * @param int $months Number of months to subtract
-	 * @return \DateTime New DateTime with months subtracted
-	 */
-	public static function subMonths(\DateTime $dateTime, int $months): \DateTime
-	{
-		return self::addMonths($dateTime, -$months);
-	}
-
-	/**
-	 * Moves a DateTime backward by a specified number of months.
-	 * @param \DateTime $dateTime The datetime to move
-	 * @param int $nbMonths Number of months to move backward
-	 * @return \DateTime A new DateTime moved backward by the specified months
-	 */
-	public static function moveBackOfNbMonths(\DateTime $dateTime, int $nbMonths): \DateTime
-	{
-		return self::subMonths($dateTime, $nbMonths);
-	}
-
-	/**
-	 * Moves a DateTime forward by a specified number of months.
-	 * @param \DateTime $dateTime The datetime to move
-	 * @param int $nbMonths Number of months to move forward
-	 * @return \DateTime A new DateTime moved forward by the specified months
-	 */
-	public static function moveForwardOfNbMonths(\DateTime $dateTime, int $nbMonths): \DateTime
-	{
-		return self::addMonths($dateTime, $nbMonths);
-	}
-
-	/**
-	 * Adds years to a DateTime.
-	 * Creates a clone to avoid modifying the original DateTime.
-	 * @param \DateTime $dateTime The reference datetime
-	 * @param int $years Number of years to add (can be negative)
-	 * @return \DateTime New DateTime with years added
-	 */
-	public static function addYears(\DateTime $dateTime, int $years): \DateTime
-	{
-		$result = clone $dateTime;
-		$result->modify($years >= 0 ? "+{$years} years" : "{$years} years");
-		return $result;
-	}
-
-	/**
-	 * Subtracts years from a DateTime.
-	 * Creates a clone to avoid modifying the original DateTime.
-	 * @param \DateTime $dateTime The reference datetime
-	 * @param int $years Number of years to subtract
-	 * @return \DateTime New DateTime with years subtracted
-	 */
-	public static function subYears(\DateTime $dateTime, int $years): \DateTime
-	{
-		return self::addYears($dateTime, -$years);
 	}
 
 	// ========== DateTime Comparison Methods ==========

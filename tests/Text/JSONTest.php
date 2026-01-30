@@ -506,4 +506,190 @@ JSON;
 
 		$this->assertSame('{"name": "John"}', $result);
 	}
+
+	/* ===================== validate() ===================== */
+
+	public function testValidateValidJson(): void
+	{
+		$json = '{"key": "value"}';
+		$this->assertTrue(JSON::validate($json));
+	}
+
+	public function testValidateInvalidJson(): void
+	{
+		$json = '{key: value}'; // Missing quotes
+		$this->assertFalse(JSON::validate($json));
+	}
+
+	public function testValidateEmptyString(): void
+	{
+		$this->assertFalse(JSON::validate(''));
+	}
+
+	public function testValidateWithComments(): void
+	{
+		// JSON with comments is invalid JSON (comments are not part of JSON spec)
+		$json = '{"key": "value" /* comment */}';
+		$this->assertFalse(JSON::validate($json));
+	}
+
+	/* ===================== decode() ===================== */
+
+	public function testDecodeValidJsonToArray(): void
+	{
+		$json = '{"key": "value", "number": 42}';
+		$result = JSON::decode($json, true);
+		$this->assertIsArray($result);
+		$this->assertEquals('value', $result['key']);
+		$this->assertEquals(42, $result['number']);
+	}
+
+	public function testDecodeValidJsonToObject(): void
+	{
+		$json = '{"key": "value", "number": 42}';
+		$result = JSON::decode($json, false);
+		$this->assertIsObject($result);
+		$this->assertEquals('value', $result->key);
+		$this->assertEquals(42, $result->number);
+	}
+
+	public function testDecodeInvalidJsonReturnsNull(): void
+	{
+		$json = '{invalid json}';
+		$result = JSON::decode($json);
+		$this->assertNull($result);
+	}
+
+	public function testDecodeWithMaxDepth(): void
+	{
+		$json = '{"level1": {"level2": {"level3": "value"}}}';
+
+		// With sufficient depth
+		$result = JSON::decode($json, true, 512);
+		$this->assertIsArray($result);
+		$this->assertEquals('value', $result['level1']['level2']['level3']);
+
+		// With insufficient depth (depth of 2 means max 2 levels)
+		$result = JSON::decode($json, true, 2);
+		$this->assertNull($result);
+	}
+
+	/* ===================== encode() ===================== */
+
+	public function testEncodeArray(): void
+	{
+		$data = ['key' => 'value', 'number' => 42];
+		$result = JSON::encode($data);
+		$this->assertIsString($result);
+		$this->assertEquals('{"key":"value","number":42}', $result);
+	}
+
+	public function testEncodeObject(): void
+	{
+		$data = new \stdClass();
+		$data->key = 'value';
+		$data->number = 42;
+		$result = JSON::encode($data);
+		$this->assertIsString($result);
+		$this->assertStringContainsString('"key":"value"', $result);
+		$this->assertStringContainsString('"number":42', $result);
+	}
+
+	public function testEncodeWithPrettyPrint(): void
+	{
+		$data = ['key' => 'value', 'nested' => ['item' => 1]];
+		$result = JSON::encode($data, JSON_PRETTY_PRINT);
+		$this->assertIsString($result);
+		$this->assertStringContainsString("\n", $result);
+		$this->assertStringContainsString('    ', $result); // Indentation
+	}
+
+	public function testEncodeInvalidData(): void
+	{
+		// Create a resource (resources cannot be encoded to JSON)
+		$resource = fopen('php://memory', 'r');
+		$result = JSON::encode($resource);
+		fclose($resource);
+		$this->assertNull($result);
+	}
+
+	/* ===================== prettify() ===================== */
+
+	public function testPrettifyValidJson(): void
+	{
+		$json = '{"key":"value","nested":{"item":1}}';
+		$result = JSON::prettify($json);
+		$this->assertIsString($result);
+		$this->assertStringContainsString("\n", $result);
+		// Check indentation (4 spaces)
+		$this->assertStringContainsString('    "key"', $result);
+	}
+
+	public function testPrettifyInvalidJsonReturnsNull(): void
+	{
+		$json = '{invalid json}';
+		$result = JSON::prettify($json);
+		$this->assertNull($result);
+	}
+
+	public function testPrettifyVerifyIndentation(): void
+	{
+		$json = '{"key":"value"}';
+		$result = JSON::prettify($json);
+		$lines = explode("\n", $result);
+		$this->assertGreaterThan(1, count($lines));
+	}
+
+	/* ===================== minify() ===================== */
+
+	public function testMinifyValidJson(): void
+	{
+		$json = '{
+			"key": "value",
+			"nested": {
+				"item": 1
+			}
+		}';
+		$result = JSON::minify($json);
+		$this->assertIsString($result);
+		$this->assertStringNotContainsString("\n", $result);
+		$this->assertStringNotContainsString("\t", $result);
+		$this->assertEquals('{"key":"value","nested":{"item":1}}', $result);
+	}
+
+	public function testMinifyInvalidJsonReturnsNull(): void
+	{
+		$json = '{invalid json}';
+		$result = JSON::minify($json);
+		$this->assertNull($result);
+	}
+
+	public function testMinifyRemovesSpaces(): void
+	{
+		$json = '{ "key" : "value" }';
+		$result = JSON::minify($json);
+		$this->assertIsString($result);
+		$this->assertEquals('{"key":"value"}', $result);
+	}
+
+	/* ===================== getLastError() ===================== */
+
+	public function testGetLastErrorAfterError(): void
+	{
+		// Trigger an error by decoding invalid JSON
+		JSON::decode('{invalid json}');
+		$error = JSON::getLastError();
+		$this->assertIsString($error);
+		$this->assertNotEmpty($error);
+		$this->assertNotEquals('No error', $error);
+	}
+
+	public function testGetLastErrorNoError(): void
+	{
+		// Decode valid JSON
+		JSON::decode('{"key":"value"}');
+		$error = JSON::getLastError();
+		$this->assertIsString($error);
+		$this->assertEquals('No error', $error);
+	}
 }

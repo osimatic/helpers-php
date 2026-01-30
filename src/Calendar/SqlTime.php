@@ -329,10 +329,14 @@ class SqlTime
 	 * @param string $sqlTime SQL TIME format string
 	 * @param string|null $locale Optional locale code
 	 * @param int $timeType IntlDateFormatter time type constant
-	 * @return string Formatted time string
+	 * @return string Formatted time string, or empty string if time is invalid
 	 */
 	public static function format(string $sqlTime, ?string $locale = null, int $timeType = \IntlDateFormatter::MEDIUM): string
 	{
+		if (empty($sqlTime) || !self::isValid($sqlTime)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlTime);
 		return $dateTime ? DateTime::formatTime($dateTime, $locale, $timeType) : '';
 	}
@@ -341,20 +345,28 @@ class SqlTime
 	 * Formats a SQL TIME string as HH:MM:SS.
 	 * This simply returns the input as SQL TIME is already in this format.
 	 * @param string $sqlTime SQL TIME format string
-	 * @return string Time in HH:MM:SS format
+	 * @return string Time in HH:MM:SS format, or empty string if time is invalid
 	 */
 	public static function formatString(string $sqlTime): string
 	{
+		if (empty($sqlTime) || !self::isValid($sqlTime)) {
+			return '';
+		}
+
 		return $sqlTime;
 	}
 
 	/**
 	 * Formats a SQL TIME string as HH:MM (without seconds).
 	 * @param string $sqlTime SQL TIME format string
-	 * @return string Time in HH:MM format
+	 * @return string Time in HH:MM format, or empty string if time is invalid
 	 */
 	public static function formatShort(string $sqlTime): string
 	{
+		if (empty($sqlTime) || !self::isValid($sqlTime)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlTime);
 		return $dateTime ? DateTime::formatTimeShort($dateTime) : '';
 	}
@@ -363,10 +375,14 @@ class SqlTime
 	 * Formats a SQL TIME string as HH:MM:SS or HH:MM.
 	 * @param string $sqlTime SQL TIME format string
 	 * @param bool $includeSeconds Whether to include seconds (default: true)
-	 * @return string Formatted time string
+	 * @return string Formatted time string, or empty string if time is invalid
 	 */
 	public static function formatLong(string $sqlTime, bool $includeSeconds = true): string
 	{
+		if (empty($sqlTime) || !self::isValid($sqlTime)) {
+			return '';
+		}
+
 		$dateTime = self::toDateTime($sqlTime);
 		return $dateTime ? DateTime::formatTimeLong($dateTime, $includeSeconds) : '';
 	}
@@ -376,10 +392,14 @@ class SqlTime
 	 * Since SQL TIME is already in ISO 8601 format, this simply returns the input.
 	 * This method exists for API consistency and explicit ISO 8601 compliance indication.
 	 * @param string $sqlTime SQL TIME format string
-	 * @return string ISO 8601 formatted time (HH:MM:SS)
+	 * @return string ISO 8601 formatted time (HH:MM:SS), or empty string if time is invalid
 	 */
 	public static function formatISO(string $sqlTime): string
 	{
+		if (empty($sqlTime) || !self::isValid($sqlTime)) {
+			return '';
+		}
+
 		return $sqlTime;
 	}
 

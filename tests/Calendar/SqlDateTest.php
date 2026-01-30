@@ -83,90 +83,6 @@ final class SqlDateTest extends TestCase
 		$this->assertEquals(1, SqlDate::getDay('2024-06-01'));
 	}
 
-	public function testGet(): void
-	{
-		// Date normale
-		$this->assertEquals('2024-01-15', SqlDate::get(2024, 1, 15));
-
-		// Date avec zéros à gauche
-		$this->assertEquals('2024-01-01', SqlDate::get(2024, 1, 1));
-		$this->assertEquals('2024-12-31', SqlDate::get(2024, 12, 31));
-
-		// Formatage correct des mois/jours < 10
-		$this->assertEquals('2024-03-05', SqlDate::get(2024, 3, 5));
-		$this->assertEquals('2024-10-25', SqlDate::get(2024, 10, 25));
-	}
-
-	public function testGetFirstDayOfWeek(): void
-	{
-		// Semaine 1 de 2024 (année qui commence un lundi)
-		$result = SqlDate::getFirstDayOfWeek(2024, 1);
-		$this->assertEquals('2024-01-01', $result);
-
-		// Semaine 2 de 2024
-		$result = SqlDate::getFirstDayOfWeek(2024, 2);
-		$this->assertEquals('2024-01-08', $result);
-
-		// Semaine 10 de 2024
-		$result = SqlDate::getFirstDayOfWeek(2024, 10);
-		$this->assertMatchesRegularExpression('/2024-\d{2}-\d{2}/', $result);
-
-		// Vérifier que le résultat est toujours un lundi
-		$timestamp = strtotime($result);
-		$this->assertEquals(1, (int) date('N', $timestamp)); // N=1 pour lundi
-	}
-
-	public function testGetLastDayOfWeek(): void
-	{
-		// Dernière jour de la semaine 1 de 2024
-		$result = SqlDate::getLastDayOfWeek(2024, 1);
-		$this->assertEquals('2024-01-07', $result);
-
-		// Dernière jour de la semaine 2 de 2024
-		$result = SqlDate::getLastDayOfWeek(2024, 2);
-		$this->assertEquals('2024-01-14', $result);
-
-		// Vérifier que le résultat est toujours un dimanche
-		$timestamp = strtotime($result);
-		$this->assertEquals(7, (int) date('N', $timestamp)); // N=7 pour dimanche
-	}
-
-	public function testGetFirstDayOfMonth(): void
-	{
-		// Premier jour de janvier
-		$this->assertEquals('2024-01-01', SqlDate::getFirstDayOfMonth(2024, 1));
-
-		// Premier jour de février
-		$this->assertEquals('2024-02-01', SqlDate::getFirstDayOfMonth(2024, 2));
-
-		// Premier jour de décembre
-		$this->assertEquals('2024-12-01', SqlDate::getFirstDayOfMonth(2024, 12));
-
-		// Année bissextile
-		$this->assertEquals('2024-02-01', SqlDate::getFirstDayOfMonth(2024, 2));
-
-		// Année non bissextile
-		$this->assertEquals('2023-02-01', SqlDate::getFirstDayOfMonth(2023, 2));
-	}
-
-	public function testGetLastDayOfMonth(): void
-	{
-		// Dernier jour de janvier (31)
-		$this->assertEquals('2024-01-31', SqlDate::getLastDayOfMonth(2024, 1));
-
-		// Dernier jour de février année bissextile (29)
-		$this->assertEquals('2024-02-29', SqlDate::getLastDayOfMonth(2024, 2));
-
-		// Dernier jour de février année non bissextile (28)
-		$this->assertEquals('2023-02-28', SqlDate::getLastDayOfMonth(2023, 2));
-
-		// Dernier jour d'avril (30)
-		$this->assertEquals('2024-04-30', SqlDate::getLastDayOfMonth(2024, 4));
-
-		// Dernier jour de décembre (31)
-		$this->assertEquals('2024-12-31', SqlDate::getLastDayOfMonth(2024, 12));
-	}
-
 	public function testGetDayOfWeek(): void
 	{
 		// 2024-01-15 est un lundi (1)
@@ -384,6 +300,80 @@ final class SqlDateTest extends TestCase
 		$this->assertFalse(SqlDate::isEqual('2024-01-15', '2023-01-15'));
 	}
 
+	// ========== Week Methods Tests ==========
+
+	public function testGetFirstDayOfWeek(): void
+	{
+		// Semaine 1 de 2024 (année qui commence un lundi)
+		$result = SqlDate::getFirstDayOfWeek(2024, 1);
+		$this->assertEquals('2024-01-01', $result);
+
+		// Semaine 2 de 2024
+		$result = SqlDate::getFirstDayOfWeek(2024, 2);
+		$this->assertEquals('2024-01-08', $result);
+
+		// Semaine 10 de 2024
+		$result = SqlDate::getFirstDayOfWeek(2024, 10);
+		$this->assertMatchesRegularExpression('/2024-\d{2}-\d{2}/', $result);
+
+		// Vérifier que le résultat est toujours un lundi
+		$timestamp = strtotime($result);
+		$this->assertEquals(1, (int) date('N', $timestamp)); // N=1 pour lundi
+	}
+
+	public function testGetLastDayOfWeek(): void
+	{
+		// Dernière jour de la semaine 1 de 2024
+		$result = SqlDate::getLastDayOfWeek(2024, 1);
+		$this->assertEquals('2024-01-07', $result);
+
+		// Dernière jour de la semaine 2 de 2024
+		$result = SqlDate::getLastDayOfWeek(2024, 2);
+		$this->assertEquals('2024-01-14', $result);
+
+		// Vérifier que le résultat est toujours un dimanche
+		$timestamp = strtotime($result);
+		$this->assertEquals(7, (int) date('N', $timestamp)); // N=7 pour dimanche
+	}
+
+	// ========== Month Methods Tests ==========
+
+	public function testGetFirstDayOfMonth(): void
+	{
+		// Premier jour de janvier
+		$this->assertEquals('2024-01-01', SqlDate::getFirstDayOfMonth(2024, 1));
+
+		// Premier jour de février
+		$this->assertEquals('2024-02-01', SqlDate::getFirstDayOfMonth(2024, 2));
+
+		// Premier jour de décembre
+		$this->assertEquals('2024-12-01', SqlDate::getFirstDayOfMonth(2024, 12));
+
+		// Année bissextile
+		$this->assertEquals('2024-02-01', SqlDate::getFirstDayOfMonth(2024, 2));
+
+		// Année non bissextile
+		$this->assertEquals('2023-02-01', SqlDate::getFirstDayOfMonth(2023, 2));
+	}
+
+	public function testGetLastDayOfMonth(): void
+	{
+		// Dernier jour de janvier (31)
+		$this->assertEquals('2024-01-31', SqlDate::getLastDayOfMonth(2024, 1));
+
+		// Dernier jour de février année bissextile (29)
+		$this->assertEquals('2024-02-29', SqlDate::getLastDayOfMonth(2024, 2));
+
+		// Dernier jour de février année non bissextile (28)
+		$this->assertEquals('2023-02-28', SqlDate::getLastDayOfMonth(2023, 2));
+
+		// Dernier jour d'avril (30)
+		$this->assertEquals('2024-04-30', SqlDate::getLastDayOfMonth(2024, 4));
+
+		// Dernier jour de décembre (31)
+		$this->assertEquals('2024-12-31', SqlDate::getLastDayOfMonth(2024, 12));
+	}
+
 	// ========== Year Methods Tests ==========
 
 	public function testGetFirstDayOfYear(): void
@@ -418,11 +408,38 @@ final class SqlDateTest extends TestCase
 		$this->assertEquals('Monday, January 15, 2024', $formatted);
 	}
 
+	public function testFormatInLong(): void
+	{
+		// en locale
+		$formatted = SqlDate::formatInLong('2024-01-15', 'en_US');
+		$this->assertEquals('January 15, 2024', $formatted);
+
+		// fr locale
+		$formatted = SqlDate::formatInLong('2024-01-15', 'fr_FR');
+		$this->assertEquals('15 janvier 2024', $formatted);
+
+		// With null locale, should use default locale
+		$formatted = SqlDate::formatInLong('2024-01-15', null);
+		$this->assertNotEmpty($formatted);
+		$this->assertIsString($formatted);
+
+		// Empty date should return empty string
+		$formatted = SqlDate::formatInLong('', null);
+		$this->assertEquals('', $formatted);
+
+		// Invalid date should return empty string
+		$formatted = SqlDate::formatInLong('invalid', null);
+		$this->assertEquals('', $formatted);
+	}
+
 	public function testFormatShort(): void
 	{
 		// Default format (EU): DD/MM/YYYY
 		$formatted = SqlDate::formatShort('2024-01-15');
 		$this->assertEquals('15/01/2024', $formatted);
+
+		$formatted = SqlDate::formatShort('2024-01-15', '-');
+		$this->assertEquals('15-01-2024', $formatted);
 
 		// EU format explicitly: DD/MM/YYYY
 		$formatted = SqlDate::formatShort('2024-01-15', '/', 'EU');
@@ -443,6 +460,14 @@ final class SqlDateTest extends TestCase
 		// With different separator and EU format
 		$formatted = SqlDate::formatShort('2024-01-15', '-', 'EU');
 		$this->assertEquals('15-01-2024', $formatted);
+
+		// empty date
+		$formatted = SqlDate::formatShort('');
+		$this->assertEquals('', $formatted);
+
+		// invalid date
+		$formatted = SqlDate::formatShort('invalid');
+		$this->assertEquals('', $formatted);
 	}
 
 	public function testFormatMedium(): void
@@ -451,6 +476,14 @@ final class SqlDateTest extends TestCase
 		// Should contain day and month name or number
 		$this->assertNotEmpty($formatted);
 		$this->assertIsString($formatted);
+
+		// empty date
+		$formatted = SqlDate::formatMedium('');
+		$this->assertEquals('', $formatted);
+
+		// invalid date
+		$formatted = SqlDate::formatMedium('invalid');
+		$this->assertEquals('', $formatted);
 	}
 
 	public function testFormatLong(): void
@@ -459,6 +492,14 @@ final class SqlDateTest extends TestCase
 		// Should be long format with full month name
 		$this->assertNotEmpty($formatted);
 		$this->assertIsString($formatted);
+
+		// empty date
+		$formatted = SqlDate::formatLong('');
+		$this->assertEquals('', $formatted);
+
+		// invalid date
+		$formatted = SqlDate::formatLong('invalid');
+		$this->assertEquals('', $formatted);
 	}
 
 	public function testFormatISO(): void
@@ -466,32 +507,30 @@ final class SqlDateTest extends TestCase
 		// SQL DATE is already ISO format, so should return as-is
 		$this->assertEquals('2024-01-15', SqlDate::formatISO('2024-01-15'));
 		$this->assertEquals('2023-12-31', SqlDate::formatISO('2023-12-31'));
-	}
 
-	public function testFormatInLongWithEnLocale(): void
-	{
-		$formatted = SqlDate::formatInLong('2024-01-15', 'en_US');
-		$this->assertEquals('January 15, 2024', $formatted);
-	}
+		// empty date
+		$formatted = SqlDate::formatISO('');
+		$this->assertEquals('', $formatted);
 
-	public function testFormatInLongWithFrLocale(): void
-	{
-		$formatted = SqlDate::formatInLong('2024-01-15', 'fr_FR');
-		$this->assertEquals('15 janvier 2024', $formatted);
-	}
-
-	public function testFormatInLongWithNullLocale(): void
-	{
-		// With null locale, should use default locale
-		$formatted = SqlDate::formatInLong('2024-01-15', null);
-		$this->assertNotEmpty($formatted);
-		$this->assertIsString($formatted);
-	}
-
-	public function testFormatInLongWithEmptyDate(): void
-	{
-		// Empty date should return empty string
-		$formatted = SqlDate::formatInLong('', null);
+		// invalid date
+		$formatted = SqlDate::formatISO('invalid');
 		$this->assertEquals('', $formatted);
 	}
+
+	// DEPRECATED
+
+	public function testGet(): void
+	{
+		// Date normale
+		$this->assertEquals('2024-01-15', SqlDate::get(2024, 1, 15));
+
+		// Date avec zéros à gauche
+		$this->assertEquals('2024-01-01', SqlDate::get(2024, 1, 1));
+		$this->assertEquals('2024-12-31', SqlDate::get(2024, 12, 31));
+
+		// Formatage correct des mois/jours < 10
+		$this->assertEquals('2024-03-05', SqlDate::get(2024, 3, 5));
+		$this->assertEquals('2024-10-25', SqlDate::get(2024, 10, 25));
+	}
+
 }

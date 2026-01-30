@@ -98,11 +98,15 @@ class Date
 	 * Returns the full day name with the first letter capitalized.
 	 * @param int $dayOfWeek ISO-8601 numeric representation of the day (1 for Monday through 7 for Sunday)
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @return string The localized name of the day (e.g., "Monday", "Lundi")
+	 * @return string The localized name of the day (e.g., "Monday", "Lundi"), or empty string if dayOfWeek is invalid
 	 * @see http://userguide.icu-project.org/formatparse/datetime
 	 */
 	public static function getDayName(int $dayOfWeek, ?string $locale=null): string
 	{
+		if ($dayOfWeek < 1 || $dayOfWeek > 7) {
+			return '';
+		}
+
 		$timestamp = strtotime('monday this week')+(($dayOfWeek-1)*3600*24);
 		return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
 			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'EEEE')?->format($timestamp) ?? '');
@@ -113,10 +117,14 @@ class Date
 	 * Returns abbreviated day name (e.g., "Mon", "Tue", "Wed").
 	 * @param int $dayOfWeek ISO-8601 numeric representation of the day (1 for Monday through 7 for Sunday)
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @return string The localized short name of the day (e.g., "Mon", "Lun")
+	 * @return string The localized short name of the day (e.g., "Mon", "Lun"), or empty string if dayOfWeek is invalid
 	 */
 	public static function getDayNameShort(int $dayOfWeek, ?string $locale=null): string
 	{
+		if ($dayOfWeek < 1 || $dayOfWeek > 7) {
+			return '';
+		}
+
 		$timestamp = strtotime('monday this week')+(($dayOfWeek-1)*3600*24);
 		return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
 			date_default_timezone_get(), \IntlDateFormatter::GREGORIAN , 'EEE')?->format($timestamp) ?? '');
@@ -130,11 +138,15 @@ class Date
 	 * Returns the full month name with the first letter capitalized.
 	 * @param int $month Numeric representation of a month (1-12, where 1 is January and 12 is December)
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @return string The localized name of the month (e.g., "January", "Janvier"), or empty string on error
+	 * @return string The localized name of the month (e.g., "January", "Janvier"), or empty string if month is invalid
 	 * @see http://userguide.icu-project.org/formatparse/datetime
 	 */
 	public static function getMonthName(int $month, ?string $locale=null): string
 	{
+		if ($month < 1 || $month > 12) {
+			return '';
+		}
+
 		try {
 			return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
 				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMMM')?->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')) ?? '');
@@ -147,10 +159,14 @@ class Date
 	 * Returns abbreviated month name (e.g., "Jan", "Feb", "Mar").
 	 * @param int $month Numeric representation of a month (1-12)
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @return string The localized short name of the month (e.g., "Jan", "Janv"), or empty string on error
+	 * @return string The localized short name of the month (e.g., "Jan", "Janv"), or empty string if month is invalid
 	 */
 	public static function getMonthNameShort(int $month, ?string $locale=null): string
 	{
+		if ($month < 1 || $month > 12) {
+			return '';
+		}
+
 		try {
 			return ucfirst(\IntlDateFormatter::create($locale, \IntlDateFormatter::FULL, \IntlDateFormatter::FULL,
 				date_default_timezone_get(), \IntlDateFormatter::GREGORIAN, 'MMM')?->format(new \DateTime('2020-' . sprintf('%02d', $month) . '-15 00:00:00')) ?? '');

@@ -179,10 +179,14 @@ class Time
 	 * Formats an hour value as a string with "h" suffix.
 	 * Always returns a zero-padded 2-digit hour.
 	 * @param int $hour The hour value (0-23)
-	 * @return string The formatted hour (e.g., "09h", "14h")
+	 * @return string The formatted hour (e.g., "09h", "14h"), or empty string if hour is invalid
 	 */
 	public static function formatHour(int $hour): string
 	{
+		if ($hour < 0 || $hour > 23) {
+			return '';
+		}
+
 		return sprintf('%02d', $hour).'h';
 	}
 

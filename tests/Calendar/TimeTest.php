@@ -136,6 +136,13 @@ final class TimeTest extends TestCase
 		$this->assertEquals('09h', Time::formatHour(9));
 		$this->assertEquals('14h', Time::formatHour(14));
 		$this->assertEquals('23h', Time::formatHour(23));
+
+		// invalid hours
+		$this->assertEquals('', Time::formatHour(-1));
+		$this->assertEquals('', Time::formatHour(-10));
+		$this->assertEquals('', Time::formatHour(24));
+		$this->assertEquals('', Time::formatHour(25));
+		$this->assertEquals('', Time::formatHour(100));
 	}
 
 	public function testFormatDuration(): void
