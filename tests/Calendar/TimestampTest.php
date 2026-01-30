@@ -370,13 +370,6 @@ final class TimestampTest extends TestCase
 
 	// Time Formatting Methods
 
-	public function testFormatTimeString(): void
-	{
-		$timestamp = mktime(14, 30, 45, 1, 15, 2024);
-		$formatted = Timestamp::formatTimeString($timestamp);
-		$this->assertEquals('14:30:45', $formatted);
-	}
-
 	public function testFormatTimeShort(): void
 	{
 		$timestamp = mktime(14, 30, 45, 1, 15, 2024);

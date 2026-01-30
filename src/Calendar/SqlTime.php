@@ -342,21 +342,6 @@ class SqlTime
 	}
 
 	/**
-	 * Formats a SQL TIME string as HH:MM:SS.
-	 * This simply returns the input as SQL TIME is already in this format.
-	 * @param string $sqlTime SQL TIME format string
-	 * @return string Time in HH:MM:SS format, or empty string if time is invalid
-	 */
-	public static function formatString(string $sqlTime): string
-	{
-		if (empty($sqlTime) || !self::isValid($sqlTime)) {
-			return '';
-		}
-
-		return $sqlTime;
-	}
-
-	/**
 	 * Formats a SQL TIME string as HH:MM (without seconds).
 	 * @param string $sqlTime SQL TIME format string
 	 * @return string Time in HH:MM format, or empty string if time is invalid

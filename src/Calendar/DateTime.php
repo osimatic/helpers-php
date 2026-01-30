@@ -166,18 +166,16 @@ class DateTime
 
 	// ========== Formatting Methods ==========
 
-	// IntlDateFormatter methods
-
 	/**
 	 * Formats a DateTime using IntlDateFormatter with custom date and time format levels.
 	 * Uses ICU IntlDateFormatter for internationalization support.
 	 * @param \DateTime $dateTime The DateTime object to format
-	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL)
-	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL)
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (NONE, SHORT, MEDIUM, LONG, FULL). Default: SHORT
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
 	 * @return string The formatted date/time string, or empty string on error
 	 */
-	public static function format(\DateTime $dateTime, int $dateFormatter, int $timeFormatter, ?string $locale=null): string
+	public static function format(\DateTime $dateTime, int $dateFormatter=\IntlDateFormatter::SHORT, int $timeFormatter=\IntlDateFormatter::SHORT, ?string $locale=null): string
 	{
 		return \IntlDateFormatter::create($locale, $dateFormatter, $timeFormatter)?->format($dateTime->getTimestamp()) ?? '';
 	}
@@ -187,12 +185,16 @@ class DateTime
 	 * Uses ICU IntlDateFormatter for internationalization.
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param int $dateFormatter IntlDateFormatter constant for date format (default: SHORT)
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT)
 	 * @return string The formatted date and time string, or empty string on error
 	 */
-	public static function formatDateTime(\DateTime $dateTime, ?string $locale = null): string
+	public static function formatDateTime(\DateTime $dateTime, ?string $locale = null, int $dateFormatter=\IntlDateFormatter::SHORT, int $timeFormatter=\IntlDateFormatter::SHORT): string
 	{
-		return \IntlDateFormatter::create($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT)?->format($dateTime->getTimestamp()) ?? '';
+		return self::format($dateTime, $dateFormatter, $timeFormatter, $locale);
 	}
+
+	// Date Formatting Methods
 
 	/**
 	 * Formats only the date portion of a DateTime.
@@ -208,17 +210,65 @@ class DateTime
 	}
 
 	/**
-	 * Formats a date in LONG or FULL format.
-	 * FULL format includes the day of the week, LONG format does not.
+	 * Formats a date in short format.
+	 * Uses ICU IntlDateFormatter for internationalization.
 	 * @param \DateTime $dateTime The DateTime object to format
 	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
-	 * @param bool $withWeekDay If true, uses FULL format with weekday; if false, uses LONG format (default: false)
 	 * @return string The formatted date string, or empty string on error
 	 */
-	public static function formatDateInLong(\DateTime $dateTime, ?string $locale=null, bool $withWeekDay=false): string
+	public static function formatDateShort(\DateTime $dateTime, ?string $locale = null): string
 	{
-		return self::formatDate($dateTime, $locale, $withWeekDay ? \IntlDateFormatter::FULL : \IntlDateFormatter::LONG);
+		return self::formatDate($dateTime, $locale, \IntlDateFormatter::SHORT);
 	}
+
+	/**
+	 * Formats a date in medium format with localized text.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date string, or empty string on error
+	 */
+	public static function formatDateMedium(\DateTime $dateTime, ?string $locale = null): string
+	{
+		return self::formatDate($dateTime, $locale, \IntlDateFormatter::MEDIUM);
+	}
+
+	/**
+	 * Formats a date in LONG format (does not include the day of the week) with localized text.
+	 * FULL format includes the day of the week, LONG format does not.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date string, or empty string on error
+	 */
+	public static function formatDateLong(\DateTime $dateTime, ?string $locale=null): string
+	{
+		return self::formatDate($dateTime, $locale, \IntlDateFormatter::LONG);
+	}
+
+	/**
+	 * Formats a date in FULL format (includes the day of the week) with localized text.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted date string, or empty string on error
+	 */
+	public static function formatDateFull(\DateTime $dateTime, ?string $locale=null): string
+	{
+		return self::formatDate($dateTime, $locale, \IntlDateFormatter::FULL);
+	}
+
+	/**
+	 * Formats a date in ISO 8601 format (YYYY-MM-DD). Exemple: "2024-01-15"
+	 * @param \DateTime $dateTime The date to format
+	 * @return string The ISO formatted date string
+	 */
+	public static function formatDateISO(\DateTime $dateTime): string
+	{
+		return $dateTime->format('Y-m-d');
+	}
+
+	// Time Formatting Methods
 
 	/**
 	 * Formats only the time portion of a DateTime.
@@ -233,103 +283,46 @@ class DateTime
 		return \IntlDateFormatter::create($locale, \IntlDateFormatter::NONE, $timeFormatter)?->format($dateTime->getTimestamp()) ?? '';
 	}
 
-	// Date Formatting Methods
-
-	/**
-	 * Formats a date in short format (DD/MM/YYYY or MM/DD/YYYY depending on lang).
-	 * @param \DateTime $dateTime The date to format
-	 * @param string $separator Separator character (default: '/')
-	 * @param string $lang Language code for date order: 'US' (MM/DD/YYYY) or 'EU'/'FR' (DD/MM/YYYY) (default: 'EU')
-	 * @return string Formatted date string
-	 */
-	public static function formatDateShort(\DateTime $dateTime, string $separator = '/', string $lang = 'EU'): string
-	{
-		// US format: MM/DD/YYYY, EU/FR format: DD/MM/YYYY
-		if (strtoupper($lang) === 'US') {
-			return $dateTime->format('m' . $separator . 'd' . $separator . 'Y');
-		}
-		return $dateTime->format('d' . $separator . 'm' . $separator . 'Y');
-	}
-
-	/**
-	 * Formats a date in medium format with localized month name.
-	 * Default: "15 Jan 2024"
-	 * @param \DateTime $dateTime The date to format
-	 * @param string|null $locale Optional locale code
-	 * @return string Formatted date string
-	 */
-	public static function formatDateMedium(\DateTime $dateTime, ?string $locale = null): string
-	{
-		$day = $dateTime->format('j');
-		$month = Date::getMonthNameShort((int) $dateTime->format('n'), $locale);
-		$year = $dateTime->format('Y');
-		return $day . ' ' . $month . ' ' . $year;
-	}
-
-	/**
-	 * Formats a date in long format with localized full month name.
-	 * Default: "January 15, 2024"
-	 * @param \DateTime $dateTime The date to format
-	 * @param string|null $locale Optional locale code
-	 * @return string Formatted date string
-	 */
-	public static function formatDateLong(\DateTime $dateTime, ?string $locale = null): string
-	{
-		$month = Date::getMonthName((int) $dateTime->format('n'), $locale);
-		$day = $dateTime->format('j');
-		$year = $dateTime->format('Y');
-		return $month . ' ' . $day . ', ' . $year;
-	}
-
-	/**
-	 * Formats a date in ISO 8601 format.
-	 * Format: YYYY-MM-DD (e.g., "2024-01-15")
-	 * @param \DateTime $dateTime The date to format
-	 * @return string ISO formatted date string
-	 */
-	public static function formatDateISO(\DateTime $dateTime): string
-	{
-		return $dateTime->format('Y-m-d');
-	}
-
-	// Time Formatting Methods
-
-	/**
-	 * Formats a time in HH:MM:SS format.
-	 * @param \DateTime $dateTime The datetime to format
-	 * @return string Formatted time (e.g., "14:30:45")
-	 */
-	public static function formatTimeString(\DateTime $dateTime): string
-	{
-		return $dateTime->format('H:i:s');
-	}
-
 	/**
 	 * Formats a time in short HH:MM format (without seconds).
-	 * @param \DateTime $dateTime The datetime to format
-	 * @return string Formatted time (e.g., "14:30")
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function formatTimeShort(\DateTime $dateTime): string
+	public static function formatTimeShort(\DateTime $dateTime, ?string $locale=null): string
 	{
-		return $dateTime->format('H:i');
+		return self::formatTime($dateTime, $locale, \IntlDateFormatter::SHORT);
 	}
 
 	/**
 	 * Formats a time in long format with optional seconds.
-	 * @param \DateTime $dateTime The datetime to format
-	 * @param bool $withSeconds Whether to include seconds (default: true)
-	 * @return string Formatted time (e.g., "14:30:45" or "14:30")
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function formatTimeLong(\DateTime $dateTime, bool $withSeconds = true): string
+	public static function formatTimeMedium(\DateTime $dateTime, ?string $locale=null): string
 	{
-		return $withSeconds ? self::formatTimeString($dateTime) : self::formatTimeShort($dateTime);
+		return self::formatTime($dateTime, $locale, \IntlDateFormatter::MEDIUM);
 	}
 
 	/**
-	 * Formats a time in ISO 8601 format (HH:MM:SS).
-	 * This is an explicit alias for formatTimeString() that indicates ISO 8601 compliance.
+	 * Formats a time in long format with optional seconds.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param \DateTime $dateTime The DateTime object to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
+	 */
+	public static function formatTimeLong(\DateTime $dateTime, ?string $locale=null): string
+	{
+		return self::formatTime($dateTime, $locale, \IntlDateFormatter::LONG);
+	}
+
+	/**
+	 * Formats a time in ISO 8601 format (HH:MM:SS). Exemple: "14:30:45"
 	 * @param \DateTime $dateTime The datetime to format
-	 * @return string ISO 8601 formatted time (e.g., "14:30:45")
+	 * @return string The ISO 8601 formatted time
 	 */
 	public static function formatTimeISO(\DateTime $dateTime): string
 	{
@@ -1529,6 +1522,14 @@ class DateTime
 	public static function parseDate(string $str): ?\DateTime
 	{
 		return self::parse($str);
+	}
+
+	/**
+	 * @deprecated use formatDateLong if $withWeekDay = false or formatDateFull if $withWeekDay = true instead
+	 */
+	public static function formatDateInLong(\DateTime $dateTime, ?string $locale=null, bool $withWeekDay=false): string
+	{
+		return $withWeekDay ? self::formatDateFull($dateTime, $locale) : self::formatDateLong($dateTime, $locale);
 	}
 
 }

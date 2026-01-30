@@ -413,20 +413,6 @@ final class SqlTimeTest extends TestCase
 		$this->assertEquals('', SqlTime::format('invalid'));
 	}
 
-	public function testFormatString(): void
-	{
-		// formatString just returns the input (SQL TIME is already HH:MM:SS)
-		$this->assertEquals('14:30:45', SqlTime::formatString('14:30:45'));
-		$this->assertEquals('00:00:00', SqlTime::formatString('00:00:00'));
-		$this->assertEquals('23:59:59', SqlTime::formatString('23:59:59'));
-
-		// empty time
-		$this->assertEquals('', SqlTime::formatString(''));
-
-		// invalid time
-		$this->assertEquals('', SqlTime::formatString('invalid'));
-	}
-
 	public function testFormatShort(): void
 	{
 		$formatted = SqlTime::formatShort('14:30:45');

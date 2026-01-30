@@ -449,17 +449,6 @@ class Timestamp
 	// Time Formatting Methods
 
 	/**
-	 * Formats a timestamp's time in HH:MM:SS format.
-	 * @param int $timestamp The Unix timestamp to format
-	 * @return string Formatted time (e.g., "14:30:45")
-	 */
-	public static function formatTimeString(int $timestamp): string
-	{
-		$dateTime = self::toDateTime($timestamp);
-		return DateTime::formatTimeString($dateTime);
-	}
-
-	/**
 	 * Formats a timestamp's time in short HH:MM format (without seconds).
 	 * @param int $timestamp The Unix timestamp to format
 	 * @return string Formatted time (e.g., "14:30")
