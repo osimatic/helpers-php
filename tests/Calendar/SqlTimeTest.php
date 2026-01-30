@@ -2,6 +2,7 @@
 
 namespace Tests\Calendar;
 
+use Osimatic\Calendar\DateTime;
 use Osimatic\Calendar\SqlTime;
 use PHPUnit\Framework\TestCase;
 
@@ -392,19 +393,13 @@ final class SqlTimeTest extends TestCase
 
 	public function testFormat(): void
 	{
-		// Test with specific locale for predictable results
-		// Note: IntlDateFormatter uses U+202F (NARROW NO-BREAK SPACE) before AM/PM
-		$formatted = SqlTime::format('14:30:45', 'en_US', \IntlDateFormatter::SHORT);
-		$this->assertEquals("2:30\u{202F}PM", $formatted);
+		$sqlTime = '14:30:45';
 
-		$formatted = SqlTime::format('14:30:45', 'en_US', \IntlDateFormatter::MEDIUM);
-		$this->assertEquals("2:30:45\u{202F}PM", $formatted);
+		$this->assertEqualsIgnoringCase('14:30', SqlTime::format($sqlTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30', SqlTime::format($sqlTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30 PM', SqlTime::format($sqlTime, 'en_US'));
 
-		$formatted = SqlTime::format('23:59:59', 'en_US', \IntlDateFormatter::SHORT);
-		$this->assertEquals("11:59\u{202F}PM", $formatted);
-
-		$formatted = SqlTime::format('00:00:00', 'en_US', \IntlDateFormatter::SHORT);
-		$this->assertEquals("12:00\u{202F}AM", $formatted);
+		$this->assertEqualsIgnoringCase('12:00 AM', SqlTime::format('00:00:00', 'en_US'));
 
 		// empty time
 		$this->assertEquals('', SqlTime::format(''));
@@ -415,9 +410,11 @@ final class SqlTimeTest extends TestCase
 
 	public function testFormatShort(): void
 	{
-		$formatted = SqlTime::formatShort('14:30:45');
-		// Should be in HH:MM format
-		$this->assertMatchesRegularExpression('/\d{1,2}:\d{2}/', $formatted);
+		$sqlTime = '14:30:45';
+
+		$this->assertEqualsIgnoringCase('14:30', SqlTime::formatShort($sqlTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30', SqlTime::formatShort($sqlTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30 PM', SqlTime::formatShort($sqlTime, 'en_US'));
 
 		// empty time
 		$this->assertEquals('', SqlTime::formatShort(''));
@@ -426,17 +423,28 @@ final class SqlTimeTest extends TestCase
 		$this->assertEquals('', SqlTime::formatShort('invalid'));
 	}
 
+	public function testFormatMedium(): void
+	{
+		$sqlTime = '14:30:45';
+
+		$this->assertEqualsIgnoringCase('14:30:45', SqlTime::formatMedium($sqlTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30:45', SqlTime::formatMedium($sqlTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30:45 PM', SqlTime::formatMedium($sqlTime, 'en_US'));
+
+		// empty time
+		$this->assertEquals('', SqlTime::formatMedium(''));
+
+		// invalid time
+		$this->assertEquals('', SqlTime::formatMedium('invalid'));
+	}
+
 	public function testFormatLong(): void
 	{
-		// With seconds (default)
-		$formatted = SqlTime::formatLong('14:30:45', true);
-		$this->assertNotEmpty($formatted);
-		$this->assertIsString($formatted);
+		$sqlTime = '14:30:45';
 
-		// Without seconds
-		$formatted = SqlTime::formatLong('14:30:45', false);
-		$this->assertNotEmpty($formatted);
-		$this->assertIsString($formatted);
+		$this->assertEqualsIgnoringCase('14:30:45 UTC', SqlTime::formatLong($sqlTime, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('14:30:45 UTC', SqlTime::formatLong($sqlTime, 'en_GB'));
+		$this->assertEqualsIgnoringCase('2:30:45 PM UTC', SqlTime::formatLong($sqlTime, 'en_US'));
 
 		// empty time
 		$this->assertEquals('', SqlTime::formatLong(''));

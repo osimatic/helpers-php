@@ -138,6 +138,10 @@ class SqlTime
 	 */
 	public static function toDateTime(string $sqlTime): ?\DateTime
 	{
+		if (empty($sqlTime) || !self::isValid($sqlTime)) {
+			return null;
+		}
+
 		return DateTime::parseFromSqlDateTime(date('Y-m-d').' '.$sqlTime);
 	}
 
@@ -325,67 +329,74 @@ class SqlTime
 	// ========== Formatting Methods ==========
 
 	/**
-	 * Formats a SQL TIME string using IntlDateFormatter.
-	 * @param string $sqlTime SQL TIME format string
-	 * @param string|null $locale Optional locale code
-	 * @param int $timeType IntlDateFormatter time type constant
-	 * @return string Formatted time string, or empty string if time is invalid
+	 * Formats a SQL TIME string.
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * @param string $sqlTime The SQL TIME string to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @param int $timeFormatter IntlDateFormatter constant for time format (default: SHORT). Available formats:
+	 *  - SHORT: Time without seconds (HH:MM format). Examples: en_US: "2:30 PM" ; fr_FR: "14:30"
+	 *  - MEDIUM: Time with seconds (HH:MM:SS format). Examples: en_US: "2:30:45 PM" ; fr_FR: "14:30:45"
+	 *  - LONG: Time with seconds and timezone. Examples: en_US: "2:30:45 PM UTC" ; fr_FR: "14:30:45 UTC"
+	 *  - FULL: Time with seconds and full timezone name. Examples: en_US: "2:30:45 PM Coordinated Universal Time" ; fr_FR: "14:30:45 temps universel coordonné"
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function format(string $sqlTime, ?string $locale = null, int $timeType = \IntlDateFormatter::MEDIUM): string
+	public static function format(string $sqlTime, ?string $locale = null, int $timeFormatter = \IntlDateFormatter::SHORT): string
 	{
-		if (empty($sqlTime) || !self::isValid($sqlTime)) {
-			return '';
-		}
-
 		$dateTime = self::toDateTime($sqlTime);
-		return $dateTime ? DateTime::formatTime($dateTime, $locale, $timeType) : '';
+		return $dateTime ? DateTime::formatTime($dateTime, $locale, $timeFormatter) : '';
 	}
 
 	/**
-	 * Formats a SQL TIME string as HH:MM (without seconds).
-	 * @param string $sqlTime SQL TIME format string
-	 * @return string Time in HH:MM format, or empty string if time is invalid
+	 * Formats a SQL TIME string in short HH:MM format (without seconds).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30 PM" ; fr_FR: "14:30"
+	 * @param string $sqlTime The SQL TIME string to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function formatShort(string $sqlTime): string
+	public static function formatShort(string $sqlTime, ?string $locale = null): string
 	{
-		if (empty($sqlTime) || !self::isValid($sqlTime)) {
-			return '';
-		}
-
 		$dateTime = self::toDateTime($sqlTime);
-		return $dateTime ? DateTime::formatTimeShort($dateTime) : '';
+		return $dateTime ? DateTime::formatTimeShort($dateTime, $locale) : '';
 	}
 
 	/**
-	 * Formats a SQL TIME string as HH:MM:SS or HH:MM.
-	 * @param string $sqlTime SQL TIME format string
-	 * @param bool $includeSeconds Whether to include seconds (default: true)
-	 * @return string Formatted time string, or empty string if time is invalid
+	 * Formats a a SQL TIME string in medium format (with seconds).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30:45 PM" ; fr_FR: "14:30:45"
+	 * @param string $sqlTime The SQL TIME string to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
 	 */
-	public static function formatLong(string $sqlTime, bool $includeSeconds = true): string
+	public static function formatMedium(string $sqlTime, ?string $locale = null): string
 	{
-		if (empty($sqlTime) || !self::isValid($sqlTime)) {
-			return '';
-		}
-
 		$dateTime = self::toDateTime($sqlTime);
-		return $dateTime ? DateTime::formatTimeLong($dateTime, $includeSeconds) : '';
+		return $dateTime ? DateTime::formatTimeMedium($dateTime, $locale) : '';
 	}
 
 	/**
-	 * Formats a SQL TIME string in ISO 8601 format (HH:MM:SS).
+	 * Formats a SQL TIME string in long format (with timezone).
+	 * Uses ICU IntlDateFormatter for internationalization.
+	 * Examples: en_US: "2:30:45 PM UTC" ; fr_FR: "14:30:45 UTC"
+	 * @param string $sqlTime The SQL TIME string to format
+	 * @param string|null $locale Optional locale code (e.g., 'en_US', 'fr_FR'). Uses default if null
+	 * @return string The formatted time string, or empty string on error
+	 */
+	public static function formatLong(string $sqlTime, ?string $locale = null): string
+	{
+		$dateTime = self::toDateTime($sqlTime);
+		return $dateTime ? DateTime::formatTimeLong($dateTime, $locale) : '';
+	}
+
+	/**
+	 * Formats a SQL TIME string in ISO 8601 format (HH:MM:SS). Exemple: "14:30:45"
 	 * Since SQL TIME is already in ISO 8601 format, this simply returns the input.
-	 * This method exists for API consistency and explicit ISO 8601 compliance indication.
-	 * @param string $sqlTime SQL TIME format string
-	 * @return string ISO 8601 formatted time (HH:MM:SS), or empty string if time is invalid
+	 * @param string $sqlTime The SQL TIME string to format
+	 * @return string The ISO 8601 formatted time, or empty string if time is invalid
 	 */
 	public static function formatISO(string $sqlTime): string
 	{
-		if (empty($sqlTime) || !self::isValid($sqlTime)) {
-			return '';
-		}
-
-		return $sqlTime;
+		return !empty($sqlTime) && self::isValid($sqlTime) ? $sqlTime : '';
 	}
 
 	// ========== DEPRECATED METHODS ==========

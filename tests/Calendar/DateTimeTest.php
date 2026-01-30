@@ -3,6 +3,7 @@
 namespace Tests\Calendar;
 
 use Osimatic\Calendar\DateTime;
+use Osimatic\Calendar\SqlTime;
 use PHPUnit\Framework\TestCase;
 
 final class DateTimeTest extends TestCase
@@ -302,6 +303,8 @@ final class DateTimeTest extends TestCase
 		$this->assertEqualsIgnoringCase('14:30', DateTime::formatTime($dateTime, 'fr_FR'));
 		$this->assertEqualsIgnoringCase('14:30', DateTime::formatTime($dateTime, 'en_GB'));
 		$this->assertEqualsIgnoringCase('2:30 PM', DateTime::formatTime($dateTime, 'en_US'));
+
+		$this->assertEqualsIgnoringCase('12:00 AM', DateTime::formatTime(new \DateTime('2024-01-15 00:00:00'), 'en_US'));
 	}
 
 	public function testFormatTimeShort(): void

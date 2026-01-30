@@ -2,6 +2,7 @@
 
 namespace Tests\Calendar;
 
+use Osimatic\Calendar\DateTime;
 use Osimatic\Calendar\SqlDate;
 use PHPUnit\Framework\TestCase;
 
@@ -394,112 +395,72 @@ final class SqlDateTest extends TestCase
 
 	public function testFormat(): void
 	{
-		// Test with specific locale for predictable results
-		$formatted = SqlDate::format('2024-01-15', 'en_US', \IntlDateFormatter::SHORT);
-		$this->assertEquals('1/15/24', $formatted);
+		$sqlDate = '2024-01-15';
 
-		$formatted = SqlDate::format('2024-01-15', 'en_US', \IntlDateFormatter::MEDIUM);
-		$this->assertEquals('Jan 15, 2024', $formatted);
-
-		$formatted = SqlDate::format('2024-01-15', 'en_US', \IntlDateFormatter::LONG);
-		$this->assertEquals('January 15, 2024', $formatted);
-
-		$formatted = SqlDate::format('2024-01-15', 'en_US', \IntlDateFormatter::FULL);
-		$this->assertEquals('Monday, January 15, 2024', $formatted);
-	}
-
-	public function testFormatInLong(): void
-	{
-		// en locale
-		$formatted = SqlDate::formatInLong('2024-01-15', 'en_US');
-		$this->assertEquals('January 15, 2024', $formatted);
-
-		// fr locale
-		$formatted = SqlDate::formatInLong('2024-01-15', 'fr_FR');
-		$this->assertEquals('15 janvier 2024', $formatted);
-
-		// With null locale, should use default locale
-		$formatted = SqlDate::formatInLong('2024-01-15', null);
-		$this->assertNotEmpty($formatted);
-		$this->assertIsString($formatted);
-
-		// Empty date should return empty string
-		$formatted = SqlDate::formatInLong('', null);
-		$this->assertEquals('', $formatted);
-
-		// Invalid date should return empty string
-		$formatted = SqlDate::formatInLong('invalid', null);
-		$this->assertEquals('', $formatted);
+		// fr_FR
+		$this->assertEqualsIgnoringCase('15/01/2024', SqlDate::format($sqlDate, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15/01/2024', SqlDate::format($sqlDate, 'en_GB'));
+		$this->assertEqualsIgnoringCase('1/15/24', SqlDate::format($sqlDate, 'en_US'));
 	}
 
 	public function testFormatShort(): void
 	{
-		// Default format (EU): DD/MM/YYYY
-		$formatted = SqlDate::formatShort('2024-01-15');
-		$this->assertEquals('15/01/2024', $formatted);
+		$sqlDate = '2024-01-15';
 
-		$formatted = SqlDate::formatShort('2024-01-15', '-');
-		$this->assertEquals('15-01-2024', $formatted);
-
-		// EU format explicitly: DD/MM/YYYY
-		$formatted = SqlDate::formatShort('2024-01-15', '/', 'EU');
-		$this->assertEquals('15/01/2024', $formatted);
-
-		// FR format: DD/MM/YYYY
-		$formatted = SqlDate::formatShort('2024-01-15', '/', 'FR');
-		$this->assertEquals('15/01/2024', $formatted);
-
-		// US format: MM/DD/YYYY
-		$formatted = SqlDate::formatShort('2024-01-15', '/', 'US');
-		$this->assertEquals('01/15/2024', $formatted);
-
-		// With different separator and US format
-		$formatted = SqlDate::formatShort('2024-01-15', '-', 'US');
-		$this->assertEquals('01-15-2024', $formatted);
-
-		// With different separator and EU format
-		$formatted = SqlDate::formatShort('2024-01-15', '-', 'EU');
-		$this->assertEquals('15-01-2024', $formatted);
+		$this->assertEqualsIgnoringCase('15/01/2024', SqlDate::formatShort($sqlDate, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15/01/2024', SqlDate::formatShort($sqlDate, 'en_GB'));
+		$this->assertEqualsIgnoringCase('1/15/24', SqlDate::formatShort($sqlDate, 'en_US'));
 
 		// empty date
-		$formatted = SqlDate::formatShort('');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatShort(''));
 
 		// invalid date
-		$formatted = SqlDate::formatShort('invalid');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatShort('invalid'));
 	}
 
 	public function testFormatMedium(): void
 	{
-		$formatted = SqlDate::formatMedium('2024-01-15');
-		// Should contain day and month name or number
-		$this->assertNotEmpty($formatted);
-		$this->assertIsString($formatted);
+		$sqlDate = '2024-01-15';
+
+		$this->assertEqualsIgnoringCase('15 janv. 2024', SqlDate::formatMedium($sqlDate, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15 Jan 2024', SqlDate::formatMedium($sqlDate, 'en_GB'));
+		$this->assertEqualsIgnoringCase('Jan 15, 2024', SqlDate::formatMedium($sqlDate, 'en_US'));
 
 		// empty date
-		$formatted = SqlDate::formatMedium('');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatMedium(''));
 
 		// invalid date
-		$formatted = SqlDate::formatMedium('invalid');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatMedium('invalid'));
 	}
 
 	public function testFormatLong(): void
 	{
-		$formatted = SqlDate::formatLong('2024-01-15');
-		// Should be long format with full month name
-		$this->assertNotEmpty($formatted);
-		$this->assertIsString($formatted);
+		$sqlDate = '2024-01-15';
+
+		$this->assertEqualsIgnoringCase('15 janvier 2024', SqlDate::formatMedium($sqlDate, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15 January 2024', SqlDate::formatMedium($sqlDate, 'en_GB'));
+		$this->assertEqualsIgnoringCase('January 15, 2024', SqlDate::formatMedium($sqlDate, 'en_US'));
 
 		// empty date
-		$formatted = SqlDate::formatLong('');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatMedium(''));
 
 		// invalid date
-		$formatted = SqlDate::formatLong('invalid');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatMedium('invalid'));
+	}
+
+	public function testFormatFull(): void
+	{
+		$sqlDate = '2024-01-15';
+
+		$this->assertEqualsIgnoringCase('lundi 15 janvier 2024', SqlDate::formatFull($sqlDate, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('Monday 15 January 2024', SqlDate::formatFull($sqlDate, 'en_GB'));
+		$this->assertEqualsIgnoringCase('Monday, January 15, 2024', SqlDate::formatFull($sqlDate, 'en_US'));
+
+		// empty date
+		$this->assertEquals('', SqlDate::formatFull(''));
+
+		// invalid date
+		$this->assertEquals('', SqlDate::formatFull('invalid'));
 	}
 
 	public function testFormatISO(): void
@@ -509,12 +470,10 @@ final class SqlDateTest extends TestCase
 		$this->assertEquals('2023-12-31', SqlDate::formatISO('2023-12-31'));
 
 		// empty date
-		$formatted = SqlDate::formatISO('');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatISO(''));
 
 		// invalid date
-		$formatted = SqlDate::formatISO('invalid');
-		$this->assertEquals('', $formatted);
+		$this->assertEquals('', SqlDate::formatISO('invalid'));
 	}
 
 	// DEPRECATED
