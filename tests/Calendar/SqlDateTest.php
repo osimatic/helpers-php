@@ -437,9 +437,9 @@ final class SqlDateTest extends TestCase
 	{
 		$sqlDate = '2024-01-15';
 
-		$this->assertEqualsIgnoringCase('15 janvier 2024', SqlDate::formatMedium($sqlDate, 'fr_FR'));
-		$this->assertEqualsIgnoringCase('15 January 2024', SqlDate::formatMedium($sqlDate, 'en_GB'));
-		$this->assertEqualsIgnoringCase('January 15, 2024', SqlDate::formatMedium($sqlDate, 'en_US'));
+		$this->assertEqualsIgnoringCase('15 janvier 2024', SqlDate::formatLong($sqlDate, 'fr_FR'));
+		$this->assertEqualsIgnoringCase('15 January 2024', SqlDate::formatLong($sqlDate, 'en_GB'));
+		$this->assertEqualsIgnoringCase('January 15, 2024', SqlDate::formatLong($sqlDate, 'en_US'));
 
 		// empty date
 		$this->assertEquals('', SqlDate::formatMedium(''));

@@ -371,9 +371,7 @@ JSON;
 		$json = '{"comment": "This is a /* test */ value"}';
 		$result = JSON::reduce($json);
 
-		// Note: La regex actuelle pourrait avoir des problèmes avec ce cas
-		// Ce test documente le comportement attendu vs actuel
-		$this->assertIsString($result);
+		$this->assertSame('{"comment": "This is a /* test */ value"}', $result);
 	}
 
 	/* ===================== reduce() - Real-world examples ===================== */

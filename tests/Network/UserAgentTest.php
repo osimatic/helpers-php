@@ -20,7 +20,7 @@ final class UserAgentTest extends TestCase
 		$this->assertInstanceOf(UserAgent::class, $userAgent);
 		$this->assertSame('Chrome', $userAgent->browserName);
 		$this->assertSame('Windows', $userAgent->osName);
-		$this->assertFalse($userAgent->deviceIsMobile);
+		$this->assertFalse($userAgent->isMobile());
 	}
 
 	public function testParseStaticMethod(): void
@@ -39,7 +39,7 @@ final class UserAgentTest extends TestCase
 
 		$this->assertSame('Firefox', $userAgent->browserName);
 		$this->assertSame('Windows', $userAgent->osName);
-		$this->assertFalse($userAgent->deviceIsMobile);
+		$this->assertFalse($userAgent->isMobile());
 	}
 
 	public function testConstructWithSafariMacUserAgent(): void
@@ -49,7 +49,7 @@ final class UserAgentTest extends TestCase
 
 		$this->assertSame('Safari', $userAgent->browserName);
 		$this->assertSame('macOS', $userAgent->osName);
-		$this->assertFalse($userAgent->deviceIsMobile);
+		$this->assertFalse($userAgent->isMobile());
 	}
 
 	public function testConstructWithiPhoneUserAgent(): void
@@ -57,9 +57,9 @@ final class UserAgentTest extends TestCase
 		$userAgentString = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 		$userAgent = new UserAgent($userAgentString);
 
-		$this->assertSame('Safari', $userAgent->browserName);
+		$this->assertSame('Mobile Safari', $userAgent->browserName);  // DeviceDetector returns "Mobile Safari"
 		$this->assertSame('iOS', $userAgent->osName);
-		$this->assertTrue($userAgent->deviceIsMobile);
+		$this->assertTrue($userAgent->isMobile());
 		$this->assertSame('Apple', $userAgent->deviceManufacturer);
 	}
 
@@ -68,9 +68,9 @@ final class UserAgentTest extends TestCase
 		$userAgentString = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 		$userAgent = new UserAgent($userAgentString);
 
-		$this->assertSame('Chrome', $userAgent->browserName);
+		$this->assertSame('Chrome Mobile', $userAgent->browserName);  // DeviceDetector returns "Chrome Mobile"
 		$this->assertSame('Android', $userAgent->osName);
-		$this->assertTrue($userAgent->deviceIsMobile);
+		$this->assertTrue($userAgent->isMobile());
 	}
 
 	public function testConstructWithEdgeUserAgent(): void
@@ -78,9 +78,9 @@ final class UserAgentTest extends TestCase
 		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0';
 		$userAgent = new UserAgent($userAgentString);
 
-		$this->assertSame('Edge', $userAgent->browserName);
+		$this->assertSame('Microsoft Edge', $userAgent->browserName);  // DeviceDetector returns "Microsoft Edge"
 		$this->assertSame('Windows', $userAgent->osName);
-		$this->assertFalse($userAgent->deviceIsMobile);
+		$this->assertFalse($userAgent->isMobile());
 	}
 
 	public function testConstructWithEmptyUserAgent(): void
@@ -89,7 +89,7 @@ final class UserAgentTest extends TestCase
 
 		$this->assertNull($userAgent->browserName);
 		$this->assertNull($userAgent->osName);
-		$this->assertFalse($userAgent->deviceIsMobile);
+		$this->assertFalse($userAgent->isMobile());
 	}
 
 	/* ===================== getInfosDisplay() ===================== */
@@ -239,7 +239,7 @@ final class UserAgentTest extends TestCase
 
 		$json = $userAgent->jsonSerialize();
 
-		$this->assertSame('Safari', $json['browser_name']);
+		$this->assertSame('Mobile Safari', $json['browser_name']);
 		$this->assertSame('iOS', $json['os_name']);
 		$this->assertTrue($json['device_is_mobile']);
 		$this->assertSame('Apple', $json['device_manufacturer']);
@@ -257,6 +257,42 @@ final class UserAgentTest extends TestCase
 		$this->assertStringContainsString('Windows', $jsonString);
 	}
 
+	/* ===================== format() ===================== */
+
+	public function testFormatReturnsString(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$formatted = $userAgent->format();
+
+		$this->assertIsString($formatted);
+		$this->assertNotEmpty($formatted);
+	}
+
+	public function testFormatWithChromeWindows(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$formatted = $userAgent->format();
+
+		$this->assertStringContainsString('Chrome', $formatted);
+		$this->assertStringContainsString('Windows', $formatted);
+	}
+
+	public function testFormatWithiPhone(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+		$userAgent = new UserAgent($userAgentString);
+
+		$formatted = $userAgent->format();
+
+		$this->assertStringContainsString('Safari', $formatted);
+		$this->assertStringContainsString('iOS', $formatted);
+		$this->assertStringContainsString('iPhone', $formatted);
+	}
+
 	/* ===================== __toString() ===================== */
 
 	public function testToStringReturnsReadableRepresentation(): void
@@ -270,12 +306,12 @@ final class UserAgentTest extends TestCase
 		$this->assertNotEmpty($string);
 	}
 
-	public function testToStringMatchesReadableRepresentationProperty(): void
+	public function testToStringMatchesFormatMethod(): void
 	{
 		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 		$userAgent = new UserAgent($userAgentString);
 
-		$this->assertSame($userAgent->readableRepresentation, (string) $userAgent);
+		$this->assertSame($userAgent->format(), (string) $userAgent);
 	}
 
 	/* ===================== Properties ===================== */
@@ -316,15 +352,15 @@ final class UserAgentTest extends TestCase
 		$this->assertNotEmpty($userAgent->osVersion);
 	}
 
-	public function testDeviceIsMobileProperty(): void
+	public function testIsMobileMethod(): void
 	{
 		$desktopUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 		$desktopUserAgent = new UserAgent($desktopUA);
-		$this->assertFalse($desktopUserAgent->deviceIsMobile);
+		$this->assertFalse($desktopUserAgent->isMobile());
 
 		$mobileUA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 		$mobileUserAgent = new UserAgent($mobileUA);
-		$this->assertTrue($mobileUserAgent->deviceIsMobile);
+		$this->assertTrue($mobileUserAgent->isMobile());
 	}
 
 	public function testDeviceTypeProperty(): void
@@ -359,6 +395,96 @@ final class UserAgentTest extends TestCase
 		$userAgent = new UserAgent($userAgentString);
 
 		$this->assertIsObject($userAgent->parser);
-		$this->assertInstanceOf(\WhichBrowser\Parser::class, $userAgent->parser);
+		$this->assertInstanceOf(\DeviceDetector\DeviceDetector::class, $userAgent->parser);
+	}
+
+	/* ===================== isMobile() / isSmartphone() / isTablet() ===================== */
+
+	public function testIsMobileWithDesktop(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertFalse($userAgent->isMobile());
+	}
+
+	public function testIsMobileWithSmartphone(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertTrue($userAgent->isMobile());
+	}
+
+	public function testIsMobileWithTablet(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertTrue($userAgent->isMobile());
+	}
+
+	public function testIsSmartphoneWithDesktop(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertFalse($userAgent->isSmartphone());
+	}
+
+	public function testIsSmartphoneWithiPhone(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertTrue($userAgent->isSmartphone());
+	}
+
+	public function testIsSmartphoneWithAndroid(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertTrue($userAgent->isSmartphone());
+	}
+
+	public function testIsSmartphoneWithTablet(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertFalse($userAgent->isSmartphone());
+	}
+
+	public function testIsTabletWithDesktop(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertFalse($userAgent->isTablet());
+	}
+
+	public function testIsTabletWithSmartphone(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertFalse($userAgent->isTablet());
+	}
+
+	public function testIsTabletWithiPad(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertTrue($userAgent->isTablet());
+	}
+
+	public function testIsTabletWithAndroidTablet(): void
+	{
+		$userAgentString = 'Mozilla/5.0 (Linux; Android 13; SM-X906C) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+		$userAgent = new UserAgent($userAgentString);
+
+		$this->assertTrue($userAgent->isTablet());
 	}
 }

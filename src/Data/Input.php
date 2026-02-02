@@ -2,6 +2,7 @@
 
 namespace Osimatic\Data;
 
+use Osimatic\Network\HTTPMethod;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -38,7 +39,11 @@ class Input
 	/**
 	 * Retrieves a raw value from HTTP Request or CLI Input based on the context.
 	 *
-	 * For HTTP requests (Request), retrieves the value from query parameters or request body.
+	 * For HTTP requests (Request), retrieves the value from query parameters or request body based on the HTTP method:
+	 * - If $httpMethod is GET: retrieves from query parameters only
+	 * - If $httpMethod is POST/PUT/PATCH/DELETE: retrieves from request body only
+	 * - If $httpMethod is null: checks query parameters first, then request body
+	 *
 	 * For CLI input (InputInterface), prioritizes options over arguments:
 	 * - First checks if an option with the key exists and has a non-empty value
 	 * - Falls back to argument if option is not found or is empty
@@ -46,7 +51,11 @@ class Input
 	 * Example:
 	 * ```php
 	 * // HTTP: GET /api/users?id=123
-	 * $id = Input::get($request, 'id'); // Returns: '123'
+	 * $id = Input::get($request, 'id'); // Returns: '123' (from query)
+	 * $id = Input::get($request, 'id', HTTPMethod::GET); // Returns: '123' (from query only)
+	 *
+	 * // HTTP: POST /api/users with body: {name: 'John'}
+	 * $name = Input::get($request, 'name', HTTPMethod::POST); // Returns: 'John' (from request body)
 	 *
 	 * // CLI: php bin/console command --name=John argument_value
 	 * $name = Input::get($input, 'name'); // Returns: 'John' (from option)
@@ -55,12 +64,23 @@ class Input
 	 *
 	 * @param Request|InputInterface $input The HTTP Request or CLI InputInterface
 	 * @param string $key The parameter name to retrieve
+	 * @param HTTPMethod|null $httpMethod HTTP method to determine parameter source (query vs request body)
 	 * @return mixed|null The raw value if found, null otherwise
 	 */
-	public static function get(Request|InputInterface $input, string $key): mixed
+	public static function get(Request|InputInterface $input, string $key, ?HTTPMethod $httpMethod = null): mixed
 	{
 		if ($input instanceof Request) {
-			return $input->get($key);
+			// If HTTP method is specified, use appropriate parameter bag
+			if ($httpMethod !== null) {
+				return match ($httpMethod) {
+					HTTPMethod::GET => $input->query->all()[$key] ?? null,
+					HTTPMethod::POST, HTTPMethod::PUT, HTTPMethod::PATCH, HTTPMethod::DELETE => $input->request->all()[$key] ?? null,
+				};
+			}
+
+			// If no HTTP method specified, check query first, then request
+			// Use all() to handle both scalar and array values
+			return $input->query->all()[$key] ?? $input->request->all()[$key] ?? null;
 		}
 
 		// CLI: option takes precedence over argument

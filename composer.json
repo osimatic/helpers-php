@@ -28,14 +28,14 @@
 	  	"symfony/console": "^7",
 		"league/iso3166": "^4",
 		"mustache/mustache": "^2",
-		"whichbrowser/parser": "^2.1",
 		"johngrogg/ics-parser": "^3",
 		"symfony/http-foundation": "^7",
 		"phpmailer/phpmailer": "^6",
 		"minishlink/web-push": "^9",
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3",
-		"commerceguys/addressing": "^2"
+		"commerceguys/addressing": "^2",
+		"matomo/device-detector": "^6.5"
 	},
 	"license": "mit",
 	"authors": [

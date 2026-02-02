@@ -13,11 +13,7 @@ class InputTest extends TestCase
 
 	public function testGetWithRequestReturnsValue(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('key')
-			->willReturn('value');
+		$request = Request::create('/test?key=value', 'GET');
 
 		$result = Input::get($request, 'key');
 		self::assertSame('value', $result);
@@ -25,11 +21,7 @@ class InputTest extends TestCase
 
 	public function testGetWithRequestReturnsNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('key')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::get($request, 'key');
 		self::assertNull($result);
@@ -38,11 +30,7 @@ class InputTest extends TestCase
 	public function testGetWithRequestReturnsArray(): void
 	{
 		$expectedArray = ['foo' => 'bar'];
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('data')
-			->willReturn($expectedArray);
+		$request = Request::create('/test', 'POST', ['data' => $expectedArray]);
 
 		$result = Input::get($request, 'data');
 		self::assertSame($expectedArray, $result);
@@ -188,11 +176,7 @@ class InputTest extends TestCase
 
 	public function testGetBoolWithRequestReturnsTrue(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('enabled')
-			->willReturn('true');
+		$request = Request::create('/test?enabled=true', 'GET');
 
 		$result = Input::getBool($request, 'enabled');
 		self::assertTrue($result);
@@ -200,11 +184,7 @@ class InputTest extends TestCase
 
 	public function testGetBoolWithRequestReturnsFalse(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('enabled')
-			->willReturn('false');
+		$request = Request::create('/test?enabled=false', 'GET');
 
 		$result = Input::getBool($request, 'enabled');
 		self::assertFalse($result);
@@ -212,11 +192,7 @@ class InputTest extends TestCase
 
 	public function testGetBoolWithRequestReturnsDefaultWhenNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('enabled')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getBool($request, 'enabled', true);
 		self::assertTrue($result);
@@ -224,11 +200,7 @@ class InputTest extends TestCase
 
 	public function testGetBoolWithRequestReturnsDefaultFalseWhenNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('enabled')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getBool($request, 'enabled', false);
 		self::assertFalse($result);
@@ -236,11 +208,7 @@ class InputTest extends TestCase
 
 	public function testGetBoolWithRequestDefaultIsFalseWhenNotProvided(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('enabled')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getBool($request, 'enabled');
 		self::assertFalse($result);
@@ -249,11 +217,7 @@ class InputTest extends TestCase
 	#[\PHPUnit\Framework\Attributes\DataProvider('booleanValuesProvider')]
 	public function testGetBoolWithVariousValues(mixed $value, bool $expected): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('key')
-			->willReturn($value);
+		$request = Request::create('/test', 'GET', ['key' => $value]);
 
 		$result = Input::getBool($request, 'key');
 		self::assertSame($expected, $result);
@@ -290,11 +254,7 @@ class InputTest extends TestCase
 	#[\PHPUnit\Framework\Attributes\DataProvider('invalidBooleanValuesProvider')]
 	public function testGetBoolWithInvalidValuesReturnsDefault(mixed $value, bool $default, bool $expected): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('key')
-			->willReturn($value);
+		$request = Request::create('/test', 'GET', ['key' => $value]);
 
 		$result = Input::getBool($request, 'key', $default);
 		self::assertSame($expected, $result);
@@ -333,11 +293,7 @@ class InputTest extends TestCase
 
 	public function testGetIntWithRequestReturnsInteger(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('page')
-			->willReturn('42');
+		$request = Request::create('/test?page=42', 'GET');
 
 		$result = Input::getInt($request, 'page');
 		self::assertSame(42, $result);
@@ -345,11 +301,7 @@ class InputTest extends TestCase
 
 	public function testGetIntWithRequestReturnsDefaultWhenNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('page')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getInt($request, 'page', 1);
 		self::assertSame(1, $result);
@@ -357,11 +309,7 @@ class InputTest extends TestCase
 
 	public function testGetIntWithRequestReturnsDefaultWhenInvalid(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('page')
-			->willReturn('invalid');
+		$request = Request::create('/test?page=invalid', 'GET');
 
 		$result = Input::getInt($request, 'page', 10);
 		self::assertSame(10, $result);
@@ -369,11 +317,7 @@ class InputTest extends TestCase
 
 	public function testGetIntWithMinValidation(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('age')
-			->willReturn('5');
+		$request = Request::create('/test?age=5', 'GET');
 
 		$result = Input::getInt($request, 'age', 18, 18, null);
 		self::assertSame(18, $result); // Below min, returns default
@@ -381,11 +325,7 @@ class InputTest extends TestCase
 
 	public function testGetIntWithMaxValidation(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('age')
-			->willReturn('150');
+		$request = Request::create('/test?age=150', 'GET');
 
 		$result = Input::getInt($request, 'age', 100, null, 100);
 		self::assertSame(100, $result); // Above max, returns default
@@ -393,11 +333,7 @@ class InputTest extends TestCase
 
 	public function testGetIntWithRangeValidation(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('count')
-			->willReturn('50');
+		$request = Request::create('/test?count=50', 'GET');
 
 		$result = Input::getInt($request, 'count', 10, 1, 100);
 		self::assertSame(50, $result);
@@ -407,11 +343,7 @@ class InputTest extends TestCase
 
 	public function testGetFloatWithRequestReturnsFloat(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('price')
-			->willReturn('19.99');
+		$request = Request::create('/test?price=19.99', 'GET');
 
 		$result = Input::getFloat($request, 'price');
 		self::assertSame(19.99, $result);
@@ -419,11 +351,7 @@ class InputTest extends TestCase
 
 	public function testGetFloatWithRequestReturnsDefaultWhenNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('price')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getFloat($request, 'price', 0.0);
 		self::assertSame(0.0, $result);
@@ -431,11 +359,7 @@ class InputTest extends TestCase
 
 	public function testGetFloatWithRequestReturnsDefaultWhenInvalid(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('price')
-			->willReturn('invalid');
+		$request = Request::create('/test?price=invalid', 'GET');
 
 		$result = Input::getFloat($request, 'price', 10.5);
 		self::assertSame(10.5, $result);
@@ -443,11 +367,7 @@ class InputTest extends TestCase
 
 	public function testGetFloatWithRangeValidation(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('discount')
-			->willReturn('25.5');
+		$request = Request::create('/test?discount=25.5', 'GET');
 
 		$result = Input::getFloat($request, 'discount', 0.0, 0.0, 100.0);
 		self::assertSame(25.5, $result);
@@ -455,11 +375,7 @@ class InputTest extends TestCase
 
 	public function testGetFloatOutOfRangeReturnsDefault(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('discount')
-			->willReturn('150.0');
+		$request = Request::create('/test?discount=150.0', 'GET');
 
 		$result = Input::getFloat($request, 'discount', 0.0, 0.0, 100.0);
 		self::assertSame(0.0, $result); // Above max, returns default
@@ -469,11 +385,7 @@ class InputTest extends TestCase
 
 	public function testGetStringWithRequestReturnsString(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('name')
-			->willReturn('John');
+		$request = Request::create('/test?name=John', 'GET');
 
 		$result = Input::getString($request, 'name');
 		self::assertSame('John', $result);
@@ -481,11 +393,7 @@ class InputTest extends TestCase
 
 	public function testGetStringWithRequestTrimsValue(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('name')
-			->willReturn('  John  ');
+		$request = Request::create('/test', 'GET', ['name' => '  John  ']);
 
 		$result = Input::getString($request, 'name');
 		self::assertSame('John', $result);
@@ -493,11 +401,7 @@ class InputTest extends TestCase
 
 	public function testGetStringWithoutTrimming(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('name')
-			->willReturn('  John  ');
+		$request = Request::create('/test', 'GET', ['name' => '  John  ']);
 
 		$result = Input::getString($request, 'name', '', false);
 		self::assertSame('  John  ', $result);
@@ -505,11 +409,7 @@ class InputTest extends TestCase
 
 	public function testGetStringReturnsDefaultWhenNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('name')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getString($request, 'name', 'Guest');
 		self::assertSame('Guest', $result);
@@ -517,11 +417,7 @@ class InputTest extends TestCase
 
 	public function testGetStringConvertsNonStringToString(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('id')
-			->willReturn(123);
+		$request = Request::create('/test', 'GET', ['id' => 123]);
 
 		$result = Input::getString($request, 'id');
 		self::assertSame('123', $result);
@@ -531,11 +427,7 @@ class InputTest extends TestCase
 
 	public function testGetArrayWithRequestReturnsArray(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('ids')
-			->willReturn([1, 2, 3]);
+		$request = Request::create('/test', 'POST', ['ids' => [1, 2, 3]]);
 
 		$result = Input::getArray($request, 'ids');
 		self::assertSame([1, 2, 3], $result);
@@ -543,11 +435,7 @@ class InputTest extends TestCase
 
 	public function testGetArrayWithRequestReturnsDefaultWhenNull(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('ids')
-			->willReturn(null);
+		$request = Request::create('/test', 'GET');
 
 		$result = Input::getArray($request, 'ids', ['default']);
 		self::assertSame(['default'], $result);
@@ -555,11 +443,7 @@ class InputTest extends TestCase
 
 	public function testGetArrayWithSeparator(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('tags')
-			->willReturn('php,symfony,doctrine');
+		$request = Request::create('/test?tags=php,symfony,doctrine', 'GET');
 
 		$result = Input::getArray($request, 'tags', [], ',');
 		self::assertSame(['php', 'symfony', 'doctrine'], $result);
@@ -567,11 +451,7 @@ class InputTest extends TestCase
 
 	public function testGetArrayFiltersEmptyValues(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('values')
-			->willReturn([1, '', 2, null, 3]);
+		$request = Request::create('/test', 'POST', ['values' => [1, '', 2, null, 3]]);
 
 		$result = Input::getArray($request, 'values');
 		self::assertSame([1, 2, 3], $result);
@@ -579,11 +459,7 @@ class InputTest extends TestCase
 
 	public function testGetArrayWithoutFiltering(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('values')
-			->willReturn([1, '', 2, null, 3]);
+		$request = Request::create('/test', 'POST', ['values' => [1, '', 2, null, 3]]);
 
 		$result = Input::getArray($request, 'values', [], null, false);
 		self::assertSame([1, '', 2, null, 3], $result);
@@ -591,11 +467,7 @@ class InputTest extends TestCase
 
 	public function testGetArrayConvertsNonArrayToArray(): void
 	{
-		$request = $this->createMock(Request::class);
-		$request->expects(self::once())
-			->method('get')
-			->with('value')
-			->willReturn('single');
+		$request = Request::create('/test?value=single', 'GET');
 
 		$result = Input::getArray($request, 'value');
 		self::assertSame(['single'], $result);

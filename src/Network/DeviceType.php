@@ -9,7 +9,7 @@ namespace Osimatic\Network;
 enum DeviceType: string
 {
 	case DESKTOP 			= 'desktop';
-	case MOBILE 			= 'mobile';
+	case SMARTPHONE 		= 'smartphone';
 	case PDA 				= 'pda';
 	case DECT 				= 'dect';
 	case TABLET 			= 'tablet';
@@ -34,6 +34,9 @@ enum DeviceType: string
 	case BOT 				= 'bot';
 	case PROJECTOR 			= 'projector';
 
+	/** @deprecated */
+	case MOBILE 			= 'mobile';
+	
 	/**
 	 * Returns a human-readable label for the device type
 	 * @return string the label in French
@@ -42,6 +45,7 @@ enum DeviceType: string
 	{
 		return match ($this) {
 			self::DESKTOP => 'Ordinateur',
+			self::SMARTPHONE => 'Smartphone',
 			self::MOBILE => 'Mobile',
 			self::PDA => 'PDA',
 			self::DECT => 'Dect',

@@ -905,11 +905,11 @@ class Str
 		$str = wordwrap($str, $charlim, "\n", false);
 
 		// Split the string into individual lines of text and cycle through them
-		$output = '';
+		$outputLines = [];
 		foreach (explode("\n", $str) as $line) {
 			// Is the line within the allowed character count? If so we'll join it to the output and continue
 			if (strlen($line) <= $charlim) {
-				$output .= $line."\n";
+				$outputLines[] = $line;
 				continue;
 			}
 
@@ -927,14 +927,15 @@ class Str
 
 			// If $temp contains data it means we had to split up an over-length word into smaller chunks so we'll add it back to our current line
 			if ($temp !== '') {
-				$output .= $temp."\n".$line;
+				$outputLines[] = $temp;
+				$outputLines[] = $line;
 			}
 			else {
-				$output .= $line;
+				$outputLines[] = $line;
 			}
-
-			$output .= "\n";
 		}
+
+		$output = implode("\n", $outputLines);
 
 		// Put our markers back
 		if (count($unwrap) > 0) {

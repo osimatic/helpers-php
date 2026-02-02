@@ -2,64 +2,85 @@
 
 namespace Osimatic\Network;
 
+use DeviceDetector\DeviceDetector;
+
 /**
- * Class UserAgent
- * Parses and provides information about HTTP User-Agent strings
+ * UserAgent Parser
+ *
+ * Parses and analyzes HTTP User-Agent strings to extract detailed information about:
+ * - Browser (name, version)
+ * - Operating System (name, version)
+ * - Device (type, manufacturer, model)
+ *
+ * This class uses the Matomo DeviceDetector library for robust and maintained
+ * user agent parsing capabilities.
+ *
+ * @example
+ * ```php
+ * $ua = UserAgent::parse($_SERVER['HTTP_USER_AGENT']);
+ * echo $ua->browserName;  // "Chrome"
+ * echo $ua->osName;       // "Windows"
+ * echo $ua->isMobile() ? 'Mobile' : 'Desktop';
+ * ```
+ *
+ * @see https://github.com/matomo-org/device-detector
  */
-class UserAgent implements \JsonSerializable
+readonly class UserAgent implements \JsonSerializable
 {
-	/** @var object WhichBrowser parser object */
-	public object $parser;
+	/** @var DeviceDetector DeviceDetector parser instance */
+	public DeviceDetector $parser;
 
-	/** @var string Human-readable representation of the user agent */
-	public string $readableRepresentation;
-
-	/** @var string|null Browser name */
+	/** @var string|null Browser name (e.g., "Chrome", "Firefox", "Safari") */
 	public ?string $browserName;
-	/** @var string|null Browser version */
+
+	/** @var string|null Browser version (e.g., "120.0.0.0") */
 	public ?string $browserVersion;
 
-	/** @var string|null Operating system name */
+	/** @var string|null Operating system name (e.g., "Windows", "iOS", "Android") */
 	public ?string $osName;
-	/** @var string|null Operating system version */
+
+	/** @var string|null Operating system version (e.g., "10", "17.0") */
 	public ?string $osVersion;
 
-	/** @var bool True if the device is mobile */
-	public bool $deviceIsMobile;
-	/** @var DeviceType|null Device type (desktop, mobile, tablet, etc.) */
+	/** @var DeviceType|null Device type classification */
 	public ?DeviceType $deviceType;
-	/** @var string|null Device manufacturer */
+
+	/** @var string|null Device manufacturer/brand (e.g., "Apple", "Samsung", "Google") */
 	public ?string $deviceManufacturer;
-	/** @var string|null Device model */
+
+	/** @var string|null Device model (e.g., "iPhone", "Pixel 7", "Galaxy S23") */
 	public ?string $deviceModel;
 
 	/**
+	 * Creates a new UserAgent parser instance
 	 * @param string $userAgent the User-Agent string to parse
 	 */
 	public function __construct(string $userAgent)
 	{
-		$result = new \WhichBrowser\Parser($userAgent);
-		$this->parser = $result;
+		$this->parser = new DeviceDetector($userAgent);
+		$this->parser->parse();
 
-		$this->readableRepresentation = $result->toString();
+		// Extract browser information
+		$client = $this->parser->getClient();
+		$this->browserName = $client['name'] ?? null;
+		$this->browserVersion = $client['version'] ?? null;
 
-		$this->browserName = $result->browser->getName();
-		$this->browserName = !empty($this->browserName) ? $this->browserName : null;
-		$this->browserVersion = $result->browser->getVersion();
-		$this->browserVersion = !empty($this->browserVersion) ? $this->browserVersion : null;
+		// Extract OS information
+		$os = $this->parser->getOs();
+		$osName = $os['name'] ?? null;
+		if ($osName === 'Mac') { // Map OS names for backward compatibility
+			$osName = 'macOS';
+		}
+		$this->osName = $osName;
 
-		$this->osName = $result->os->getName();
-		$this->osName = !empty($this->osName) ? $this->osName : null;
-		$this->osVersion = $result->os->getVersion();
-		$this->osVersion = !empty($this->osVersion) ? $this->osVersion : null;
 
-		$this->deviceIsMobile = $result->isMobile();
-		$this->deviceType = DeviceType::tryFrom($result->device->type);
-		$this->deviceType = !empty($this->deviceType) ? $this->deviceType : null;
-		$this->deviceManufacturer = $result->device->getManufacturer();
-		$this->deviceManufacturer = !empty($this->deviceManufacturer) ? $this->deviceManufacturer : null;
-		$this->deviceModel = $result->device->getModel();
-		$this->deviceModel = !empty($this->deviceModel) ? $this->deviceModel : null;
+		$this->osVersion = $os['version'] ?? null;
+
+		// Extract device information
+		$deviceName = $this->parser->getDeviceName();
+		$this->deviceType = !empty($deviceName) ? DeviceType::tryFrom($deviceName) : null;
+		$this->deviceManufacturer = $this->parser->getBrandName() ?: null;
+		$this->deviceModel = $this->parser->getModel() ?: null;
 	}
 
 	/**
@@ -70,6 +91,47 @@ class UserAgent implements \JsonSerializable
 	public static function parse(string $userAgent): UserAgent
 	{
 		return new UserAgent($userAgent);
+	}
+
+	/**
+	 * Checks if the device is a mobile device (smartphone or tablet)
+	 *
+	 * @return bool true if smartphone or tablet, false otherwise
+	 */
+	public function isMobile(): bool
+	{
+		return $this->parser->isSmartphone() || $this->parser->isTablet();
+	}
+
+	/**
+	 * Checks if the device is a smartphone
+	 *
+	 * @return bool true if smartphone, false otherwise
+	 */
+	public function isSmartphone(): bool
+	{
+		return $this->parser->isSmartphone();
+	}
+
+	/**
+	 * Checks if the device is a tablet
+	 *
+	 * @return bool true if tablet, false otherwise
+	 */
+	public function isTablet(): bool
+	{
+		return $this->parser->isTablet();
+	}
+
+	/**
+	 * Adds the appropriate article (a/an) before a word
+	 *
+	 * @param string $word the word to prefix with an article
+	 * @return string the word prefixed with "a" or "an"
+	 */
+	private function withArticle(string $word): string
+	{
+		return (preg_match('/^[aeiou]/i', $word) ? 'an ' : 'a ') . $word;
 	}
 
 	/**
@@ -144,16 +206,79 @@ class UserAgent implements \JsonSerializable
 	}
 
 	/**
+	 * Builds a human-readable string representation of the user agent
+	 * Based on WhichBrowser's toString() logic
+	 * @return string formatted string describing the user agent
+	 */
+	private function getReadableRepresentation(): string
+	{
+		$browser = $this->browserName;
+		if ($this->browserVersion) {
+			$browser .= ' ' . $this->browserVersion;
+		}
+
+		$os = $this->osName;
+		if ($this->osVersion) {
+			$os .= ' ' . $this->osVersion;
+		}
+
+		$device = null;
+		if ($this->deviceModel) {
+			$device = $this->deviceModel;
+		} elseif ($this->deviceManufacturer) {
+			$device = $this->deviceManufacturer;
+		} elseif ($this->deviceType) {
+			$device = $this->deviceType->value;
+		}
+
+		// Build readable string based on available information
+		if ($browser && $os && $device) {
+			return $browser . ' on ' . $this->withArticle($device) . ' running ' . $os;
+		}
+
+		if ($browser && !$os && $device) {
+			return $browser . ' on ' . $this->withArticle($device);
+		}
+
+		if ($browser && $os && !$device) {
+			return $browser . ' on ' . $os;
+		}
+
+		if (!$browser && $os && $device) {
+			return $this->withArticle($device) . ' running ' . $os;
+		}
+
+		if ($browser && !$os && !$device) {
+			return $browser;
+		}
+
+		if (!$browser && !$os && $device) {
+			return $this->withArticle($device);
+		}
+
+		if (!$browser && $os && !$device) {
+			return $os;
+		}
+
+		return 'unknown';
+	}
+
+	public function format(): string
+	{
+		return $this->getReadableRepresentation();
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array
 	{
 		return [
-			'user_agent_desc' => $this->readableRepresentation,
+			'user_agent_desc' => $this->getReadableRepresentation(),
 			'browser_name' => $this->browserName,
 			'os_name' => $this->osName,
 			'device_type' => $this->deviceType,
-			'device_is_mobile' => $this->deviceIsMobile,
+			'device_is_mobile' => $this->isMobile(),
 			'device_manufacturer' => $this->deviceManufacturer,
 			'device_model' => $this->deviceModel,
 		];
@@ -161,6 +286,6 @@ class UserAgent implements \JsonSerializable
 
 	public function __toString(): string
 	{
-		return $this->readableRepresentation;
+		return $this->getReadableRepresentation();
 	}
 }

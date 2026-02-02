@@ -233,13 +233,13 @@ class DateTest extends TestCase
 		$this->assertTrue(Date::isValidDate(2023, 2, 28));
 		$this->assertTrue(Date::isValidDate(1900, 2, 28));
 
-		// Very old and future years (checkdate supports -4000 to 32767 in PHP)
+		// Very old and future years (checkdate supports 1 to 32767 in PHP)
 		$this->assertTrue(Date::isValidDate(1, 1, 1)); // Year 1 AD
 		$this->assertTrue(Date::isValidDate(9999, 12, 31)); // Far future
 		$this->assertFalse(Date::isValidDate(50000, 12, 31)); // Too far future
 
 		// Negative years should still work with checkdate
-		$this->assertTrue(Date::isValidDate(-1, 1, 1)); // Negative year ok
+		$this->assertFalse(Date::isValidDate(-1, 1, 1)); // Negative year is not allowed
 		$this->assertFalse(Date::isValidDate(-5000, 1, 1)); // Negative year too far
 		$this->assertFalse(Date::isValidDate(-1, 2, 29)); // Negative year, invalid Feb 29
 	}
