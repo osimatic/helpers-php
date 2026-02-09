@@ -268,6 +268,72 @@ class DatePeriod
 		return array_map(static fn(\DateTime $date) => $date->format($dateFormat), self::getYears($periodStart, $periodEnd));
 	}
 
+	/**
+	 * Creates DatePeriod objects from an array of time ranges for a specific date.
+	 * Converts pairs of time strings (start/end times in SQL format "HH:MM:SS") into DatePeriod objects by applying them to a reference date. Automatically handles cases where the end time is before the start time (indicating the period spans midnight) by extending the end date to the next day.
+	 *
+	 * Usage example:
+	 * <code>
+	 * $timeRanges = [
+	 *     ['09:00:00', '12:00:00'],  // Morning shift
+	 *     ['14:00:00', '18:00:00'],  // Afternoon shift
+	 *     ['22:00:00', '02:00:00'],  // Night shift (spans midnight)
+	 * ];
+	 * $date = new \DateTime('2024-03-15');
+	 * $periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $date);
+	 * // Returns 3 DatePeriod objects:
+	 * // - 2024-03-15 09:00:00 to 2024-03-15 12:00:00
+	 * // - 2024-03-15 14:00:00 to 2024-03-15 18:00:00
+	 * // - 2024-03-15 22:00:00 to 2024-03-16 02:00:00 (next day)
+	 * </code>
+	 *
+	 * @param array<int, array{0: string, 1: string}> $timeRanges Array of time range pairs, where each pair is [startTime, endTime] in SQL time format (HH:MM:SS or HH:MM)
+	 * @param \DateTime $referenceDate The reference date to apply the time ranges to
+	 * @return \DatePeriod[] Array of DatePeriod objects representing the time ranges on the specified date. Invalid time ranges are silently skipped.
+	 * @link https://www.php.net/manual/en/class.dateperiod.php PHP DatePeriod documentation
+	 * @link https://www.php.net/manual/en/class.dateinterval.php PHP DateInterval documentation
+	 */
+	public static function createDatePeriodsFromTimeRanges(array $timeRanges, \DateTime $referenceDate): array
+	{
+		$datePeriods = [];
+
+		foreach ($timeRanges as $timeRange) {
+			// Validate time range structure
+			if (!is_array($timeRange) || count($timeRange) !== 2) {
+				continue;
+			}
+
+			[$startTime, $endTime] = $timeRange;
+
+			// Validate that both times are strings
+			if (empty($startTime) || empty($endTime) || !is_string($startTime) || !is_string($endTime)) {
+				continue;
+			}
+
+			try {
+				$startDateTime = new \DateTime($referenceDate->format('Y-m-d') . ' ' . $startTime);
+				$endDateTime = clone $referenceDate;
+
+				// If end time is before start time, the period spans midnight to the next day
+				if ($startTime > $endTime) {
+					$endDateTime->modify('+1 day');
+				}
+
+				$endDateTime = new \DateTime($endDateTime->format('Y-m-d') . ' ' . $endTime);
+
+				// Create DatePeriod with 1-day interval (the interval is not really used here as we have explicit start/end)
+				$datePeriods[] = new \DatePeriod($startDateTime, new \DateInterval('P1D'), $endDateTime);
+
+			} catch (\Exception $e) {
+				// Skip invalid time ranges silently
+				// Could log the error here if needed: error_log($e->getMessage());
+				continue;
+			}
+		}
+
+		return $datePeriods;
+	}
+
 	// ========== Private Helper Methods ==========
 
 	/**

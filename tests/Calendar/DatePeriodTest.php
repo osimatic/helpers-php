@@ -338,6 +338,183 @@ final class DatePeriodTest extends TestCase
 		$this->assertIsString($months[0]);
 	}
 
+	public function testCreateDatePeriodsFromTimeRanges(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [
+			['09:00:00', '12:00:00'],
+			['14:00:00', '18:00:00'],
+		];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		$this->assertIsArray($periods);
+		$this->assertCount(2, $periods);
+
+		// First period
+		$this->assertInstanceOf(\DatePeriod::class, $periods[0]);
+		$startDate = $periods[0]->getStartDate();
+		$endDate = $periods[0]->getEndDate();
+		$this->assertEquals('2024-03-15 09:00:00', $startDate->format('Y-m-d H:i:s'));
+		$this->assertEquals('2024-03-15 12:00:00', $endDate->format('Y-m-d H:i:s'));
+
+		// Second period
+		$this->assertInstanceOf(\DatePeriod::class, $periods[1]);
+		$startDate = $periods[1]->getStartDate();
+		$endDate = $periods[1]->getEndDate();
+		$this->assertEquals('2024-03-15 14:00:00', $startDate->format('Y-m-d H:i:s'));
+		$this->assertEquals('2024-03-15 18:00:00', $endDate->format('Y-m-d H:i:s'));
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithMidnightSpan(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [
+			['22:00:00', '02:00:00'], // Night shift spanning midnight
+		];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		$this->assertCount(1, $periods);
+		$this->assertInstanceOf(\DatePeriod::class, $periods[0]);
+
+		$startDate = $periods[0]->getStartDate();
+		$endDate = $periods[0]->getEndDate();
+
+		// Start on the reference date
+		$this->assertEquals('2024-03-15 22:00:00', $startDate->format('Y-m-d H:i:s'));
+
+		// End on the next day
+		$this->assertEquals('2024-03-16 02:00:00', $endDate->format('Y-m-d H:i:s'));
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithMultiplePeriods(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [
+			['08:00:00', '12:00:00'],
+			['13:00:00', '17:00:00'],
+			['18:00:00', '22:00:00'],
+			['23:00:00', '01:00:00'], // Midnight span
+		];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		$this->assertCount(4, $periods);
+
+		// Verify all are DatePeriod instances
+		foreach ($periods as $period) {
+			$this->assertInstanceOf(\DatePeriod::class, $period);
+		}
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithEmptyArray(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		$this->assertIsArray($periods);
+		$this->assertCount(0, $periods);
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithInvalidData(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [
+			['09:00:00', '12:00:00'],         // Valid
+			['invalid', 'data'],              // Invalid time format
+			['14:00:00'],                     // Missing end time
+			[],                               // Empty array
+			'not-an-array',                   // Not an array
+			['', '18:00:00'],                 // Empty start time
+			['19:00:00', ''],                 // Empty end time
+			[null, null],                     // Null values
+			[123, 456],                       // Not strings
+		];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		// Should only return the one valid period
+		$this->assertCount(1, $periods);
+		$this->assertInstanceOf(\DatePeriod::class, $periods[0]);
+
+		$startDate = $periods[0]->getStartDate();
+		$this->assertEquals('2024-03-15 09:00:00', $startDate->format('Y-m-d H:i:s'));
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithDifferentTimeFormats(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [
+			['09:00:00', '12:00:00'],  // Full format with seconds
+			['14:00', '18:00'],        // Without seconds
+		];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		$this->assertCount(2, $periods);
+
+		// Both should work with PHP's flexible time parsing
+		$this->assertInstanceOf(\DatePeriod::class, $periods[0]);
+		$this->assertInstanceOf(\DatePeriod::class, $periods[1]);
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithExactMidnight(): void
+	{
+		$referenceDate = new \DateTime('2024-03-15');
+		$timeRanges = [
+			['00:00:00', '23:59:59'], // Full day
+		];
+
+		$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $referenceDate);
+
+		$this->assertCount(1, $periods);
+
+		$startDate = $periods[0]->getStartDate();
+		$endDate = $periods[0]->getEndDate();
+
+		$this->assertEquals('2024-03-15 00:00:00', $startDate->format('Y-m-d H:i:s'));
+		$this->assertEquals('2024-03-15 23:59:59', $endDate->format('Y-m-d H:i:s'));
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesWithDifferentReferenceDates(): void
+	{
+		$timeRanges = [['09:00:00', '17:00:00']];
+
+		// Test with different dates
+		$dates = [
+			new \DateTime('2024-01-01'),
+			new \DateTime('2024-06-15'),
+			new \DateTime('2024-12-31'),
+		];
+
+		foreach ($dates as $date) {
+			$periods = DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $date);
+
+			$this->assertCount(1, $periods);
+
+			$startDate = $periods[0]->getStartDate();
+			$this->assertEquals($date->format('Y-m-d') . ' 09:00:00', $startDate->format('Y-m-d H:i:s'));
+		}
+	}
+
+	public function testCreateDatePeriodsFromTimeRangesDoesNotModifyReferenceDate(): void
+	{
+		$originalDate = new \DateTime('2024-03-15 10:30:45');
+		$originalDateString = $originalDate->format('Y-m-d H:i:s');
+
+		$timeRanges = [
+			['22:00:00', '02:00:00'], // Causes date modification internally
+		];
+
+		DatePeriod::createDatePeriodsFromTimeRanges($timeRanges, $originalDate);
+
+		// Original date should not be modified
+		$this->assertEquals($originalDateString, $originalDate->format('Y-m-d H:i:s'));
+	}
+
 	// ========== Validation Methods ==========
 
 	public function testIsFullWeek(): void
