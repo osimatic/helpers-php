@@ -3,6 +3,7 @@
 namespace Osimatic\Data;
 
 use Osimatic\Network\HTTPMethod;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -62,13 +63,17 @@ class Input
 	 * $arg = Input::get($input, 'arg_name'); // Returns: 'argument_value' (from argument)
 	 * ```
 	 *
-	 * @param Request|InputInterface $input The HTTP Request or CLI InputInterface
+	 * @param Request|InputInterface|InputBag $input The HTTP Request or CLI InputInterface
 	 * @param string $key The parameter name to retrieve
 	 * @param HTTPMethod|null $httpMethod HTTP method to determine parameter source (query vs request body)
 	 * @return mixed|null The raw value if found, null otherwise
 	 */
-	public static function get(Request|InputInterface $input, string $key, ?HTTPMethod $httpMethod = null): mixed
+	public static function get(Request|InputInterface|InputBag $input, string $key, ?HTTPMethod $httpMethod = null): mixed
 	{
+		if ($input instanceof InputBag) {
+			return $input->all()[$key] ?? null;
+		}
+
 		if ($input instanceof Request) {
 			// If HTTP method is specified, use appropriate parameter bag
 			if ($httpMethod !== null) {
