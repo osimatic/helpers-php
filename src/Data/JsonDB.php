@@ -369,11 +369,11 @@ class JsonDB
 
 	/**
 	 * Gets the full file path for a given filename, with security validation.
-	 * Validates the filename to prevent path traversal attacks.
+	 * Uses File::buildSecurePath() and File::ensureExtension() to ensure security and correct extension.
 	 *
-	 * @param string $filename Name of the JSON file
+	 * @param string $filename Name of the JSON file (extension optional)
 	 * @throws \InvalidArgumentException If the filename is invalid or contains path traversal attempts
-	 * @return string The validated absolute file path
+	 * @return string The validated absolute file path with .json extension
 	 * @link https://owasp.org/www-community/attacks/Path_Traversal
 	 */
 	public function getFilePath(string $filename): string
@@ -382,16 +382,10 @@ class JsonDB
 			throw new \InvalidArgumentException('Filename cannot be empty');
 		}
 
-		// Prevent path traversal attacks
-		if (strpos($filename, '..') !== false || strpos($filename, DIRECTORY_SEPARATOR) !== false || strpos($filename, '/') !== false) {
-			throw new \InvalidArgumentException('Filename cannot contain path separators or parent directory references');
-		}
-
 		// Ensure .json extension
-		if (substr($filename, -5) !== '.json') {
-			$filename .= '.json';
-		}
+		$filename = \Osimatic\FileSystem\File::ensureExtension($filename, 'json');
 
-		return $this->dataDir . DIRECTORY_SEPARATOR . $filename;
+		// Build secure path (don't require existing directory as write() will create it)
+		return \Osimatic\FileSystem\File::buildSecurePath($this->dataDir, $filename, false);
 	}
 }

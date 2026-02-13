@@ -10,7 +10,12 @@
       "Bash(php debug_truncate.php:*)",
       "Bash(php:*)",
       "Bash(./vendor/bin/phpunit:*)",
-      "Bash(XDEBUG_MODE=coverage vendor/bin/phpunit:*)"
+      "Bash(XDEBUG_MODE=coverage vendor/bin/phpunit:*)",
+      "Bash(cmd /c \"set XDEBUG_MODE=coverage&& php vendor/bin/phpunit --coverage-text --colors=never\")",
+      "Bash(export XDEBUG_MODE=coverage)",
+      "Bash(set XDEBUG_MODE=coverage)",
+      "Bash(cmd /c \"set XDEBUG_MODE=coverage && php vendor/bin/phpunit --coverage-html coverage/\")",
+      "Bash(powershell -Command \"$env:XDEBUG_MODE=''coverage''; vendor\\\\bin\\\\phpunit --coverage-html coverage/\")"
     ]
   }
 }

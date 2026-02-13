@@ -659,6 +659,158 @@ final class FileTest extends TestCase
 		unlink($tempFile);
 	}
 
+	/* ===================== Security & Validation ===================== */
+
+	public function testValidateFilename(): void
+	{
+		// Valid filenames - should not throw
+		File::validateFilename('test.json');
+		File::validateFilename('file.txt');
+		File::validateFilename('document-2024.pdf');
+		File::validateFilename('my_file_123.csv');
+		$this->assertTrue(true); // Assert that no exception was thrown
+
+		// Empty filename
+		try {
+			File::validateFilename('');
+			$this->fail('Expected InvalidArgumentException for empty filename');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot be empty', $e->getMessage());
+		}
+
+		// Parent directory reference (path traversal)
+		try {
+			File::validateFilename('../etc/passwd');
+			$this->fail('Expected InvalidArgumentException for parent directory reference');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain parent directory references', $e->getMessage());
+		}
+
+		// Forward slash
+		try {
+			File::validateFilename('subdir/file.txt');
+			$this->fail('Expected InvalidArgumentException for forward slash');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain directory separators', $e->getMessage());
+		}
+
+		// Backslash
+		try {
+			File::validateFilename('subdir\\file.txt');
+			$this->fail('Expected InvalidArgumentException for backslash');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain directory separators', $e->getMessage());
+		}
+
+		// DIRECTORY_SEPARATOR
+		try {
+			File::validateFilename('subdir' . DIRECTORY_SEPARATOR . 'file.txt');
+			$this->fail('Expected InvalidArgumentException for DIRECTORY_SEPARATOR');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain directory separators', $e->getMessage());
+		}
+
+		// Null byte
+		try {
+			File::validateFilename("file\0.txt");
+			$this->fail('Expected InvalidArgumentException for null byte');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain null bytes', $e->getMessage());
+		}
+
+		// Absolute path
+		try {
+			File::validateFilename('/etc/passwd');
+			$this->fail('Expected InvalidArgumentException for absolute path');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain directory separators', $e->getMessage());
+		}
+	}
+
+	public function testBuildSecurePath(): void
+	{
+		$tempDir = sys_get_temp_dir();
+		$filename = 'test.json';
+
+		// Valid case
+		$result = File::buildSecurePath($tempDir, $filename);
+		$this->assertStringStartsWith($tempDir, $result);
+		$this->assertStringEndsWith($filename, $result);
+		$this->assertStringContainsString(DIRECTORY_SEPARATOR, $result);
+
+		// Trailing slashes should be handled
+		$result1 = File::buildSecurePath($tempDir . '/', $filename);
+		$result2 = File::buildSecurePath($tempDir, $filename);
+		$this->assertEquals($result1, $result2);
+
+		// Non-existent directory allowed when requireExistingDirectory = false
+		$nonExistentDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'nonexistent_' . uniqid();
+		$result = File::buildSecurePath($nonExistentDir, $filename, false);
+		$this->assertStringStartsWith($nonExistentDir, $result);
+		$this->assertStringEndsWith($filename, $result);
+
+		// Empty base directory
+		try {
+			File::buildSecurePath('', 'file.txt');
+			$this->fail('Expected InvalidArgumentException for empty base directory');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Base directory cannot be empty', $e->getMessage());
+		}
+
+		// Non-existent directory with requireExistingDirectory = true (default)
+		try {
+			$nonExistentDir2 = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'nonexistent_' . uniqid();
+			File::buildSecurePath($nonExistentDir2, 'file.txt', true);
+			$this->fail('Expected InvalidArgumentException for non-existent directory');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Base directory does not exist', $e->getMessage());
+		}
+
+		// Invalid filename (path traversal)
+		try {
+			File::buildSecurePath($tempDir, '../etc/passwd');
+			$this->fail('Expected InvalidArgumentException for path traversal');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('Filename cannot contain parent directory references', $e->getMessage());
+		}
+
+		// Path traversal with multiple levels
+		try {
+			File::buildSecurePath($tempDir, '..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'etc'.DIRECTORY_SEPARATOR.'passwd');
+			$this->fail('Expected InvalidArgumentException for multi-level path traversal');
+		} catch (\InvalidArgumentException $e) {
+			$this->assertStringContainsString('parent directory references', $e->getMessage());
+		}
+	}
+
+	public function testEnsureExtension(): void
+	{
+		// Filename without extension
+		$this->assertEquals('file.json', File::ensureExtension('file', 'json'));
+
+		// Filename already has extension
+		$this->assertEquals('file.json', File::ensureExtension('file.json', 'json'));
+
+		// Extension with leading dot
+		$this->assertEquals('file.txt', File::ensureExtension('file', '.txt'));
+
+		// Case insensitive check
+		$this->assertEquals('file.JSON', File::ensureExtension('file.JSON', 'json'));
+		$this->assertEquals('file.TXT', File::ensureExtension('file.TXT', 'txt'));
+
+		// Filename has different extension - should append the new one
+		$this->assertEquals('file.txt.json', File::ensureExtension('file.txt', 'json'));
+
+		// Multiple dots in filename
+		$this->assertEquals('my.file.name.json', File::ensureExtension('my.file.name', 'json'));
+
+		// Empty filename
+		$this->assertEquals('.json', File::ensureExtension('', 'json'));
+
+		// Path preservation (though buildSecurePath should be used for paths)
+		$this->assertEquals('path/to/file.json', File::ensureExtension('path/to/file', 'json'));
+	}
+
 	/* ===================== File Output ===================== */
 
 	public function testGetHttpResponseWithExistingFile(): void

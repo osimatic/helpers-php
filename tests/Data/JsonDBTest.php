@@ -535,7 +535,7 @@ class JsonDBTest extends TestCase
 		$instance = new JsonDB($this->testDataDir);
 
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('Filename cannot contain path separators or parent directory references');
+		$this->expectExceptionMessage('Filename cannot contain parent directory references');
 
 		$instance->getFilePath('../etc/passwd');
 	}
@@ -545,7 +545,7 @@ class JsonDBTest extends TestCase
 		$instance = new JsonDB($this->testDataDir);
 
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('Filename cannot contain path separators or parent directory references');
+		$this->expectExceptionMessage('Filename cannot contain directory separators');
 
 		$instance->getFilePath('subdir\\file.json');
 	}
@@ -555,7 +555,7 @@ class JsonDBTest extends TestCase
 		$instance = new JsonDB($this->testDataDir);
 
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('Filename cannot contain path separators or parent directory references');
+		$this->expectExceptionMessage('Filename cannot contain directory separators');
 
 		$instance->getFilePath('subdir/file.json');
 	}

@@ -270,6 +270,117 @@ class File
 		return true;
 	}
 
+	// ========== Security & Validation ==========
+
+	/**
+	 * Validates a filename to prevent path traversal attacks and ensure it's a simple filename without path components.
+	 * Checks for dangerous patterns including:
+	 * - Parent directory references (..)
+	 * - Directory separators (/, \, DIRECTORY_SEPARATOR)
+	 * - Null bytes (\0)
+	 * - Empty filenames
+	 *
+	 * This is a security-critical function that should be used whenever accepting filenames from untrusted sources.
+	 *
+	 * @param string $filename The filename to validate
+	 * @throws \InvalidArgumentException If the filename is invalid or contains dangerous patterns
+	 * @return void
+	 * @link https://owasp.org/www-community/attacks/Path_Traversal Path traversal attack documentation
+	 * @link https://cwe.mitre.org/data/definitions/22.html CWE-22: Improper Limitation of a Pathname to a Restricted Directory
+	 */
+	public static function validateFilename(string $filename): void
+	{
+		if (empty($filename)) {
+			throw new \InvalidArgumentException('Filename cannot be empty');
+		}
+
+		// Check for null bytes (common attack vector)
+		if (str_contains($filename, "\0")) {
+			throw new \InvalidArgumentException('Filename cannot contain null bytes');
+		}
+
+		// Check for parent directory references (path traversal)
+		if (str_contains($filename, '..')) {
+			throw new \InvalidArgumentException('Filename cannot contain parent directory references (..)');
+		}
+
+		// Check for directory separators (ensure it's just a filename, not a path)
+		if (str_contains($filename, DIRECTORY_SEPARATOR) || str_contains($filename, '/') || str_contains($filename, '\\')) {
+			throw new \InvalidArgumentException('Filename cannot contain directory separators (/, \\)');
+		}
+	}
+
+	/**
+	 * Builds a secure file path by combining a base directory with a validated filename.
+	 * This method ensures:
+	 * - The filename is validated against path traversal attacks
+	 * - The base directory and filename are properly joined
+	 * - The resulting path is within the base directory (if directory exists)
+	 *
+	 * Use this method when constructing file paths from user input to prevent security vulnerabilities.
+	 *
+	 * @param string $baseDirectory The base directory path
+	 * @param string $filename The filename to append (will be validated for security)
+	 * @param bool $requireExistingDirectory Whether to require that the base directory exists (default: true)
+	 * @throws \InvalidArgumentException If the base directory or filename is invalid
+	 * @return string The secure, validated full file path
+	 * @link https://owasp.org/www-community/attacks/Path_Traversal Path traversal attack prevention
+	 */
+	public static function buildSecurePath(string $baseDirectory, string $filename, bool $requireExistingDirectory = true): string
+	{
+		if (empty($baseDirectory)) {
+			throw new \InvalidArgumentException('Base directory cannot be empty');
+		}
+
+		// Validate the filename for security
+		self::validateFilename($filename);
+
+		// Build the full path
+		$fullPath = rtrim($baseDirectory, DIRECTORY_SEPARATOR . '/\\') . DIRECTORY_SEPARATOR . $filename;
+
+		// If directory must exist, verify it with realpath
+		if ($requireExistingDirectory) {
+			$realBase = realpath($baseDirectory);
+			if ($realBase === false) {
+				throw new \InvalidArgumentException(sprintf('Base directory does not exist: %s', $baseDirectory));
+			}
+
+			// Check if the constructed path would be inside the base directory
+			// We can't use realpath on the full path if file doesn't exist yet, so we check the directory part
+			$constructedDir = dirname($fullPath);
+			if ($constructedDir !== $realBase && !str_starts_with($constructedDir . DIRECTORY_SEPARATOR, $realBase . DIRECTORY_SEPARATOR)) {
+				throw new \InvalidArgumentException('Constructed path is outside the base directory');
+			}
+		}
+
+		return $fullPath;
+	}
+
+	/**
+	 * Ensures a filename has a specific extension, adding it if missing.
+	 * If the filename already ends with the extension (case-insensitive), it's returned unchanged.
+	 * Otherwise, the extension is appended with a dot separator.
+	 *
+	 * @param string $filename The filename to check
+	 * @param string $extension The required extension (with or without leading dot, e.g., 'json' or '.json')
+	 * @return string The filename with the extension guaranteed
+	 */
+	public static function ensureExtension(string $filename, string $extension): string
+	{
+		// Remove leading dot from extension if present
+		$extension = ltrim($extension, '.');
+
+		// Check if filename already has the extension (case-insensitive)
+		$expectedEnding = '.' . $extension;
+		if (strlen($filename) >= strlen($expectedEnding) &&
+			strcasecmp(substr($filename, -strlen($expectedEnding)), $expectedEnding) === 0) {
+			return $filename;
+		}
+
+		// Add the extension
+		return $filename . '.' . $extension;
+	}
+
 	// ========== File Name Management ==========
 
 	/**
