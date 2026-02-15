@@ -146,6 +146,91 @@ class PostalAddress
 		return self::format($postalAddress, $withAttention, $separator);
 	}
 
+	/**
+	 * Format a postal address from individual components according to the country's conventions.
+	 * This is a convenience method that creates an address from components and formats it.
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US')
+	 * @param string|null $city The city/locality name
+	 * @param string|null $postcode The postal code
+	 * @param string|null $road The street address (address line 1)
+	 * @param string|null $state The state/administrative area (province, region, etc.)
+	 * @param string|null $attention The recipient name or attention line
+	 * @param string|null $separator Separator between address lines (default: '<br/>')
+	 * @param string|null $locale Locale for formatting (default: system locale)
+	 * @return string|null The formatted address string, or null on error
+	 * @link https://github.com/commerceguys/addressing
+	 */
+	public static function formatFromComponents(
+		string $countryCode,
+		?string $city = null,
+		?string $postcode = null,
+		?string $road = null,
+		?string $state = null,
+		?string $attention = null,
+		?string $separator = '<br/>',
+		?string $locale = null
+	): ?string
+	{
+		$addressFormatRepository = new AddressFormatRepository();
+		$countryRepository = new CountryRepository();
+		$subdivisionRepository = new SubdivisionRepository();
+		$formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository, ['locale' => $locale ?? \Locale::getDefault()]);
+
+		$address = new Address();
+		$address = $address->withCountryCode($countryCode);
+
+		if (null !== $city) {
+			$address = $address->withLocality($city);
+		}
+		if (null !== $postcode) {
+			$address = $address->withPostalCode($postcode);
+		}
+		if (null !== $road) {
+			$address = $address->withAddressLine1($road);
+		}
+		if (null !== $state) {
+			$address = $address->withAdministrativeArea($state);
+		}
+		if (null !== $attention) {
+			$address = $address->withFamilyName($attention);
+		}
+
+		try {
+			$formattedAddress = $formatter->format($address, ['html' => false]);
+			$formattedAddress = str_replace("\n", $separator, $formattedAddress);
+			return $formattedAddress;
+		}
+		catch (\ReflectionException) {}
+
+		return null;
+	}
+
+	/**
+	 * Format a postal address from individual components as an inline string (single line with comma separators).
+	 * @param string $countryCode The ISO 3166-1 alpha-2 country code (e.g., 'FR', 'US')
+	 * @param string|null $city The city/locality name
+	 * @param string|null $postcode The postal code
+	 * @param string|null $road The street address (address line 1)
+	 * @param string|null $state The state/administrative area (province, region, etc.)
+	 * @param string|null $attention The recipient name or attention line
+	 * @param string|null $separator Separator between address components (default: ', ')
+	 * @param string|null $locale Locale for formatting (default: system locale)
+	 * @return string|null The formatted inline address string, or null on error
+	 */
+	public static function formatInlineFromComponents(
+		string $countryCode,
+		?string $city = null,
+		?string $postcode = null,
+		?string $road = null,
+		?string $state = null,
+		?string $attention = null,
+		?string $separator = ', ',
+		?string $locale = null
+	): ?string
+	{
+		return self::formatFromComponents($countryCode, $city, $postcode, $road, $state, $attention, $separator, $locale);
+	}
+
 
 
 

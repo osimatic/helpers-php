@@ -24,6 +24,18 @@ final class FileTest extends TestCase
 
 		// Invalid base64
 		$this->assertNull(File::getDataFromBase64Data('invalid!!!'));
+
+		// Cas où la partie après "base64," est vide
+		$this->assertNull(File::getDataFromBase64Data('data:image/png;base64,'));
+
+		// Base64 qui échoue au décodage strict
+		$this->assertNull(File::getDataFromBase64Data('!!!invalid!!!'));
+		$this->assertNull(File::getDataFromBase64Data('not@valid#base64'));
+
+		// Base64 valide mais qui ne peut pas être réencodé identiquement (padding manquant)
+		// Note: En pratique, base64_decode en mode strict rejette déjà ces cas
+		$invalidPadding = 'YQ'; // 'a' sans padding correct
+		$this->assertNull(File::getDataFromBase64Data($invalidPadding));
 	}
 
 	public function testGetMimeTypeFromBase64Data(): void
@@ -55,6 +67,45 @@ final class FileTest extends TestCase
 		// ZIP signature
 		$zipData = base64_encode("\x50\x4B\x03\x04");
 		$this->assertEquals('application/zip', File::getMimeTypeFromBase64Data($zipData));
+
+		// Cas où explode()[0] est vide
+		$this->assertNull(File::getMimeTypeFromBase64Data('base64,iVBORw0KGgo='));
+
+		// Cas où la seconde partie après explode est vide
+		// Note: This actually returns the mime type from the prefix 'data:image/png;'
+		$this->assertEquals('image/png', File::getMimeTypeFromBase64Data('data:image/png;base64,'));
+
+		// Test des signatures de fichiers non couvertes
+
+		// 3GPP video
+		$data3gpp = base64_encode("\x66\x74\x79\x70\x33\x67");
+		$this->assertEquals('video/3gpp', File::getMimeTypeFromBase64Data($data3gpp));
+
+		// EXE (Windows executable)
+		$dataExe = base64_encode("\x4D\x5A");
+		$this->assertEquals('application/octet-stream', File::getMimeTypeFromBase64Data($dataExe));
+
+		// MP4 video
+		$dataMp4 = base64_encode("\x66\x74\x79\x70\x69\x73\x6F\x6D");
+		$this->assertEquals('video/mp4', File::getMimeTypeFromBase64Data($dataMp4));
+
+		// TIFF image
+		$dataTiff1 = base64_encode("\x49\x49\x2A\x00");
+		$this->assertEquals('image/tiff', File::getMimeTypeFromBase64Data($dataTiff1));
+		$dataTiff2 = base64_encode("\x4D\x4D\x00\x2A");
+		$this->assertEquals('image/tiff', File::getMimeTypeFromBase64Data($dataTiff2));
+
+		// WEBP image
+		$dataWebp = base64_encode("\x52\x49\x46\x46");
+		$this->assertEquals('image/webp', File::getMimeTypeFromBase64Data($dataWebp));
+
+		// RTF document
+		$dataRtf = base64_encode("\x7B\x5C\x72\x74\x66\x31");
+		$this->assertEquals('application/rtf', File::getMimeTypeFromBase64Data($dataRtf));
+
+		// QuickTime video
+		$dataQt = base64_encode("\x71\x74\x20\x20");
+		$this->assertEquals('video/quicktime', File::getMimeTypeFromBase64Data($dataQt));
 	}
 
 	/* ===================== File Extension ===================== */
@@ -175,6 +226,17 @@ final class FileTest extends TestCase
 
 		// Negative values (edge case)
 		$this->assertEquals('0.00 o', File::formatSize(-100));
+
+		// 5 Petabytes (au-delà de Terabytes)
+		$petabytes = 5 * pow(1024, 5);
+		$result = File::formatSize($petabytes);
+
+		// Should return in TB since it's the highest unit
+		$this->assertStringContainsString('To', $result);
+		$this->assertStringContainsString('5120.00', $result); // 5 * 1024 TB
+
+		// With Exactly Zero
+		$this->assertEquals('0.00 o', File::formatSize(0));
 	}
 
 	/* ===================== MIME Type / Extension Mapping ===================== */
@@ -300,77 +362,6 @@ final class FileTest extends TestCase
 		$result = File::mb_pathinfo('/chemin/vers/fichier-été.txt');
 		$this->assertEquals('fichier-été.txt', $result['basename']);
 		$this->assertEquals('fichier-été', $result['filename']);
-	}
-
-	/* ===================== Edge Cases - Base64 Data ===================== */
-
-	public function testGetDataFromBase64DataWithEmptyAfterExplode(): void
-	{
-		// Cas où la partie après "base64," est vide
-		$this->assertNull(File::getDataFromBase64Data('data:image/png;base64,'));
-	}
-
-	public function testGetDataFromBase64DataWithInvalidBase64(): void
-	{
-		// Base64 qui échoue au décodage strict
-		$this->assertNull(File::getDataFromBase64Data('!!!invalid!!!'));
-		$this->assertNull(File::getDataFromBase64Data('not@valid#base64'));
-	}
-
-	public function testGetDataFromBase64DataWithInvalidReencode(): void
-	{
-		// Base64 valide mais qui ne peut pas être réencodé identiquement (padding manquant)
-		// Note: En pratique, base64_decode en mode strict rejette déjà ces cas
-		$invalidPadding = 'YQ'; // 'a' sans padding correct
-		$this->assertNull(File::getDataFromBase64Data($invalidPadding));
-	}
-
-	public function testGetMimeTypeFromBase64DataWithEmptyFileInfos(): void
-	{
-		// Cas où explode()[0] est vide
-		$this->assertNull(File::getMimeTypeFromBase64Data('base64,iVBORw0KGgo='));
-	}
-
-	public function testGetMimeTypeFromBase64DataWithEmptyDataAfterSecondExplode(): void
-	{
-		// Cas où la seconde partie après explode est vide
-		// Note: This actually returns the mime type from the prefix 'data:image/png;'
-		$this->assertEquals('image/png', File::getMimeTypeFromBase64Data('data:image/png;base64,'));
-	}
-
-	public function testGetMimeTypeFromBase64DataWithVariousSignatures(): void
-	{
-		// Test des signatures de fichiers non couvertes
-
-		// 3GPP video
-		$data3gpp = base64_encode("\x66\x74\x79\x70\x33\x67");
-		$this->assertEquals('video/3gpp', File::getMimeTypeFromBase64Data($data3gpp));
-
-		// EXE (Windows executable)
-		$dataExe = base64_encode("\x4D\x5A");
-		$this->assertEquals('application/octet-stream', File::getMimeTypeFromBase64Data($dataExe));
-
-		// MP4 video
-		$dataMp4 = base64_encode("\x66\x74\x79\x70\x69\x73\x6F\x6D");
-		$this->assertEquals('video/mp4', File::getMimeTypeFromBase64Data($dataMp4));
-
-		// TIFF image
-		$dataTiff1 = base64_encode("\x49\x49\x2A\x00");
-		$this->assertEquals('image/tiff', File::getMimeTypeFromBase64Data($dataTiff1));
-		$dataTiff2 = base64_encode("\x4D\x4D\x00\x2A");
-		$this->assertEquals('image/tiff', File::getMimeTypeFromBase64Data($dataTiff2));
-
-		// WEBP image
-		$dataWebp = base64_encode("\x52\x49\x46\x46");
-		$this->assertEquals('image/webp', File::getMimeTypeFromBase64Data($dataWebp));
-
-		// RTF document
-		$dataRtf = base64_encode("\x7B\x5C\x72\x74\x66\x31");
-		$this->assertEquals('application/rtf', File::getMimeTypeFromBase64Data($dataRtf));
-
-		// QuickTime video
-		$dataQt = base64_encode("\x71\x74\x20\x20");
-		$this->assertEquals('video/quicktime', File::getMimeTypeFromBase64Data($dataQt));
 	}
 
 	/* ===================== File Extension of UploadedFile ===================== */
@@ -908,25 +899,6 @@ final class FileTest extends TestCase
 
 		// Cleanup
 		unlink($tempFile);
-	}
-
-	/* ===================== Edge Cases - Format Size ===================== */
-
-	public function testFormatSizeWithVeryLargeFile(): void
-	{
-		// 5 Petabytes (au-delà de Terabytes)
-		$petabytes = 5 * pow(1024, 5);
-
-		$result = File::formatSize($petabytes);
-
-		// Should return in TB since it's the highest unit
-		$this->assertStringContainsString('To', $result);
-		$this->assertStringContainsString('5120.00', $result); // 5 * 1024 TB
-	}
-
-	public function testFormatSizeWithExactlyZero(): void
-	{
-		$this->assertEquals('0.00 o', File::formatSize(0));
 	}
 
 	/* ===================== Extensions and MIME Types ===================== */
