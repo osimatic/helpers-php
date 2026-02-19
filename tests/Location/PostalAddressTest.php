@@ -114,7 +114,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn(null);
 		$address->method('getAttention')->willReturn('John Doe');
 
-		$result = PostalAddress::format($address);
+		$result = PostalAddress::format($address, locale: 'fr_FR');
 		$expected = 'John Doe<br/>1 Rue de Rivoli<br/>75001 Paris<br/>France';
 		$this->assertSame($expected, $result);
 
@@ -127,7 +127,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn('NY');
 		$address->method('getAttention')->willReturn('Jane Smith');
 
-		$result = PostalAddress::format($address);
+		$result = PostalAddress::format($address, locale: 'fr_FR');
 		$expected = 'Jane Smith<br/>350 Fifth Avenue<br/>New York, NY 10001<br/>États-Unis';
 		$this->assertSame($expected, $result);
 
@@ -140,7 +140,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn(null);
 		$address->method('getAttention')->willReturn(null);
 
-		$result = PostalAddress::format($address, withAttention: false);
+		$result = PostalAddress::format($address, withAttention: false, locale: 'fr_FR');
 		$expected = '1 Place Bellecour<br/>69001 Lyon<br/>France';
 		$this->assertSame($expected, $result);
 
@@ -153,7 +153,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn(null);
 		$address->method('getAttention')->willReturn(null);
 
-		$result = PostalAddress::format($address, separator: ' | ');
+		$result = PostalAddress::format($address, separator: ' | ', locale: 'fr_FR');
 		$expected = 'Vieux Port | 13001 Marseille | France';
 		$this->assertSame($expected, $result);
 
@@ -194,7 +194,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn(null);
 		$address->method('getAttention')->willReturn('John Doe');
 
-		$result = PostalAddress::formatInline($address);
+		$result = PostalAddress::formatInline($address, locale: 'fr_FR');
 		$expected = 'John Doe, 1 Rue de Rivoli, 75001 Paris, France';
 		$this->assertSame($expected, $result);
 
@@ -207,7 +207,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn(null);
 		$address->method('getAttention')->willReturn(null);
 
-		$result = PostalAddress::formatInline($address, separator: ' - ');
+		$result = PostalAddress::formatInline($address, separator: ' - ', locale: 'fr_FR');
 		$expected = '1 Place Bellecour - 69001 Lyon - France';
 		$this->assertSame($expected, $result);
 
@@ -220,7 +220,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn('NY');
 		$address->method('getAttention')->willReturn(null);
 
-		$result = PostalAddress::formatInline($address, withAttention: false);
+		$result = PostalAddress::formatInline($address, withAttention: false, locale: 'fr_FR');
 		$expected = '350 Fifth Avenue, New York, NY 10001, États-Unis';
 		$this->assertSame($expected, $result);
 
@@ -233,7 +233,7 @@ final class PostalAddressTest extends TestCase
 		$address->method('getState')->willReturn(null);
 		$address->method('getAttention')->willReturn(null);
 
-		$result = PostalAddress::formatInline($address, separator: ' | ');
+		$result = PostalAddress::formatInline($address, separator: ' | ', locale: 'fr_FR');
 		$expected = '10 Downing Street | London | SW1A 1AA | Royaume-Uni';
 		$this->assertSame($expected, $result);
 	}
@@ -247,7 +247,8 @@ final class PostalAddressTest extends TestCase
 			postcode: '75001',
 			road: '1 Rue de Rivoli',
 			state: null,
-			attention: 'John Doe'
+			attention: 'John Doe',
+			locale: 'fr_FR'
 		);
 		$expected = 'John Doe<br/>1 Rue de Rivoli<br/>75001 Paris<br/>France';
 		$this->assertSame($expected, $result);
@@ -259,13 +260,14 @@ final class PostalAddressTest extends TestCase
 			postcode: '10001',
 			road: '350 Fifth Avenue',
 			state: 'NY',
-			attention: 'Jane Smith'
+			attention: 'Jane Smith',
+			locale: 'fr_FR'
 		);
 		$expected = 'Jane Smith<br/>350 Fifth Avenue<br/>New York, NY 10001<br/>États-Unis';
 		$this->assertSame($expected, $result);
 
 		// Test with minimal data (only country code)
-		$result = PostalAddress::formatFromComponents(countryCode: 'FR');
+		$result = PostalAddress::formatFromComponents(countryCode: 'FR', locale: 'fr_FR');
 		$expected = 'France';
 		$this->assertSame($expected, $result);
 
@@ -275,7 +277,8 @@ final class PostalAddressTest extends TestCase
 			city: 'Lyon',
 			postcode: '69001',
 			road: '1 Place Bellecour',
-			separator: ' | '
+			separator: ' | ',
+			locale: 'fr_FR'
 		);
 		$expected = '1 Place Bellecour | 69001 Lyon | France';
 		$this->assertSame($expected, $result);
@@ -296,7 +299,8 @@ final class PostalAddressTest extends TestCase
 			countryCode: 'GB',
 			city: 'London',
 			postcode: 'SW1A 1AA',
-			road: '10 Downing Street'
+			road: '10 Downing Street',
+			locale: 'fr_FR'
 		);
 		$expected = '10 Downing Street<br/>London<br/>SW1A 1AA<br/>Royaume-Uni';
 		$this->assertSame($expected, $result);
@@ -306,7 +310,8 @@ final class PostalAddressTest extends TestCase
 			countryCode: 'DE',
 			city: 'Berlin',
 			postcode: '10115',
-			road: 'Unter den Linden 77'
+			road: 'Unter den Linden 77',
+			locale: 'fr_FR'
 		);
 		$expected = 'Unter den Linden 77<br/>10115 Berlin<br/>Allemagne';
 		$this->assertSame($expected, $result);
@@ -317,7 +322,8 @@ final class PostalAddressTest extends TestCase
 			city: 'Nice',
 			postcode: '06000',
 			road: 'Promenade des Anglais',
-			attention: null
+			attention: null,
+			locale: 'fr_FR'
 		);
 		$expected = 'Promenade des Anglais<br/>06000 Nice<br/>France';
 		$this->assertSame($expected, $result);
@@ -326,7 +332,8 @@ final class PostalAddressTest extends TestCase
 		$result = PostalAddress::formatFromComponents(
 			countryCode: 'FR',
 			city: 'Toulouse',
-			postcode: '31000'
+			postcode: '31000',
+			locale: 'fr_FR'
 		);
 		$expected = '31000 Toulouse<br/>France';
 		$this->assertSame($expected, $result);
@@ -337,7 +344,8 @@ final class PostalAddressTest extends TestCase
 			city: 'Toronto',
 			postcode: 'M5H 2N2',
 			road: '301 Front Street West',
-			state: 'ON'
+			state: 'ON',
+			locale: 'fr_FR'
 		);
 		$expected = '301 Front Street West<br/>Toronto ON M5H 2N2<br/>Canada';
 		$this->assertSame($expected, $result);
@@ -351,7 +359,8 @@ final class PostalAddressTest extends TestCase
 			city: 'Paris',
 			postcode: '75001',
 			road: '1 Rue de Rivoli',
-			attention: 'John Doe'
+			attention: 'John Doe',
+			locale: 'fr_FR'
 		);
 		$expected = 'John Doe, 1 Rue de Rivoli, 75001 Paris, France';
 		$this->assertSame($expected, $result);
@@ -362,13 +371,14 @@ final class PostalAddressTest extends TestCase
 			city: 'Lyon',
 			postcode: '69001',
 			road: '1 Place Bellecour',
-			separator: ' - '
+			separator: ' - ',
+			locale: 'fr_FR'
 		);
 		$expected = '1 Place Bellecour - 69001 Lyon - France';
 		$this->assertSame($expected, $result);
 
 		// Test with minimal data
-		$result = PostalAddress::formatInlineFromComponents(countryCode: 'US');
+		$result = PostalAddress::formatInlineFromComponents(countryCode: 'US', locale: 'fr_FR');
 		$expected = 'États-Unis';
 		$this->assertSame($expected, $result);
 
@@ -378,7 +388,8 @@ final class PostalAddressTest extends TestCase
 			city: 'New York',
 			postcode: '10001',
 			road: '350 Fifth Avenue',
-			state: 'NY'
+			state: 'NY',
+			locale: 'fr_FR'
 		);
 		$expected = '350 Fifth Avenue, New York, NY 10001, États-Unis';
 		$this->assertSame($expected, $result);
@@ -389,7 +400,8 @@ final class PostalAddressTest extends TestCase
 			city: 'London',
 			postcode: 'SW1A 1AA',
 			road: '10 Downing Street',
-			separator: ' | '
+			separator: ' | ',
+			locale: 'fr_FR'
 		);
 		$expected = '10 Downing Street | London | SW1A 1AA | Royaume-Uni';
 		$this->assertSame($expected, $result);
@@ -400,7 +412,8 @@ final class PostalAddressTest extends TestCase
 			city: 'Berlin',
 			postcode: '10115',
 			road: 'Unter den Linden 77',
-			separator: '; '
+			separator: '; ',
+			locale: 'fr_FR'
 		);
 		$expected = 'Unter den Linden 77; 10115 Berlin; Allemagne';
 		$this->assertSame($expected, $result);

@@ -77,7 +77,7 @@ class BankCard
 			return false;
 		}
 
-		$constraint = new \Symfony\Component\Validator\Constraints\CardScheme(['schemes' => ['VISA', 'MASTERCARD', 'AMEX']]);
+		$constraint = new \Symfony\Component\Validator\Constraints\CardScheme(['VISA', 'MASTERCARD', 'AMEX']);
 		return \Osimatic\Validator\Validator::getInstance()->validate($cardNumber, $constraint)->count() === 0;
 	}
 

@@ -391,9 +391,7 @@ final class FileTest extends TestCase
 		$base64Data = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-		$request->method('get')->willReturnCallback(function($key) use ($base64Data) {
-			return $key === 'file_data' ? $base64Data : null;
-		});
+		$request->request = new \Symfony\Component\HttpFoundation\InputBag(['file_data' => $base64Data]);
 
 		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
 		$logger->expects($this->once())
@@ -412,7 +410,7 @@ final class FileTest extends TestCase
 		$invalidBase64 = 'invalid!!!base64';
 
 		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-		$request->method('get')->willReturn($invalidBase64);
+		$request->request = new \Symfony\Component\HttpFoundation\InputBag(['file_data' => $invalidBase64]);
 
 		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
 		$logger->expects($this->atLeastOnce())
@@ -433,7 +431,7 @@ final class FileTest extends TestCase
 		$files->method('get')->willReturn($uploadedFile);
 
 		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-		$request->method('get')->willReturn(null);
+		$request->request = new \Symfony\Component\HttpFoundation\InputBag([]);
 		$request->files = $files;
 
 		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
@@ -456,7 +454,7 @@ final class FileTest extends TestCase
 		$files->method('get')->willReturn($uploadedFile);
 
 		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-		$request->method('get')->willReturn(null);
+		$request->request = new \Symfony\Component\HttpFoundation\InputBag([]);
 		$request->files = $files;
 
 		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
@@ -480,7 +478,7 @@ final class FileTest extends TestCase
 		$files->method('get')->willReturn($uploadedFile);
 
 		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-		$request->method('get')->willReturn(null);
+		$request->request = new \Symfony\Component\HttpFoundation\InputBag([]);
 		$request->files = $files;
 
 		$logger = $this->createMock(\Psr\Log\LoggerInterface::class);
@@ -496,7 +494,7 @@ final class FileTest extends TestCase
 	public function testGetUploadedFileFromRequestNotFound(): void
 	{
 		$request = $this->createMock(\Symfony\Component\HttpFoundation\Request::class);
-		$request->method('get')->willReturn(null);
+		$request->request = new \Symfony\Component\HttpFoundation\InputBag([]);
 
 		$files = $this->createMock(\Symfony\Component\HttpFoundation\FileBag::class);
 		$files->method('get')->willReturn(null);

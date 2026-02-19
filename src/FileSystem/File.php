@@ -171,7 +171,7 @@ class File
 	 */
 	public static function getUploadedFileFromRequest(Request $request, string $inputFileName, string $inputFileDataName, array $allowedFormats=[], ?LoggerInterface $logger=null): InputFile|UploadedFile|null
 	{
-		if (!empty($data = $request->get($inputFileDataName))) {
+		if (!empty($data = $request->request->get($inputFileDataName))) {
 			$logger?->info('Uploaded file from base64 content.');
 			if (null === ($uploadedFileData = self::getDataFromBase64Data($data))) {
 				$logger?->info('Decode base64 file content failed.');

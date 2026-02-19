@@ -123,19 +123,19 @@ class PayBoxResponse implements BankCardOperationResponseInterface
 	public static function getFromHttpRequest(\Symfony\Component\HttpFoundation\Request $request): PayBoxResponse
 	{
 		return self::getFromRequest([
-			'ref' => $request->get('ref'),
-			'response_code' => $request->get('response_code'),
-			'call_nb' => $request->get('call_nb'),
-			'transact_nb' => $request->get('transact_nb'),
-			'authorizt_nb' => $request->get('authorizt_nb'),
-			'card_ref' => $request->get('card_ref'),
-			'bc_type' => $request->get('bc_type'),
-			'bc_ldigit' => $request->get('bc_ldigit'),
-			'bin6' => $request->get('bin6'),
-			'bc_expdate' => $request->get('bc_expdate'),
-			'3ds' => $request->get('3ds'),
-			'3ds_auth' => $request->get('3ds_auth'),
-			'3ds_v' => $request->get('3ds_v'),
+			'ref' => \Osimatic\Data\Input::get($request, 'ref'),
+			'response_code' => \Osimatic\Data\Input::get($request, 'response_code'),
+			'call_nb' => \Osimatic\Data\Input::get($request, 'call_nb'),
+			'transact_nb' => \Osimatic\Data\Input::get($request, 'transact_nb'),
+			'authorizt_nb' => \Osimatic\Data\Input::get($request, 'authorizt_nb'),
+			'card_ref' => \Osimatic\Data\Input::get($request, 'card_ref'),
+			'bc_type' => \Osimatic\Data\Input::get($request, 'bc_type'),
+			'bc_ldigit' => \Osimatic\Data\Input::get($request, 'bc_ldigit'),
+			'bin6' => \Osimatic\Data\Input::get($request, 'bin6'),
+			'bc_expdate' => \Osimatic\Data\Input::get($request, 'bc_expdate'),
+			'3ds' => \Osimatic\Data\Input::get($request, '3ds'),
+			'3ds_auth' => \Osimatic\Data\Input::get($request, '3ds_auth'),
+			'3ds_v' => \Osimatic\Data\Input::get($request, '3ds_v'),
 		]);
 	}
 

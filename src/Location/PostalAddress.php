@@ -141,9 +141,9 @@ class PostalAddress
 	 * @param string|null $separator Separator between address components (default: ', ')
 	 * @return string|null The formatted inline address string, or null if country code is missing
 	 */
-	public static function formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', '): ?string
+	public static function formatInline(PostalAddressInterface $postalAddress, bool $withAttention=true, ?string $separator=', ', ?string $locale=null): ?string
 	{
-		return self::format($postalAddress, $withAttention, $separator);
+		return self::format($postalAddress, $withAttention, $separator, $locale);
 	}
 
 	/**
