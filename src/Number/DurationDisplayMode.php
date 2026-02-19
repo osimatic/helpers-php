@@ -11,6 +11,8 @@ enum DurationDisplayMode: string
 	case STANDARD = 'standard';
 	case CHRONO = 'chrono';
 	case INPUT_TIME = 'input_time';
+	case DECIMAL = 'decimal';
+	case SECONDS = 'seconds';
 
 	/**
 	 * Parses a string value to a DurationDisplayMode enum

@@ -155,7 +155,38 @@ class Duration
 		return $durationInSeconds%60;
 	}
 
-	// ========== Duration Display (Text Format) ==========
+	// ========== Duration Display ==========
+
+	/**
+	 * Formats a duration in seconds into a human-readable string.
+	 * Supports multiple display modes: standard clock format, chrono notation, decimal hours, and raw seconds.
+	 * Negative durations are displayed with a leading "- " prefix; the absolute value is used for formatting.
+	 *
+	 * @param int $durationInSeconds the duration in seconds to format (negative values are supported)
+	 * @param DurationDisplayMode $displayMode display mode: STANDARD for "10:20.03", INPUT_TIME for "10:20:03", CHRONO for "10:20'03\"", DECIMAL for "10.34", SECONDS for raw seconds (default: STANDARD)
+	 * @param bool $withSeconds whether to include seconds in the formatted duration (default: true, ignored in DECIMAL and SECONDS modes)
+	 * @param bool $withSign whether to always show the sign ("+ " for positive, "- " for negative); if false, only negative durations show the "- " prefix (default: false)
+	 * @return string the formatted duration string
+	 */
+	public static function format(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD, bool $withSeconds=true, bool $withSign=false): string
+	{
+		$isNegative = $durationInSeconds < 0;
+		$absoluteDuration = abs($durationInSeconds);
+
+		if ($withSign) {
+			$sign = $isNegative ? '- ' : '+ ';
+		} else {
+			$sign = $isNegative ? '- ' : '';
+		}
+
+		if ($displayMode === DurationDisplayMode::DECIMAL) {
+			return $sign . Number::format(self::convertToNbDecimalHours($absoluteDuration), 2);
+		}
+		if ($displayMode === DurationDisplayMode::SECONDS) {
+			return $sign . $absoluteDuration;
+		}
+		return $sign . self::formatNbHours($absoluteDuration, $displayMode, $withSeconds);
+	}
 
 	/**
 	 * Formats a duration as text with hours, minutes, and seconds
@@ -205,10 +236,10 @@ class Duration
 	 * Formats a duration in hours for display in chrono format (e.g., "10:20.03" or "10:20'03")
 	 * @param int $durationInSeconds the duration in seconds to format
 	 * @param DurationDisplayMode $displayMode display mode: STANDARD for "10:20.03", INPUT_TIME for "10:20:03", or CHRONO for "10:20'03" (default: STANDARD)
-	 * @param bool $withSecondes whether to include seconds in the formatted duration (default: true)
+	 * @param bool $withSeconds whether to include seconds in the formatted duration (default: true)
 	 * @return string the formatted duration string
 	 */
-	public static function formatNbHours(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD, bool $withSecondes=true): string
+	public static function formatNbHours(int $durationInSeconds, DurationDisplayMode $displayMode=DurationDisplayMode::STANDARD, bool $withSeconds=true): string
 	{
 		// Hours
 		$strHour = sprintf('%02d', self::getNbHours($durationInSeconds)).':';
@@ -218,7 +249,7 @@ class Duration
 
 		// Seconds
 		$strSecond = '';
-		if ($withSecondes) {
+		if ($withSeconds) {
 			$strSecond = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $displayMode);
 		}
 
@@ -440,7 +471,7 @@ class Duration
 	/**
 	 * @deprecated use formatNbHours instead
 	 */
-	public static function formatHourChrono(int $durationInSeconds, string $displayMode='standard', bool $withSecondes=true): string
+	public static function formatHourChrono(int $durationInSeconds, string $displayMode='standard', bool $withSeconds=true): string
 	{
 		$enumDisplayMode = DurationDisplayMode::parse($displayMode) ?? DurationDisplayMode::STANDARD;
 
@@ -452,7 +483,7 @@ class Duration
 
 		// Seconds
 		$strSecond = '';
-		if ($withSecondes) {
+		if ($withSeconds) {
 			$strSecond = self::getFormattedNbSeconds(self::getNbSecondsRemaining($durationInSeconds), $enumDisplayMode);
 		}
 

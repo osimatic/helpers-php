@@ -149,7 +149,59 @@ final class DurationTest extends TestCase
 		$this->assertEquals(0, Duration::getNbSecondsRemaining(60));
 	}
 
-	/* ===================== Text Formatting ===================== */
+	/* ===================== Duration Display ===================== */
+
+	public function testFormat(): void
+	{
+		// --- Mode STANDARD (default) ---
+
+		// Full format: hours, minutes, seconds
+		$this->assertEquals('01:01.01', Duration::format(3661));
+
+		// Without seconds
+		$this->assertEquals('01:01', Duration::format(3661, DurationDisplayMode::STANDARD, false));
+
+		// Zero duration
+		$this->assertEquals('00:00.00', Duration::format(0));
+
+		// --- Mode INPUT_TIME ---
+		$this->assertEquals('01:01:01', Duration::format(3661, DurationDisplayMode::INPUT_TIME));
+
+		// --- Mode CHRONO ---
+		$this->assertEquals("01:01'01\"", Duration::format(3661, DurationDisplayMode::CHRONO));
+
+		// --- Mode SECONDS ---
+		$this->assertEquals('3661', Duration::format(3661, DurationDisplayMode::SECONDS));
+
+		// --- Mode DECIMAL ---
+		// Number::format uses locale-specific decimal separator; accept both '.' and ','
+		$this->assertMatchesRegularExpression('/^1[.,]02$/', Duration::format(3661, DurationDisplayMode::DECIMAL));
+
+		// --- Sign ($withSign=true) ---
+
+		// Positive value: prefix "+"
+		$this->assertEquals('+ 01:01.01', Duration::format(3661, DurationDisplayMode::STANDARD, true, true));
+
+		// Zero value: prefix "+"
+		$this->assertEquals('+ 00:00.00', Duration::format(0, DurationDisplayMode::STANDARD, true, true));
+
+		// --- Negative durations ---
+
+		// STANDARD: sign prefix "- " + absolute value formatted
+		$this->assertEquals('- 01:01.01', Duration::format(-3661));
+
+		// STANDARD with $withSign=true
+		$this->assertEquals('- 01:01.01', Duration::format(-3661, DurationDisplayMode::STANDARD, true, true));
+
+		// INPUT_TIME
+		$this->assertEquals('- 01:01:01', Duration::format(-3661, DurationDisplayMode::INPUT_TIME));
+
+		// SECONDS: no double sign
+		$this->assertEquals('- 3661', Duration::format(-3661, DurationDisplayMode::SECONDS));
+
+		// DECIMAL: no double sign
+		$this->assertMatchesRegularExpression('/^- 1[.,]02$/', Duration::format(-3661, DurationDisplayMode::DECIMAL));
+	}
 
 	public function testFormatAsText(): void
 	{
@@ -173,7 +225,7 @@ final class DurationTest extends TestCase
 		$this->assertStringContainsString('1', $result);
 	}
 
-	/* ===================== Chrono Formatting ===================== */
+	// ========== Duration Display (Chrono Format) ==========
 
 	public function testFormatNbHours(): void
 	{
