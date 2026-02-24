@@ -800,6 +800,63 @@ final class DatePeriodTest extends TestCase
 		$this->assertEmpty($parts);
 	}
 
+	public function testHasWeekendDayBetween(): void
+	{
+		// Same day — nothing strictly between
+		$date = new \DateTime('2024-01-15'); // Monday
+		$this->assertFalse(DatePeriod::hasWeekendDayBetween($date, $date));
+
+		// Adjacent days — nothing strictly between
+		$from = new \DateTime('2024-01-15'); // Monday
+		$to   = new \DateTime('2024-01-16'); // Tuesday
+		$this->assertFalse(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// One day strictly between — weekday only (Wed between Tue and Thu)
+		$from = new \DateTime('2024-01-16'); // Tuesday
+		$to   = new \DateTime('2024-01-18'); // Thursday
+		$this->assertFalse(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// Several weekdays strictly between, no weekend (Mon to Sat → Tue–Fri in between)
+		$from = new \DateTime('2024-01-15'); // Monday
+		$to   = new \DateTime('2024-01-20'); // Saturday
+		$this->assertFalse(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// Boundary on Saturday and Sunday — strictly between is empty
+		$from = new \DateTime('2024-01-20'); // Saturday
+		$to   = new \DateTime('2024-01-21'); // Sunday
+		$this->assertFalse(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// One day strictly between — Saturday (Fri to Sun)
+		$from = new \DateTime('2024-01-19'); // Friday
+		$to   = new \DateTime('2024-01-21'); // Sunday
+		$this->assertTrue(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// One day strictly between — Sunday (Sat to Mon)
+		$from = new \DateTime('2024-01-20'); // Saturday
+		$to   = new \DateTime('2024-01-22'); // Monday
+		$this->assertTrue(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// Exactly 6 days strictly between (Mon to Mon+7) — early-exit optimization
+		$from = new \DateTime('2024-01-15'); // Monday
+		$to   = new \DateTime('2024-01-22'); // Monday (strictly between: Tue–Sun = 6 days)
+		$this->assertTrue(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// Long period spanning several weeks
+		$from = new \DateTime('2024-01-01');
+		$to   = new \DateTime('2024-01-31');
+		$this->assertTrue(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// Reversed dates ($from > $to) — nothing strictly between
+		$from = new \DateTime('2024-01-20');
+		$to   = new \DateTime('2024-01-15');
+		$this->assertFalse(DatePeriod::hasWeekendDayBetween($from, $to));
+
+		// Time components are ignored — only dates matter
+		$from = new \DateTime('2024-01-19 23:59:59'); // Friday evening
+		$to   = new \DateTime('2024-01-21 00:00:01'); // Sunday morning
+		$this->assertTrue(DatePeriod::hasWeekendDayBetween($from, $to));
+	}
+
 	// ========== Labeling Methods ==========
 
 	public function testGetLabel(): void

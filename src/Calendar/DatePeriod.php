@@ -527,6 +527,43 @@ class DatePeriod
 		return $periods;
 	}
 
+	/**
+	 * Checks if there is at least one weekend day (Saturday or Sunday) strictly between two dates.
+	 * The boundary dates themselves are excluded from the check — only the days strictly between $from and $to are considered.
+	 * Uses an early-exit optimization: any sequence of 6 or more consecutive days always contains at least one weekend day (Saturday or Sunday).
+	 * @param \DateTime $from The start boundary date (excluded from the check)
+	 * @param \DateTime $to The end boundary date (excluded from the check)
+	 * @return bool True if at least one Saturday (ISO weekday 6) or Sunday (ISO weekday 7) falls strictly between the two dates, false otherwise
+	 * @link https://www.php.net/manual/en/datetime.format.php PHP DateTime::format() — 'N' returns ISO 8601 numeric weekday (1=Monday, 7=Sunday)
+	 */
+	public static function hasWeekendDayBetween(\DateTime $from, \DateTime $to): bool
+	{
+		$fromMidnight = (clone $from)->setTime(0, 0);
+		$toMidnight = (clone $to)->setTime(0, 0);
+
+		// Number of days strictly between $from and $to (boundaries excluded)
+		$nbDaysInBetween = ((int) $fromMidnight->diff($toMidnight)->format('%r%a')) - 1;
+
+		if ($nbDaysInBetween <= 0) {
+			return false;
+		}
+
+		// Any sequence of 6 or more consecutive days always includes at least one weekend day
+		if ($nbDaysInBetween >= 6) {
+			return true;
+		}
+
+		$current = (clone $fromMidnight)->modify('+1 day');
+		while ($current < $toMidnight) {
+			if ((int) $current->format('N') >= 6) {
+				return true;
+			}
+			$current->modify('+1 day');
+		}
+
+		return false;
+	}
+
 	// ========== Labeling Methods ==========
 
 	/**
