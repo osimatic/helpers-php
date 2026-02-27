@@ -266,6 +266,31 @@ class Date
 		return $weekNumber;
 	}
 
+	/**
+	 * Returns the count of each ISO-8601 day type (1=Monday … 7=Sunday) for the days remaining in the month after the reference date.
+	 * "Remaining" means strictly after the reference day (the reference day itself is excluded).
+	 * Useful for extrapolating a monthly total from partial data.
+	 * @param \DateTimeInterface|null $referenceDate The reference date (defaults to today)
+	 * @return array<int, int> Map of day-of-week type (1–7) to the number of remaining occurrences in the month
+	 * @link https://en.wikipedia.org/wiki/ISO_week_date
+	 */
+	public static function getRemainingDayTypeCountForMonth(?\DateTimeInterface $referenceDate = null): array
+	{
+		$referenceDate ??= new \DateTime();
+		$year  = (int) $referenceDate->format('Y');
+		$month = (int) $referenceDate->format('m');
+		$currentDay = (int) $referenceDate->format('d');
+		$totalDays = self::getNumberOfDaysInMonth($year, $month);
+
+		$countByDayType = [];
+		for ($day = $currentDay + 1; $day <= $totalDays; $day++) {
+			$dayType = (int) date('N', mktime(0, 0, 0, $month, $day, $year));
+			$countByDayType[$dayType] = ($countByDayType[$dayType] ?? 0) + 1;
+		}
+
+		return $countByDayType;
+	}
+
 	// ========== Validation Methods ==========
 
 	/**

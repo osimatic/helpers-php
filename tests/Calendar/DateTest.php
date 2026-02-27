@@ -171,6 +171,59 @@ class DateTest extends TestCase
 		$this->assertLessThanOrEqual(53, $weeks2023);
 	}
 
+	public function testGetRemainingDayTypeCountForMonth(): void
+	{
+		// January 15, 2024 (Monday) — 16 remaining days (Jan 16–31)
+		// Jan 16=Tue, 17=Wed, 18=Thu, 19=Fri, 20=Sat, 21=Sun,
+		// Jan 22=Mon, 23=Tue, 24=Wed, 25=Thu, 26=Fri, 27=Sat, 28=Sun,
+		// Jan 29=Mon, 30=Tue, 31=Wed
+		$result = Date::getRemainingDayTypeCountForMonth(new \DateTime('2024-01-15'));
+		$this->assertIsArray($result);
+		$this->assertEquals(2, $result[1]); // Monday: Jan 22, 29
+		$this->assertEquals(3, $result[2]); // Tuesday: Jan 16, 23, 30
+		$this->assertEquals(3, $result[3]); // Wednesday: Jan 17, 24, 31
+		$this->assertEquals(2, $result[4]); // Thursday: Jan 18, 25
+		$this->assertEquals(2, $result[5]); // Friday: Jan 19, 26
+		$this->assertEquals(2, $result[6]); // Saturday: Jan 20, 27
+		$this->assertEquals(2, $result[7]); // Sunday: Jan 21, 28
+		$this->assertEquals(16, array_sum($result));
+
+		// First day of month (Jan 1, 2024 = Monday) — 30 remaining days (Jan 2–31)
+		// Mon: 8,15,22,29 — Tue: 2,9,16,23,30 — Wed: 3,10,17,24,31 — Thu: 4,11,18,25
+		// Fri: 5,12,19,26 — Sat: 6,13,20,27 — Sun: 7,14,21,28
+		$result = Date::getRemainingDayTypeCountForMonth(new \DateTime('2024-01-01'));
+		$this->assertEquals(4, $result[1]); // Monday
+		$this->assertEquals(5, $result[2]); // Tuesday
+		$this->assertEquals(5, $result[3]); // Wednesday
+		$this->assertEquals(4, $result[4]); // Thursday
+		$this->assertEquals(4, $result[5]); // Friday
+		$this->assertEquals(4, $result[6]); // Saturday
+		$this->assertEquals(4, $result[7]); // Sunday
+		$this->assertEquals(30, array_sum($result));
+
+		// Day before last (Jan 30, 2024 = Tuesday) — 1 remaining day (Jan 31 = Wednesday)
+		$result = Date::getRemainingDayTypeCountForMonth(new \DateTime('2024-01-30'));
+		$this->assertCount(1, $result);
+		$this->assertEquals(1, $result[3]); // Wednesday: Jan 31
+
+		// Last day of month (Jan 31, 2024) — no remaining days
+		$result = Date::getRemainingDayTypeCountForMonth(new \DateTime('2024-01-31'));
+		$this->assertEmpty($result);
+
+		// February in a leap year (Feb 14, 2024 = Wednesday) — 15 remaining days (Feb 15–29)
+		// Feb 15=Thu, 16=Fri, 17=Sat, 18=Sun, 19=Mon, 20=Tue, 21=Wed,
+		// Feb 22=Thu, 23=Fri, 24=Sat, 25=Sun, 26=Mon, 27=Tue, 28=Wed, 29=Thu
+		$result = Date::getRemainingDayTypeCountForMonth(new \DateTime('2024-02-14'));
+		$this->assertEquals(2, $result[1]); // Monday: Feb 19, 26
+		$this->assertEquals(2, $result[2]); // Tuesday: Feb 20, 27
+		$this->assertEquals(2, $result[3]); // Wednesday: Feb 21, 28
+		$this->assertEquals(3, $result[4]); // Thursday: Feb 15, 22, 29
+		$this->assertEquals(2, $result[5]); // Friday: Feb 16, 23
+		$this->assertEquals(2, $result[6]); // Saturday: Feb 17, 24
+		$this->assertEquals(2, $result[7]); // Sunday: Feb 18, 25
+		$this->assertEquals(15, array_sum($result));
+	}
+
 	// ========== Validation Tests ==========
 
 	public function testIsValid(): void
