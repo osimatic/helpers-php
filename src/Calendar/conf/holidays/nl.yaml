@@ -1,0 +1,53 @@
+country: NL
+territories: [NL]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Fête du Roi"
+    type: fixed
+    date: "04-27"
+    full_name: "Koningsdag"
+
+  # Religious Holidays
+  - name: "Vendredi saint"
+    type: easter
+    offset: -2
+    key: vendredi_saint
+
+  - name: "Pâques"
+    type: easter
+    offset: 0
+    key: paques
+
+  - name: "Lundi de Pâques"
+    type: easter
+    offset: 1
+    key: lundi_paques
+
+  - name: "Ascension"
+    type: easter
+    offset: 39
+    key: ascension
+    full_name: "Jeudi de l’Ascension"
+
+  - name: "Pentecôte"
+    type: easter
+    offset: 49
+    key: pentecote
+
+  - name: "Lundi de Pentecôte"
+    type: easter
+    offset: 50
+    key: lundi_pentecote
+
+  - name: "Noël"
+    type: fixed
+    date: "12-25"
+
+  - name: "Saint-Étienne"
+    type: fixed
+    date: "12-26"

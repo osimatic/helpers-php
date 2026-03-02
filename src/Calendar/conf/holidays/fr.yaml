@@ -1,0 +1,136 @@
+country: FR
+territories: [FR, MQ, GP, RE, GF]
+
+holidays:
+  # Civil Holidays (all territories)
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Fête du Travail"
+    type: fixed
+    date: "05-01"
+
+  - name: "Victoire des Alliés"
+    type: fixed
+    date: "05-08"
+    full_name: "Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)"
+
+  - name: "Fête nationale"
+    type: fixed
+    date: "07-14"
+    full_name: "Fête nationale française (Fête de la Fédération 14 juillet 1790)"
+
+  - name: "Armistice"
+    type: fixed
+    date: "11-11"
+    full_name: "Armistice de la Première Guerre mondiale (11 novembre 1918)"
+
+  # Religious Holidays
+  - name: "Vendredi saint"
+    type: easter
+    offset: -2
+    key: vendredi_saint
+    condition: alsace
+
+  - name: "Pâques"
+    type: easter
+    offset: 0
+    key: paques
+
+  - name: "Lundi de Pâques"
+    type: easter
+    offset: 1
+    key: lundi_paques
+
+  - name: "Ascension"
+    type: easter
+    offset: 39
+    key: ascension
+    full_name: "Jeudi de l’Ascension"
+
+  - name: "Pentecôte"
+    type: easter
+    offset: 49
+    key: pentecote
+
+  - name: "Lundi de Pentecôte"
+    type: easter
+    offset: 50
+    key: lundi_pentecote
+
+  - name: "Assomption"
+    type: fixed
+    date: "08-15"
+
+  - name: "Toussaint"
+    type: fixed
+    date: "11-01"
+
+  - name: "Noël"
+    type: fixed
+    date: "12-25"
+
+  - name: "Saint Étienne"
+    type: fixed
+    date: "12-26"
+    condition: alsace
+
+  # Martinique specific
+  - name: "Abolition de l’esclavage"
+    type: fixed
+    date: "05-22"
+    territory: MQ
+
+  # Guadeloupe specific
+  - name: "Abolition de l’esclavage"
+    type: fixed
+    date: "05-27"
+    territory: GP
+
+  # Martinique and Guadeloupe specific
+  - name: "Fête Victor Schœlcher"
+    type: fixed
+    date: "07-21"
+    territories: [MQ, GP]
+
+  - name: "Défunts"
+    type: fixed
+    date: "11-02"
+    territories: [MQ, GP]
+
+  - name: "Mardi gras"
+    type: easter
+    offset: -47
+    key: mardi_gras
+    territories: [MQ, GP]
+
+  - name: "Mercredi des Cendres"
+    type: easter
+    offset: -46
+    key: mercredi_des_cendres
+    territories: [MQ, GP]
+
+  - name: "Mi-carême"
+    type: easter
+    offset: -24
+    key: mi_careme
+    territories: [MQ, GP]
+
+  - name: "Vendredi saint"
+    type: easter
+    offset: -2
+    key: vendredi_saint
+    territories: [MQ, GP]
+
+  # Réunion specific
+  - name: "Abolition de l’esclavage"
+    type: fixed
+    date: "12-20"
+    territory: RE
+
+  # French Guiana specific
+  - name: "Abolition de l’esclavage"
+    type: fixed
+    date: "06-10"
+    territory: GF

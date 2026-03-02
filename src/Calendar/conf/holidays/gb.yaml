@@ -1,0 +1,42 @@
+country: GB
+territories: [GB]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Early May Bank Holiday"
+    type: relative
+    expression: "first monday of may {year}"
+    key: may_bank_holiday
+
+  - name: "Spring Bank Holiday"
+    type: relative
+    expression: "last monday of may {year}"
+    key: spring_bank_holiday
+
+  - name: "Summer Bank Holiday"
+    type: relative
+    expression: "last monday of august {year}"
+    key: summer_bank_holiday
+
+  - name: "Noël"
+    type: fixed
+    date: "12-25"
+
+  - name: "Boxing Day"
+    type: fixed
+    date: "12-26"
+
+  # Religious Holidays
+  - name: "Vendredi saint"
+    type: easter
+    offset: -2
+    key: vendredi_saint
+
+  - name: "Lundi de Pâques"
+    type: easter
+    offset: 1
+    key: lundi_paques

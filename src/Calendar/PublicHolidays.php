@@ -4,10 +4,25 @@ namespace Osimatic\Calendar;
 
 /**
  * Utility class for managing public holidays across different countries.
- * This class provides methods to retrieve public holidays for various countries including civil holidays, religious holidays, and regional celebrations. It supports multiple calendar systems (Gregorian, Islamic Hijri, Indian) and allows customization through options for specific regions (e.g., Alsace-Moselle in France, DOM-TOM territories).
+ * This class provides methods to retrieve public holidays for various countries including civil holidays, religious holidays, and regional celebrations. It supports multiple calendar systems (Gregorian, Islamic Hijri, Indian) and allows customization through options for specific regions (e.g., Alsace-Moselle in France, DOM-TOM territories). Holiday data is loaded from YAML files located in conf/holidays/.
+ * @link https://en.wikipedia.org/wiki/Public_holiday
  */
 class PublicHolidays
 {
+	// ========== Cache ==========
+
+	/**
+	 * Static cache for loaded YAML holiday files to avoid re-parsing on each call.
+	 * @var array<string, array<mixed>>
+	 */
+	private static array $yamlCache = [];
+
+	/**
+	 * Static cache for the list of supported country codes, derived from available YAML files.
+	 * @var string[]|null
+	 */
+	private static ?array $supportedCountriesCache = null;
+
 	// ========== Easter Calculation ==========
 
 	/**
@@ -21,56 +36,6 @@ class PublicHolidays
 		$base = new \DateTime("$year-03-21");
 		$days = easter_days($year);
 		return $base->add(new \DateInterval("P{$days}D"));
-	}
-
-	/**
-	 * Calculates Good Friday date for a given year (2 days before Easter).
-	 * @param int $year The year
-	 * @return \DateTime Good Friday DateTime
-	 */
-	private static function getGoodFridayDateTime(int $year): \DateTime
-	{
-		return (clone self::getEasterDateTime($year))->modify('-2 days');
-	}
-
-	/**
-	 * Calculates Easter Monday date for a given year (1 day after Easter).
-	 * @param int $year The year
-	 * @return \DateTime Easter Monday DateTime
-	 */
-	private static function getEasterMondayDateTime(int $year): \DateTime
-	{
-		return (clone self::getEasterDateTime($year))->modify('+1 days');
-	}
-
-	/**
-	 * Calculates Ascension Thursday date for a given year (39 days after Easter).
-	 * @param int $year The year
-	 * @return \DateTime Ascension Thursday DateTime
-	 */
-	private static function getAscensionThursdayDateTime(int $year): \DateTime
-	{
-		return (clone self::getEasterDateTime($year))->modify('+39 days');
-	}
-
-	/**
-	 * Calculates Pentecost Sunday date for a given year (49 days after Easter).
-	 * @param int $year The year
-	 * @return \DateTime Pentecost Sunday DateTime
-	 */
-	private static function getPentecostSundayDateTime(int $year): \DateTime
-	{
-		return (clone self::getEasterDateTime($year))->modify('+49 days');
-	}
-
-	/**
-	 * Calculates Whit Monday date for a given year (50 days after Easter).
-	 * @param int $year The year
-	 * @return \DateTime Whit Monday DateTime
-	 */
-	private static function getWhitMondayDateTime(int $year): \DateTime
-	{
-		return (clone self::getEasterDateTime($year))->modify('+50 days');
 	}
 
 	// ========== Public Holiday Checking ==========
@@ -141,12 +106,26 @@ class PublicHolidays
 
 	/**
 	 * Gets the list of supported country codes.
-	 * Returns all ISO 3166-1 alpha-2 country codes for which public holiday data is available in this class.
-	 * @return string[] Array of supported country codes
+	 * Auto-detects supported countries from the available YAML files in conf/holidays/. The result is cached for subsequent calls.
+	 * @return string[] Array of supported country codes in uppercase
 	 */
 	public static function getSupportedCountries(): array
 	{
-		return ['FR', 'BE', 'LU', 'CH', 'MU', 'MA', 'MQ', 'GP', 'RE', 'GF'];
+		if (self::$supportedCountriesCache !== null) {
+			return self::$supportedCountriesCache;
+		}
+
+		$countries = [];
+		$dir = __DIR__ . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR . 'holidays';
+		foreach (glob($dir . DIRECTORY_SEPARATOR . '*.yaml') as $filePath) {
+			$data = self::loadYamlFile(basename($filePath, '.yaml'));
+			foreach ($data['territories'] ?? [] as $territory) {
+				$countries[] = mb_strtoupper($territory);
+			}
+		}
+
+		self::$supportedCountriesCache = array_values(array_unique($countries));
+		return self::$supportedCountriesCache;
 	}
 
 	/**
@@ -164,7 +143,7 @@ class PublicHolidays
 
 	/**
 	 * Retrieves the raw list of public holidays for a specific country.
-	 * Internal method that returns country-specific public holidays without deduplication or sorting. Each country has its own set of civil holidays (national days, labor day, etc.) and religious holidays (Easter, Christmas, Islamic holidays, etc.). Some countries support regional variations through the options parameter.
+	 * Internal method that returns country-specific public holidays without deduplication or sorting. Loads holiday definitions from the appropriate YAML file and resolves them according to the year and options.
 	 * @param string $country The ISO 3166-1 alpha-2 country code
 	 * @param int $year The year for which to retrieve holidays
 	 * @param array<string, mixed> $options Configuration options for regional holidays
@@ -174,301 +153,251 @@ class PublicHolidays
 	{
 		$country = mb_strtoupper($country);
 
-		return match ($country) {
-			'BE' => self::getBelgiumHolidays($year),
-			'LU' => self::getLuxembourgHolidays($year),
-			'CH' => self::getSwitzerlandHolidays($year),
-			'MU' => self::getMauritiusHolidays($year),
-			'MA' => self::getMoroccoHolidays($year),
-			'FR', 'MQ', 'GP', 'RE', 'GF' => self::getFranceHolidays($country, $year, $options),
-			default => [],
+		$fileName = self::findYamlFileForCountry($country);
+		if ($fileName === null) {
+			return [];
+		}
+
+		$data = self::loadYamlFile($fileName);
+		return self::resolveHolidays($data['holidays'] ?? [], $country, $year, $options);
+	}
+
+	// ========== YAML Loading ==========
+
+	/**
+	 * Loads and caches a YAML holiday file.
+	 * Parses the YAML file on first access and returns cached data on subsequent calls.
+	 * @param string $fileName The file name without extension (e.g., 'fr', 'be')
+	 * @return array<mixed> Parsed YAML data
+	 */
+	private static function loadYamlFile(string $fileName): array
+	{
+		if (!isset(self::$yamlCache[$fileName])) {
+			$filePath = __DIR__ . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR . 'holidays' . DIRECTORY_SEPARATOR . $fileName . '.yaml';
+			self::$yamlCache[$fileName] = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($filePath));
+		}
+		return self::$yamlCache[$fileName];
+	}
+
+	/**
+	 * Finds the YAML file name that covers a given country code.
+	 * Iterates all YAML files and checks their territories list to find a match.
+	 * @param string $country The ISO 3166-1 alpha-2 country code in uppercase
+	 * @return string|null The file name (without extension) if found, null otherwise
+	 */
+	private static function findYamlFileForCountry(string $country): ?string
+	{
+		$dir = __DIR__ . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR . 'holidays';
+		foreach (glob($dir . DIRECTORY_SEPARATOR . '*.yaml') as $filePath) {
+			$fileName = basename($filePath, '.yaml');
+			$data = self::loadYamlFile($fileName);
+			$territories = array_map(mb_strtoupper(...), $data['territories'] ?? []);
+			if (in_array($country, $territories, true)) {
+				return $fileName;
+			}
+		}
+		return null;
+	}
+
+	// ========== Holiday Resolvers ==========
+
+	/**
+	 * Resolves a list of holiday definitions into PublicHoliday objects.
+	 * Iterates through YAML-defined holiday definitions, filters by inclusion rules, and resolves each to a PublicHoliday instance.
+	 * @param array<mixed> $definitions The holiday definitions from the YAML file
+	 * @param string $country The ISO 3166-1 alpha-2 country code in uppercase
+	 * @param int $year The year for which to resolve holidays
+	 * @param array<string, mixed> $options Configuration options (e.g., ['alsace' => true])
+	 * @return PublicHoliday[] Array of resolved public holidays
+	 */
+	private static function resolveHolidays(array $definitions, string $country, int $year, array $options): array
+	{
+		$holidays = [];
+		foreach ($definitions as $def) {
+			if (!self::isHolidayIncluded($def, $country, $options)) {
+				continue;
+			}
+			$holiday = self::resolveHolidayDefinition($def, $country, $year);
+			if ($holiday !== null) {
+				$holidays[] = $holiday;
+			}
+		}
+		return $holidays;
+	}
+
+	/**
+	 * Determines whether a holiday definition should be included for the given country and options.
+	 * Applies filtering rules based on 'condition', 'territory', and 'territories' fields in the definition.
+	 * @param array<mixed> $def The holiday definition
+	 * @param string $country The ISO 3166-1 alpha-2 country code in uppercase
+	 * @param array<string, mixed> $options Configuration options
+	 * @return bool True if the holiday should be included
+	 */
+	private static function isHolidayIncluded(array $def, string $country, array $options): bool
+	{
+		if (isset($def['condition'])) {
+			return ($options[$def['condition']] ?? false) === true;
+		}
+
+		if (isset($def['territory'])) {
+			return $country === mb_strtoupper($def['territory']);
+		}
+
+		if (isset($def['territories'])) {
+			$territories = array_map('mb_strtoupper', $def['territories']);
+			return in_array($country, $territories, true);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Dispatches a single holiday definition to the appropriate type resolver.
+	 * Supports types: fixed, easter, relative, hijri, indian, unimplemented.
+	 * @param array<mixed> $def The holiday definition
+	 * @param string $country The ISO 3166-1 alpha-2 country code in uppercase
+	 * @param int $year The year
+	 * @return PublicHoliday|null The resolved holiday, or null if it cannot be resolved
+	 */
+	private static function resolveHolidayDefinition(array $def, string $country, int $year): ?PublicHoliday
+	{
+		return match ($def['type'] ?? '') {
+			'fixed' => self::resolveFixedHoliday($def, $year),
+			'easter' => self::resolveEasterHoliday($def, $year),
+			'relative' => self::resolveRelativeHoliday($def, $year),
+			'hijri' => self::resolveHijriHoliday($def, $year),
+			'indian' => self::resolveIndianHoliday($def, $year),
+			'unimplemented' => new PublicHoliday($def['name'], 0, key: $def['key'] ?? null),
+			default => null,
 		};
 	}
 
-	// ========== Belgium Public Holidays ==========
-
 	/**
-	 * Returns the list of public holidays for Belgium.
-	 * Includes Belgian national holidays (National Day on July 21, Armistice Day) and Christian holidays (Easter, Ascension, Assumption, All Saints' Day, Christmas).
+	 * Resolves a fixed-date holiday (type: fixed).
+	 * The date field must be in MM-DD format. The key defaults to MM-DD if not specified.
+	 * @param array<mixed> $def The holiday definition
 	 * @param int $year The year
-	 * @return PublicHoliday[] Array of Belgian public holidays
+	 * @return PublicHoliday|null The resolved holiday, or null if the date is invalid
 	 */
-	private static function getBelgiumHolidays(int $year): array
+	private static function resolveFixedHoliday(array $def, int $year): ?PublicHoliday
 	{
-		return [
-			// Civil Holidays
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
-			new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)), // Labor Day
-			new PublicHoliday('Fête nationale', mktime(0, 0, 0, 7, 21, $year), fullName: 'Fête nationale belge'), // Belgian National Day
-			new PublicHoliday('Fête de la communauté française', mktime(0, 0, 0, 9, 27, $year), fullName: 'Fête de la communauté française'), // French Community Festival
-			new PublicHoliday('Armistice 1918', mktime(0, 0, 0, 11, 11, $year), fullName: 'Armistice de la Première Guerre mondiale (11 novembre 1918)'), // Armistice Day
-
-			// Religious Holidays
-			new PublicHoliday('Pâques', self::getEasterDateTime($year)->getTimestamp(), key: 'paques'), // Easter Sunday
-			new PublicHoliday('Lundi de Pâques', self::getEasterMondayDateTime($year)->getTimestamp(), key: 'lundi_paques'), // Easter Monday
-			new PublicHoliday('Ascension', self::getAscensionThursdayDateTime($year)->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'), // Ascension Day
-			new PublicHoliday('Pentecôte', self::getPentecostSundayDateTime($year)->getTimestamp(), key: 'pentecote'), // Pentecost
-			new PublicHoliday('Lundi de Pentecôte', self::getWhitMondayDateTime($year)->getTimestamp(), key: 'lundi_pentecote'), // Whit Monday
-			new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)), // Assumption of Mary
-			new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)), // All Saints' Day
-			new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)), // Christmas Day
-		];
+		if (!isset($def['date'])) {
+			return null;
+		}
+		[$month, $day] = explode('-', $def['date']);
+		$timestamp = mktime(0, 0, 0, (int)$month, (int)$day, $year);
+		return new PublicHoliday(
+			$def['name'],
+			$timestamp,
+			key: $def['key'] ?? null,
+			fullName: $def['full_name'] ?? null
+		);
 	}
 
-	// ========== Luxembourg Public Holidays ==========
-
 	/**
-	 * Returns the list of public holidays for Luxembourg.
-	 * Includes Luxembourg national holidays (Grand Duke's Birthday on June 23) and Christian holidays.
+	 * Resolves an Easter-relative holiday (type: easter).
+	 * The offset field specifies the number of days relative to Easter Sunday (negative for before, positive for after).
+	 * @param array<mixed> $def The holiday definition
 	 * @param int $year The year
-	 * @return PublicHoliday[] Array of Luxembourg public holidays
+	 * @return PublicHoliday The resolved holiday
 	 */
-	private static function getLuxembourgHolidays(int $year): array
+	private static function resolveEasterHoliday(array $def, int $year): PublicHoliday
 	{
-		return [
-			// Civil Holidays
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
-			new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)), // Labor Day
-			new PublicHoliday('Fête nationale', mktime(0, 0, 0, 6, 23, $year), fullName: 'Fête nationale luxembourgeoise'), // Luxembourg National Day
-
-			// Religious Holidays
-			new PublicHoliday('Pâques', self::getEasterDateTime($year)->getTimestamp(), key: 'paques'), // Easter Sunday
-			new PublicHoliday('Lundi de Pâques', self::getEasterMondayDateTime($year)->getTimestamp(), key: 'lundi_paques'), // Easter Monday
-			new PublicHoliday('Ascension', self::getAscensionThursdayDateTime($year)->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'), // Ascension Day
-			new PublicHoliday('Pentecôte', self::getPentecostSundayDateTime($year)->getTimestamp(), key: 'pentecote'), // Pentecost
-			new PublicHoliday('Lundi de Pentecôte', self::getWhitMondayDateTime($year)->getTimestamp(), key: 'lundi_pentecote'), // Whit Monday
-			new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)), // Assumption of Mary
-			new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)), // All Saints' Day
-			new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)), // Christmas Day
-		];
+		$offset = (int)($def['offset'] ?? 0);
+		$easterDateTime = clone self::getEasterDateTime($year);
+		if ($offset !== 0) {
+			$modifier = ($offset > 0 ? '+' : '') . $offset . ' days';
+			$easterDateTime->modify($modifier);
+		}
+		return new PublicHoliday(
+			$def['name'],
+			$easterDateTime->getTimestamp(),
+			key: $def['key'] ?? null,
+			fullName: $def['full_name'] ?? null
+		);
 	}
 
-	// ========== Switzerland Public Holidays ==========
-
 	/**
-	 * Returns the list of public holidays for Switzerland.
-	 * Swiss holidays vary by canton, but this method returns the most commonly observed federal and cantonal holidays. Includes Swiss National Day (August 1), various Christian holidays, and regional observances like Jeûne genevois and Jeûne fédéral.
+	 * Resolves a relative holiday using a strtotime expression (type: relative).
+	 * The expression field supports a {year} placeholder. An optional offset_days field adds days to the result.
+	 * @param array<mixed> $def The holiday definition
 	 * @param int $year The year
-	 * @return PublicHoliday[] Array of Swiss public holidays
+	 * @return PublicHoliday|null The resolved holiday, or null if the expression is invalid
 	 */
-	private static function getSwitzerlandHolidays(int $year): array
+	private static function resolveRelativeHoliday(array $def, int $year): ?PublicHoliday
 	{
-		$feteDieuDateTime = (clone self::getEasterDateTime($year))->modify('+60 days');
-		$timestampJeuneGenevois = strtotime('sunday', mktime(0, 0, 0, 9, 1, $year)) + (4 * 24 * 3600);
-		$timestampLundiJeuneFederal = strtotime('sunday', mktime(0, 0, 0, 9, 1, $year)) + (15 * 24 * 3600);
-
-		return [
-			// Civil Holidays
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
-			new PublicHoliday('Instauration de la République', mktime(0, 0, 0, 3, 1, $year)), // Republic Day
-			new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)), // Labor Day
-			new PublicHoliday('Commémoration du plébiscite', mktime(0, 0, 0, 6, 23, $year)), // Plebiscite Commemoration
-			new PublicHoliday('Fête nationale', mktime(0, 0, 0, 8, 1, $year), fullName: 'Fête nationale suisse'), // Swiss National Day
-			new PublicHoliday('Jeûne genevois', $timestampJeuneGenevois, key: 'jeune_genevois'), // Geneva Fast Day
-			new PublicHoliday('Lundi du Jeûne fédéral', $timestampLundiJeuneFederal, key: 'jeune_federal'), // Federal Fast Monday
-			new PublicHoliday('Restauration de la République', mktime(0, 0, 0, 12, 31, $year)), // Republic Restoration Day
-
-			// Religious Holidays
-			new PublicHoliday('Saint-Berchtold', mktime(0, 0, 0, 1, 2, $year)), // Berchtold's Day
-			new PublicHoliday('Épiphanie', mktime(0, 0, 0, 1, 6, $year)), // Epiphany
-			new PublicHoliday('Saint-Joseph', mktime(0, 0, 0, 3, 19, $year)), // Saint Joseph's Day
-			new PublicHoliday('Vendredi saint', self::getGoodFridayDateTime($year)->getTimestamp(), key: 'vendredi_saint'), // Good Friday
-			new PublicHoliday('Pâques', self::getEasterDateTime($year)->getTimestamp(), key: 'paques'), // Easter Sunday
-			new PublicHoliday('Lundi de Pâques', self::getEasterMondayDateTime($year)->getTimestamp(), key: 'lundi_paques'), // Easter Monday
-			new PublicHoliday('Ascension', self::getAscensionThursdayDateTime($year)->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'), // Ascension Day
-			new PublicHoliday('Pentecôte', self::getPentecostSundayDateTime($year)->getTimestamp(), key: 'pentecote'), // Pentecost
-			new PublicHoliday('Lundi de Pentecôte', self::getWhitMondayDateTime($year)->getTimestamp(), key: 'lundi_pentecote'), // Whit Monday
-			new PublicHoliday('Fête-Dieu', $feteDieuDateTime->getTimestamp(), key: 'fete_dieu'), // Corpus Christi
-			new PublicHoliday('Saint-Pierre et Paul', mktime(0, 0, 0, 6, 29, $year)), // Saints Peter and Paul
-			new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)), // Assumption of Mary
-			new PublicHoliday('Fête de Saint-Nicolas-de-Flüe', mktime(0, 0, 0, 9, 25, $year)), // Saint Nicholas of Flüe
-			new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)), // All Saints' Day
-			new PublicHoliday('Immaculée Conception', mktime(0, 0, 0, 12, 9, $year)), // Immaculate Conception
-			new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)), // Christmas Day
-			new PublicHoliday('Saint-Étienne', mktime(0, 0, 0, 12, 26, $year)), // Saint Stephen's Day
-		];
+		if (!isset($def['expression'])) {
+			return null;
+		}
+		$expression = str_replace('{year}', (string)$year, $def['expression']);
+		$timestamp = strtotime($expression);
+		if ($timestamp === false) {
+			return null;
+		}
+		$offsetDays = (int)($def['offset_days'] ?? 0);
+		if ($offsetDays !== 0) {
+			$timestamp += $offsetDays * 86400;
+		}
+		return new PublicHoliday(
+			$def['name'],
+			$timestamp,
+			key: $def['key'] ?? null,
+			fullName: $def['full_name'] ?? null
+		);
 	}
 
-	// ========== Mauritius Public Holidays ==========
-
 	/**
-	 * Returns the list of public holidays for Mauritius.
-	 * Mauritius has a diverse religious population, so holidays include Christian holidays, Islamic holidays (using Hijri calendar), Hindu holidays (using Indian calendar), and Chinese holidays (Spring Festival). Also includes civil holidays like Independence Day and Abolition of Slavery Day.
-	 * @param int $year The year
-	 * @return PublicHoliday[] Array of Mauritian public holidays
+	 * Resolves a Hijri (Islamic) calendar holiday (type: hijri).
+	 * Iterates the previous, current, and next Hijri year to find the occurrence that falls within the requested Gregorian year.
+	 * @param array<mixed> $def The holiday definition
+	 * @param int $year The Gregorian year
+	 * @return PublicHoliday|null The resolved holiday if it falls within the year, null otherwise
 	 */
-	private static function getMauritiusHolidays(int $year): array
+	private static function resolveHijriHoliday(array $def, int $year): ?PublicHoliday
 	{
-		return [
-			// Civil Holidays
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 2, $year)), // New Year's Day (2nd day)
-			new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 2, 1, $year)), // Abolition of Slavery
-			new PublicHoliday('Fête nationale', mktime(0, 0, 0, 3, 12, $year)), // Independence Day
-			new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)), // Labor Day
-			new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)), // All Saints' Day
-			new PublicHoliday('Arrivée des Travailleurs engagés', mktime(0, 0, 0, 11, 2, $year)), // Arrival of Indentured Laborers
-			new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)), // Christmas Day
-
-			// Islamic Holidays (Hijri Calendar)
-			new PublicHoliday('Aïd el-Fitr', IslamicCalendar::getTimestamp($year, 10, 1), key: 'aid_el_fitr', calendar: PublicHolidayCalendar::HIJRI), // End of Ramadan
-
-			// Chinese Holidays
-			new PublicHoliday('Fête du printemps', 0, key: 'fete_du_printemps'), // Chinese New Year / Spring Festival
-
-			// Hindu Holidays (Indian Calendar)
-			new PublicHoliday('Thaipoosam Cavadee', 0, key: 'thaipoosam_cavadee', calendar: PublicHolidayCalendar::INDIAN), // Tamil Festival
-			new PublicHoliday('Maha Shivaratree', 0, key: 'maha_shivaratree', calendar: PublicHolidayCalendar::INDIAN), // Great Night of Shiva
-			new PublicHoliday('Ugaadi', IndianCalendar::getTimestamp($year, 1, 1), key: 'ugaadi', calendar: PublicHolidayCalendar::INDIAN), // Hindu New Year
-			new PublicHoliday('Ganesh Chaturthi', 0, key: 'ganesh_chaturthi', calendar: PublicHolidayCalendar::INDIAN), // Ganesh Festival
-			new PublicHoliday('Divali', 0, key: 'divali', calendar: PublicHolidayCalendar::INDIAN), // Festival of Lights
-		];
-	}
-
-	// ========== Morocco Public Holidays ==========
-
-	/**
-	 * Returns the list of public holidays for Morocco.
-	 * Includes Moroccan national holidays (Throne Day, Green March, Independence Day) and Islamic religious holidays using the Hijri calendar (Eid al-Fitr, Eid al-Adha, Mawlid, Islamic New Year).
-	 * @param int $year The year
-	 * @return PublicHoliday[] Array of Moroccan public holidays
-	 */
-	private static function getMoroccoHolidays(int $year): array
-	{
-		// Convert Gregorian year to Hijri year for Islamic holidays
-		// We check mid-year (July 1) to get the appropriate Hijri year
-		[$hijriYear, ,] = IslamicCalendar::convertGregorianDateToIslamicDate($year, 7, 1);
-
-		$listOfPublicHolidays = [
-			// Civil Holidays
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
-			new PublicHoliday('Manifeste de l’Indépendance', mktime(0, 0, 0, 1, 11, $year)), // Independence Manifesto
-			new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)), // Labor Day
-			new PublicHoliday('Fête du Trône', mktime(0, 0, 0, 7, 30, $year)), // Throne Day
-			new PublicHoliday('Allégeance Oued Eddahab', mktime(0, 0, 0, 8, 14, $year)), // Oued Eddahab Allegiance Day
-			new PublicHoliday('Révolution du roi et du peuple', mktime(0, 0, 0, 8, 20, $year)), // Revolution of the King and the People
-			new PublicHoliday('Fête de la Jeunesse', mktime(0, 0, 0, 8, 21, $year)), // Youth Day
-			new PublicHoliday('La marche verte', mktime(0, 0, 0, 11, 6, $year)), // Green March
-			new PublicHoliday('Fête de l’Indépendance', mktime(0, 0, 0, 11, 18, $year)), // Independence Day
-		];
-
-		// Islamic Holidays (Hijri Calendar)
-		// Islamic holidays can span two Hijri years within a single Gregorian year
-		// We calculate holidays for both potential Hijri years and filter those within the requested Gregorian year
+		[$hijriYear] = IslamicCalendar::convertGregorianDateToIslamicDate($year, 7, 1);
 		$startOfYear = mktime(0, 0, 0, 1, 1, $year);
 		$endOfYear = mktime(23, 59, 59, 12, 31, $year);
 
-		// Calculate Islamic holidays for the current Hijri year and the previous one
-		$islamicHolidays = [
-			['name' => 'Aïd el-Fitr', 'key' => 'aid_el_fitr', 'month' => 10, 'day' => 1], // End of Ramadan
-			['name' => 'Aïd al-Adha', 'key' => 'aid_al_adha', 'month' => 12, 'day' => 10], // Festival of Sacrifice
-			['name' => 'Jour de l’an hégire', 'key' => 'jour_an_hegire', 'month' => 1, 'day' => 1], // Islamic New Year
-			['name' => 'Al-Mawlid', 'key' => 'al_mawlid', 'month' => 3, 'day' => 12], // Prophet's Birthday
-		];
-
-		foreach ($islamicHolidays as $holiday) {
-			// Try the previous, current and next Hijri year to cover all possibilities
-			foreach ([$hijriYear - 1, $hijriYear, $hijriYear + 1] as $tryYear) {
-				$timestamp = IslamicCalendar::getTimestamp($tryYear, $holiday['month'], $holiday['day']);
-
-				// Only add if it falls within the requested Gregorian year
-				if ($timestamp >= $startOfYear && $timestamp <= $endOfYear) {
-					$listOfPublicHolidays[] = new PublicHoliday(
-						$holiday['name'],
-						$timestamp,
-						key: $holiday['key'],
-						calendar: PublicHolidayCalendar::HIJRI
-					);
-					break; // Only add once per holiday
-				}
+		foreach ([$hijriYear - 1, $hijriYear, $hijriYear + 1] as $tryYear) {
+			$timestamp = IslamicCalendar::getTimestamp($tryYear, (int)$def['month'], (int)$def['day']);
+			if ($timestamp >= $startOfYear && $timestamp <= $endOfYear) {
+				return new PublicHoliday(
+					$def['name'],
+					$timestamp,
+					key: $def['key'] ?? null,
+					fullName: $def['full_name'] ?? null,
+					calendar: PublicHolidayCalendar::HIJRI
+				);
 			}
 		}
-
-		return $listOfPublicHolidays;
+		return null;
 	}
 
-	// ========== France and French Territories Public Holidays ==========
-
 	/**
-	 * Returns the list of public holidays for France and its overseas territories.
-	 * France has national holidays like Bastille Day (July 14), Victory Day (May 8), Armistice Day (November 11), and Christian holidays. Supports regional variations: Alsace-Moselle has additional holidays (Good Friday, Saint Stephen's Day), French overseas territories (Martinique, Guadeloupe, Réunion, French Guiana) have specific Abolition of Slavery dates and carnival celebrations.
-	 * @param string $country Country code (FR, MQ, GP, RE, GF)
-	 * @param int $year The year
-	 * @param array<string, mixed> $options Configuration options
-	 * @return PublicHoliday[] Array of French public holidays
+	 * Resolves an Indian (Hindu) calendar holiday (type: indian).
+	 * Uses IndianCalendar::getTimestamp() when both month and day are specified. Returns timestamp 0 for unimplemented holidays (month or day is null).
+	 * @param array<mixed> $def The holiday definition
+	 * @param int $year The Gregorian year
+	 * @return PublicHoliday The resolved holiday
 	 */
-	private static function getFranceHolidays(string $country, int $year, array $options): array
+	private static function resolveIndianHoliday(array $def, int $year): PublicHoliday
 	{
-		// Civil Holidays (Metropolitan France and all territories)
-		$listOfPublicHolidays = [
-			new PublicHoliday('Jour de l’an', mktime(0, 0, 0, 1, 1, $year)), // New Year's Day
-			new PublicHoliday('Fête du Travail', mktime(0, 0, 0, 5, 1, $year)), // Labor Day
-			new PublicHoliday('Victoire des Alliés', mktime(0, 0, 0, 5, 8, $year), fullName: 'Victoire des Alliés sur l’Allemagne nazie (8 mai 1945)'), // Victory in Europe Day
-			new PublicHoliday('Fête nationale', mktime(0, 0, 0, 7, 14, $year), fullName: 'Fête nationale française (Fête de la Fédération 14 juillet 1790)'), // Bastille Day
-			new PublicHoliday('Armistice', mktime(0, 0, 0, 11, 11, $year), fullName: 'Armistice de la Première Guerre mondiale (11 novembre 1918)'), // Armistice Day
-		];
+		$month = $def['month'] ?? null;
+		$day = $def['day'] ?? null;
 
-		// Religious Holidays
-
-		// Good Friday (Alsace-Moselle only)
-		if ($options['alsace'] ?? false) {
-			$listOfPublicHolidays[] = new PublicHoliday('Vendredi saint', self::getGoodFridayDateTime($year)->getTimestamp(), key: 'vendredi_saint'); // Good Friday
+		if ($month !== null && $day !== null) {
+			$timestamp = IndianCalendar::getTimestamp($year, (int)$month, (int)$day);
+		} else {
+			$timestamp = 0;
 		}
 
-		// Easter and Easter-related holidays
-		$listOfPublicHolidays[] = new PublicHoliday('Pâques', self::getEasterDateTime($year)->getTimestamp(), key: 'paques'); // Easter Sunday
-		$listOfPublicHolidays[] = new PublicHoliday('Lundi de Pâques', self::getEasterMondayDateTime($year)->getTimestamp(), key: 'lundi_paques'); // Easter Monday
-		$listOfPublicHolidays[] = new PublicHoliday('Ascension', self::getAscensionThursdayDateTime($year)->getTimestamp(), key: 'ascension', fullName: 'Jeudi de l’Ascension'); // Ascension Day
-		$listOfPublicHolidays[] = new PublicHoliday('Pentecôte', self::getPentecostSundayDateTime($year)->getTimestamp(), key: 'pentecote'); // Pentecost
-		$listOfPublicHolidays[] = new PublicHoliday('Lundi de Pentecôte', self::getWhitMondayDateTime($year)->getTimestamp(), key: 'lundi_pentecote'); // Whit Monday
-
-		// Other Christian holidays
-		$listOfPublicHolidays[] = new PublicHoliday('Assomption', mktime(0, 0, 0, 8, 15, $year)); // Assumption of Mary
-		$listOfPublicHolidays[] = new PublicHoliday('Toussaint', mktime(0, 0, 0, 11, 1, $year)); // All Saints' Day
-		$listOfPublicHolidays[] = new PublicHoliday('Noël', mktime(0, 0, 0, 12, 25, $year)); // Christmas Day
-
-		// Saint Stephen's Day (Alsace-Moselle only)
-		if ($options['alsace'] ?? false) {
-			$listOfPublicHolidays[] = new PublicHoliday('Saint Étienne', mktime(0, 0, 0, 12, 26, $year)); // Saint Stephen's Day
-		}
-
-		// Martinique / Guadeloupe specific holidays
-		if ($country === 'MQ' || $country === 'GP') {
-			// Abolition of Slavery (different dates)
-			if ($country === 'MQ') {
-				$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 5, 22, $year)); // Martinique
-			} else {
-				$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 5, 27, $year)); // Guadeloupe
-			}
-
-			// Common holidays for both territories
-			$listOfPublicHolidays[] = new PublicHoliday('Fête Victor Schœlcher', mktime(0, 0, 0, 7, 21, $year)); // Victor Schœlcher Day
-			$listOfPublicHolidays[] = new PublicHoliday('Défunts', mktime(0, 0, 0, 11, 2, $year)); // All Souls' Day
-
-			// Carnival season
-			$easterDateTime = self::getEasterDateTime($year);
-			$mardiGrasDateTime = (clone $easterDateTime)->modify('-47 days');
-			$listOfPublicHolidays[] = new PublicHoliday('Mardi gras', $mardiGrasDateTime->getTimestamp(), key: 'mardi_gras'); // Shrove Tuesday
-
-			$mercrediDesCendresDateTime = (clone $easterDateTime)->modify('-46 days');
-			$listOfPublicHolidays[] = new PublicHoliday('Mercredi des Cendres', $mercrediDesCendresDateTime->getTimestamp(), key: 'mercredi_des_cendres'); // Ash Wednesday
-
-			$miCaremeDateTime = (clone $easterDateTime)->modify('-24 days');
-			$listOfPublicHolidays[] = new PublicHoliday('Mi-carême', $miCaremeDateTime->getTimestamp(), key: 'mi_careme'); // Mid-Lent
-
-			$listOfPublicHolidays[] = new PublicHoliday('Vendredi saint', self::getGoodFridayDateTime($year)->getTimestamp(), key: 'vendredi_saint'); // Good Friday
-		}
-
-		// Réunion specific holidays
-		if ($country === 'RE') {
-			$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 12, 20, $year)); // Abolition of Slavery (Réunion)
-		}
-
-		// French Guiana specific holidays
-		if ($country === 'GF') {
-			$listOfPublicHolidays[] = new PublicHoliday('Abolition de l’esclavage', mktime(0, 0, 0, 6, 10, $year)); // Abolition of Slavery (French Guiana)
-		}
-
-		return $listOfPublicHolidays;
+		return new PublicHoliday(
+			$def['name'],
+			$timestamp,
+			key: $def['key'] ?? null,
+			fullName: $def['full_name'] ?? null,
+			calendar: PublicHolidayCalendar::INDIAN
+		);
 	}
 }

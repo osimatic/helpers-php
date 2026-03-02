@@ -1,0 +1,83 @@
+country: TN
+territories: [TN]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Fête de la Révolution et de la Jeunesse"
+    type: fixed
+    date: "01-14"
+
+  - name: "Fête de l’Indépendance"
+    type: fixed
+    date: "03-20"
+
+  - name: "Fête de la Jeunesse"
+    type: fixed
+    date: "03-21"
+
+  - name: "Fête des Martyrs"
+    type: fixed
+    date: "04-09"
+
+  - name: "Fête du Travail"
+    type: fixed
+    date: "05-01"
+
+  - name: "Fête de la République"
+    type: fixed
+    date: "07-25"
+
+  - name: "Fête de la Femme"
+    type: fixed
+    date: "08-13"
+
+  - name: "Fête de l’Évacuation"
+    type: fixed
+    date: "10-15"
+
+  # Islamic Holidays (Hijri Calendar)
+  - name: "Jour de l’an hégire"
+    type: hijri
+    month: 1
+    day: 1
+    key: jour_an_hegire
+    calendar: HIJRI
+
+  - name: "Anniversaire du Prophète"
+    type: hijri
+    month: 3
+    day: 12
+    key: al_mawlid
+    calendar: HIJRI
+
+  - name: "Aïd el-Fitr"
+    type: hijri
+    month: 10
+    day: 1
+    key: aid_el_fitr
+    calendar: HIJRI
+
+  - name: "Aïd el-Fitr (2ème jour)"
+    type: hijri
+    month: 10
+    day: 2
+    key: aid_el_fitr_2
+    calendar: HIJRI
+
+  - name: "Aïd al-Adha"
+    type: hijri
+    month: 12
+    day: 10
+    key: aid_al_adha
+    calendar: HIJRI
+
+  - name: "Aïd al-Adha (2ème jour)"
+    type: hijri
+    month: 12
+    day: 11
+    key: aid_al_adha_2
+    calendar: HIJRI

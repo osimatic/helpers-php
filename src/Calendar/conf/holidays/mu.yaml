@@ -1,0 +1,85 @@
+country: MU
+territories: [MU]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-02"
+
+  - name: "Abolition de l’esclavage"
+    type: fixed
+    date: "02-01"
+
+  - name: "Fête nationale"
+    type: fixed
+    date: "03-12"
+
+  - name: "Fête du Travail"
+    type: fixed
+    date: "05-01"
+
+  - name: "Toussaint"
+    type: fixed
+    date: "11-01"
+
+  - name: "Arrivée des Travailleurs engagés"
+    type: fixed
+    date: "11-02"
+
+  - name: "Noël"
+    type: fixed
+    date: "12-25"
+
+  # Islamic Holidays (Hijri Calendar)
+  - name: "Aïd el-Fitr"
+    type: hijri
+    month: 10
+    day: 1
+    key: aid_el_fitr
+    calendar: HIJRI
+
+  # Chinese Holidays
+  - name: "Fête du printemps"
+    type: unimplemented
+    key: fete_du_printemps
+
+  # Hindu Holidays (Indian Calendar)
+  - name: "Thaipoosam Cavadee"
+    type: indian
+    month: ~
+    day: ~
+    key: thaipoosam_cavadee
+    calendar: INDIAN
+
+  - name: "Maha Shivaratree"
+    type: indian
+    month: ~
+    day: ~
+    key: maha_shivaratree
+    calendar: INDIAN
+
+  - name: "Ugaadi"
+    type: indian
+    month: 1
+    day: 1
+    key: ugaadi
+    calendar: INDIAN
+
+  - name: "Ganesh Chaturthi"
+    type: indian
+    month: ~
+    day: ~
+    key: ganesh_chaturthi
+    calendar: INDIAN
+
+  - name: "Divali"
+    type: indian
+    month: ~
+    day: ~
+    key: divali
+    calendar: INDIAN

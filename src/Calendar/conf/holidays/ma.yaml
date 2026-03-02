@@ -1,0 +1,69 @@
+country: MA
+territories: [MA]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Manifeste de l’Indépendance"
+    type: fixed
+    date: "01-11"
+
+  - name: "Fête du Travail"
+    type: fixed
+    date: "05-01"
+
+  - name: "Fête du Trône"
+    type: fixed
+    date: "07-30"
+
+  - name: "Allégeance Oued Eddahab"
+    type: fixed
+    date: "08-14"
+
+  - name: "Révolution du roi et du peuple"
+    type: fixed
+    date: "08-20"
+
+  - name: "Fête de la Jeunesse"
+    type: fixed
+    date: "08-21"
+
+  - name: "La marche verte"
+    type: fixed
+    date: "11-06"
+
+  - name: "Fête de l’Indépendance"
+    type: fixed
+    date: "11-18"
+
+  # Islamic Holidays (Hijri Calendar)
+  - name: "Aïd el-Fitr"
+    type: hijri
+    month: 10
+    day: 1
+    key: aid_el_fitr
+    calendar: HIJRI
+
+  - name: "Aïd al-Adha"
+    type: hijri
+    month: 12
+    day: 10
+    key: aid_al_adha
+    calendar: HIJRI
+
+  - name: "Jour de l’an hégire"
+    type: hijri
+    month: 1
+    day: 1
+    key: jour_an_hegire
+    calendar: HIJRI
+
+  - name: "Al-Mawlid"
+    type: hijri
+    month: 3
+    day: 12
+    key: al_mawlid
+    calendar: HIJRI

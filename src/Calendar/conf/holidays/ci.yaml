@@ -1,0 +1,78 @@
+country: CI
+territories: [CI]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Fête nationale"
+    type: fixed
+    date: "08-07"
+    full_name: "Fête de l’Indépendance ivoirienne"
+
+  - name: "Assomption"
+    type: fixed
+    date: "08-15"
+
+  - name: "Toussaint"
+    type: fixed
+    date: "11-01"
+
+  - name: "Fête de la Paix"
+    type: fixed
+    date: "11-15"
+
+  - name: "Noël"
+    type: fixed
+    date: "12-25"
+
+  # Christian Religious Holidays
+  - name: "Lundi de Pâques"
+    type: easter
+    offset: 1
+    key: lundi_paques
+
+  - name: "Fête du Travail"
+    type: fixed
+    date: "05-01"
+
+  - name: "Ascension"
+    type: easter
+    offset: 39
+    key: ascension
+
+  - name: "Lundi de Pentecôte"
+    type: easter
+    offset: 50
+    key: lundi_pentecote
+
+  # Islamic Holidays (Hijri Calendar)
+  - name: "Aïd el-Fitr"
+    type: hijri
+    month: 10
+    day: 1
+    key: aid_el_fitr
+    calendar: HIJRI
+
+  - name: "Aïd al-Adha"
+    type: hijri
+    month: 12
+    day: 10
+    key: aid_al_adha
+    calendar: HIJRI
+
+  - name: "Jour de l’an hégire"
+    type: hijri
+    month: 1
+    day: 1
+    key: jour_an_hegire
+    calendar: HIJRI
+
+  - name: "Anniversaire du Prophète"
+    type: hijri
+    month: 3
+    day: 12
+    key: al_mawlid
+    calendar: HIJRI

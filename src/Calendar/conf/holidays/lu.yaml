@@ -1,0 +1,56 @@
+country: LU
+territories: [LU]
+
+holidays:
+  # Civil Holidays
+  - name: "Jour de l’an"
+    type: fixed
+    date: "01-01"
+
+  - name: "Fête du Travail"
+    type: fixed
+    date: "05-01"
+
+  - name: "Fête nationale"
+    type: fixed
+    date: "06-23"
+    full_name: "Fête nationale luxembourgeoise"
+
+  # Religious Holidays
+  - name: "Pâques"
+    type: easter
+    offset: 0
+    key: paques
+
+  - name: "Lundi de Pâques"
+    type: easter
+    offset: 1
+    key: lundi_paques
+
+  - name: "Ascension"
+    type: easter
+    offset: 39
+    key: ascension
+    full_name: "Jeudi de l’Ascension"
+
+  - name: "Pentecôte"
+    type: easter
+    offset: 49
+    key: pentecote
+
+  - name: "Lundi de Pentecôte"
+    type: easter
+    offset: 50
+    key: lundi_pentecote
+
+  - name: "Assomption"
+    type: fixed
+    date: "08-15"
+
+  - name: "Toussaint"
+    type: fixed
+    date: "11-01"
+
+  - name: "Noël"
+    type: fixed
+    date: "12-25"
