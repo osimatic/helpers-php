@@ -2,15 +2,19 @@
 
 namespace Osimatic\Security;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
 /**
- * Verifies HMAC-SHA256 signatures on incoming HTTP requests to prevent tampering and replay attacks.
+ * Symfony service that verifies HMAC-SHA256 signatures on incoming HTTP requests
+ * to prevent tampering and replay attacks.
  *
  * The signing scheme uses a canonical string composed of:
  *   - A Unix timestamp (X-Timestamp header)
  *   - A one-time nonce (X-Nonce header)
  *   - Alphabetically sorted key=value pairs for each signed field
  *
- * The list of signed fields is defined by the caller, allowing this class to be used
+ * The list of signed fields is defined by the caller, allowing this service to be used
  * for any type of request regardless of the domain.
  *
  * @link https://en.wikipedia.org/wiki/HMAC HMAC
@@ -25,9 +29,50 @@ class RequestSignatureVerifier
 
     /**
      * Maximum allowed difference in seconds between the request timestamp and the server time.
-     * Requests outside this window are rejected as expired.
+     * Used as the default tolerance when none is provided.
      */
     public const int DEFAULT_TIMESTAMP_TOLERANCE_SECONDS = 300; // ±5 minutes
+
+    // ========================================
+    // Constructor & Configuration
+    // ========================================
+
+    /**
+     * @param string $secret Shared secret known to both the server and the client
+     * @param int $toleranceSeconds Maximum age of a valid request in seconds (default: 300)
+	 * @param LoggerInterface $logger The PSR-3 logger instance for error and debugging (default: NullLogger)
+     */
+    public function __construct(
+        private string $secret = '',
+        private int $toleranceSeconds = self::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS,
+        private readonly LoggerInterface $logger = new NullLogger(),
+    ) {}
+
+    /**
+     * Sets the shared secret used to verify request signatures.
+     *
+     * @param string $secret Shared secret known to both the server and the client
+     * @return self
+     */
+    public function setSecret(string $secret): self
+    {
+        $this->secret = $secret;
+
+        return $this;
+    }
+
+    /**
+     * Sets the maximum age of a valid request in seconds.
+     *
+     * @param int $toleranceSeconds Tolerance window in seconds
+     * @return self
+     */
+    public function setToleranceSeconds(int $toleranceSeconds): self
+    {
+        $this->toleranceSeconds = $toleranceSeconds;
+
+        return $this;
+    }
 
     // ========================================
     // Verification Methods
@@ -37,57 +82,72 @@ class RequestSignatureVerifier
      * Verifies the HMAC-SHA256 signature of an incoming request.
      *
      * Performs three checks in order:
-     *   1. Timestamp freshness — rejects requests older than $toleranceSeconds
+     *   1. Timestamp freshness — rejects requests older than the configured tolerance
      *   2. Nonce uniqueness — rejects replayed requests
      *   3. Signature integrity — rejects tampered payloads
      *
      * The caller is responsible for providing the exact list of fields to sign,
      * sorted alphabetically, matching the signing logic on the client side.
      *
-     * @param array  $postData         Request POST body
-     * @param array  $headers          HTTP headers containing X-Timestamp, X-Nonce, and X-Signature
-     * @param string $secret           Shared secret known to both the server and the client
-     * @param array  $signedFields     Alphabetically sorted list of field names to include in the signature
-     * @param int    $toleranceSeconds Maximum age of a valid request in seconds (default: 300)
+     * @param array  $postData     Request POST body
+     * @param array  $headers      HTTP headers containing X-Timestamp, X-Nonce, and X-Signature
+     * @param array  $signedFields Alphabetically sorted list of field names to include in the signature
      *
      * @throws \RuntimeException If any header is missing (code 400), the timestamp is expired (code 400),
      *                           the nonce was already used (code 400), or the signature is invalid (code 403)
      */
-    public static function verify(
-        array $postData,
-        array $headers,
-        string $secret,
-        array $signedFields,
-        int $toleranceSeconds = self::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS
-    ): void {
+    public function verify(array $postData, array $headers, array $signedFields): void
+    {
         $timestamp = $headers['X-Timestamp'] ?? null;
         $nonce     = $headers['X-Nonce']     ?? null;
         $signature = $headers['X-Signature'] ?? null;
 
         if (!$timestamp || !$nonce || !$signature) {
+            $this->logger->warning('Request signature verification failed: missing headers.', [
+                'has_timestamp' => isset($headers['X-Timestamp']),
+                'has_nonce'     => isset($headers['X-Nonce']),
+                'has_signature' => isset($headers['X-Signature']),
+            ]);
             throw new \RuntimeException('Missing signature headers', 400);
         }
 
         // 1. Reject requests with an expired timestamp.
-        if (abs(time() - (int) $timestamp) > $toleranceSeconds) {
+        if (abs(time() - (int) $timestamp) > $this->toleranceSeconds) {
+            $this->logger->warning('Request signature verification failed: timestamp expired.', [
+                'timestamp'          => $timestamp,
+                'server_time'        => time(),
+                'tolerance_seconds'  => $this->toleranceSeconds,
+            ]);
             throw new \RuntimeException('Request timestamp expired', 400);
         }
 
         // 2. Reject replayed requests via nonce deduplication.
-        if (!self::isNonceUnique($nonce)) {
+        if (!$this->isNonceUnique($nonce)) {
+            $this->logger->warning('Request signature verification failed: nonce already used.', [
+                'nonce' => $nonce,
+            ]);
             throw new \RuntimeException('Nonce already used', 400);
         }
 
         // 3. Rebuild the canonical string and compare signatures.
-        $canonical = self::buildCanonical($timestamp, $nonce, $signedFields, $postData);
-        $expected  = base64_encode(hash_hmac('sha256', $canonical, $secret, true));
+        $canonical = $this->buildCanonical($timestamp, $nonce, $signedFields, $postData);
+        $expected  = base64_encode(hash_hmac('sha256', $canonical, $this->secret, true));
 
         if (!hash_equals($expected, $signature)) {
+            $this->logger->warning('Request signature verification failed: signature mismatch.', [
+                'nonce'         => $nonce,
+                'signed_fields' => $signedFields,
+            ]);
             throw new \RuntimeException('Invalid signature', 403);
         }
 
         // Nonce is valid — record it to block future replays.
-        self::markNonceUsed($nonce);
+        $this->markNonceUsed($nonce);
+
+        $this->logger->debug('Request signature verified successfully.', [
+            'nonce'         => $nonce,
+            'signed_fields' => $signedFields,
+        ]);
     }
 
     // ========================================
@@ -113,7 +173,7 @@ class RequestSignatureVerifier
      * @param array  $postData     Request POST body used to resolve field values
      * @return string The canonical string ready to be signed
      */
-    private static function buildCanonical(
+    private function buildCanonical(
         string $timestamp,
         string $nonce,
         array $signedFields,
@@ -145,7 +205,7 @@ class RequestSignatureVerifier
      * @param string $nonce The nonce value from the X-Nonce header
      * @return bool True if the nonce has never been seen, false if it was already used
      */
-    private static function isNonceUnique(string $nonce): bool
+    private function isNonceUnique(string $nonce): bool
     {
         // TODO: implement using Redis or a database table
         return true;
@@ -169,7 +229,7 @@ class RequestSignatureVerifier
      *
      * @param string $nonce The nonce value to record
      */
-    private static function markNonceUsed(string $nonce): void
+    private function markNonceUsed(string $nonce): void
     {
         // TODO: implement using Redis or a database table
     }
