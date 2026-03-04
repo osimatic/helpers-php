@@ -47,8 +47,7 @@ class RequestSignatureVerifier
 		private int $toleranceSeconds = self::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS,
 		private readonly LoggerInterface $logger = new NullLogger(),
 	)
-	{
-	}
+	{}
 
 	/**
 	 * Sets the shared secret used to verify request signatures.
@@ -94,9 +93,7 @@ class RequestSignatureVerifier
 	 * @param array $postData Request POST body
 	 * @param array $headers HTTP headers containing X-Timestamp, X-Nonce, and X-Signature
 	 * @param array $signedFields Alphabetically sorted list of field names to include in the signature
-	 *
-	 * @throws \RuntimeException If any header is missing (code 400), the timestamp is expired (code 400),
-	 *                           the nonce was already used (code 400), or the signature is invalid (code 403)
+	 * @return bool True if the signature is valid and the request is fresh, false otherwise
 	 */
 	public function verify(array $postData, array $headers, array $signedFields): bool
 	{
