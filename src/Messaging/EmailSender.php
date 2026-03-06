@@ -27,6 +27,7 @@ class EmailSender implements EmailSenderInterface
 	 * @param EmailSmtpEncryption $smtpAuthEncryption The SMTP encryption method (default: STARTTLS)
 	 * @param string|null $smtpAuthUsername The SMTP authentication username
 	 * @param string|null $smtpAuthPassword The SMTP authentication password
+	 * @param int|null $smtpTimeout The SMTP connection timeout in seconds (default: PHPMailer default of 300)
 	 */
 	public function __construct(
 		private EmailSendingMethod $sendingMethod = EmailSendingMethod::SMTP,
@@ -37,6 +38,7 @@ class EmailSender implements EmailSenderInterface
 		private EmailSmtpEncryption $smtpAuthEncryption = EmailSmtpEncryption::STARTTLS,
 		private ?string $smtpAuthUsername = null,
 		private ?string $smtpAuthPassword = null,
+		private ?int $smtpTimeout = null,
 	) {}
 
 	/**
@@ -90,6 +92,19 @@ class EmailSender implements EmailSenderInterface
 		$this->smtpAuthUsername = $username;
 		$this->smtpAuthPassword = $password;
 		$this->smtpAuthEncryption = $encryption;
+
+		return $this;
+	}
+
+	/**
+	 * Set the SMTP connection timeout.
+	 * @param int $timeout The timeout in seconds
+	 * @return self Returns this instance for method chaining
+	 * @link https://github.com/PHPMailer/PHPMailer/blob/master/src/PHPMailer.php PHPMailer Timeout property
+	 */
+	public function setSmtpTimeout(int $timeout): self
+	{
+		$this->smtpTimeout = $timeout;
 
 		return $this;
 	}
@@ -154,6 +169,9 @@ class EmailSender implements EmailSenderInterface
 			$mail->Password = $this->smtpAuthPassword;
 			$mail->Host = $this->host;
 			$mail->Port = $this->port;
+			if (null !== $this->smtpTimeout) {
+				$mail->Timeout = $this->smtpTimeout;
+			}
 		}
 		elseif (EmailSendingMethod::SENDMAIL === $this->sendingMethod) {
 			$mail->isSendmail();
