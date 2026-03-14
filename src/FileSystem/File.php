@@ -29,9 +29,16 @@ class File
 	 */
 	public static function getDataFromBase64Data(string $data): ?string
 	{
+		// URL-decode in case the data was transmitted as application/x-www-form-urlencoded
+		$data = urldecode($data);
+
 		if (str_contains($data, 'base64,')) {
 			$data = explode('base64,', $data)[1] ?? '';
 		}
+
+		// Strip whitespace characters (e.g., newlines introduced by URL-decoding of %0A)
+		$data = preg_replace('/\s+/', '', $data);
+
 		// Validate base64 with strict mode
 		if (false === ($decoded = base64_decode($data, true)) || empty($decoded)) {
 			return null;
