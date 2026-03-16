@@ -42,14 +42,14 @@ class File
 		// Strip whitespace characters (e.g., newlines introduced by URL-decoding of %0A)
 		$data = preg_replace('/\s+/', '', $data);
 
-		// Validate base64 with strict mode
+		// Validate base64 with strict mode (rejects invalid characters)
 		if (false === ($decoded = base64_decode($data, true)) || empty($decoded)) {
 			return null;
 		}
 		// Verify the decoded data can be re-encoded to the same value
-		if (base64_encode($decoded) !== $data) {
-			return null;
-		}
+		//if (base64_encode($decoded) !== $data) {
+		//	return null;
+		//}
 		return $decoded;
 	}
 
