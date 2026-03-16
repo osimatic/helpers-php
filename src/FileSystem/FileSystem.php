@@ -28,7 +28,7 @@ class FileSystem
 
 		$isUnc = (str_starts_with($filePath, '\\\\'));
 		if ($isUnc) {
-			$filePath = substr($filePath, 2);
+			$filePath = ltrim($filePath, '\\');
 		}
 
 		// Remove unnecessary '//' and \\ elements

@@ -222,6 +222,7 @@ class File
 	 */
 	public static function moveUploadedFile(InputFile|UploadedFile $uploadedFile, string $filePath, ?LoggerInterface $logger=null): bool
 	{
+		$filePath = FileSystem::formatPath($filePath);
 		FileSystem::createDirectories($filePath);
 
 		if (file_exists($filePath)) {
