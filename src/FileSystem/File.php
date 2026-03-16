@@ -29,8 +29,11 @@ class File
 	 */
 	public static function getDataFromBase64Data(string $data): ?string
 	{
-		// URL-decode in case the data was transmitted as application/x-www-form-urlencoded
-		$data = urldecode($data);
+		// URL-decode in case the data was transmitted as application/x-www-form-urlencoded.
+		// Use rawurldecode (not urldecode) to avoid converting '+' (valid base64 char) to space.
+		// When called via Symfony's $request->request->get(), the body is already decoded (%2B→+),
+		// so urldecode would wrongly turn those '+' into spaces, corrupting the base64 string.
+		$data = rawurldecode($data);
 
 		if (str_contains($data, 'base64,')) {
 			$data = explode('base64,', $data)[1] ?? '';
