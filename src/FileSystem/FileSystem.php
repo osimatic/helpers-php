@@ -87,6 +87,8 @@ class FileSystem
 	 */
 	public static function initializeFile(string $filePath): void
 	{
+		$filePath = self::formatPath($filePath);
+
 		// Delete file if it already exists
 		if (file_exists($filePath)) {
 			unlink($filePath);
