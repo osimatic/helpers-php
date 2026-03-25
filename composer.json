@@ -1,7 +1,7 @@
 {
-	"name": "osimatic/helpers-php",
-	"description": "PHP helpers",
-	"homepage": "https://github.com/osimatic/helpers-php",
+	"name": "osimatic/core-php",
+	"description": "PHP core library",
+	"homepage": "https://github.com/osimatic/core-php",
 	"type": "package",
 	"require": {
 		"php": "^8.4",
