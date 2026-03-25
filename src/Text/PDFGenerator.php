@@ -56,6 +56,7 @@ class PDFGenerator
 	 */
 	public function generateFile(string $filePath, string $bodyHtml, ?string $headerHtml=null, ?string $footerHtml=null, array $options=[]): bool
 	{
+		$filePath = \Osimatic\FileSystem\FileSystem::formatPath($filePath);
 		\Osimatic\FileSystem\FileSystem::initializeFile($filePath);
 
 		$snappy = new \Knp\Snappy\Pdf();

@@ -1,4 +1,4 @@
-# helpers-php
+# core-php
 
 ## Optional dependencies
 
