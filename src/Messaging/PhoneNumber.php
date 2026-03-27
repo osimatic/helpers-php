@@ -67,7 +67,7 @@ class PhoneNumber
 			return $phoneNumber;
 		}
 
-		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat->value);
+		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::from($numberFormat->value));
 	}
 
 	/**
@@ -82,7 +82,7 @@ class PhoneNumber
 			return null;
 		}
 
-		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, PhoneNumberFormat::E164->value);
+		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::E164);
 	}
 
 	/**
