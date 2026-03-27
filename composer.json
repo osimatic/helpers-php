@@ -16,7 +16,7 @@
 		"ext-ftp": "*",
 		"psr/log": "*",
 		"psr/http-message": "*",
-		"giggsey/libphonenumber-for-php": "^8",
+		"giggsey/libphonenumber-for-php": "^9",
 		"knplabs/knp-snappy": "^1",
 		"james-heinrich/getid3": "^1",
 		"symfony/serializer": "^7 || ^8",
@@ -26,11 +26,11 @@
 		"symfony/validator": "^7 || ^8",
 	  	"symfony/console": "^7 || ^8",
 		"league/iso3166": "^4",
-		"mustache/mustache": "^2",
+		"mustache/mustache": "^3",
 		"johngrogg/ics-parser": "^3",
 		"symfony/http-foundation": "^7 || ^8",
-		"phpmailer/phpmailer": "^6",
-		"minishlink/web-push": "^9",
+		"phpmailer/phpmailer": "^7",
+		"minishlink/web-push": "^10",
 		"twig/twig": "^3",
 		"digitickets/lalit": "^3",
 		"commerceguys/addressing": "^2",
@@ -57,6 +57,6 @@
 		}
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^12.4"
+		"phpunit/phpunit": "^13.0"
 	}
 }

@@ -11,37 +11,37 @@ enum PhoneNumberType: int
 	/**
 	 * Mobile phone number type.
 	 */
-	case MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE;
+	case MOBILE 		= \libphonenumber\PhoneNumberType::MOBILE->value;
 
 	/**
 	 * Fixed line (landline) phone number type.
 	 */
-	case FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE;
+	case FIXED_LINE 	= \libphonenumber\PhoneNumberType::FIXED_LINE->value;
 
 	/**
 	 * Premium rate phone number type (e.g., audiotel services).
 	 */
-	case PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE;
+	case PREMIUM_RATE 	= \libphonenumber\PhoneNumberType::PREMIUM_RATE->value;
 
 	/**
 	 * Toll-free phone number type.
 	 */
-	case TOLL_FREE 		= \libphonenumber\PhoneNumberType::TOLL_FREE;
+	case TOLL_FREE 		= \libphonenumber\PhoneNumberType::TOLL_FREE->value;
 
 	/**
 	 * Shared cost phone number type.
 	 */
-	case SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST;
+	case SHARED_COST 	= \libphonenumber\PhoneNumberType::SHARED_COST->value;
 
 	/**
 	 * VoIP phone number type.
 	 */
-	case VOIP 			= \libphonenumber\PhoneNumberType::VOIP;
+	case VOIP 			= \libphonenumber\PhoneNumberType::VOIP->value;
 
 	/**
 	 * Unknown phone number type.
 	 */
-	case UNKNOWN 		= \libphonenumber\PhoneNumberType::UNKNOWN;
+	case UNKNOWN 		= \libphonenumber\PhoneNumberType::UNKNOWN->value;
 
 
 	/**
@@ -62,15 +62,19 @@ enum PhoneNumberType: int
 	}
 
 	/**
-	 * Parse a string value into a PhoneNumberType enum case.
+	 * Parse a string or libphonenumber PhoneNumberType into a PhoneNumberType enum case.
 	 * This method handles various string formats and aliases for phone number types, including multilingual variations and common alternative names.
-	 * @param string|null $type The phone number type string to parse (case-insensitive)
+	 * @param string|\libphonenumber\PhoneNumberType|null $type The phone number type to parse (string is case-insensitive)
 	 * @return PhoneNumberType|null The corresponding PhoneNumberType case, or null if not recognized
 	 */
-	public static function parse(?string $type): ?PhoneNumberType
+	public static function parse(string|\libphonenumber\PhoneNumberType|null $type): ?PhoneNumberType
 	{
 		if (null === $type) {
 			return null;
+		}
+
+		if ($type instanceof \libphonenumber\PhoneNumberType) {
+			return self::tryFrom($type->value);
 		}
 
 		$type = mb_strtoupper($type);

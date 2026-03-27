@@ -227,14 +227,13 @@ class PostalAddressFormatter
 
 	private function render(string $tplText, array $addressArray): string
 	{
-		$m = new \Mustache_Engine;
+		$m = new \Mustache\Engine;
 
 		$context = $addressArray;
-		$context['first'] = function($text) use (&$m, &$addressArray) {
+		$context['first'] = static function($text) use (&$m, &$addressArray) {
 			$newText = $m->render($text, $addressArray);
 			$matched = preg_split("/\s*\|\|\s*/", $newText);
 			$first = current(array_filter($matched));
-
 			return $first;
 		};
 
@@ -244,11 +243,11 @@ class PostalAddressFormatter
 		$text = $this->cleanupRendered($text);
 
 		//Make sure we have at least something
-		if (preg_match('/\w/u', $text) == 0) {
+		if (preg_match('/\w/u', $text) === 0) {
 			$backupParts = [];
 
 			foreach ($addressArray as $key => $val) {
-				if (strlen($val) > 0) {
+				if (!empty($val)) {
 					$backupParts[] = $val;
 				}
 			}

@@ -40,7 +40,7 @@ class PhoneNumber
 	 */
 	public static function formatNational(?string $phoneNumber, ?string $defaultCountry = null): ?string
 	{
-		return self::format($phoneNumber, \libphonenumber\PhoneNumberFormat::NATIONAL, $defaultCountry);
+		return self::format($phoneNumber, PhoneNumberFormat::NATIONAL, $defaultCountry);
 	}
 
 	/**
@@ -51,23 +51,23 @@ class PhoneNumber
 	 */
 	public static function formatInternational(?string $phoneNumber, ?string $defaultCountry = null): ?string
 	{
-		return self::format($phoneNumber, \libphonenumber\PhoneNumberFormat::INTERNATIONAL, $defaultCountry);
+		return self::format($phoneNumber, PhoneNumberFormat::INTERNATIONAL, $defaultCountry);
 	}
 
 	/**
 	 * Format a phone number using a specific format.
 	 * @param string|null $phoneNumber The phone number to format
-	 * @param int $numberFormat The libphonenumber format constant (NATIONAL, INTERNATIONAL, E164, etc.)
+	 * @param PhoneNumberFormat $numberFormat The desired phone number format
 	 * @param string|null $defaultCountry The ISO country code to use if the phone number doesn't include a country code
 	 * @return string|null The formatted phone number, or the original value if parsing fails, or null if input is null
 	 */
-	public static function format(?string $phoneNumber, int $numberFormat, ?string $defaultCountry = null): ?string
+	public static function format(?string $phoneNumber, PhoneNumberFormat $numberFormat, ?string $defaultCountry = null): ?string
 	{
 		if (null === $phoneNumber || null === ($phoneNumberObj = self::parsePhoneNumber($phoneNumber, $defaultCountry))) {
 			return $phoneNumber;
 		}
 
-		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat);
+		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, $numberFormat->value);
 	}
 
 	/**
@@ -82,7 +82,7 @@ class PhoneNumber
 			return null;
 		}
 
-		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, \libphonenumber\PhoneNumberFormat::E164);
+		return \libphonenumber\PhoneNumberUtil::getInstance()->format($phoneNumberObj, PhoneNumberFormat::E164->value);
 	}
 
 	/**
@@ -144,7 +144,7 @@ class PhoneNumber
 			return null;
 		}
 
-		return PhoneNumberType::tryFrom(\libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj));
+		return PhoneNumberType::parse(\libphonenumber\PhoneNumberUtil::getInstance()->getNumberType($phoneNumberObj));
 	}
 
 	/**
