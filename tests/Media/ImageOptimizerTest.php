@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Tests\Media;
 
 use Osimatic\Media\ImageOptimizer;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use InvalidArgumentException;
 
+#[AllowMockObjectsWithoutExpectations]
 final class ImageOptimizerTest extends TestCase
 {
 	private string $fixturesPath;

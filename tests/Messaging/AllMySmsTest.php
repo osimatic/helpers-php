@@ -7,6 +7,7 @@ namespace Tests\Messaging;
 use Osimatic\Messaging\AllMySms;
 use Osimatic\Messaging\SMS;
 use Osimatic\Network\HTTPMethod;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
@@ -14,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class AllMySmsTest extends TestCase
 {
 	private const string TEST_LOGIN = 'test-login';

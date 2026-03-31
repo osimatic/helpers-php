@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\API;
 
 use Osimatic\API\Mantis;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -13,6 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class MantisTest extends TestCase
 {
 	private const string TEST_URL = 'https://mantis.example.com';

@@ -6,11 +6,13 @@ namespace Tests\Messaging;
 
 use GuzzleHttp\Psr7\Response;
 use Osimatic\Messaging\SendinBlue;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class SendinBlueTest extends TestCase
 {
 	private const string TEST_API_KEY = 'test-sendinblue-api-key-12345';

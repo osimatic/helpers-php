@@ -7,9 +7,11 @@ namespace Tests\Media;
 use Osimatic\Media\AudioConverter;
 use Osimatic\Media\Audio;
 use Osimatic\Media\AudioEncoding;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class AudioConverterTest extends TestCase
 {
 	/* ===================== Constructor ===================== */

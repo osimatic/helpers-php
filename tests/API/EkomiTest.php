@@ -6,12 +6,14 @@ namespace Tests\API;
 
 use GuzzleHttp\Psr7\Response;
 use Osimatic\API\Ekomi;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class EkomiTest extends TestCase
 {
 	private const string TEST_INTERFACE_ID = 'test-interface-123';

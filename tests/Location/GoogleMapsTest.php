@@ -6,11 +6,13 @@ namespace Tests\Location;
 
 use GuzzleHttp\Psr7\Response;
 use Osimatic\Location\GoogleMaps;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class GoogleMapsTest extends TestCase
 {
 	private const string TEST_API_KEY = 'test-google-maps-api-key';

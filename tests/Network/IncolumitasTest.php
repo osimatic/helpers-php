@@ -6,11 +6,13 @@ namespace Tests\Network;
 
 use GuzzleHttp\Psr7\Response;
 use Osimatic\Network\Incolumitas;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class IncolumitasTest extends TestCase
 {
 	private const string TEST_IP_ADDRESS = '8.8.8.8';

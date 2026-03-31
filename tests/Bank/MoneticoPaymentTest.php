@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Tests\Bank;
 
 use Osimatic\Bank\MoneticoPayment;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class MoneticoPaymentTest extends TestCase
 {
 	private const int TEST_TPE_NUMBER = 1234567;

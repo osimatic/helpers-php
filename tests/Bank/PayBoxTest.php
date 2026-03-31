@@ -12,11 +12,13 @@ use Osimatic\Bank\PayBox;
 use Osimatic\Bank\PayBoxResponse;
 use Osimatic\Bank\PayBoxVersion;
 use Osimatic\Bank\ShoppingCartInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class PayBoxTest extends TestCase
 {
 	private PayBox $paybox;

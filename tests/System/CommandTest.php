@@ -6,11 +6,13 @@ namespace Tests\System;
 
 use Osimatic\System\Command;
 use Osimatic\System\CommandResult;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
+#[AllowMockObjectsWithoutExpectations]
 final class CommandTest extends TestCase
 {
 	/* ===================== Constructor & Configuration ===================== */

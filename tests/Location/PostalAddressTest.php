@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tests\Location;
 
 use Osimatic\Location\PostalAddress;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 final class PostalAddressTest extends TestCase
 {
 	// ========== Validation ==========

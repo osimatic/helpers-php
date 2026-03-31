@@ -8,10 +8,12 @@ use Osimatic\Messaging\EmailSender;
 use Osimatic\Messaging\EmailSenderInterface;
 use Osimatic\Messaging\EmailSendingMethod;
 use Osimatic\Messaging\EmailSmtpEncryption;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+#[AllowMockObjectsWithoutExpectations]
 class EmailSenderTest extends TestCase
 {
 	// ========== Helper Methods ==========

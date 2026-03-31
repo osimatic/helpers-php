@@ -8,10 +8,12 @@ use Osimatic\Messaging\MobilePushNotificationSubscriptionInterface;
 use Osimatic\Messaging\PushNotificationInterface;
 use Osimatic\Messaging\PushNotificationSendingResponse;
 use Osimatic\Messaging\PushNotificationSendingStatus;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+#[AllowMockObjectsWithoutExpectations]
 class FirebaseMessagingTest extends TestCase
 {
 	// ========== Constructor Tests ==========

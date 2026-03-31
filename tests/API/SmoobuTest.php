@@ -4,9 +4,11 @@ namespace Tests\API;
 
 use Osimatic\API\Smoobu;
 use Osimatic\Network\HTTPClient;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class SmoobuTest extends TestCase
 {
 	private Smoobu $smoobu;

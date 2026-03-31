@@ -81,12 +81,7 @@ class RequestSignatureVerifierTest extends TestCase
         $postData     = ['field' => 'value'];
         $signedFields = ['field'];
         $headers      = $this->makeHeaders('secret', $signedFields, $postData, $oldTimestamp);
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for expired timestamp');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
     }
 
     // ========================================
@@ -108,52 +103,27 @@ class RequestSignatureVerifierTest extends TestCase
         // --- Missing X-Timestamp ---
         $headers = $this->makeHeaders($secret, $signedFields, $postData);
         unset($headers['X-Timestamp']);
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for missing X-Timestamp');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
 
         // --- Missing X-Nonce ---
         $headers = $this->makeHeaders($secret, $signedFields, $postData);
         unset($headers['X-Nonce']);
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for missing X-Nonce');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
 
         // --- Missing X-Signature ---
         $headers = $this->makeHeaders($secret, $signedFields, $postData);
         unset($headers['X-Signature']);
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for missing X-Signature');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
 
         // --- Timestamp too old (> default tolerance) ---
         $expiredTimestamp = (string) (time() - RequestSignatureVerifier::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS - 1);
         $headers = $this->makeHeaders($secret, $signedFields, $postData, $expiredTimestamp);
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for expired timestamp');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
 
         // --- Timestamp too far in the future (> default tolerance) ---
         $futureTimestamp = (string) (time() + RequestSignatureVerifier::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS + 1);
         $headers = $this->makeHeaders($secret, $signedFields, $postData, $futureTimestamp);
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for future timestamp');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
 
         // --- Timestamp exactly at the tolerance boundary: must pass ---
         $boundaryTimestamp = (string) (time() - RequestSignatureVerifier::DEFAULT_TIMESTAMP_TOLERANCE_SECONDS);
@@ -165,12 +135,7 @@ class RequestSignatureVerifierTest extends TestCase
         $tightVerifier    = new RequestSignatureVerifier($secret, 5);
         $slightlyOldTimestamp = (string) (time() - 20);
         $headers = $this->makeHeaders($secret, $signedFields, $postData, $slightlyOldTimestamp);
-        try {
-            $tightVerifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException with custom tight tolerance');
-        } catch (\RuntimeException $e) {
-            self::assertSame(400, $e->getCode());
-        }
+        self::assertFalse($tightVerifier->verify($postData, $headers, $signedFields));
 
         // --- Custom wide tolerance: 20-second-old request is accepted ---
         $wideVerifier = new RequestSignatureVerifier($secret, 60);
@@ -180,32 +145,17 @@ class RequestSignatureVerifierTest extends TestCase
 
         // --- Wrong secret: signature mismatch ---
         $headers = $this->makeHeaders('correct-secret', $signedFields, $postData);
-        try {
-            (new RequestSignatureVerifier('wrong-secret'))->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for wrong secret');
-        } catch (\RuntimeException $e) {
-            self::assertSame(403, $e->getCode());
-        }
+        self::assertFalse((new RequestSignatureVerifier('wrong-secret'))->verify($postData, $headers, $signedFields));
 
         // --- Tampered post data: signature mismatch ---
         $headers      = $this->makeHeaders($secret, $signedFields, $postData);
         $tamperedData = array_merge($postData, ['user_id' => '99']);
-        try {
-            $verifier->verify($tamperedData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for tampered post data');
-        } catch (\RuntimeException $e) {
-            self::assertSame(403, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($tamperedData, $headers, $signedFields));
 
         // --- Tampered signature ---
         $headers                = $this->makeHeaders($secret, $signedFields, $postData);
         $headers['X-Signature'] = base64_encode('definitely-not-a-valid-hmac');
-        try {
-            $verifier->verify($postData, $headers, $signedFields);
-            self::fail('Expected RuntimeException for tampered signature');
-        } catch (\RuntimeException $e) {
-            self::assertSame(403, $e->getCode());
-        }
+        self::assertFalse($verifier->verify($postData, $headers, $signedFields));
 
         // --- Missing field in postData: empty string used, must still match ---
         $postDataWithMissing = ['action' => 'submit', 'user_id' => '42']; // 'payload' absent

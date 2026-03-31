@@ -8,11 +8,13 @@ use GuzzleHttp\Psr7\Response;
 use Osimatic\Bank\BankCardOperation;
 use Osimatic\Bank\Revolut;
 use Osimatic\Bank\RevolutResponse;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class RevolutTest extends TestCase
 {
 	private Revolut $revolut;

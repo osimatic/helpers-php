@@ -7,8 +7,10 @@ namespace Tests\Calendar;
 use Osimatic\Calendar\EventInterface;
 use Osimatic\Calendar\ICS;
 use Osimatic\Person\PersonInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 final class ICSTest extends TestCase
 {
 	// ========== Constants Tests ==========

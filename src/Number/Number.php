@@ -347,20 +347,9 @@ class Number
 			return 0;
 		}
 
-		// Get decimal part as float
-		$whole = floor(abs($float));
-		$decimal = abs($float) - $whole;
-
-		// Convert to string and extract decimal digits
-		$decimalStr = (string) $decimal;
-
-		// Remove '0.' prefix if present
-		if (str_starts_with($decimalStr, '0.')) {
-			$decimalStr = substr($decimalStr, 2);
-		}
-
-		// Remove trailing zeros
-		$decimalStr = rtrim($decimalStr, '0');
+		// Use string representation to avoid float subtraction precision issues
+		$parts = explode('.', (string) abs($float));
+		$decimalStr = rtrim($parts[1] ?? '', '0');
 
 		return empty($decimalStr) ? 0 : (int) $decimalStr;
 	}

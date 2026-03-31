@@ -6,11 +6,13 @@ namespace Tests\Security;
 
 use GuzzleHttp\Psr7\Response;
 use Osimatic\Security\GoogleReCaptcha;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 final class GoogleReCaptchaTest extends TestCase
 {
 	private const string TEST_SITE_KEY = 'test-site-key-123456';

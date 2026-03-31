@@ -8,10 +8,12 @@ use Osimatic\Media\ImageResizer;
 use Osimatic\Media\ImageSharpeningIntensity;
 use Osimatic\Media\ImageCropPosition;
 use Osimatic\Media\ImageResizeMode;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use InvalidArgumentException;
 
+#[AllowMockObjectsWithoutExpectations]
 final class ImageResizerTest extends TestCase
 {
 	private string $fixturesPath;

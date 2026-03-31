@@ -7,11 +7,13 @@ use Osimatic\Route\GoogleDistanceMatrix;
 use Osimatic\Route\GoogleDistanceMatrixParameters;
 use Osimatic\Route\TransitTravelMode;
 use Osimatic\Route\TravelMode;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class GoogleDistanceMatrixTest extends TestCase
 {
 	private const string TEST_API_KEY = 'test-api-key';
