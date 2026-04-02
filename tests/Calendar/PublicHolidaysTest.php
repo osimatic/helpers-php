@@ -136,7 +136,7 @@ class PublicHolidaysTest extends TestCase
 		$countries = PublicHolidays::getSupportedCountries();
 		self::assertIsArray($countries);
 
-		$expected = ['FR', 'MQ', 'GP', 'RE', 'GF', 'BE', 'LU', 'CH', 'MU', 'MA', 'DE', 'ES', 'IT', 'GB', 'NL', 'PL', 'PT', 'DZ', 'TN', 'SN', 'CI', 'CM'];
+		$expected = ['FR', 'MQ', 'GP', 'RE', 'GF', 'BE', 'LU', 'CH', 'MU', 'MA', 'DE', 'ES', 'IT', 'GB', 'NL', 'PL', 'PT', 'DZ', 'TN', 'SN', 'CI', 'CM', 'MG'];
 		foreach ($expected as $country) {
 			self::assertContains($country, $countries, "Country $country should be in supported countries");
 		}
@@ -533,5 +533,26 @@ class PublicHolidaysTest extends TestCase
 		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Jour de l’an') && date('Y-m-d', $h->getTimestamp()) === '2024-01-01' && $h->getKey() === '01-01'));
 		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Fête nationale') && date('Y-m-d', $h->getTimestamp()) === '2024-05-20' && $h->getKey() === '05-20'));
 		self::assertNotEmpty(array_filter($holidays, fn ($h) => $h->getKey() === 'aid_el_fitr' && date('Y-m-d', $h->getTimestamp()) === '2024-04-10')); // Eid al-Fitr 2024
+	}
+
+	public function testGetListMadagascar(): void
+	{
+		$holidays = PublicHolidays::getList('MG', 2024);
+		self::assertIsArray($holidays);
+		self::assertNotEmpty($holidays);
+		self::assertContainsOnlyInstancesOf(PublicHoliday::class, $holidays);
+
+		self::assertCount(11, $holidays);
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Jour de l’an') && date('Y-m-d', $h->getTimestamp()) === '2024-01-01' && $h->getKey() === '01-01'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), '29 mars') && date('Y-m-d', $h->getTimestamp()) === '2024-03-29' && $h->getKey() === '03-29'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => $h->getKey() === 'lundi_paques' && date('Y-m-d', $h->getTimestamp()) === '2024-04-01'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Travail') && date('Y-m-d', $h->getTimestamp()) === '2024-05-01' && $h->getKey() === '05-01'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => $h->getKey() === 'ascension' && date('Y-m-d', $h->getTimestamp()) === '2024-05-09'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => $h->getKey() === 'lundi_pentecote' && date('Y-m-d', $h->getTimestamp()) === '2024-05-20'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Indépendance') && date('Y-m-d', $h->getTimestamp()) === '2024-06-26' && $h->getKey() === '06-26'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Assomption') && date('Y-m-d', $h->getTimestamp()) === '2024-08-15' && $h->getKey() === '08-15'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Toussaint') && date('Y-m-d', $h->getTimestamp()) === '2024-11-01' && $h->getKey() === '11-01'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'République') && date('Y-m-d', $h->getTimestamp()) === '2024-12-11' && $h->getKey() === '12-11'));
+		self::assertNotEmpty(array_filter($holidays, fn ($h) => str_contains($h->getName(), 'Noël') && date('Y-m-d', $h->getTimestamp()) === '2024-12-25' && $h->getKey() === '12-25'));
 	}
 }
