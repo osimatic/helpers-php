@@ -13,25 +13,16 @@ final class StrTest extends TestCase
 
 	public function testReplaceListChar(): void
 	{
-		$str = 'Hello World';
-		$replacements = ['o' => '0', 'l' => '1'];
-		$result = Str::replaceListChar($str, $replacements);
+		// Basic replacement (lowercase only by default)
+		$result = Str::replaceListChar('Hello World', ['o' => '0', 'l' => '1']);
 		$this->assertSame('He110 W0r1d', $result);
-	}
 
-	public function testReplaceListCharWithUppercase(): void
-	{
-		$str = 'Hello WORLD';
-		$replacements = ['o' => '0', 'l' => '1'];
-		$result = Str::replaceListChar($str, $replacements, replaceUppercaseChar: true);
+		// With uppercase replacement enabled
+		$result = Str::replaceListChar('Hello WORLD', ['o' => '0', 'l' => '1'], replaceUppercaseChar: true);
 		$this->assertSame('He110 W0R1D', $result);
-	}
 
-	public function testReplaceListCharWithLowercase(): void
-	{
-		$str = 'Hello WORLD';
-		$replacements = ['O' => '0', 'L' => '1'];
-		$result = Str::replaceListChar($str, $replacements, replaceLowercaseChar: true);
+		// With lowercase replacement enabled
+		$result = Str::replaceListChar('Hello WORLD', ['O' => '0', 'L' => '1'], replaceLowercaseChar: true);
 		$this->assertSame('He110 W0R1D', $result);
 	}
 
@@ -39,17 +30,12 @@ final class StrTest extends TestCase
 
 	public function testRemoveListeChar(): void
 	{
-		$str = 'Hello World';
-		$charsToRemove = ['o', 'l'];
-		$result = Str::removeListeChar($str, $charsToRemove);
+		// Basic removal (lowercase only by default)
+		$result = Str::removeListeChar('Hello World', ['o', 'l']);
 		$this->assertSame('He Wrd', $result);
-	}
 
-	public function testRemoveListeCharWithUppercase(): void
-	{
-		$str = 'Hello WORLD';
-		$charsToRemove = ['o', 'l'];
-		$result = Str::removeListeChar($str, $charsToRemove, replaceUppercaseChar: true);
+		// With uppercase removal enabled
+		$result = Str::removeListeChar('Hello WORLD', ['o', 'l'], replaceUppercaseChar: true);
 		$this->assertSame('He WRD', $result);
 	}
 
@@ -68,67 +54,48 @@ final class StrTest extends TestCase
 	public function testSuggest(): void
 	{
 		$dictionary = ['apple', 'application', 'apply', 'banana'];
+
+		// Close match found
 		$this->assertSame('apple', Str::suggest('aple', $dictionary));
 		$this->assertSame('banana', Str::suggest('banane', $dictionary));
-	}
 
-	public function testSuggestNoMatch(): void
-	{
-		$dictionary = ['apple', 'banana'];
-		$this->assertNull(Str::suggest('xyz', $dictionary));
+		// No match within distance
+		$this->assertNull(Str::suggest('xyz', ['apple', 'banana']));
 	}
 
 	/* ===================== compare() ===================== */
 
-	public function testCompareNumeric(): void
+	public function testCompare(): void
 	{
+		// Numeric comparison
 		$this->assertSame(-1, Str::compare(5, 10));
 		$this->assertSame(1, Str::compare(10, 5));
 		$this->assertSame(0, Str::compare(5, 5));
-	}
 
-	public function testCompareString(): void
-	{
+		// String comparison
 		$this->assertLessThan(0, Str::compare('apple', 'banana'));
 		$this->assertGreaterThan(0, Str::compare('banana', 'apple'));
 		$this->assertSame(0, Str::compare('test', 'test'));
-	}
 
-	public function testCompareCaseSensitive(): void
-	{
-		$result = Str::compare('Test', 'test', caseSensitive: true);
-		$this->assertNotSame(0, $result);
-	}
-
-	public function testCompareCaseInsensitive(): void
-	{
-		$result = Str::compare('Test', 'test', caseSensitive: false);
-		$this->assertSame(0, $result);
+		// Case sensitivity
+		$this->assertNotSame(0, Str::compare('Test', 'test', caseSensitive: true));
+		$this->assertSame(0, Str::compare('Test', 'test', caseSensitive: false));
 	}
 
 	/* ===================== truncateTextAtEnd() ===================== */
 
 	public function testTruncateTextAtEnd(): void
 	{
-		$str = 'This is a very long text';
-		$result = Str::truncateTextAtEnd($str, 12);
-		// Le résultat doit faire exactement 10 caractères (incluant l'ellipsis)
+		// Standard truncation
+		$result = Str::truncateTextAtEnd('This is a very long text', 12);
 		$this->assertSame('This is a…', $result);
 		$this->assertSame(10, mb_strlen($result));
-	}
 
-	public function testTruncateTextAtEndNoTruncate(): void
-	{
-		$str = 'Short';
-		$result = Str::truncateTextAtEnd($str, 10);
-		$this->assertSame('Short', $result);
-	}
+		// Short string — no truncation
+		$this->assertSame('Short', Str::truncateTextAtEnd('Short', 10));
 
-	public function testTruncateTextAtEndDontCutWord(): void
-	{
-		$str = 'This is a test';
-		$result = Str::truncateTextAtEnd($str, 8, dontCutInMiddleOfWord: true);
-		// Le résultat doit faire exactement 8 caractères (incluant l'ellipsis)
+		// Do not cut in the middle of a word
+		$result = Str::truncateTextAtEnd('This is a test', 8, dontCutInMiddleOfWord: true);
 		$this->assertSame('This is…', $result);
 		$this->assertSame(8, mb_strlen($result));
 	}
@@ -137,8 +104,7 @@ final class StrTest extends TestCase
 
 	public function testTruncateTextAtBeginning(): void
 	{
-		$str = 'This is a very long text';
-		$result = Str::truncateTextAtBeginning($str, 10, dontCutInMiddleOfWord: true);
+		$result = Str::truncateTextAtBeginning('This is a very long text', 10, dontCutInMiddleOfWord: true);
 		$this->assertStringStartsWith('…', $result);
 		$this->assertLessThanOrEqual(11, strlen($result)); // 10 + ellipsis
 	}
@@ -147,8 +113,7 @@ final class StrTest extends TestCase
 
 	public function testTruncateTextInMiddle(): void
 	{
-		$str = 'This is a very long text to test';
-		$result = Str::truncateTextInMiddle($str, 15);
+		$result = Str::truncateTextInMiddle('This is a very long text to test', 15);
 		$this->assertStringContainsString('[…]', $result);
 	}
 
@@ -156,8 +121,7 @@ final class StrTest extends TestCase
 
 	public function testEllipsize(): void
 	{
-		$str = 'This is a very long text';
-		$result = Str::ellipsize($str, 15);
+		$result = Str::ellipsize('This is a very long text', 15);
 		$this->assertLessThanOrEqual(20, strlen($result));
 		$this->assertStringContainsString('&hellip;', $result);
 	}
@@ -188,10 +152,8 @@ final class StrTest extends TestCase
 		$this->assertTrue(Str::hasLengthBetween('test', 4, 4));
 		$this->assertFalse(Str::hasLengthBetween('test', 5, 10));
 		$this->assertFalse(Str::hasLengthBetween('test', 1, 3));
-	}
 
-	public function testHasLengthBetweenInvalidRange(): void
-	{
+		// Invalid range (min > max)
 		$this->assertFalse(Str::hasLengthBetween('test', 10, 5));
 	}
 
@@ -220,10 +182,8 @@ final class StrTest extends TestCase
 		$this->assertTrue(Str::isNumericWithLength('12345', 3, 10));
 		$this->assertFalse(Str::isNumericWithLength('123a5', 3, 10));
 		$this->assertFalse(Str::isNumericWithLength('12', 3, 10));
-	}
 
-	public function testIsNumericWithLengthStartWithZero(): void
-	{
+		// Leading zero handling
 		$this->assertTrue(Str::isNumericWithLength('01234', 3, 10, canStartWithZero: true));
 		$this->assertFalse(Str::isNumericWithLength('01234', 3, 10, canStartWithZero: false));
 	}
@@ -241,13 +201,12 @@ final class StrTest extends TestCase
 
 	public function testGetStringWithBlank(): void
 	{
+		// Blanks appended at the end (default)
 		$result = Str::getStringWithBlank('test', 10);
 		$this->assertSame('test      ', $result);
 		$this->assertSame(10, strlen($result));
-	}
 
-	public function testGetStringWithBlankAtBeginning(): void
-	{
+		// Blanks prepended at the beginning
 		$result = Str::getStringWithBlank('test', 10, addBlankInBeginning: true);
 		$this->assertSame('      test', $result);
 		$this->assertSame(10, strlen($result));
@@ -265,7 +224,7 @@ final class StrTest extends TestCase
 
 	public function testGetNumberOccurrencesOfPreciseChar(): void
 	{
-		$this->assertSame(2, Str::getNumberOccurrencesOfPreciseChar('hello', 'l')); // 'hello' a 2 'l'
+		$this->assertSame(2, Str::getNumberOccurrencesOfPreciseChar('hello', 'l')); // 'hello' has 2 'l'
 		$this->assertSame(1, Str::getNumberOccurrencesOfPreciseChar('hello', 'h'));
 		$this->assertSame(0, Str::getNumberOccurrencesOfPreciseChar('hello', 'x'));
 	}
@@ -274,12 +233,11 @@ final class StrTest extends TestCase
 
 	public function testGetNumberOccurrencesOfListChar(): void
 	{
+		// Array input
 		$this->assertSame(3, Str::getNumberOccurrencesOfListChar('hello', ['l', 'o'])); // 2 'l' + 1 'o' = 3
 		$this->assertSame(2, Str::getNumberOccurrencesOfListChar('hello', ['h', 'e']));
-	}
 
-	public function testGetNumberOccurrencesOfListCharString(): void
-	{
+		// String input
 		$this->assertSame(3, Str::getNumberOccurrencesOfListChar('hello', 'lo')); // 2 'l' + 1 'o' = 3
 	}
 
@@ -322,13 +280,12 @@ final class StrTest extends TestCase
 
 	public function testPluralize(): void
 	{
+		// Three-form pattern
 		$this->assertSame('Aucun item', Str::pluralize('{Aucun item|1 item|{#} items}', 0));
 		$this->assertSame('1 item', Str::pluralize('{Aucun item|1 item|{#} items}', 1));
 		$this->assertSame('5 items', Str::pluralize('{Aucun item|1 item|{#} items}', 5));
-	}
 
-	public function testPluralizeTwoForms(): void
-	{
+		// Two-form pattern
 		$this->assertSame('1 item', Str::pluralize('{1 item|{#} items}', 1));
 		$this->assertSame('5 items', Str::pluralize('{1 item|{#} items}', 5));
 	}
@@ -370,12 +327,11 @@ final class StrTest extends TestCase
 
 	public function testRemoveSpaces(): void
 	{
+		// Default: spaces removed
 		$this->assertSame('HelloWorld', Str::removeSpaces('Hello World'));
 		$this->assertSame('Test', Str::removeSpaces('  Test  '));
-	}
 
-	public function testRemoveSpacesWithReplacement(): void
-	{
+		// With replacement character
 		$this->assertSame('Hello-World', Str::removeSpaces('Hello World', '-'));
 	}
 
@@ -401,15 +357,12 @@ final class StrTest extends TestCase
 
 	public function testNormalizeBreaks(): void
 	{
-		$str = "Hello\nWorld\rTest\r\nEnd";
-		$result = Str::normalizeBreaks($str);
+		// Default: normalize to \r\n
+		$result = Str::normalizeBreaks("Hello\nWorld\rTest\r\nEnd");
 		$this->assertSame("Hello\r\nWorld\r\nTest\r\nEnd", $result);
-	}
 
-	public function testNormalizeBreaksCustom(): void
-	{
-		$str = "Hello\nWorld\rTest";
-		$result = Str::normalizeBreaks($str, ' ');
+		// Custom break type
+		$result = Str::normalizeBreaks("Hello\nWorld\rTest", ' ');
 		$this->assertSame('Hello World Test', $result);
 	}
 
@@ -417,19 +370,39 @@ final class StrTest extends TestCase
 
 	public function testRemovePunctuation(): void
 	{
-		$str = 'Hello, World! How are you?';
-		$result = Str::removePunctuation($str);
+		$result = Str::removePunctuation('Hello, World! How are you?');
 		$this->assertSame('Hello World How are you', $result);
+
+		// Double spaces created after punctuation removal must be cleaned
+		$result = Str::removePunctuation('bonjour : je suis Benoit');
+		$this->assertSame('bonjour je suis Benoit', $result);
+		$this->assertStringNotContainsString('  ', $result);
 	}
 
-	public function testRemovePunctuationWithDoubleSpaces(): void
+	/* ===================== removeEmoji() ===================== */
+
+	public function testRemoveEmoji(): void
 	{
-		// Teste que les doubles espaces créés après suppression de ponctuation sont nettoyés
-		$str = 'bonjour : je suis Benoit';
-		$result = Str::removePunctuation($str);
-		$this->assertSame('bonjour je suis Benoit', $result);
-		// Vérifie qu'il n'y a pas de double espace
-		$this->assertStringNotContainsString('  ', $result);
+		// Basic emoji
+		$this->assertSame('Hello ', Str::removeEmoji('Hello 😀'));
+
+		// Multiple emojis
+		$this->assertSame('Hello  World', Str::removeEmoji('Hello 🎉 World'));
+
+		// Flag emoji (regional indicators)
+		$this->assertSame('Hello ', Str::removeEmoji('Hello 🇫🇷'));
+
+		// ZWJ sequence (family emoji composed of multiple code points)
+		$this->assertSame('Hello ', Str::removeEmoji('Hello 👨‍👩‍👧'));
+
+		// Variation selector (text rendered as emoji)
+		$this->assertSame('Hello ', Str::removeEmoji('Hello ☀️'));
+
+		// No emoji — string should be unchanged
+		$this->assertSame('Hello World', Str::removeEmoji('Hello World'));
+
+		// Empty string
+		$this->assertSame('', Str::removeEmoji(''));
 	}
 
 	/* ===================== replaceAnnoyingChar() ===================== */
@@ -445,15 +418,12 @@ final class StrTest extends TestCase
 
 	public function testReduceMultiples(): void
 	{
-		$str = 'Fred, Bill,, Joe, Jimmy';
-		$result = Str::reduceMultiples($str, ',');
+		// Default: reduce consecutive duplicates
+		$result = Str::reduceMultiples('Fred, Bill,, Joe, Jimmy', ',');
 		$this->assertSame('Fred, Bill, Joe, Jimmy', $result);
-	}
 
-	public function testReduceMultiplesWithTrim(): void
-	{
-		$str = ',,Fred, Bill,, Joe, Jimmy,,';
-		$result = Str::reduceMultiples($str, ',', trim: true);
+		// With trim: also strip leading/trailing occurrences
+		$result = Str::reduceMultiples(',,Fred, Bill,, Joe, Jimmy,,', ',', trim: true);
 		$this->assertSame('Fred, Bill, Joe, Jimmy', $result);
 	}
 
@@ -461,13 +431,12 @@ final class StrTest extends TestCase
 
 	public function testIncrement(): void
 	{
+		// Default separator (_)
 		$this->assertSame('file_1', Str::increment('file'));
 		$this->assertSame('file_2', Str::increment('file_1'));
 		$this->assertSame('file_3', Str::increment('file_2'));
-	}
 
-	public function testIncrementCustomSeparator(): void
-	{
+		// Custom separator
 		$this->assertSame('file-1', Str::increment('file', '-'));
 		$this->assertSame('file-2', Str::increment('file-1', '-'));
 	}
@@ -483,138 +452,74 @@ final class StrTest extends TestCase
 
 	/* ===================== wrapWord() ===================== */
 
-	public function testWrapWordShortText(): void
+	public function testWrapWord(): void
 	{
-		// Text shorter than charlim should not be wrapped
-		$str = 'Short text';
-		$result = Str::wrapWord($str, 50);
-		$this->assertSame('Short text', $result);
-	}
+		// Short text — should not be wrapped
+		$this->assertSame('Short text', Str::wrapWord('Short text', 50));
 
-	public function testWrapWordLongText(): void
-	{
-		// Long text should be wrapped
-		$str = 'This is a very long text that needs to be wrapped at a certain character limit to ensure readability';
-		$result = Str::wrapWord($str, 40);
+		// Long text — should be wrapped with newlines
+		$result = Str::wrapWord('This is a very long text that needs to be wrapped at a certain character limit to ensure readability', 40);
 		$this->assertStringContainsString("\n", $result);
-		$lines = explode("\n", $result);
-		foreach ($lines as $line) {
+		foreach (explode("\n", $result) as $line) {
 			$this->assertLessThanOrEqual(41, strlen($line)); // Allow some flexibility
 		}
-	}
 
-	public function testWrapWordWithUrls(): void
-	{
 		// URLs should not be wrapped
-		$str = 'Check this link http://example.com/very/long/url/that/should/not/be/wrapped please';
-		$result = Str::wrapWord($str, 20);
+		$result = Str::wrapWord('Check this link http://example.com/very/long/url/that/should/not/be/wrapped please', 20);
 		$this->assertStringContainsString('http://example.com/very/long/url/that/should/not/be/wrapped', $result);
-	}
 
-	public function testWrapWordWithUnwrapTags(): void
-	{
 		// Content within {unwrap}{/unwrap} tags should not be wrapped
-		$str = 'This is text {unwrap}this is a very long sentence that should not be wrapped at all{/unwrap} more text';
-		$result = Str::wrapWord($str, 20);
+		$result = Str::wrapWord('This is text {unwrap}this is a very long sentence that should not be wrapped at all{/unwrap} more text', 20);
 		$this->assertStringContainsString('this is a very long sentence that should not be wrapped at all', $result);
-	}
 
-	public function testWrapWordMultipleSpaces(): void
-	{
-		// Multiple spaces should be reduced to single spaces
-		$str = 'Text  with    multiple     spaces';
-		$result = Str::wrapWord($str, 50);
+		// Multiple spaces should be reduced to a single space
+		$result = Str::wrapWord('Text  with    multiple     spaces', 50);
 		$this->assertStringNotContainsString('  ', $result);
 		$this->assertSame('Text with multiple spaces', $result);
-	}
 
-	public function testWrapWordDifferentLineBreaks(): void
-	{
 		// Different line break types should be normalized
-		$str = "Line1\r\nLine2\rLine3\nLine4";
-		$result = Str::wrapWord($str, 50);
-		$lines = explode("\n", $result);
-		$this->assertCount(4, $lines);
-	}
+		$result = Str::wrapWord("Line1\r\nLine2\rLine3\nLine4", 50);
+		$this->assertCount(4, explode("\n", $result));
 
-	public function testWrapWordVeryLongWords(): void
-	{
 		// Very long words exceeding charlim should be split
-		$str = 'Thisisaverylongwordthatexceedsthecharacterlimit';
-		$result = Str::wrapWord($str, 20);
-		$lines = explode("\n", $result);
-		$this->assertGreaterThan(1, count($lines));
+		$result = Str::wrapWord('Thisisaverylongwordthatexceedsthecharacterlimit', 20);
+		$this->assertGreaterThan(1, count(explode("\n", $result)));
 	}
 
 	/* ===================== censorWord() ===================== */
 
 	public function testCensorWord(): void
 	{
-		$str = 'This is a bad word';
-		$censored = ['bad'];
-		$result = Str::censorWord($str, $censored);
+		// Basic censoring
+		$result = Str::censorWord('This is a bad word', ['bad']);
 		$this->assertSame('This is a #### word', $result);
-	}
 
-	public function testCensorWordCustomReplacement(): void
-	{
-		$str = 'This is a bad word';
-		$censored = ['bad'];
-		$result = Str::censorWord($str, $censored, '***');
+		// Custom replacement
+		$result = Str::censorWord('This is a bad word', ['bad'], '***');
 		$this->assertSame('This is a *** word', $result);
-	}
 
-	public function testCensorWordMultipleWords(): void
-	{
-		// Multiple words should be censored
-		$str = 'This is a bad word and another ugly thing';
-		$censored = ['bad', 'ugly'];
-		$result = Str::censorWord($str, $censored);
+		// Multiple words censored
+		$result = Str::censorWord('This is a bad word and another ugly thing', ['bad', 'ugly']);
 		$this->assertSame('This is a #### word and another #### thing', $result);
-	}
 
-	public function testCensorWordWithWildcards(): void
-	{
-		// Wildcards should match multiple words
-		$str = 'This is a badword and another bad thing';
-		$censored = ['bad*'];
-		$result = Str::censorWord($str, $censored);
+		// Wildcard matching
+		$result = Str::censorWord('This is a badword and another bad thing', ['bad*']);
 		$this->assertSame('This is a #### and another #### thing', $result);
-	}
 
-	public function testCensorWordCaseSensitive(): void
-	{
-		// Should be case-insensitive by default
-		$str = 'This is a BAD word and a Bad thing';
-		$censored = ['bad'];
-		$result = Str::censorWord($str, $censored);
+		// Case-insensitive by default
+		$result = Str::censorWord('This is a BAD word and a Bad thing', ['bad']);
 		$this->assertSame('This is a #### word and a #### thing', $result);
-	}
 
-	public function testCensorWordEmptyList(): void
-	{
-		// Empty censored list should not change the string
-		$str = 'This is a bad word';
-		$censored = [];
-		$result = Str::censorWord($str, $censored);
+		// Empty censored list — string unchanged
+		$result = Str::censorWord('This is a bad word', []);
 		$this->assertSame('This is a bad word', $result);
-	}
 
-	public function testCensorWordCustomReplacementEmpty(): void
-	{
-		// Empty replacement should use hashes matching word length
-		$str = 'This is a bad word';
-		$censored = ['bad'];
-		$result = Str::censorWord($str, $censored, '');
+		// Empty replacement — should use hash characters matching word length
+		$result = Str::censorWord('This is a bad word', ['bad'], '');
 		$this->assertStringContainsString('###', $result);
-	}
 
-	public function testCensorWordAtStartAndEnd(): void
-	{
-		// Words at start and end of sentence should be censored
-		$str = 'bad word in the middle and ugly';
-		$censored = ['bad', 'ugly'];
-		$result = Str::censorWord($str, $censored);
+		// Words at start and end of sentence
+		$result = Str::censorWord('bad word in the middle and ugly', ['bad', 'ugly']);
 		$this->assertStringContainsString('####', $result);
 		$this->assertStringStartsWith('####', $result);
 		$this->assertStringEndsWith('####', $result);
@@ -627,10 +532,8 @@ final class StrTest extends TestCase
 		$this->assertSame('eeee', Str::removeAccents('éèêë'));
 		$this->assertSame('aaaa', Str::removeAccents('àâäã'));
 		$this->assertSame('AEOoe', Str::removeAccents('ÆØœ'));
-	}
 
-	public function testRemoveAccentsNoAccents(): void
-	{
+		// String without accents should be unchanged
 		$this->assertSame('Hello World', Str::removeAccents('Hello World'));
 	}
 
@@ -712,13 +615,8 @@ final class StrTest extends TestCase
 		$this->assertTrue(Str::checkForNumericCharacters('12345', 3, 10));
 		$this->assertFalse(Str::checkForNumericCharacters('123a5', 3, 10));
 		$this->assertFalse(Str::checkForNumericCharacters('12', 3, 10));
-	}
 
-	/**
-	 * @deprecated Tests for checkForNumericCharacters() with canStartWithZero - Use isNumericWithLength() instead
-	 */
-	public function testCheckForNumericCharactersStartWithZeroDeprecated(): void
-	{
+		// Leading zero handling
 		$this->assertTrue(Str::checkForNumericCharacters('01234', 3, 10, canStartWithZero: true));
 		$this->assertFalse(Str::checkForNumericCharacters('01234', 3, 10, canStartWithZero: false));
 	}

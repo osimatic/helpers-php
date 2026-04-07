@@ -660,6 +660,31 @@ class Str
 	}
 
 	/**
+	 * Removes all emoji characters from a string, including composed sequences
+	 * (ZWJ sequences, variation selectors, regional indicator symbols).
+	 *
+	 * @link https://unicode.org/reports/tr51/ Unicode Emoji specification
+	 * @param string $str The input string
+	 * @return string The string with all emojis removed
+	 */
+	public static function removeEmoji(string $str): string
+	{
+		// Remove extended pictographic (covers most modern emojis)
+		$str = preg_replace('/\p{Extended_Pictographic}/u', '', $str);
+
+		// Remove ZWJ (zero-width joiner used in composed emojis like 👨‍👩‍👧)
+		$str = preg_replace('/\x{200D}/u', '', $str);
+
+		// Remove variation selectors (e.g., U+FE0F used to render text as emoji)
+		$str = preg_replace('/\x{FE0F}/u', '', $str);
+
+		// Remove regional indicator symbols (flag emojis: 🇫🇷, 🇺🇸, etc.)
+		$str = preg_replace('/[\x{1F1E0}-\x{1F1FF}]/u', '', $str);
+
+		return $str;
+	}
+
+	/**
 	 * Replaces special Unicode characters with their ASCII equivalents or removes them.
 	 * Handles various Unicode spaces, zero-width characters, special quotation marks, dashes, and other typographic characters.
 	 * @param string $str The string to process
