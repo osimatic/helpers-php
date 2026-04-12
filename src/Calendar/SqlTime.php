@@ -132,17 +132,22 @@ class SqlTime
 
 	/**
 	 * Converts a SQL TIME string to a DateTime object.
-	 * Uses today's date with the given time.
+	 * Uses the provided reference date, or today's date if none is given.
+	 * Providing the actual date is recommended when the timezone observes DST,
+	 * to ensure the correct UTC offset is applied.
 	 * @param string $sqlTime SQL TIME format string
+	 * @param string|null $referenceDate Reference date in 'Y-m-d' format (defaults to today)
 	 * @return \DateTime|null DateTime object, or null if parsing fails
 	 */
-	public static function toDateTime(string $sqlTime): ?\DateTime
+	public static function toDateTime(string $sqlTime, ?string $referenceDate = null): ?\DateTime
 	{
 		if (empty($sqlTime) || !self::isValid($sqlTime)) {
 			return null;
 		}
 
-		return DateTime::parseFromSqlDateTime(date('Y-m-d').' '.$sqlTime);
+		$date = $referenceDate ?? date('Y-m-d');
+
+		return DateTime::parseFromSqlDateTime($date.' '.$sqlTime);
 	}
 
 	/**
