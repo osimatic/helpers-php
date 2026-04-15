@@ -450,12 +450,21 @@ class DateTime
 	/**
 	 * Converts a DateTime to UTC timezone and returns SQL TIME format.
 	 * Creates a clone to avoid modifying the original DateTime.
+	 * If the DateTime has the Unix epoch date (1970-01-01), the date is normalized to today
+	 * before conversion to ensure correct DST offset (DST rules in 1970 may differ from today).
 	 * @param \DateTime|null $dateTime The DateTime to convert
 	 * @return string|null SQL TIME format string (HH:MM:SS) in UTC, or null if input is null
 	 */
 	public static function getUTCSqlTime(?\DateTime $dateTime): ?string
 	{
-		return null !== $dateTime ? (clone $dateTime)->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s') : null;
+		if (null === $dateTime) {
+			return null;
+		}
+		$dt = clone $dateTime;
+		if ($dt->format('Y-m-d') === '1970-01-01') {
+			$dt->setDate((int) date('Y'), (int) date('m'), (int) date('d'));
+		}
+		return $dt->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s');
 	}
 
 	/**

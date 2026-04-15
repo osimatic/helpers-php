@@ -403,6 +403,17 @@ final class DateTimeTest extends TestCase
 		$this->assertIsString($utcTime);
 		$this->assertMatchesRegularExpression('/^\d{2}:\d{2}:\d{2}$/', $utcTime);
 
+		// Epoch date (1970-01-01): must be normalized to today before DST conversion
+		$epochDateTime = new \DateTime('1970-01-01 14:30:00', new \DateTimeZone('Europe/Paris'));
+		$utcEpochTime = DateTime::getUTCSqlTime($epochDateTime);
+		$this->assertIsString($utcEpochTime);
+		$this->assertMatchesRegularExpression('/^\d{2}:\d{2}:\d{2}$/', $utcEpochTime);
+		// Result must differ from naive conversion (which would use 1970 DST rules)
+		$naiveUtcTime = (clone $epochDateTime)->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s');
+		$normalizedDateTime = (clone $epochDateTime)->setDate((int) date('Y'), (int) date('m'), (int) date('d'));
+		$expectedUtcTime = (clone $normalizedDateTime)->setTimezone(new \DateTimeZone('UTC'))->format('H:i:s');
+		$this->assertSame($expectedUtcTime, $utcEpochTime);
+
 		$this->assertNull(DateTime::getUTCSqlTime(null));
 	}
 
