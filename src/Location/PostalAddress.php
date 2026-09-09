@@ -278,6 +278,9 @@ class PostalAddress
 		// Numero sign sometimes used for street number (e.g., Réunion addresses from Google Maps, coordinates -21.0506425,55.2241411)
 		$value = str_replace('№', 'N°', $value);
 
+		// Country name sometimes returned in Cyrillic by Google Maps geocoding (e.g., "Франция" for France)
+		$value = str_replace('Франция', 'France', $value);
+
 		return \Osimatic\Text\Str::replaceAnnoyingChar($value);
 	}
 
