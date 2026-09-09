@@ -67,9 +67,64 @@ class LocalFileStorage implements FileStorageInterface
 		return $content;
 	}
 
+	public function metadata(string $key): ?array
+	{
+		$path = $this->getPath($key);
+		if (!file_exists($path)) {
+			return null;
+		}
+
+		return [
+			'size' => filesize($path),
+			'mimeType' => File::getMimeTypeForFile($path),
+		];
+	}
+
 	public function exists(string $key): bool
 	{
 		return file_exists($this->getPath($key));
+	}
+
+	public function copy(string $sourceKey, string $destinationKey): bool
+	{
+		$sourcePath = $this->getPath($sourceKey);
+		if (!file_exists($sourcePath)) {
+			return false;
+		}
+
+		$destinationPath = $this->getPath($destinationKey);
+		FileSystem::createDirectories($destinationPath);
+
+		if (!copy($sourcePath, $destinationPath)) {
+			$this->logger->error('Failed to copy file within local storage.', [
+				'sourceKey' => $sourceKey,
+				'destinationKey' => $destinationKey,
+			]);
+			return false;
+		}
+
+		return true;
+	}
+
+	public function rename(string $sourceKey, string $destinationKey): bool
+	{
+		$sourcePath = $this->getPath($sourceKey);
+		if (!file_exists($sourcePath)) {
+			return false;
+		}
+
+		$destinationPath = $this->getPath($destinationKey);
+		FileSystem::createDirectories($destinationPath);
+
+		if (!rename($sourcePath, $destinationPath)) {
+			$this->logger->error('Failed to rename file within local storage.', [
+				'sourceKey' => $sourceKey,
+				'destinationKey' => $destinationKey,
+			]);
+			return false;
+		}
+
+		return true;
 	}
 
 	public function delete(string $key): bool

@@ -25,6 +25,13 @@ interface FileStorageInterface
 	public function read(string $key): ?string;
 
 	/**
+	 * Returns metadata (size in bytes, MIME type) for the file stored under the given key.
+	 * @param string $key The storage key of the file
+	 * @return array{size: int, mimeType: string}|null null if the file does not exist or could not be read
+	 */
+	public function metadata(string $key): ?array;
+
+	/**
 	 * Checks whether a file exists in the storage for the given key.
 	 * @param string $key The storage key to check
 	 * @return bool True if the file exists, false otherwise
@@ -37,6 +44,22 @@ interface FileStorageInterface
 	 * @return bool True on success, false on failure
 	 */
 	public function delete(string $key): bool;
+
+	/**
+	 * Copies a file within the storage from one key to another, keeping the source file in place.
+	 * @param string $sourceKey The storage key of the file to copy
+	 * @param string $destinationKey The storage key to copy the file to
+	 * @return bool True on success, false on failure
+	 */
+	public function copy(string $sourceKey, string $destinationKey): bool;
+
+	/**
+	 * Renames (moves) a file within the storage from one key to another.
+	 * @param string $sourceKey The current storage key of the file
+	 * @param string $destinationKey The new storage key of the file
+	 * @return bool True on success, false on failure
+	 */
+	public function rename(string $sourceKey, string $destinationKey): bool;
 
 	/**
 	 * Returns the publicly accessible URL for the file stored under the given key.

@@ -75,12 +75,55 @@ class S3FileStorage implements FileStorageInterface
 		}
 	}
 
+	public function metadata(string $key): ?array
+	{
+		try {
+			$result = $this->client->headObject([
+				'Bucket' => $this->bucket,
+				'Key' => $key,
+			]);
+
+			return [
+				'size' => $result->getContentLength(),
+				'mimeType' => $result->getContentType(),
+			];
+		} catch (HttpException) {
+			return null;
+		}
+	}
+
 	public function exists(string $key): bool
 	{
 		return $this->client->objectExists([
 			'Bucket' => $this->bucket,
 			'Key' => $key,
 		])->isSuccess();
+	}
+
+	public function copy(string $sourceKey, string $destinationKey): bool
+	{
+		try {
+			$this->client->copyObject([
+				'Bucket' => $this->bucket,
+				'Key' => $destinationKey,
+				'CopySource' => $this->bucket.'/'.implode('/', array_map('rawurlencode', explode('/', $sourceKey))),
+			])->resolve();
+		} catch (HttpException $e) {
+			$this->logger->error('Failed to copy file within S3 storage.', [
+				'bucket' => $this->bucket,
+				'sourceKey' => $sourceKey,
+				'destinationKey' => $destinationKey,
+				'error' => $e->getMessage(),
+			]);
+			return false;
+		}
+
+		return true;
+	}
+
+	public function rename(string $sourceKey, string $destinationKey): bool
+	{
+		return $this->copy($sourceKey, $destinationKey) && $this->delete($sourceKey);
 	}
 
 	public function delete(string $key): bool
